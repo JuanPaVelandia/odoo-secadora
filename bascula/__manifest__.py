@@ -30,6 +30,7 @@
         'views/lugar_views.xml',
         'views/pesaje_views.xml',
         'views/pesaje_report.xml',
+        'views/res_config_settings_views.xml',
         'views/menu_views.xml',
     ],
     'installable': True,

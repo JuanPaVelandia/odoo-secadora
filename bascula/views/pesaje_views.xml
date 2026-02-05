@@ -46,6 +46,24 @@
                             </group>
 
                             <group string="Pesaje">
+                                <!-- Peso en vivo desde báscula -->
+                                <div class="alert alert-success" style="padding: 15px; background-color: #d4edda; border: 2px solid #28a745;"
+                                     invisible="not escuchando_bascula">
+                                    <div style="text-align: center;">
+                                        <strong style="font-size: 14px;">🟢 PESO ACTUAL DESDE BÁSCULA</strong><br/>
+                                        <span style="font-size: 48px; font-weight: bold; color: #28a745;">
+                                            <field name="peso_actual" nolabel="1" readonly="1"/> Kg
+                                        </span><br/>
+                                        <small style="color: #666;">Se actualiza automáticamente cada segundo</small>
+                                    </div>
+                                    <button name="action_usar_peso_actual"
+                                            string="✓ Usar Este Peso"
+                                            type="object"
+                                            class="btn-success"
+                                            style="margin-top: 10px; width: 100%;"/>
+                                </div>
+                                <field name="escuchando_bascula" invisible="1"/>
+
                                 <field name="peso_bruto"
                                        help="ENTRADA: 1ª pesada (lleno) | SALIDA: 2ª pesada (lleno)"/>
                                 <field name="peso_tara"

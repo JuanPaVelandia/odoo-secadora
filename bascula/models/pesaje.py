@@ -111,6 +111,17 @@ class SecadoraPesaje(models.Model):
     )
 
     # Pesaje
+    peso_actual = fields.Float(
+        string='Peso Actual (Kg)',
+        help='Peso en tiempo real desde la báscula',
+        digits=(12, 2),
+        readonly=True
+    )
+    escuchando_bascula = fields.Boolean(
+        string='Escuchando Báscula',
+        default=False,
+        help='Indica si el sistema está recibiendo peso de la báscula'
+    )
     peso_bruto = fields.Float(
         string='Peso Bruto (Kg)',
         help='Primera pesada - Vehículo lleno',
@@ -245,3 +256,93 @@ class SecadoraPesaje(models.Model):
     def action_borrador(self):
         for record in self:
             record.state = 'borrador'
+
+    # ===== MÉTODOS PARA INTEGRACIÓN CON BÁSCULA =====
+
+    @api.model
+    def actualizar_peso_bascula(self, pesaje_id, peso, api_key):
+        """
+        Método llamado por el bridge externo para actualizar el peso en tiempo real
+
+        Args:
+            pesaje_id: ID del pesaje activo
+            peso: Peso actual en kg
+            api_key: Clave de autenticación
+
+        Returns:
+            dict: {'success': bool, 'peso': float, 'message': str}
+        """
+        # Validar API Key
+        api_key_config = self.env['ir.config_parameter'].sudo().get_param('bascula.api_key', '')
+        if not api_key_config or api_key != api_key_config:
+            return {'success': False, 'message': 'API Key inválida'}
+
+        try:
+            pesaje = self.browse(pesaje_id)
+            if not pesaje.exists():
+                return {'success': False, 'message': 'Pesaje no encontrado'}
+
+            # Actualizar peso actual
+            pesaje.sudo().write({'peso_actual': peso, 'escuchando_bascula': True})
+
+            return {
+                'success': True,
+                'peso': peso,
+                'message': 'Peso actualizado correctamente'
+            }
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    @api.model
+    def obtener_pesaje_activo(self, api_key):
+        """
+        Obtiene el pesaje que está actualmente esperando pesaje
+
+        Args:
+            api_key: Clave de autenticación
+
+        Returns:
+            dict: {'success': bool, 'pesaje_id': int, 'state': str}
+        """
+        # Validar API Key
+        api_key_config = self.env['ir.config_parameter'].sudo().get_param('bascula.api_key', '')
+        if not api_key_config or api_key != api_key_config:
+            return {'success': False, 'message': 'API Key inválida'}
+
+        # Buscar pesaje en borrador o en tránsito (más reciente)
+        pesaje = self.search([
+            ('state', 'in', ['borrador', 'en_transito'])
+        ], order='id desc', limit=1)
+
+        if pesaje:
+            return {
+                'success': True,
+                'pesaje_id': pesaje.id,
+                'state': pesaje.state,
+                'tipo_proceso': pesaje.tipo_proceso,
+                'placa': pesaje.placa_texto or ''
+            }
+        else:
+            return {
+                'success': False,
+                'message': 'No hay pesajes activos esperando pesaje'
+            }
+
+    def action_usar_peso_actual(self):
+        """Usar el peso actual de la báscula y asignarlo al campo correspondiente"""
+        for record in self:
+            if record.peso_actual <= 0:
+                raise UserError('No hay peso actual de la báscula disponible.')
+
+            if record.state == 'borrador':
+                # Asignar a peso bruto (entrada) o peso tara (salida)
+                if record.tipo_proceso == 'entrada':
+                    record.peso_bruto = record.peso_actual
+                else:
+                    record.peso_tara = record.peso_actual
+            elif record.state == 'en_transito':
+                # Asignar a peso tara (entrada) o peso bruto (salida)
+                if record.tipo_proceso == 'entrada':
+                    record.peso_tara = record.peso_actual
+                else:
+                    record.peso_bruto = record.peso_actual

@@ -6,3 +6,4 @@ from . import transportadora
 from . import variedad_arroz
 from . import lugar
 from . import pesaje
+from . import res_config_settings
