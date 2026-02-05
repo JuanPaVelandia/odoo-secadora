@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista List de Lugares -->
+        <record id="view_secadora_lugar_list" model="ir.ui.view">
+            <field name="name">secadora.lugar.list</field>
+            <field name="model">secadora.lugar</field>
+            <field name="arch" type="xml">
+                <list string="Lugares">
+                    <field name="name"/>
+                    <field name="tipo"/>
+                    <field name="municipio"/>
+                    <field name="departamento"/>
+                    <field name="contacto"/>
+                    <field name="telefono"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Form de Lugares -->
+        <record id="view_secadora_lugar_form" model="ir.ui.view">
+            <field name="name">secadora.lugar.form</field>
+            <field name="model">secadora.lugar</field>
+            <field name="arch" type="xml">
+                <form string="Lugar">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" placeholder="Ej: Finca La Esperanza"/>
+                                <field name="tipo"/>
+                                <field name="codigo"/>
+                            </group>
+                            <group>
+                                <field name="municipio"/>
+                                <field name="departamento"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="direccion" placeholder="Dirección completa..."/>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="contacto"/>
+                                <field name="telefono"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="notes" placeholder="Notas adicionales..."/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Search de Lugares -->
+        <record id="view_secadora_lugar_search" model="ir.ui.view">
+            <field name="name">secadora.lugar.search</field>
+            <field name="model">secadora.lugar</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Lugares">
+                    <field name="name"/>
+                    <field name="tipo"/>
+                    <field name="municipio"/>
+                    <field name="departamento"/>
+                    <filter string="Activos" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Inactivos" name="inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="Fincas" name="filter_finca" domain="[('tipo', '=', 'finca')]"/>
+                    <filter string="Bodegas" name="filter_bodega" domain="[('tipo', '=', 'bodega')]"/>
+                    <filter string="Plantas" name="filter_planta" domain="[('tipo', '=', 'planta')]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Tipo" name="group_tipo" context="{'group_by': 'tipo'}"/>
+                        <filter string="Municipio" name="group_municipio" context="{'group_by': 'municipio'}"/>
+                        <filter string="Departamento" name="group_departamento" context="{'group_by': 'departamento'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción de Lugares -->
+        <record id="action_secadora_lugar" model="ir.actions.act_window">
+            <field name="name">Lugares</field>
+            <field name="res_model">secadora.lugar</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_active': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear un nuevo lugar
+                </p>
+                <p>
+                    Registre lugares de origen y destino (fincas, bodegas, plantas, etc.).
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

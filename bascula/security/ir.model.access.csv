@@ -7,5 +7,7 @@ access_secadora_transportadora_basculero,secadora.transportadora.basculero,model
 access_secadora_transportadora_admin,secadora.transportadora.admin,model_secadora_transportadora,group_bascula_admin,1,1,1,1
 access_secadora_variedad_arroz_basculero,secadora.variedad.arroz.basculero,model_secadora_variedad_arroz,group_basculero,1,1,1,0
 access_secadora_variedad_arroz_admin,secadora.variedad.arroz.admin,model_secadora_variedad_arroz,group_bascula_admin,1,1,1,1
+access_secadora_lugar_basculero,secadora.lugar.basculero,model_secadora_lugar,group_basculero,1,1,1,0
+access_secadora_lugar_admin,secadora.lugar.admin,model_secadora_lugar,group_bascula_admin,1,1,1,1
 access_secadora_pesaje_basculero,secadora.pesaje.basculero,model_secadora_pesaje,group_basculero,1,1,1,0
 access_secadora_pesaje_admin,secadora.pesaje.admin,model_secadora_pesaje,group_bascula_admin,1,1,1,1

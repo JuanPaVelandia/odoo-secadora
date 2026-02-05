@@ -69,5 +69,11 @@
                   action="action_secadora_variedad_arroz"
                   sequence="40"/>
 
+        <menuitem id="menu_bascula_lugares"
+                  name="Lugares (Origen/Destino)"
+                  parent="menu_bascula_configuracion"
+                  action="action_secadora_lugar"
+                  sequence="50"/>
+
     </data>
 </odoo>

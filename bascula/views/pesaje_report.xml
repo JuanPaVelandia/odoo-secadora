@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Acción de impresión -->
+        <record id="action_report_pesaje_tiquete" model="ir.actions.report">
+            <field name="name">Tiquete de Pesaje</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">bascula.report_pesaje_tiquete_document</field>
+            <field name="report_file">bascula.report_pesaje_tiquete_document</field>
+            <field name="binding_model_id" ref="model_secadora_pesaje"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Tiquete - %s' % (object.name)</field>
+        </record>
+
+        <!-- Plantilla del tiquete -->
+        <template id="report_pesaje_tiquete_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: Arial, sans-serif;">
+                            <!-- Encabezado -->
+                            <div class="text-center" style="border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                                <h2 style="margin: 0;"><strong>Secadora La Gran Colombia S.A.S</strong></h2>
+                                <h3 style="margin: 5px 0;">TIQUETE DE PESAJE</h3>
+                                <p style="margin: 5px 0;">
+                                    <strong>No. <span t-field="o.name"/></strong>
+                                </p>
+                            </div>
+
+                            <!-- Información general -->
+                            <div class="row" style="margin-bottom: 15px;">
+                                <div class="col-6">
+                                    <strong>Fecha:</strong> <span t-field="o.fecha"/><br/>
+                                    <strong>Tipo:</strong> <span t-field="o.tipo_proceso"/><br/>
+                                    <strong>Estado:</strong> <span t-field="o.state"/>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Entrada:</strong> <span t-field="o.hora_entrada"/><br/>
+                                    <strong>Salida:</strong> <span t-field="o.hora_salida"/>
+                                </div>
+                            </div>
+
+                            <hr/>
+
+                            <!-- Información del vehículo -->
+                            <div style="margin-bottom: 15px;">
+                                <h4 style="background-color: #f0f0f0; padding: 5px;"><strong>Información del Vehículo</strong></h4>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Placa:</strong> <span t-field="o.vehiculo_id"/><br/>
+                                        <strong>Conductor:</strong> <span t-field="o.conductor_id"/><br/>
+                                        <strong>Cédula:</strong> <span t-field="o.cedula_conductor"/>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Transportadora:</strong> <span t-field="o.transportadora_id"/><br/>
+                                        <strong>Tercero:</strong> <span t-field="o.tercero_id"/><br/>
+                                        <strong>NIT/CC:</strong> <span t-field="o.nit_tercero"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr/>
+
+                            <!-- Origen y Destino -->
+                            <div style="margin-bottom: 15px;">
+                                <h4 style="background-color: #f0f0f0; padding: 5px;"><strong>Origen y Destino</strong></h4>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Origen:</strong> <span t-field="o.origen_id"/><br/>
+                                        <strong>Lote:</strong> <span t-field="o.lote_finca"/>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Destino:</strong> <span t-field="o.destino_id"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr/>
+
+                            <!-- PESAJE (destacado) -->
+                            <div style="margin-bottom: 15px; border: 3px solid #000; padding: 15px; background-color: #f9f9f9;">
+                                <h4 style="text-align: center; margin-top: 0;"><strong>PESAJE</strong></h4>
+                                <table class="table table-borderless" style="font-size: 16px;">
+                                    <tr>
+                                        <td style="width: 50%;"><strong>Peso Bruto:</strong></td>
+                                        <td style="text-align: right;"><strong><span t-field="o.peso_bruto"/> Kg</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Peso Tara:</strong></td>
+                                        <td style="text-align: right;"><strong><span t-field="o.peso_tara"/> Kg</strong></td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #000;">
+                                        <td><h3 style="margin: 10px 0;"><strong>Peso Neto:</strong></h3></td>
+                                        <td style="text-align: right;"><h3 style="margin: 10px 0; color: #00A09D;"><strong><span t-field="o.peso_neto"/> Kg</strong></h3></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <hr/>
+
+                            <!-- Producto y Calidad -->
+                            <div style="margin-bottom: 15px;">
+                                <h4 style="background-color: #f0f0f0; padding: 5px;"><strong>Producto y Calidad</strong></h4>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Producto:</strong> <span t-field="o.producto_id"/><br/>
+                                        <strong>Variedad:</strong> <span t-field="o.variedad_id"/><br/>
+                                        <strong>Bultos:</strong> <span t-field="o.bultos"/>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Humedad:</strong> <span t-field="o.humedad"/>%<br/>
+                                        <strong>Grano Partido:</strong> <span t-field="o.grano_partido"/>%<br/>
+                                        <strong>Impurezas:</strong> <span t-field="o.impurezas"/>%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Observaciones -->
+                            <t t-if="o.observaciones">
+                                <hr/>
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Observaciones:</strong><br/>
+                                    <span t-field="o.observaciones"/>
+                                </div>
+                            </t>
+
+                            <!-- Firmas -->
+                            <div class="row" style="margin-top: 50px;">
+                                <div class="col-6 text-center">
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 20px;">
+                                        Firma del Basculero
+                                    </div>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 20px;">
+                                        Firma del Conductor
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="text-center" style="margin-top: 30px; font-size: 10px; color: #666;">
+                                <p>Este documento es una constancia del pesaje realizado</p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

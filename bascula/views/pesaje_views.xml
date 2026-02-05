@@ -40,9 +40,9 @@
                                 <field name="nit_tercero" readonly="1"/>
                                 <field name="conductor_id"/>
                                 <field name="transportadora_id"/>
-                                <field name="origen" placeholder="Nombre de la finca"/>
+                                <field name="origen_id"/>
                                 <field name="lote_finca" placeholder="Ej: 180, La Esperanza"/>
-                                <field name="destino"/>
+                                <field name="destino_id"/>
                             </group>
 
                             <group string="Pesaje">

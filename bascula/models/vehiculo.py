@@ -62,9 +62,7 @@ class SecadoraVehiculo(models.Model):
     def name_get(self):
         result = []
         for record in self:
-            name = record.placa
-            if record.tipo_vehiculo:
-                tipo = dict(self._fields['tipo_vehiculo'].selection).get(record.tipo_vehiculo)
-                name = f"{record.placa} ({tipo})"
+            # Solo mostrar la placa, sin tipo de vehículo
+            name = record.placa or 'Sin placa'
             result.append((record.id, name))
         return result

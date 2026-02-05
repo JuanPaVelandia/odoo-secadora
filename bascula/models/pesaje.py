@@ -79,15 +79,20 @@ class SecadoraPesaje(models.Model):
     )
 
     # Origen y destino
-    origen = fields.Char(
-        string='Origen (Finca)',
-        help='Nombre de la finca de origen'
+    origen_id = fields.Many2one(
+        'secadora.lugar',
+        string='Origen',
+        help='Lugar de origen (finca, bodega, etc.)'
     )
     lote_finca = fields.Char(
-        string='Lote Finca',
-        help='Lote dentro de la finca (ej: 180, La Esperanza)'
+        string='Lote',
+        help='Lote o número específico (ej: 180, La Esperanza)'
     )
-    destino = fields.Char(string='Destino')
+    destino_id = fields.Many2one(
+        'secadora.lugar',
+        string='Destino',
+        help='Lugar de destino (finca, bodega, etc.)'
+    )
 
     # Producto
     producto_id = fields.Many2one(
