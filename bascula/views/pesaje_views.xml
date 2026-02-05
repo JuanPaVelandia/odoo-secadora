@@ -30,11 +30,11 @@
 
                         <group>
                             <group string="Información del Vehículo">
-                                <field name="vehiculo_id" options="{'no_create': True, 'no_create_edit': True}"/>
-                                <field name="tercero_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="vehiculo_id"/>
+                                <field name="tercero_id"/>
                                 <field name="nit_tercero" readonly="1"/>
-                                <field name="conductor_id" options="{'no_create': True, 'no_create_edit': True}"/>
-                                <field name="transportadora_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="conductor_id"/>
+                                <field name="transportadora_id"/>
                                 <field name="origen" placeholder="Nombre de la finca"/>
                                 <field name="lote_finca" placeholder="Ej: 180, La Esperanza"/>
                                 <field name="destino"/>
@@ -53,7 +53,7 @@
                         <group string="Producto y Calidad">
                             <group>
                                 <field name="producto" placeholder="Ej: Arroz Paddy Verde"/>
-                                <field name="variedad_id" options="{'no_create': True, 'no_create_edit': True}"/>
+                                <field name="variedad_id"/>
                             </group>
                             <group>
                                 <field name="humedad"/>
