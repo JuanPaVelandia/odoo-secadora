@@ -20,6 +20,11 @@
                         <field name="state" widget="statusbar" statusbar_visible="borrador,en_transito,completado"/>
                     </header>
                     <sheet>
+                        <div class="alert alert-info" role="alert" style="margin-bottom: 10px;">
+                            <strong>Flujo de pesaje:</strong><br/>
+                            <b>ENTRADA (Compra):</b> 1ª pesada = Peso Bruto (lleno) → 2ª pesada = Peso Tara (vacío)<br/>
+                            <b>SALIDA (Venta):</b> 1ª pesada = Peso Tara (vacío) → 2ª pesada = Peso Bruto (lleno)
+                        </div>
                         <group>
                             <group>
                                 <field name="tipo_proceso" widget="radio"/>
@@ -41,8 +46,10 @@
                             </group>
 
                             <group string="Pesaje">
-                                <field name="peso_bruto"/>
-                                <field name="peso_tara"/>
+                                <field name="peso_bruto"
+                                       help="ENTRADA: 1ª pesada (lleno) | SALIDA: 2ª pesada (lleno)"/>
+                                <field name="peso_tara"
+                                       help="ENTRADA: 2ª pesada (vacío) | SALIDA: 1ª pesada (vacío)"/>
                                 <field name="peso_neto" readonly="1"
                                        style="font-size: 24px; font-weight: bold; color: #00A09D;"/>
                                 <field name="hora_entrada" readonly="1"/>

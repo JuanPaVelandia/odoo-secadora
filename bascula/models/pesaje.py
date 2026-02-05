@@ -168,8 +168,17 @@ class SecadoraPesaje(models.Model):
         for record in self:
             if record.state != 'borrador':
                 raise UserError('Solo se puede registrar la primera pesada en estado borrador.')
-            if not record.peso_bruto or record.peso_bruto <= 0:
-                raise UserError('Debe ingresar un peso bruto válido.')
+
+            # Validación según tipo de proceso
+            if record.tipo_proceso == 'entrada':
+                # Entrada: 1ª pesada = peso bruto (camión lleno)
+                if not record.peso_bruto or record.peso_bruto <= 0:
+                    raise UserError('Debe ingresar el peso bruto (camión lleno) para entrada.')
+            else:
+                # Salida: 1ª pesada = peso tara (camión vacío)
+                if not record.peso_tara or record.peso_tara <= 0:
+                    raise UserError('Debe ingresar el peso tara (camión vacío) para salida.')
+
             record.write({
                 'hora_entrada': fields.Datetime.now(),
                 'state': 'en_transito'
@@ -179,10 +188,26 @@ class SecadoraPesaje(models.Model):
         for record in self:
             if record.state != 'en_transito':
                 raise UserError('Solo se puede registrar la segunda pesada en estado en tránsito.')
-            if not record.peso_tara or record.peso_tara <= 0:
-                raise UserError('Debe ingresar un peso tara válido.')
-            if record.peso_tara >= record.peso_bruto:
-                raise UserError('El peso tara debe ser menor que el peso bruto.')
+
+            # Validación según tipo de proceso
+            if record.tipo_proceso == 'entrada':
+                # Entrada: 2ª pesada = peso tara (camión vacío)
+                if not record.peso_tara or record.peso_tara <= 0:
+                    raise UserError('Debe ingresar el peso tara (camión vacío).')
+                if not record.peso_bruto or record.peso_bruto <= 0:
+                    raise UserError('Debe tener registrado el peso bruto de la primera pesada.')
+            else:
+                # Salida: 2ª pesada = peso bruto (camión lleno)
+                if not record.peso_bruto or record.peso_bruto <= 0:
+                    raise UserError('Debe ingresar el peso bruto (camión lleno).')
+                if not record.peso_tara or record.peso_tara <= 0:
+                    raise UserError('Debe tener registrado el peso tara de la primera pesada.')
+
+            # Validar que el peso neto no sea negativo
+            peso_neto_calc = record.peso_bruto - record.peso_tara
+            if peso_neto_calc <= 0:
+                raise UserError(f'El peso neto no puede ser negativo o cero. Peso bruto: {record.peso_bruto} kg, Peso tara: {record.peso_tara} kg')
+
             record.write({
                 'hora_salida': fields.Datetime.now(),
                 'state': 'completado'
