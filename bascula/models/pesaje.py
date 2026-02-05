@@ -1,0 +1,196 @@
+# -*- coding: utf-8 -*-
+
+from odoo import models, fields, api
+from odoo.exceptions import UserError
+
+
+class SecadoraPesaje(models.Model):
+    _name = 'secadora.pesaje'
+    _description = 'Registro de Pesaje'
+    _order = 'name desc'
+
+    # Información básica
+    name = fields.Char(
+        string='Número',
+        required=True,
+        copy=False,
+        readonly=True,
+        index=True,
+        default=lambda self: 'Nuevo'
+    )
+    fecha = fields.Date(
+        string='Fecha',
+        required=True,
+        default=fields.Date.context_today,
+        index=True
+    )
+    hora_entrada = fields.Datetime(string='Hora Entrada')
+    hora_salida = fields.Datetime(string='Hora Salida')
+    tipo_proceso = fields.Selection([
+        ('entrada', 'Entrada (Compra)'),
+        ('salida', 'Salida (Venta/Despacho)'),
+    ], string='Tipo de Proceso', required=True, default='entrada', index=True)
+    state = fields.Selection([
+        ('borrador', 'Borrador'),
+        ('en_transito', 'En Tránsito'),
+        ('completado', 'Completado'),
+        ('cancelado', 'Cancelado'),
+    ], string='Estado', default='borrador', required=True, index=True)
+
+    # Vehículo y transporte
+    vehiculo_id = fields.Many2one(
+        'secadora.vehiculo',
+        string='Vehículo',
+        required=True,
+        index=True
+    )
+    placa_texto = fields.Char(
+        string='Placa',
+        related='vehiculo_id.placa',
+        store=True,
+        readonly=True
+    )
+    conductor_id = fields.Many2one(
+        'secadora.conductor',
+        string='Conductor'
+    )
+    cedula_conductor = fields.Char(
+        string='Cédula Conductor',
+        related='conductor_id.cedula',
+        readonly=True
+    )
+    transportadora_id = fields.Many2one(
+        'secadora.transportadora',
+        string='Transportadora'
+    )
+
+    # Tercero (agricultor/cliente)
+    tercero_id = fields.Many2one(
+        'res.partner',
+        string='Tercero (Agricultor/Cliente)',
+        required=True,
+        index=True
+    )
+    nit_tercero = fields.Char(
+        string='NIT/CC',
+        compute='_compute_nit_tercero',
+        store=True,
+        readonly=True
+    )
+
+    # Origen y destino
+    origen = fields.Char(
+        string='Origen (Finca)',
+        help='Nombre de la finca de origen'
+    )
+    lote_finca = fields.Char(
+        string='Lote Finca',
+        help='Lote dentro de la finca (ej: 180, La Esperanza)'
+    )
+    destino = fields.Char(string='Destino')
+
+    # Producto
+    producto = fields.Char(
+        string='Producto',
+        help='Ej: Arroz Paddy Verde'
+    )
+    variedad_id = fields.Many2one(
+        'secadora.variedad.arroz',
+        string='Variedad de Arroz'
+    )
+
+    # Pesaje
+    peso_bruto = fields.Float(
+        string='Peso Bruto (Kg)',
+        help='Primera pesada - Vehículo lleno',
+        digits=(12, 2)
+    )
+    peso_tara = fields.Float(
+        string='Peso Tara (Kg)',
+        help='Segunda pesada - Vehículo vacío',
+        digits=(12, 2)
+    )
+    peso_neto = fields.Float(
+        string='Peso Neto (Kg)',
+        compute='_compute_peso_neto',
+        store=True,
+        readonly=True,
+        digits=(12, 2)
+    )
+
+    # Calidad
+    humedad = fields.Float(
+        string='Humedad (%)',
+        digits=(5, 2)
+    )
+    grano_partido = fields.Float(
+        string='Grano Partido (%)',
+        digits=(5, 2)
+    )
+    impurezas = fields.Float(
+        string='Impurezas (%)',
+        digits=(5, 2)
+    )
+
+    # Remisión
+    bultos = fields.Integer(string='Bultos')
+    precio = fields.Float(
+        string='Precio',
+        digits=(12, 2)
+    )
+    plazo = fields.Char(string='Plazo')
+    observaciones = fields.Text(string='Observaciones')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('name', 'Nuevo') == 'Nuevo':
+                vals['name'] = self.env['ir.sequence'].next_by_code('secadora.pesaje') or 'Nuevo'
+        return super().create(vals_list)
+
+    @api.depends('peso_bruto', 'peso_tara')
+    def _compute_peso_neto(self):
+        for record in self:
+            if record.peso_bruto and record.peso_tara:
+                record.peso_neto = record.peso_bruto - record.peso_tara
+            else:
+                record.peso_neto = 0.0
+
+    @api.depends('tercero_id')
+    def _compute_nit_tercero(self):
+        for record in self:
+            record.nit_tercero = record.tercero_id.vat or ''
+
+    def action_primera_pesada(self):
+        for record in self:
+            if record.state != 'borrador':
+                raise UserError('Solo se puede registrar la primera pesada en estado borrador.')
+            if not record.peso_bruto or record.peso_bruto <= 0:
+                raise UserError('Debe ingresar un peso bruto válido.')
+            record.write({
+                'hora_entrada': fields.Datetime.now(),
+                'state': 'en_transito'
+            })
+
+    def action_segunda_pesada(self):
+        for record in self:
+            if record.state != 'en_transito':
+                raise UserError('Solo se puede registrar la segunda pesada en estado en tránsito.')
+            if not record.peso_tara or record.peso_tara <= 0:
+                raise UserError('Debe ingresar un peso tara válido.')
+            if record.peso_tara >= record.peso_bruto:
+                raise UserError('El peso tara debe ser menor que el peso bruto.')
+            record.write({
+                'hora_salida': fields.Datetime.now(),
+                'state': 'completado'
+            })
+
+    def action_cancelar(self):
+        for record in self:
+            if record.state == 'completado':
+                raise UserError('No se puede cancelar un pesaje completado.')
+            record.state = 'cancelado'
+
+    def action_borrador(self):
+        for record in self:
+            record.state = 'borrador'

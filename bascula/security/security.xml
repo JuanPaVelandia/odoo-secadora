@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Categoría de Báscula -->
+        <record id="module_category_bascula" model="ir.module.category">
+            <field name="name">Báscula</field>
+            <field name="description">Gestión de pesajes de arroz</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <!-- Grupo: Basculero -->
+        <record id="group_basculero" model="res.groups">
+            <field name="name">Basculero</field>
+            <field name="category_id" ref="module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Báscula -->
+        <record id="group_bascula_admin" model="res.groups">
+            <field name="name">Administrador Báscula</field>
+            <field name="category_id" ref="module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_basculero'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Reglas de acceso por registro -->
+
+        <!-- Pesaje: Basculero puede ver todos, crear y editar -->
+        <record id="pesaje_basculero_rule" model="ir.rule">
+            <field name="name">Pesaje: Basculero - Acceso Total</field>
+            <field name="model_id" ref="model_secadora_pesaje"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_basculero'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Pesaje: Administrador tiene todos los permisos -->
+        <record id="pesaje_admin_rule" model="ir.rule">
+            <field name="name">Pesaje: Administrador - Acceso Total</field>
+            <field name="model_id" ref="model_secadora_pesaje"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('group_bascula_admin'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

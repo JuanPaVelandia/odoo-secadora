@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menú Principal: Báscula -->
+        <menuitem id="menu_bascula_root"
+                  name="Báscula"
+                  web_icon="bascula,static/description/icon.png"
+                  sequence="10"/>
+
+        <!-- Menú: Pesajes -->
+        <menuitem id="menu_bascula_pesajes"
+                  name="Pesajes"
+                  parent="menu_bascula_root"
+                  sequence="10"/>
+
+        <menuitem id="menu_bascula_pesaje_todos"
+                  name="Todos los Pesajes"
+                  parent="menu_bascula_pesajes"
+                  action="action_secadora_pesaje"
+                  sequence="10"/>
+
+        <menuitem id="menu_bascula_pesaje_en_transito"
+                  name="Vehículos en Tránsito"
+                  parent="menu_bascula_pesajes"
+                  action="action_secadora_pesaje_en_transito"
+                  sequence="20"/>
+
+        <menuitem id="menu_bascula_pesaje_entradas"
+                  name="Entradas (Compra)"
+                  parent="menu_bascula_pesajes"
+                  action="action_secadora_pesaje_entrada"
+                  sequence="30"/>
+
+        <menuitem id="menu_bascula_pesaje_salidas"
+                  name="Salidas (Venta/Despacho)"
+                  parent="menu_bascula_pesajes"
+                  action="action_secadora_pesaje_salida"
+                  sequence="40"/>
+
+        <!-- Menú: Configuración -->
+        <menuitem id="menu_bascula_configuracion"
+                  name="Configuración"
+                  parent="menu_bascula_root"
+                  sequence="90"
+                  groups="bascula.group_bascula_admin"/>
+
+        <menuitem id="menu_bascula_vehiculos"
+                  name="Vehículos"
+                  parent="menu_bascula_configuracion"
+                  action="action_secadora_vehiculo"
+                  sequence="10"/>
+
+        <menuitem id="menu_bascula_conductores"
+                  name="Conductores"
+                  parent="menu_bascula_configuracion"
+                  action="action_secadora_conductor"
+                  sequence="20"/>
+
+        <menuitem id="menu_bascula_transportadoras"
+                  name="Transportadoras"
+                  parent="menu_bascula_configuracion"
+                  action="action_secadora_transportadora"
+                  sequence="30"/>
+
+        <menuitem id="menu_bascula_variedades"
+                  name="Variedades de Arroz"
+                  parent="menu_bascula_configuracion"
+                  action="action_secadora_variedad_arroz"
+                  sequence="40"/>
+
+    </data>
+</odoo>

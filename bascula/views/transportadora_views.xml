@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Tree de Transportadoras -->
+        <record id="view_secadora_transportadora_tree" model="ir.ui.view">
+            <field name="name">secadora.transportadora.tree</field>
+            <field name="model">secadora.transportadora</field>
+            <field name="arch" type="xml">
+                <tree string="Transportadoras">
+                    <field name="name"/>
+                    <field name="nit"/>
+                    <field name="telefono"/>
+                    <field name="contacto"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form de Transportadoras -->
+        <record id="view_secadora_transportadora_form" model="ir.ui.view">
+            <field name="name">secadora.transportadora.form</field>
+            <field name="model">secadora.transportadora</field>
+            <field name="arch" type="xml">
+                <form string="Transportadora">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="nit"/>
+                                <field name="telefono"/>
+                            </group>
+                            <group>
+                                <field name="contacto"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="direccion" placeholder="Dirección completa..."/>
+                        </group>
+                        <notebook>
+                            <page string="Vehículos">
+                                <field name="vehiculo_ids">
+                                    <tree>
+                                        <field name="placa"/>
+                                        <field name="tipo_vehiculo"/>
+                                        <field name="conductor_habitual_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Search de Transportadoras -->
+        <record id="view_secadora_transportadora_search" model="ir.ui.view">
+            <field name="name">secadora.transportadora.search</field>
+            <field name="model">secadora.transportadora</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Transportadoras">
+                    <field name="name"/>
+                    <field name="nit"/>
+                    <filter string="Activas" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Inactivas" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción de Transportadoras -->
+        <record id="action_secadora_transportadora" model="ir.actions.act_window">
+            <field name="name">Transportadoras</field>
+            <field name="res_model">secadora.transportadora</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_active': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear una nueva transportadora
+                </p>
+                <p>
+                    Registre las empresas transportadoras de arroz.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
