@@ -6,6 +6,7 @@ from odoo import models, fields, api
 class SecadoraVehiculo(models.Model):
     _name = 'secadora.vehiculo'
     _description = 'Vehículos'
+    _rec_name = 'placa'
     _order = 'placa'
 
     placa = fields.Char(
@@ -60,9 +61,16 @@ class SecadoraVehiculo(models.Model):
         return super().write(vals)
 
     def name_get(self):
+        """Muestra solo la placa del vehículo"""
         result = []
         for record in self:
-            # Solo mostrar la placa, sin tipo de vehículo
-            name = record.placa or 'Sin placa'
-            result.append((record.id, name))
+            result.append((record.id, record.placa or 'Sin placa'))
         return result
+
+    @api.model
+    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
+        """Permite buscar por placa"""
+        args = args or []
+        if name:
+            args = ['|', ('placa', operator, name)] + args
+        return self._search(args, limit=limit, access_rights_uid=name_get_uid)
