@@ -2,17 +2,17 @@
 <odoo>
     <data>
 
-        <!-- Vista Tree de Transportadoras -->
-        <record id="view_secadora_transportadora_tree" model="ir.ui.view">
-            <field name="name">secadora.transportadora.tree</field>
+        <!-- Vista List de Transportadoras -->
+        <record id="view_secadora_transportadora_list" model="ir.ui.view">
+            <field name="name">secadora.transportadora.list</field>
             <field name="model">secadora.transportadora</field>
             <field name="arch" type="xml">
-                <tree string="Transportadoras">
+                <list string="Transportadoras">
                     <field name="name"/>
                     <field name="nit"/>
                     <field name="telefono"/>
                     <field name="contacto"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -40,11 +40,11 @@
                         <notebook>
                             <page string="Vehículos">
                                 <field name="vehiculo_ids">
-                                    <tree>
+                                    <list>
                                         <field name="placa"/>
                                         <field name="tipo_vehiculo"/>
                                         <field name="conductor_habitual_id"/>
-                                    </tree>
+                                    </list>
                                 </field>
                             </page>
                         </notebook>
@@ -71,7 +71,7 @@
         <record id="action_secadora_transportadora" model="ir.actions.act_window">
             <field name="name">Transportadoras</field>
             <field name="res_model">secadora.transportadora</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{'search_default_active': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">

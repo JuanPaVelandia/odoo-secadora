@@ -80,12 +80,12 @@
             </field>
         </record>
 
-        <!-- Vista Tree de Pesaje -->
-        <record id="view_secadora_pesaje_tree" model="ir.ui.view">
-            <field name="name">secadora.pesaje.tree</field>
+        <!-- Vista List de Pesaje -->
+        <record id="view_secadora_pesaje_list" model="ir.ui.view">
+            <field name="name">secadora.pesaje.list</field>
             <field name="model">secadora.pesaje</field>
             <field name="arch" type="xml">
-                <tree string="Pesajes" decoration-success="state == 'completado'"
+                <list string="Pesajes" decoration-success="state == 'completado'"
                       decoration-info="state == 'en_transito'"
                       decoration-muted="state == 'cancelado'">
                     <field name="name"/>
@@ -98,7 +98,7 @@
                            decoration-success="state == 'completado'"
                            decoration-info="state == 'en_transito'"
                            decoration-muted="state == 'cancelado'"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -182,7 +182,7 @@
         <record id="action_secadora_pesaje" model="ir.actions.act_window">
             <field name="name">Todos los Pesajes</field>
             <field name="res_model">secadora.pesaje</field>
-            <field name="view_mode">tree,form,kanban</field>
+            <field name="view_mode">list,form,kanban</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Crear un nuevo pesaje
@@ -197,7 +197,7 @@
         <record id="action_secadora_pesaje_en_transito" model="ir.actions.act_window">
             <field name="name">Vehículos en Tránsito</field>
             <field name="res_model">secadora.pesaje</field>
-            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_mode">kanban,list,form</field>
             <field name="domain">[('state', '=', 'en_transito')]</field>
             <field name="context">{'search_default_filter_en_transito': 1}</field>
         </record>
@@ -206,7 +206,7 @@
         <record id="action_secadora_pesaje_entrada" model="ir.actions.act_window">
             <field name="name">Entradas (Compra)</field>
             <field name="res_model">secadora.pesaje</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="domain">[('tipo_proceso', '=', 'entrada')]</field>
             <field name="context">{'default_tipo_proceso': 'entrada', 'search_default_filter_entrada': 1}</field>
         </record>
@@ -215,7 +215,7 @@
         <record id="action_secadora_pesaje_salida" model="ir.actions.act_window">
             <field name="name">Salidas (Venta/Despacho)</field>
             <field name="res_model">secadora.pesaje</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="domain">[('tipo_proceso', '=', 'salida')]</field>
             <field name="context">{'default_tipo_proceso': 'salida', 'search_default_filter_salida': 1}</field>
         </record>
