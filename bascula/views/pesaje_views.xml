@@ -52,7 +52,7 @@
 
                         <group string="Producto y Calidad">
                             <group>
-                                <field name="producto" placeholder="Ej: Arroz Paddy Verde"/>
+                                <field name="producto_id"/>
                                 <field name="variedad_id"/>
                             </group>
                             <group>
@@ -93,6 +93,7 @@
                     <field name="tipo_proceso"/>
                     <field name="placa_texto"/>
                     <field name="tercero_id"/>
+                    <field name="producto_id"/>
                     <field name="peso_neto"/>
                     <field name="state" widget="badge"
                            decoration-success="state == 'completado'"
@@ -112,6 +113,7 @@
                     <field name="vehiculo_id"/>
                     <field name="tercero_id"/>
                     <field name="placa_texto"/>
+                    <field name="producto_id"/>
 
                     <filter string="Entradas" name="filter_entrada" domain="[('tipo_proceso', '=', 'entrada')]"/>
                     <filter string="Salidas" name="filter_salida" domain="[('tipo_proceso', '=', 'salida')]"/>
@@ -127,6 +129,7 @@
                     <group expand="0" string="Agrupar por">
                         <filter string="Tipo" name="group_tipo" context="{'group_by': 'tipo_proceso'}"/>
                         <filter string="Estado" name="group_estado" context="{'group_by': 'state'}"/>
+                        <filter string="Producto" name="group_producto" context="{'group_by': 'producto_id'}"/>
                         <filter string="Fecha" name="group_fecha" context="{'group_by': 'fecha'}"/>
                     </group>
                 </search>
@@ -142,6 +145,7 @@
                     <field name="name"/>
                     <field name="placa_texto"/>
                     <field name="tercero_id"/>
+                    <field name="producto_id"/>
                     <field name="tipo_proceso"/>
                     <field name="peso_bruto"/>
                     <field name="hora_entrada"/>
@@ -163,6 +167,8 @@
                                     </div>
                                     <div class="o_kanban_record_body">
                                         <field name="tercero_id"/>
+                                        <br/>
+                                        Producto: <field name="producto_id"/>
                                         <br/>
                                         Tipo: <field name="tipo_proceso"/>
                                         <br/>

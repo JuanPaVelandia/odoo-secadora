@@ -90,9 +90,12 @@ class SecadoraPesaje(models.Model):
     destino = fields.Char(string='Destino')
 
     # Producto
-    producto = fields.Char(
+    producto_id = fields.Many2one(
+        'product.product',
         string='Producto',
-        help='Ej: Arroz Paddy Verde'
+        help='Producto del inventario',
+        domain=[('type', 'in', ['product', 'consu'])],
+        index=True
     )
     variedad_id = fields.Many2one(
         'secadora.variedad.arroz',
