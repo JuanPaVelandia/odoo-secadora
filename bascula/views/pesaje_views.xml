@@ -29,13 +29,13 @@
                             <group>
                                 <field name="tipo_proceso" widget="radio"/>
                                 <field name="name" readonly="1"/>
-                                <field name="fecha"/>
+                                <field name="fecha" readonly="1"/>
                             </group>
                         </group>
 
                         <group>
                             <group string="Información del Vehículo">
-                                <field name="vehiculo_id"/>
+                                <field name="vehiculo_id" string="Placa"/>
                                 <field name="tercero_id"/>
                                 <field name="nit_tercero" readonly="1"/>
                                 <field name="conductor_id"/>

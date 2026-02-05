@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+import pytz
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -21,8 +23,9 @@ class SecadoraPesaje(models.Model):
     fecha = fields.Date(
         string='Fecha',
         required=True,
-        default=fields.Date.context_today,
-        index=True
+        default=lambda self: self._get_colombia_date(),
+        index=True,
+        readonly=True
     )
     hora_entrada = fields.Datetime(string='Hora Entrada')
     hora_salida = fields.Datetime(string='Hora Salida')
@@ -169,6 +172,21 @@ class SecadoraPesaje(models.Model):
         for record in self:
             record.nit_tercero = record.tercero_id.vat or ''
 
+    def _get_colombia_date(self):
+        """Obtiene la fecha actual de Colombia (America/Bogota)"""
+        colombia_tz = pytz.timezone('America/Bogota')
+        utc_now = datetime.now(pytz.UTC)
+        colombia_now = utc_now.astimezone(colombia_tz)
+        return colombia_now.date()
+
+    def _get_colombia_time(self):
+        """Obtiene la hora actual de Colombia (America/Bogota)"""
+        colombia_tz = pytz.timezone('America/Bogota')
+        utc_now = datetime.now(pytz.UTC)
+        colombia_now = utc_now.astimezone(colombia_tz)
+        # Convertir de vuelta a UTC para almacenar en Odoo
+        return colombia_now.astimezone(pytz.UTC).replace(tzinfo=None)
+
     def action_primera_pesada(self):
         for record in self:
             if record.state != 'borrador':
@@ -185,7 +203,7 @@ class SecadoraPesaje(models.Model):
                     raise UserError('Debe ingresar el peso tara (camión vacío) para salida.')
 
             record.write({
-                'hora_entrada': fields.Datetime.now(),
+                'hora_entrada': self._get_colombia_time(),
                 'state': 'en_transito'
             })
 
@@ -214,7 +232,7 @@ class SecadoraPesaje(models.Model):
                 raise UserError(f'El peso neto no puede ser negativo o cero. Peso bruto: {record.peso_bruto} kg, Peso tara: {record.peso_tara} kg')
 
             record.write({
-                'hora_salida': fields.Datetime.now(),
+                'hora_salida': self._get_colombia_time(),
                 'state': 'completado'
             })
 
