@@ -2,16 +2,11 @@
 
 import { registry } from "@web/core/registry";
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
-import { standardFieldProps } from "@web/views/fields/standard_field_props";
 
-export class PesoActualField extends Component {
-    static template = "bascula.PesoActualField";
-    static props = standardFieldProps;
-
+class PesoActualField extends Component {
     setup() {
-        super.setup();
         this.state = useState({
-            peso: this.props.record.data[this.props.name] || 0.0,
+            peso: this.props.value || 0.0,
             timestamp: new Date().toLocaleTimeString("es-CO"),
         });
 
@@ -39,8 +34,9 @@ export class PesoActualField extends Component {
 
     async updatePeso() {
         const record = this.props.record;
-        const state = record.data.state;
+        if (!record) return;
 
+        const state = record.data.state;
         if (state === "completado" || state === "cancelado") {
             this.stopPolling();
             return;
@@ -48,7 +44,7 @@ export class PesoActualField extends Component {
 
         try {
             await record.load();
-            const nuevoPeso = record.data[this.props.name] || 0.0;
+            const nuevoPeso = record.data.peso_actual || 0.0;
 
             if (this.state.peso !== nuevoPeso) {
                 this.state.peso = nuevoPeso;
@@ -64,4 +60,8 @@ export class PesoActualField extends Component {
     }
 }
 
-registry.category("fields").add("peso_actual_field", PesoActualField);
+PesoActualField.template = "bascula.PesoActualField";
+
+registry.category("fields").add("peso_actual_field", {
+    component: PesoActualField,
+});
