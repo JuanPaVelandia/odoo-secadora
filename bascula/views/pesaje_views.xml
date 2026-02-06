@@ -46,19 +46,11 @@
                             </group>
 
                             <group string="Pesaje">
-                                <!-- Peso en vivo desde báscula -->
-                                <div class="alert alert-success" style="padding: 15px; background-color: #d4edda; border: 2px solid #28a745;"
-                                     invisible="state == 'completado' or state == 'cancelado'">
-                                    <div style="text-align: center;">
-                                        <strong style="font-size: 14px;">PESO ACTUAL DESDE BASCULA</strong><br/>
-                                        <span style="font-size: 48px; font-weight: bold; color: #28a745;">
-                                            <field name="peso_actual" nolabel="1" readonly="1" force_save="1"/> Kg
-                                        </span><br/>
-                                        <small style="color: #666;">Presiona F5 para actualizar o usa el botón Refrescar</small><br/>
-                                        <button name="action_refrescar_peso" string="🔄 Refrescar Peso" type="object"
-                                                class="btn-primary" style="margin-top: 10px;"/>
-                                    </div>
-                                </div>
+                                <!-- Peso en vivo desde báscula con auto-refresh -->
+                                <field name="peso_actual"
+                                       widget="peso_actual_field"
+                                       nolabel="1"
+                                       invisible="state == 'completado' or state == 'cancelado'"/>
                                 <field name="escuchando_bascula" invisible="1"/>
 
                                 <field name="peso_bruto" readonly="1"

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="bascula.PesoActualField" owl="1">
+        <div class="o_field_widget o_field_peso_actual">
+            <div class="alert alert-success" style="padding: 15px; background-color: #d4edda; border: 2px solid #28a745; margin: 0;">
+                <div style="text-align: center;">
+                    <strong style="font-size: 14px;">PESO ACTUAL DESDE BASCULA</strong><br/>
+                    <span style="font-size: 48px; font-weight: bold; color: #28a745;">
+                        <t t-esc="formattedPeso"/> Kg
+                    </span><br/>
+                    <small style="color: #666;">
+                        Actualizado: <t t-esc="state.timestamp"/>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
