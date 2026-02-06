@@ -203,15 +203,20 @@ class SecadoraPesaje(models.Model):
             if record.state != 'borrador':
                 raise UserError('Solo se puede registrar la primera pesada en estado borrador.')
 
+            # Usar peso actual de la báscula si está disponible
+            peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+
             # Validación según tipo de proceso
             if record.tipo_proceso == 'entrada':
                 # Entrada: 1ª pesada = peso bruto (camión lleno)
-                if not record.peso_bruto or record.peso_bruto <= 0:
-                    raise UserError('Debe ingresar el peso bruto (camión lleno) para entrada.')
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
+                record.peso_bruto = peso_a_usar
             else:
                 # Salida: 1ª pesada = peso tara (camión vacío)
-                if not record.peso_tara or record.peso_tara <= 0:
-                    raise UserError('Debe ingresar el peso tara (camión vacío) para salida.')
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
+                record.peso_tara = peso_a_usar
 
             record.write({
                 'hora_entrada': self._get_colombia_time(),
@@ -223,19 +228,24 @@ class SecadoraPesaje(models.Model):
             if record.state != 'en_transito':
                 raise UserError('Solo se puede registrar la segunda pesada en estado en tránsito.')
 
+            # Usar peso actual de la báscula si está disponible
+            peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+
             # Validación según tipo de proceso
             if record.tipo_proceso == 'entrada':
                 # Entrada: 2ª pesada = peso tara (camión vacío)
-                if not record.peso_tara or record.peso_tara <= 0:
-                    raise UserError('Debe ingresar el peso tara (camión vacío).')
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
                 if not record.peso_bruto or record.peso_bruto <= 0:
                     raise UserError('Debe tener registrado el peso bruto de la primera pesada.')
+                record.peso_tara = peso_a_usar
             else:
                 # Salida: 2ª pesada = peso bruto (camión lleno)
-                if not record.peso_bruto or record.peso_bruto <= 0:
-                    raise UserError('Debe ingresar el peso bruto (camión lleno).')
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
                 if not record.peso_tara or record.peso_tara <= 0:
                     raise UserError('Debe tener registrado el peso tara de la primera pesada.')
+                record.peso_bruto = peso_a_usar
 
             # Validar que el peso neto no sea negativo
             peso_neto_calc = record.peso_bruto - record.peso_tara
