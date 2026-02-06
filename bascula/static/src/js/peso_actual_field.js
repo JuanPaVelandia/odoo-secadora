@@ -36,15 +36,27 @@ class PesoActualField extends Component {
 
     async updatePeso() {
         const record = this.props.record;
-        if (!record || !record.resId) return;
+
+        console.log("[PESO WIDGET] Iniciando actualización...");
+        console.log("[PESO WIDGET] Record:", record);
+        console.log("[PESO WIDGET] ResId:", record?.resId);
+
+        if (!record || !record.resId) {
+            console.log("[PESO WIDGET] No hay record o resId, abortando");
+            return;
+        }
 
         const state = record.data.state;
+        console.log("[PESO WIDGET] Estado:", state);
+
         if (state === "completado" || state === "cancelado") {
+            console.log("[PESO WIDGET] Pesaje completado/cancelado, deteniendo polling");
             this.stopPolling();
             return;
         }
 
         try {
+            console.log("[PESO WIDGET] Llamando a ORM.read...");
             // Leer SOLO el campo peso_actual usando ORM service
             const result = await this.orm.read(
                 "secadora.pesaje",
@@ -52,20 +64,27 @@ class PesoActualField extends Component {
                 ["peso_actual", "escuchando_bascula"]
             );
 
+            console.log("[PESO WIDGET] Resultado ORM:", result);
+
             if (result && result.length > 0) {
                 const nuevoPeso = result[0].peso_actual || 0.0;
+                console.log("[PESO WIDGET] Peso actual en BD:", nuevoPeso);
+                console.log("[PESO WIDGET] Peso en state:", this.state.peso);
 
                 if (Math.abs(this.state.peso - nuevoPeso) > 0.01) {
+                    console.log("[PESO WIDGET] ¡Peso cambió! Actualizando UI...");
                     this.state.peso = nuevoPeso;
                     this.state.timestamp = new Date().toLocaleTimeString("es-CO");
 
                     // Actualizar solo este campo en el record sin recargar todo
                     record.data.peso_actual = nuevoPeso;
                     record.data.escuchando_bascula = result[0].escuchando_bascula;
+                } else {
+                    console.log("[PESO WIDGET] Peso no cambió significativamente");
                 }
             }
         } catch (error) {
-            console.error("Error updating peso:", error);
+            console.error("[PESO WIDGET] Error updating peso:", error);
         }
     }
 
