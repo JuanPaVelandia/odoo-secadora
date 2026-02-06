@@ -6,7 +6,7 @@ import { useService } from "@web/core/utils/hooks";
 
 class PesoActualField extends Component {
     setup() {
-        this.rpc = useService("rpc");
+        this.orm = useService("orm");
         this.state = useState({
             peso: this.props.record.data.peso_actual || 0.0,
             timestamp: new Date().toLocaleTimeString("es-CO"),
@@ -45,13 +45,12 @@ class PesoActualField extends Component {
         }
 
         try {
-            // Leer SOLO el campo peso_actual sin afectar el resto del formulario
-            const result = await this.rpc("/web/dataset/call_kw", {
-                model: "secadora.pesaje",
-                method: "read",
-                args: [[record.resId], ["peso_actual", "escuchando_bascula"]],
-                kwargs: {},
-            });
+            // Leer SOLO el campo peso_actual usando ORM service
+            const result = await this.orm.read(
+                "secadora.pesaje",
+                [record.resId],
+                ["peso_actual", "escuchando_bascula"]
+            );
 
             if (result && result.length > 0) {
                 const nuevoPeso = result[0].peso_actual || 0.0;
