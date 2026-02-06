@@ -2,11 +2,13 @@
 
 import { registry } from "@web/core/registry";
 import { Component, useState, onMounted, onWillUnmount } from "@odoo/owl";
+import { useService } from "@web/core/utils/hooks";
 
 class PesoActualField extends Component {
     setup() {
+        this.rpc = useService("rpc");
         this.state = useState({
-            peso: this.props.value || 0.0,
+            peso: this.props.record.data.peso_actual || 0.0,
             timestamp: new Date().toLocaleTimeString("es-CO"),
         });
 
@@ -34,7 +36,7 @@ class PesoActualField extends Component {
 
     async updatePeso() {
         const record = this.props.record;
-        if (!record) return;
+        if (!record || !record.resId) return;
 
         const state = record.data.state;
         if (state === "completado" || state === "cancelado") {
@@ -43,12 +45,25 @@ class PesoActualField extends Component {
         }
 
         try {
-            await record.load();
-            const nuevoPeso = record.data.peso_actual || 0.0;
+            // Leer SOLO el campo peso_actual sin afectar el resto del formulario
+            const result = await this.rpc("/web/dataset/call_kw", {
+                model: "secadora.pesaje",
+                method: "read",
+                args: [[record.resId], ["peso_actual", "escuchando_bascula"]],
+                kwargs: {},
+            });
 
-            if (this.state.peso !== nuevoPeso) {
-                this.state.peso = nuevoPeso;
-                this.state.timestamp = new Date().toLocaleTimeString("es-CO");
+            if (result && result.length > 0) {
+                const nuevoPeso = result[0].peso_actual || 0.0;
+
+                if (Math.abs(this.state.peso - nuevoPeso) > 0.01) {
+                    this.state.peso = nuevoPeso;
+                    this.state.timestamp = new Date().toLocaleTimeString("es-CO");
+
+                    // Actualizar solo este campo en el record sin recargar todo
+                    record.data.peso_actual = nuevoPeso;
+                    record.data.escuchando_bascula = result[0].escuchando_bascula;
+                }
             }
         } catch (error) {
             console.error("Error updating peso:", error);
