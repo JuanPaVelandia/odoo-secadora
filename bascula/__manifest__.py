@@ -33,6 +33,12 @@
         'views/res_config_settings_views.xml',
         'views/menu_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'bascula/static/src/js/peso_actual_widget.js',
+            'bascula/static/src/xml/peso_actual_widget.xml',
+        ],
+    },
     'installable': True,
     'application': True,
     'auto_install': False,

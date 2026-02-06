@@ -46,17 +46,11 @@
                             </group>
 
                             <group string="Pesaje">
-                                <!-- Peso en vivo desde báscula -->
-                                <div class="alert alert-success" style="padding: 15px; background-color: #d4edda; border: 2px solid #28a745;"
-                                     invisible="state == 'completado' or state == 'cancelado'">
-                                    <div style="text-align: center;">
-                                        <strong style="font-size: 14px;">PESO ACTUAL DESDE BASCULA</strong><br/>
-                                        <span style="font-size: 48px; font-weight: bold; color: #28a745;">
-                                            <field name="peso_actual" nolabel="1" readonly="1"/> Kg
-                                        </span><br/>
-                                        <small style="color: #666;">Este peso se usara automaticamente al hacer click en 1a o 2a Pesada</small>
-                                    </div>
-                                </div>
+                                <!-- Peso en vivo desde báscula con auto-refresh -->
+                                <field name="peso_actual"
+                                       widget="peso_actual_widget"
+                                       nolabel="1"
+                                       invisible="state == 'completado' or state == 'cancelado'"/>
                                 <field name="escuchando_bascula" invisible="1"/>
 
                                 <field name="peso_bruto" readonly="1"
