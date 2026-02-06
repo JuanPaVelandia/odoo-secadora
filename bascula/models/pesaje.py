@@ -338,6 +338,13 @@ class SecadoraPesaje(models.Model):
                 'message': 'No hay pesajes activos esperando pesaje'
             }
 
+    def action_refrescar_peso(self):
+        """Refrescar el peso actual desde la base de datos"""
+        for record in self:
+            # Solo refrescar, Odoo recargará el valor actual desde la BD
+            record.invalidate_recordset(['peso_actual', 'escuchando_bascula'])
+        return True
+
     def action_usar_peso_actual(self):
         """Usar el peso actual de la báscula y asignarlo al campo correspondiente"""
         for record in self:
