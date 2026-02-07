@@ -123,12 +123,12 @@ class SecadoraPesaje(models.Model):
         help='Indica si el sistema está recibiendo peso de la báscula'
     )
     peso_bruto = fields.Float(
-        string='Peso Bruto (Kg)',
+        string='Peso Lleno (Kg)',
         help='Primera pesada - Vehículo lleno',
         digits=(12, 2)
     )
     peso_tara = fields.Float(
-        string='Peso Tara (Kg)',
+        string='Peso Vacío (Kg)',
         help='Segunda pesada - Vehículo vacío',
         digits=(12, 2)
     )

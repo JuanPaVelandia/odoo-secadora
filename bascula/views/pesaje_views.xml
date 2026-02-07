@@ -22,8 +22,8 @@
                     <sheet>
                         <div class="alert alert-info" role="alert" style="margin-bottom: 10px;">
                             <strong>Flujo de pesaje:</strong><br/>
-                            <b>ENTRADA (Compra):</b> 1ª pesada = Peso Bruto (lleno) → 2ª pesada = Peso Tara (vacío)<br/>
-                            <b>SALIDA (Venta):</b> 1ª pesada = Peso Tara (vacío) → 2ª pesada = Peso Bruto (lleno)
+                            <b>ENTRADA (Compra):</b> 1ª pesada = Peso Lleno → 2ª pesada = Peso Vacío<br/>
+                            <b>SALIDA (Venta):</b> 1ª pesada = Peso Vacío → 2ª pesada = Peso Lleno
                         </div>
                         <group>
                             <group>

@@ -84,11 +84,11 @@
                                 <h4 style="text-align: center; margin-top: 0;"><strong>PESAJE</strong></h4>
                                 <table class="table table-borderless" style="font-size: 16px;">
                                     <tr>
-                                        <td style="width: 50%;"><strong>Peso Bruto:</strong></td>
+                                        <td style="width: 50%;"><strong>Peso Lleno:</strong></td>
                                         <td style="text-align: right;"><strong><span t-field="o.peso_bruto"/> Kg</strong></td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Peso Tara:</strong></td>
+                                        <td><strong>Peso Vacío:</strong></td>
                                         <td style="text-align: right;"><strong><span t-field="o.peso_tara"/> Kg</strong></td>
                                     </tr>
                                     <tr style="border-top: 2px solid #000;">
