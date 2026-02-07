@@ -203,8 +203,21 @@ class SecadoraPesaje(models.Model):
             if record.state != 'borrador':
                 raise UserError('Solo se puede registrar la primera pesada en estado borrador.')
 
-            # Usar peso actual de la báscula si está disponible
+            # Obtener peso actual de la báscula
             peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+
+            # Si no hay peso_actual en este registro (ej: registro nuevo sin guardar),
+            # buscar el último peso disponible en la BD
+            if peso_a_usar <= 0:
+                ultimo_pesaje = self.search([
+                    ('peso_actual', '>', 0),
+                    ('state', 'in', ['borrador', 'en_transito'])
+                ], order='write_date desc', limit=1)
+
+                if ultimo_pesaje:
+                    peso_a_usar = ultimo_pesaje.peso_actual
+                    # Actualizar el peso_actual de este registro también
+                    record.peso_actual = peso_a_usar
 
             # Validación según tipo de proceso
             if record.tipo_proceso == 'entrada':
@@ -228,8 +241,20 @@ class SecadoraPesaje(models.Model):
             if record.state != 'en_transito':
                 raise UserError('Solo se puede registrar la segunda pesada en estado en tránsito.')
 
-            # Usar peso actual de la báscula si está disponible
+            # Obtener peso actual de la báscula
             peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+
+            # Si no hay peso_actual en este registro, buscar el último peso disponible
+            if peso_a_usar <= 0:
+                ultimo_pesaje = self.search([
+                    ('peso_actual', '>', 0),
+                    ('state', 'in', ['borrador', 'en_transito'])
+                ], order='write_date desc', limit=1)
+
+                if ultimo_pesaje:
+                    peso_a_usar = ultimo_pesaje.peso_actual
+                    # Actualizar el peso_actual de este registro también
+                    record.peso_actual = peso_a_usar
 
             # Validación según tipo de proceso
             if record.tipo_proceso == 'entrada':
