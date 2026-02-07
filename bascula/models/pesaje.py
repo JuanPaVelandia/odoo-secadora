@@ -29,10 +29,22 @@ class SecadoraPesaje(models.Model):
     )
     hora_entrada = fields.Datetime(string='Hora Entrada')
     hora_salida = fields.Datetime(string='Hora Salida')
+
+    # Tipo de Operación (desde catálogo)
+    tipo_operacion_id = fields.Many2one(
+        'secadora.tipo.operacion',
+        string='Tipo de Operación',
+        required=True,
+        index=True,
+        help='Selecciona el tipo de operación: compra, venta, servicio de secamiento, etc.'
+    )
+
+    # Campo legacy mantenido por compatibilidad (computed)
     tipo_proceso = fields.Selection([
-        ('entrada', 'Entrada (Compra)'),
-        ('salida', 'Salida (Venta/Despacho)'),
-    ], string='Tipo de Proceso', required=True, default='entrada', index=True)
+        ('entrada', 'Entrada'),
+        ('salida', 'Salida'),
+    ], string='Dirección', compute='_compute_tipo_proceso', store=True, index=True)
+
     state = fields.Selection([
         ('borrador', 'Borrador'),
         ('en_transito', 'En Tránsito'),
@@ -169,6 +181,15 @@ class SecadoraPesaje(models.Model):
             if vals.get('name', 'Nuevo') == 'Nuevo':
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.pesaje') or 'Nuevo'
         return super().create(vals_list)
+
+    @api.depends('tipo_operacion_id')
+    def _compute_tipo_proceso(self):
+        """Compute tipo_proceso desde tipo_operacion_id para mantener compatibilidad"""
+        for record in self:
+            if record.tipo_operacion_id:
+                record.tipo_proceso = record.tipo_operacion_id.direccion
+            else:
+                record.tipo_proceso = 'entrada'
 
     @api.depends('peso_bruto', 'peso_tara')
     def _compute_peso_neto(self):

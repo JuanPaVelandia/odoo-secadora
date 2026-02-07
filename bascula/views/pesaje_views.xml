@@ -27,7 +27,8 @@
                         </div>
                         <group>
                             <group>
-                                <field name="tipo_proceso" widget="radio"/>
+                                <field name="tipo_operacion_id" options="{'no_create': False, 'no_open': True}"/>
+                                <field name="tipo_proceso" invisible="1"/>
                                 <field name="name" readonly="1"/>
                                 <field name="fecha" readonly="1"/>
                             </group>
@@ -106,7 +107,8 @@
                       decoration-muted="state == 'cancelado'">
                     <field name="name"/>
                     <field name="fecha"/>
-                    <field name="tipo_proceso"/>
+                    <field name="tipo_operacion_id" widget="badge"/>
+                    <field name="tipo_proceso" column_invisible="1"/>
                     <field name="placa_texto"/>
                     <field name="tercero_id"/>
                     <field name="producto_id"/>

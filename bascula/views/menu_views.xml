@@ -75,5 +75,11 @@
                   action="action_secadora_lugar"
                   sequence="50"/>
 
+        <menuitem id="menu_bascula_tipos_operacion"
+                  name="Tipos de Operación"
+                  parent="menu_bascula_configuracion"
+                  action="action_secadora_tipo_operacion"
+                  sequence="5"/>
+
     </data>
 </odoo>
