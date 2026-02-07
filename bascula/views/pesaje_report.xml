@@ -2,20 +2,8 @@
 <odoo>
     <data>
 
-        <!-- Acción de impresión -->
-        <record id="action_report_pesaje_tiquete" model="ir.actions.report">
-            <field name="name">Tiquete de Pesaje</field>
-            <field name="model">secadora.pesaje</field>
-            <field name="report_type">qweb-pdf</field>
-            <field name="report_name">bascula.report_pesaje_tiquete_document</field>
-            <field name="report_file">bascula.report_pesaje_tiquete_document</field>
-            <field name="binding_model_id" ref="model_secadora_pesaje"/>
-            <field name="binding_type">report</field>
-            <field name="print_report_name">'Tiquete - %s' % (object.name)</field>
-            <field name="paperformat_id" ref="bascula.paperformat_tiquete_media_carta"/>
-        </record>
-
         <!-- Formato de papel: Media Carta (5.5 x 8.5 pulgadas / 139.7 x 215.9 mm) -->
+        <!-- IMPORTANTE: Debe ir ANTES del action_report para que la referencia funcione -->
         <record id="paperformat_tiquete_media_carta" model="report.paperformat">
             <field name="name">Tiquete Media Carta</field>
             <field name="default" eval="False"/>
@@ -30,6 +18,19 @@
             <field name="header_line" eval="False"/>
             <field name="header_spacing">5</field>
             <field name="dpi">90</field>
+        </record>
+
+        <!-- Acción de impresión -->
+        <record id="action_report_pesaje_tiquete" model="ir.actions.report">
+            <field name="name">Tiquete de Pesaje</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">bascula.report_pesaje_tiquete_document</field>
+            <field name="report_file">bascula.report_pesaje_tiquete_document</field>
+            <field name="binding_model_id" ref="model_secadora_pesaje"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Tiquete - %s' % (object.name)</field>
+            <field name="paperformat_id" ref="bascula.paperformat_tiquete_media_carta"/>
         </record>
 
         <!-- Plantilla del tiquete -->
