@@ -42,7 +42,9 @@ class PesoActualField extends Component {
         console.log("[PESO WIDGET] ResId:", record?.resId);
 
         if (!record || !record.resId) {
-            console.log("[PESO WIDGET] No hay record o resId, abortando");
+            console.log("[PESO WIDGET] No hay record o resId aún, esperando...");
+            // NO detener el polling, solo esperar al siguiente ciclo
+            // Cuando el usuario guarde, en el siguiente ciclo sí tendrá resId
             return;
         }
 
