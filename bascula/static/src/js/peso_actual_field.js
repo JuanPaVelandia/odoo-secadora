@@ -57,11 +57,14 @@ class PesoActualField extends Component {
 
         try {
             console.log("[PESO WIDGET] Llamando a ORM.read...");
-            // Leer SOLO el campo peso_actual usando ORM service
-            const result = await this.orm.read(
+
+            // Forzar invalidación de caché antes de leer
+            // Esto asegura que obtengamos datos frescos de la BD
+            const result = await this.orm.call(
                 "secadora.pesaje",
-                [record.resId],
-                ["peso_actual", "escuchando_bascula"]
+                "read",
+                [[record.resId], ["peso_actual", "escuchando_bascula"]],
+                { context: { bin_size: false } }
             );
 
             console.log("[PESO WIDGET] Resultado ORM:", result);
