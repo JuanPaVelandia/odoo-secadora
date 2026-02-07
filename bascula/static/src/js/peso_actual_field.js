@@ -41,16 +41,9 @@ class PesoActualField extends Component {
         console.log("[PESO WIDGET] Record:", record);
         console.log("[PESO WIDGET] ResId:", record?.resId);
 
-        if (!record || !record.resId) {
-            console.log("[PESO WIDGET] No hay record o resId aún, esperando...");
-            // NO detener el polling, solo esperar al siguiente ciclo
-            // Cuando el usuario guarde, en el siguiente ciclo sí tendrá resId
-            return;
-        }
+        const state = record?.data?.state;
 
-        const state = record.data.state;
-        console.log("[PESO WIDGET] Estado:", state);
-
+        // Si está completado o cancelado, detener polling
         if (state === "completado" || state === "cancelado") {
             console.log("[PESO WIDGET] Pesaje completado/cancelado, deteniendo polling");
             this.stopPolling();
@@ -58,36 +51,69 @@ class PesoActualField extends Component {
         }
 
         try {
-            console.log("[PESO WIDGET] Llamando a ORM.read...");
+            let nuevoPeso = 0.0;
 
-            // Forzar invalidación de caché antes de leer
-            // Esto asegura que obtengamos datos frescos de la BD
-            const result = await this.orm.call(
-                "secadora.pesaje",
-                "read",
-                [[record.resId], ["peso_actual", "escuchando_bascula"]],
-                { context: { bin_size: false } }
-            );
+            if (!record || !record.resId) {
+                // NO HAY resId (registro nuevo no guardado)
+                // Usar endpoint global que devuelve el último peso disponible
+                console.log("[PESO WIDGET] Sin resId, usando peso_actual_global...");
 
-            console.log("[PESO WIDGET] Resultado ORM:", result);
+                const result = await this.orm.call(
+                    "secadora.pesaje",
+                    "search_read",
+                    [[['peso_actual', '>', 0], ['state', 'in', ['borrador', 'en_transito']]]],
+                    {
+                        fields: ['peso_actual'],
+                        order: 'write_date desc',
+                        limit: 1
+                    }
+                );
 
-            if (result && result.length > 0) {
-                const nuevoPeso = result[0].peso_actual || 0.0;
-                console.log("[PESO WIDGET] Peso actual en BD:", nuevoPeso);
-                console.log("[PESO WIDGET] Peso en state:", this.state.peso);
-
-                if (Math.abs(this.state.peso - nuevoPeso) > 0.01) {
-                    console.log("[PESO WIDGET] ¡Peso cambió! Actualizando UI...");
-                    this.state.peso = nuevoPeso;
-                    this.state.timestamp = new Date().toLocaleTimeString("es-CO");
-
-                    // Actualizar solo este campo en el record sin recargar todo
-                    record.data.peso_actual = nuevoPeso;
-                    record.data.escuchando_bascula = result[0].escuchando_bascula;
+                if (result && result.length > 0) {
+                    nuevoPeso = result[0].peso_actual || 0.0;
+                    console.log("[PESO WIDGET] Peso global obtenido:", nuevoPeso);
                 } else {
-                    console.log("[PESO WIDGET] Peso no cambió significativamente");
+                    console.log("[PESO WIDGET] No hay peso global disponible");
+                    nuevoPeso = 0.0;
+                }
+
+            } else {
+                // SÍ HAY resId (registro guardado)
+                // Leer el peso específico de este pesaje
+                console.log("[PESO WIDGET] Con resId, leyendo peso específico...");
+
+                const result = await this.orm.call(
+                    "secadora.pesaje",
+                    "read",
+                    [[record.resId], ["peso_actual", "escuchando_bascula"]],
+                    { context: { bin_size: false } }
+                );
+
+                console.log("[PESO WIDGET] Resultado ORM:", result);
+
+                if (result && result.length > 0) {
+                    nuevoPeso = result[0].peso_actual || 0.0;
+                    record.data.escuchando_bascula = result[0].escuchando_bascula;
                 }
             }
+
+            console.log("[PESO WIDGET] Peso actual:", nuevoPeso);
+            console.log("[PESO WIDGET] Peso en state:", this.state.peso);
+
+            // Actualizar UI si cambió
+            if (Math.abs(this.state.peso - nuevoPeso) > 0.01) {
+                console.log("[PESO WIDGET] ¡Peso cambió! Actualizando UI...");
+                this.state.peso = nuevoPeso;
+                this.state.timestamp = new Date().toLocaleTimeString("es-CO");
+
+                // Actualizar el campo en el record (si existe)
+                if (record && record.data) {
+                    record.data.peso_actual = nuevoPeso;
+                }
+            } else {
+                console.log("[PESO WIDGET] Peso no cambió significativamente");
+            }
+
         } catch (error) {
             console.error("[PESO WIDGET] Error updating peso:", error);
         }

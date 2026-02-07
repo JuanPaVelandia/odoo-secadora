@@ -73,6 +73,44 @@ class BasculaAPI(http.Controller):
             _logger.error(f"Error obteniendo pesaje activo: {str(e)}")
             return {'success': False, 'message': str(e)}
 
+    @http.route('/api/bascula/peso_actual_global', type='json', auth='public', methods=['POST'], csrf=False)
+    def obtener_peso_actual_global(self, **kwargs):
+        """
+        Endpoint para obtener el último peso actualizado por la báscula
+        SIN necesidad de tener un pesaje_id específico.
+
+        Útil para mostrar el peso en formularios nuevos antes de guardar.
+
+        POST /api/bascula/peso_actual_global
+        Body: {} (no requiere parámetros)
+        """
+        try:
+            # Obtener el pesaje más reciente que tenga peso_actual
+            Pesaje = request.env['secadora.pesaje'].sudo()
+            pesaje = Pesaje.search([
+                ('peso_actual', '>', 0),
+                ('state', 'in', ['borrador', 'en_transito'])
+            ], order='write_date desc', limit=1)
+
+            if pesaje:
+                return {
+                    'success': True,
+                    'peso_actual': pesaje.peso_actual,
+                    'timestamp': pesaje.write_date.isoformat() if pesaje.write_date else None,
+                    'pesaje_id': pesaje.id
+                }
+            else:
+                return {
+                    'success': True,
+                    'peso_actual': 0.0,
+                    'timestamp': None,
+                    'message': 'No hay peso disponible'
+                }
+
+        except Exception as e:
+            _logger.error(f"Error obteniendo peso actual global: {str(e)}")
+            return {'success': False, 'message': str(e)}
+
     @http.route('/api/bascula/test', type='http', auth='none', methods=['GET'], csrf=False)
     def test_conexion(self):
         """Endpoint de prueba para verificar que la API esté funcionando"""
