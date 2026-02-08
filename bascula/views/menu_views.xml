@@ -73,7 +73,7 @@
         <menuitem id="menu_bascula_variedades"
                   name="Variedades de Arroz"
                   parent="menu_bascula_configuracion"
-                  action="action_variedad_arroz"
+                  action="action_secadora_variedad_arroz"
                   sequence="40"/>
 
         <menuitem id="menu_bascula_lugares"
