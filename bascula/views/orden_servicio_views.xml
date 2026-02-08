@@ -4,7 +4,7 @@
         <field name="name">secadora.orden.servicio.tree</field>
         <field name="model">secadora.orden.servicio</field>
         <field name="arch" type="xml">
-            <tree>
+            <list>
                 <field name="name"/>
                 <field name="fecha_inicio"/>
                 <field name="cliente_id"/>
@@ -12,7 +12,7 @@
                 <field name="peso_entrada"/>
                 <field name="peso_salida_real"/>
                 <field name="state" widget="badge"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -56,7 +56,7 @@
                         </page>
                         <page string="Bultos" invisible="modalidad_salida != 'bultos'">
                             <field name="registro_bultos_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="fecha"/>
                                     <field name="producto_empaque_id"/>
                                     <field name="cantidad"/>
@@ -65,17 +65,17 @@
                                     <field name="proveedor_empaque"/>
                                     <field name="precio_unitario_empaque"/>
                                     <field name="subtotal_empaque"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Servicios">
                             <field name="linea_servicio_ids">
-                                <tree editable="bottom">
+                                <list editable="bottom">
                                     <field name="producto_id"/>
                                     <field name="cantidad"/>
                                     <field name="precio_unitario"/>
                                     <field name="subtotal"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Liquidación">
