@@ -82,12 +82,13 @@ class RegistroBultos(models.Model):
         help='Total a cobrar por estos empaques'
     )
 
-    stock_move_id = fields.Many2one(
-        'stock.move',
-        string='Movimiento de Inventario',
-        readonly=True,
-        help='Movimiento que consume empaques del inventario'
-    )
+    # TODO: Descomentar cuando se instale el módulo 'stock'
+    # stock_move_id = fields.Many2one(
+    #     'stock.move',
+    #     string='Movimiento de Inventario',
+    #     readonly=True,
+    #     help='Movimiento que consume empaques del inventario'
+    # )
 
     observaciones = fields.Text(
         string='Observaciones'
@@ -138,34 +139,36 @@ class RegistroBultos(models.Model):
             if record.state != 'borrador':
                 continue
 
-            if record.proveedor_empaque == 'secadora' and record.producto_empaque_id:
-                record._crear_movimiento_inventario()
+            # TODO: Descomentar cuando se instale el módulo 'stock'
+            # if record.proveedor_empaque == 'secadora' and record.producto_empaque_id:
+            #     record._crear_movimiento_inventario()
 
             record.state = 'confirmado'
 
-    def _crear_movimiento_inventario(self):
-        self.ensure_one()
-
-        location_prod = self.env.ref('stock.location_production', raise_if_not_found=False)
-        location_inventory = self.env['stock.location'].search([
-            ('usage', '=', 'internal')
-        ], limit=1)
-
-        if not location_prod or not location_inventory:
-            raise UserError('No se encontraron las ubicaciones de inventario necesarias.')
-
-        move = self.env['stock.move'].create({
-            'name': f'Consumo empaques - {self.orden_id.name}',
-            'product_id': self.producto_empaque_id.id,
-            'product_uom_qty': self.cantidad,
-            'product_uom': self.producto_empaque_id.uom_id.id,
-            'location_id': location_inventory.id,
-            'location_dest_id': location_prod.id,
-            'origin': self.orden_id.name,
-        })
-
-        move._action_confirm()
-        move._action_assign()
-        move._action_done()
-
-        self.stock_move_id = move.id
+    # TODO: Descomentar cuando se instale el módulo 'stock'
+    # def _crear_movimiento_inventario(self):
+    #     self.ensure_one()
+    #
+    #     location_prod = self.env.ref('stock.location_production', raise_if_not_found=False)
+    #     location_inventory = self.env['stock.location'].search([
+    #         ('usage', '=', 'internal')
+    #     ], limit=1)
+    #
+    #     if not location_prod or not location_inventory:
+    #         raise UserError('No se encontraron las ubicaciones de inventario necesarias.')
+    #
+    #     move = self.env['stock.move'].create({
+    #         'name': f'Consumo empaques - {self.orden_id.name}',
+    #         'product_id': self.producto_empaque_id.id,
+    #         'product_uom_qty': self.cantidad,
+    #         'product_uom': self.producto_empaque_id.uom_id.id,
+    #         'location_id': location_inventory.id,
+    #         'location_dest_id': location_prod.id,
+    #         'origin': self.orden_id.name,
+    #     })
+    #
+    #     move._action_confirm()
+    #     move._action_assign()
+    #     move._action_done()
+    #
+    #     self.stock_move_id = move.id
