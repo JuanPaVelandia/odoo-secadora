@@ -93,8 +93,8 @@ class ServicioRegla(models.Model):
 
     precio_unitario = fields.Float(
         string='Precio Unitario',
-        related='producto_id.list_price',
-        readonly=True
+        digits='Product Price',
+        help='Precio unitario que se usará al agregar el servicio (si está vacío, usa el precio del producto)'
     )
 
     descripcion = fields.Text(
@@ -103,6 +103,12 @@ class ServicioRegla(models.Model):
     )
 
     # ==================== MÉTODOS ====================
+
+    @api.onchange('producto_id')
+    def _onchange_producto_id(self):
+        """Actualizar precio unitario cuando se selecciona un producto"""
+        if self.producto_id:
+            self.precio_unitario = self.producto_id.list_price
 
     def evaluar_condicion(self, orden):
         """

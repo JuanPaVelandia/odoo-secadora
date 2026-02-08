@@ -56,7 +56,8 @@
                                     <group>
                                         <field name="producto_id"
                                                options="{'no_create': True}"/>
-                                        <field name="precio_unitario" readonly="1"/>
+                                        <field name="precio_unitario"
+                                               placeholder="Se usa el precio del producto si está vacío"/>
                                     </group>
                                     <group>
                                         <field name="base_calculo"/>
@@ -69,6 +70,9 @@
                                 </group>
                                 <group>
                                     <field name="incluir_en_factura"/>
+                                    <div class="text-muted" invisible="incluir_en_factura">
+                                        El servicio se registrará pero con precio 0 (no se cobra)
+                                    </div>
                                 </group>
                             </page>
 

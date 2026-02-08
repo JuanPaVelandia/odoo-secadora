@@ -423,13 +423,21 @@ class OrdenServicio(models.Model):
                     # Calcular cantidad
                     cantidad = regla.calcular_cantidad(self)
 
+                    # Determinar precio a usar
+                    if not regla.incluir_en_factura:
+                        precio = 0.0
+                    elif regla.precio_unitario:
+                        precio = regla.precio_unitario
+                    else:
+                        precio = regla.producto_id.list_price
+
                     # Crear línea de servicio
                     self.env['secadora.orden.servicio.linea'].create({
                         'orden_id': self.id,
                         'producto_id': regla.producto_id.id,
                         'base_calculo': regla.base_calculo,
                         'cantidad': cantidad,
-                        'precio_unitario': regla.producto_id.list_price if regla.incluir_en_factura else 0.0,
+                        'precio_unitario': precio,
                         'descripcion': regla.name,
                     })
 
