@@ -409,13 +409,26 @@ class OrdenServicio(models.Model):
         if self.pesaje_entrada_id:
             raise UserError('Ya existe un pesaje de entrada para esta orden.')
 
+        # Determinar tipo de operación según tipo de servicio
+        tipo_op_map = {
+            'secamiento': 'bascula.tipo_op_secamiento_entrada',
+            'prelimpieza': 'bascula.tipo_op_prelimpieza_entrada',
+            'combinado': 'bascula.tipo_op_secamiento_entrada',  # Por defecto secamiento
+        }
+        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento_entrada')
+        tipo_operacion = self.env.ref(tipo_op_xmlid, raise_if_not_found=False)
+
         # Crear nuevo pesaje de entrada
-        pesaje = self.env['secadora.pesaje'].create({
-            'tipo_proceso': 'entrada',
+        vals = {
             'orden_servicio_id': self.id,
-            'cliente_id': self.cliente_id.id if self.cliente_id else False,
+            'tercero_id': self.cliente_id.id if self.cliente_id else False,
             'variedad_id': self.variedad_id.id if self.variedad_id else False,
-        })
+        }
+
+        if tipo_operacion:
+            vals['tipo_operacion_id'] = tipo_operacion.id
+
+        pesaje = self.env['secadora.pesaje'].create(vals)
 
         # Vincularlo como pesaje de entrada
         self.pesaje_entrada_id = pesaje.id
@@ -433,13 +446,26 @@ class OrdenServicio(models.Model):
         """Crear un pesaje de salida vinculado a esta orden"""
         self.ensure_one()
 
+        # Determinar tipo de operación según tipo de servicio
+        tipo_op_map = {
+            'secamiento': 'bascula.tipo_op_secamiento_salida',
+            'prelimpieza': 'bascula.tipo_op_prelimpieza_salida',
+            'combinado': 'bascula.tipo_op_secamiento_salida',  # Por defecto secamiento
+        }
+        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento_salida')
+        tipo_operacion = self.env.ref(tipo_op_xmlid, raise_if_not_found=False)
+
         # Crear nuevo pesaje de salida
-        pesaje = self.env['secadora.pesaje'].create({
-            'tipo_proceso': 'salida',
+        vals = {
             'orden_servicio_id': self.id,
-            'cliente_id': self.cliente_id.id if self.cliente_id else False,
+            'tercero_id': self.cliente_id.id if self.cliente_id else False,
             'variedad_id': self.variedad_id.id if self.variedad_id else False,
-        })
+        }
+
+        if tipo_operacion:
+            vals['tipo_operacion_id'] = tipo_operacion.id
+
+        pesaje = self.env['secadora.pesaje'].create(vals)
 
         # Abrir el pesaje creado
         return {

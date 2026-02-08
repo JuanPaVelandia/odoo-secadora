@@ -428,7 +428,7 @@ class SecadoraPesaje(models.Model):
 
         # Crear nueva orden
         orden = self.env['secadora.orden.servicio'].create({
-            'cliente_id': self.cliente_id.id if self.cliente_id else False,
+            'cliente_id': self.tercero_id.id if self.tercero_id else False,
             'variedad_id': self.variedad_id.id if self.variedad_id else False,
             'tipo_servicio': 'secamiento',  # Por defecto
         })
