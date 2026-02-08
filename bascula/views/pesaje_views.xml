@@ -13,6 +13,8 @@
                                 class="oe_highlight" invisible="state != 'borrador'"/>
                         <button name="action_segunda_pesada" string="2ª Pesada" type="object"
                                 class="oe_highlight" invisible="state != 'en_transito'"/>
+                        <button name="action_crear_orden_servicio" string="Crear Nueva Orden de Servicio" type="object"
+                                class="btn-secondary" invisible="orden_servicio_id"/>
                         <button name="action_cancelar" string="Cancelar" type="object"
                                 invisible="state in ['completado', 'cancelado']"/>
                         <button name="action_borrador" string="Volver a Borrador" type="object"
@@ -20,6 +22,16 @@
                         <field name="state" widget="statusbar" statusbar_visible="borrador,en_transito,completado"/>
                     </header>
                     <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_crear_orden_servicio" type="object"
+                                    class="oe_stat_button" icon="fa-file-text-o"
+                                    invisible="orden_servicio_id">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Crear</span>
+                                    <span class="o_stat_text">Orden</span>
+                                </div>
+                            </button>
+                        </div>
                         <div class="alert alert-info" role="alert" style="margin-bottom: 10px;">
                             <strong>Flujo de pesaje:</strong><br/>
                             <b>ENTRADA (Compra):</b> 1ª pesada = Peso Lleno → 2ª pesada = Peso Vacío<br/>
@@ -31,6 +43,11 @@
                                 <field name="tipo_proceso" invisible="1"/>
                                 <field name="name" readonly="1"/>
                                 <field name="fecha" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="orden_servicio_id"
+                                       options="{'no_create': False, 'no_open': False}"
+                                       placeholder="Seleccione o cree una orden de servicio"/>
                             </group>
                         </group>
 

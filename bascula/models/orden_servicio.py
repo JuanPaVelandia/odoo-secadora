@@ -84,6 +84,12 @@ class OrdenServicio(models.Model):
         help='Pesajes de salida del arroz (puede haber múltiples)'
     )
 
+    pesaje_count = fields.Integer(
+        string='Total Pesajes',
+        compute='_compute_pesaje_count',
+        store=False
+    )
+
     # ==================== MEDICIONES ENTRADA ====================
 
     peso_entrada = fields.Float(
@@ -280,6 +286,14 @@ class OrdenServicio(models.Model):
 
     # ==================== CAMPOS COMPUTADOS ====================
 
+    def _compute_pesaje_count(self):
+        for record in self:
+            count = 0
+            if record.pesaje_entrada_id:
+                count += 1
+            count += len(record.pesaje_salida_ids)
+            record.pesaje_count = count
+
     @api.depends('humedad_inicial', 'impureza_inicial')
     def _compute_merma_estimada(self):
         for record in self:
@@ -387,6 +401,73 @@ class OrdenServicio(models.Model):
     def action_volver_proceso(self):
         for record in self:
             record.state = 'en_proceso'
+
+    def action_crear_pesaje_entrada(self):
+        """Crear un pesaje de entrada vinculado a esta orden"""
+        self.ensure_one()
+
+        if self.pesaje_entrada_id:
+            raise UserError('Ya existe un pesaje de entrada para esta orden.')
+
+        # Crear nuevo pesaje de entrada
+        pesaje = self.env['secadora.pesaje'].create({
+            'tipo_proceso': 'entrada',
+            'orden_servicio_id': self.id,
+            'cliente_id': self.cliente_id.id if self.cliente_id else False,
+            'variedad_id': self.variedad_id.id if self.variedad_id else False,
+        })
+
+        # Vincularlo como pesaje de entrada
+        self.pesaje_entrada_id = pesaje.id
+
+        # Abrir el pesaje creado
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'secadora.pesaje',
+            'res_id': pesaje.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def action_crear_pesaje_salida(self):
+        """Crear un pesaje de salida vinculado a esta orden"""
+        self.ensure_one()
+
+        # Crear nuevo pesaje de salida
+        pesaje = self.env['secadora.pesaje'].create({
+            'tipo_proceso': 'salida',
+            'orden_servicio_id': self.id,
+            'cliente_id': self.cliente_id.id if self.cliente_id else False,
+            'variedad_id': self.variedad_id.id if self.variedad_id else False,
+        })
+
+        # Abrir el pesaje creado
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'secadora.pesaje',
+            'res_id': pesaje.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def action_ver_pesajes(self):
+        """Ver todos los pesajes vinculados a esta orden"""
+        self.ensure_one()
+
+        pesaje_ids = []
+        if self.pesaje_entrada_id:
+            pesaje_ids.append(self.pesaje_entrada_id.id)
+        pesaje_ids.extend(self.pesaje_salida_ids.ids)
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Pesajes - {self.name}',
+            'res_model': 'secadora.pesaje',
+            'domain': [('id', 'in', pesaje_ids)],
+            'view_mode': 'list,form',
+            'target': 'current',
+            'context': {'default_orden_servicio_id': self.id}
+        }
 
     # TODO: Descomentar cuando se instale el módulo 'account'
     # def action_generar_factura(self):

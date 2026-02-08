@@ -126,8 +126,9 @@ class SecadoraPesaje(models.Model):
     orden_servicio_id = fields.Many2one(
         'secadora.orden.servicio',
         string='Orden de Servicio',
+        required=True,
         index=True,
-        help='Orden de servicio a la que pertenece este pesaje (para servicios a terceros)'
+        help='Orden de servicio a la que pertenece este pesaje'
     )
 
     # Pesaje
@@ -417,3 +418,33 @@ class SecadoraPesaje(models.Model):
                     record.peso_tara = record.peso_actual
                 else:
                     record.peso_bruto = record.peso_actual
+
+    def action_crear_orden_servicio(self):
+        """Crear una nueva Orden de Servicio vinculada a este pesaje"""
+        self.ensure_one()
+
+        if self.orden_servicio_id:
+            raise UserError('Este pesaje ya está vinculado a una orden de servicio.')
+
+        # Crear nueva orden
+        orden = self.env['secadora.orden.servicio'].create({
+            'cliente_id': self.cliente_id.id if self.cliente_id else False,
+            'variedad_id': self.variedad_id.id if self.variedad_id else False,
+            'tipo_servicio': 'secamiento',  # Por defecto
+        })
+
+        # Vincular pesaje a la orden
+        self.orden_servicio_id = orden.id
+
+        # Si es entrada, vincularlo como pesaje de entrada
+        if self.tipo_proceso == 'entrada':
+            orden.pesaje_entrada_id = self.id
+
+        # Abrir la orden creada
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'secadora.orden.servicio',
+            'res_id': orden.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
