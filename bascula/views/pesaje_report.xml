@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Formato de papel: Media Carta (5.5 x 8.5 pulgadas / 139.7 x 215.9 mm) -->
+        <!-- IMPORTANTE: Debe ir ANTES del action_report para que la referencia funcione -->
+        <record id="paperformat_tiquete_media_carta" model="report.paperformat">
+            <field name="name">Tiquete Media Carta</field>
+            <field name="default" eval="False"/>
+            <field name="format">custom</field>
+            <field name="page_height">216</field>
+            <field name="page_width">140</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">5</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Acción de impresión -->
+        <record id="action_report_pesaje_tiquete" model="ir.actions.report">
+            <field name="name">Tiquete de Pesaje</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">bascula.report_pesaje_tiquete_document</field>
+            <field name="report_file">bascula.report_pesaje_tiquete_document</field>
+            <field name="binding_model_id" ref="model_secadora_pesaje"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Tiquete - %s' % (object.name)</field>
+            <field name="paperformat_id" ref="bascula.paperformat_tiquete_media_carta"/>
+        </record>
+
+        <!-- Plantilla del tiquete -->
+        <template id="report_pesaje_tiquete_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+                            <!-- Encabezado -->
+                            <div class="text-center" style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+                                <h3 style="margin: 0; font-size: 14px;"><strong>Secadora La Gran Colombia S.A.S</strong></h3>
+                                <h4 style="margin: 3px 0; font-size: 12px;">TIQUETE DE PESAJE</h4>
+                                <p style="margin: 3px 0; font-size: 11px;">
+                                    <strong>No. <span t-field="o.name"/></strong>
+                                </p>
+                            </div>
+
+                            <!-- Información general -->
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-6">
+                                    <strong>Fecha:</strong> <span t-field="o.fecha"/><br/>
+                                    <strong>Tipo:</strong> <span t-field="o.tipo_proceso"/><br/>
+                                    <strong>Estado:</strong> <span t-field="o.state"/>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Entrada:</strong> <span t-field="o.hora_entrada"/><br/>
+                                    <strong>Salida:</strong> <span t-field="o.hora_salida"/>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 8px 0;"/>
+
+                            <!-- Información del vehículo -->
+                            <div style="margin-bottom: 10px;">
+                                <h5 style="background-color: #f0f0f0; padding: 3px; margin: 0 0 5px 0; font-size: 11px;"><strong>Información del Vehículo</strong></h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Placa:</strong> <span t-field="o.placa_texto"/><br/>
+                                        <strong>Conductor:</strong> <span t-field="o.conductor_id"/><br/>
+                                        <strong>Cédula:</strong> <span t-field="o.cedula_conductor"/>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Transportadora:</strong> <span t-field="o.transportadora_id"/><br/>
+                                        <strong>Tercero:</strong> <span t-field="o.tercero_id"/><br/>
+                                        <strong>NIT/CC:</strong> <span t-field="o.nit_tercero"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 8px 0;"/>
+
+                            <!-- Origen y Destino -->
+                            <div style="margin-bottom: 10px;">
+                                <h5 style="background-color: #f0f0f0; padding: 3px; margin: 0 0 5px 0; font-size: 11px;"><strong>Origen y Destino</strong></h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Origen:</strong> <span t-field="o.origen_id"/><br/>
+                                        <strong>Lote:</strong> <span t-field="o.lote_finca"/>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Destino:</strong> <span t-field="o.destino_id"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 8px 0;"/>
+
+                            <!-- PESAJE (destacado) -->
+                            <div style="margin-bottom: 10px; border: 2px solid #000; padding: 8px; background-color: #f9f9f9;">
+                                <h5 style="text-align: center; margin: 0 0 5px 0; font-size: 12px;"><strong>PESAJE</strong></h5>
+                                <table class="table table-borderless" style="font-size: 11px; margin-bottom: 0;">
+                                    <tr>
+                                        <td style="width: 50%;"><strong>Peso Lleno:</strong></td>
+                                        <td style="text-align: right;"><strong><span t-field="o.peso_bruto"/> Kg</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Peso Vacío:</strong></td>
+                                        <td style="text-align: right;"><strong><span t-field="o.peso_tara"/> Kg</strong></td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #000;">
+                                        <td style="padding-top: 5px;"><strong style="font-size: 14px;">Peso Neto:</strong></td>
+                                        <td style="text-align: right; padding-top: 5px;"><strong style="font-size: 14px; color: #00A09D;"><span t-field="o.peso_neto"/> Kg</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <hr style="margin: 8px 0;"/>
+
+                            <!-- Producto y Calidad -->
+                            <div style="margin-bottom: 10px;">
+                                <h5 style="background-color: #f0f0f0; padding: 3px; margin: 0 0 5px 0; font-size: 11px;"><strong>Producto y Calidad</strong></h5>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong>Producto:</strong> <span t-field="o.producto_id"/><br/>
+                                        <strong>Variedad:</strong> <span t-field="o.variedad_id"/><br/>
+                                        <strong>Bultos:</strong> <span t-field="o.bultos"/>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Humedad:</strong> <span t-field="o.humedad"/>%<br/>
+                                        <strong>Grano Partido:</strong> <span t-field="o.grano_partido"/>%<br/>
+                                        <strong>Impurezas:</strong> <span t-field="o.impurezas"/>%
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Observaciones -->
+                            <t t-if="o.observaciones">
+                                <hr style="margin: 8px 0;"/>
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Observaciones:</strong><br/>
+                                    <span t-field="o.observaciones"/>
+                                </div>
+                            </t>
+
+                            <!-- Firmas -->
+                            <div class="row" style="margin-top: 50px;">
+                                <div class="col-6 text-center">
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 20px;">
+                                        Firma del Basculero
+                                    </div>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 20px;">
+                                        Firma del Conductor
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="text-center" style="margin-top: 30px; font-size: 10px; color: #666;">
+                                <p>Este documento es una constancia del pesaje realizado</p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Compra de Arroz -->
+        <record id="tipo_op_compra" model="secadora.tipo.operacion">
+            <field name="name">Compra de Arroz</field>
+            <field name="codigo">COMPRA</field>
+            <field name="direccion">entrada</field>
+            <field name="sequence">10</field>
+            <field name="afecta_inventario" eval="True"/>
+            <field name="tipo_inventario">entrada</field>
+            <field name="genera_factura" eval="True"/>
+            <field name="tipo_factura">proveedor</field>
+            <field name="es_servicio" eval="False"/>
+            <field name="requiere_precio" eval="True"/>
+            <field name="descripcion">Compra de arroz a productores. El arroz entra al inventario de la secadora y se genera factura de proveedor.</field>
+            <field name="color">3</field>
+        </record>
+
+        <!-- Venta de Arroz -->
+        <record id="tipo_op_venta" model="secadora.tipo.operacion">
+            <field name="name">Venta de Arroz</field>
+            <field name="codigo">VENTA</field>
+            <field name="direccion">salida</field>
+            <field name="sequence">20</field>
+            <field name="afecta_inventario" eval="True"/>
+            <field name="tipo_inventario">salida</field>
+            <field name="genera_factura" eval="True"/>
+            <field name="tipo_factura">cliente</field>
+            <field name="es_servicio" eval="False"/>
+            <field name="requiere_precio" eval="True"/>
+            <field name="descripcion">Venta de arroz propio. El arroz sale del inventario y se genera factura de cliente.</field>
+            <field name="color">2</field>
+        </record>
+
+        <!-- Servicio de Secamiento - Entrada -->
+        <record id="tipo_op_secamiento_entrada" model="secadora.tipo.operacion">
+            <field name="name">Servicio Secamiento (Entrada)</field>
+            <field name="codigo">SEC_ENT</field>
+            <field name="direccion">entrada</field>
+            <field name="sequence">30</field>
+            <field name="afecta_inventario" eval="False"/>
+            <field name="genera_factura" eval="False"/>
+            <field name="es_servicio" eval="True"/>
+            <field name="requiere_precio" eval="False"/>
+            <field name="descripcion">Recepción de arroz del cliente para servicio de secamiento. El arroz NO entra al inventario (no es propio).</field>
+            <field name="color">5</field>
+        </record>
+
+        <!-- Servicio de Secamiento - Salida -->
+        <record id="tipo_op_secamiento_salida" model="secadora.tipo.operacion">
+            <field name="name">Servicio Secamiento (Salida)</field>
+            <field name="codigo">SEC_SAL</field>
+            <field name="direccion">salida</field>
+            <field name="sequence">40</field>
+            <field name="afecta_inventario" eval="False"/>
+            <field name="genera_factura" eval="True"/>
+            <field name="tipo_factura">cliente</field>
+            <field name="es_servicio" eval="True"/>
+            <field name="requiere_precio" eval="True"/>
+            <field name="descripcion">Devolución de arroz secado al cliente. Se cobra el servicio de secamiento. NO afecta inventario.</field>
+            <field name="color">5</field>
+        </record>
+
+        <!-- Servicio de Prelimpieza - Entrada -->
+        <record id="tipo_op_prelimpieza_entrada" model="secadora.tipo.operacion">
+            <field name="name">Servicio Prelimpieza (Entrada)</field>
+            <field name="codigo">PRELIM_ENT</field>
+            <field name="direccion">entrada</field>
+            <field name="sequence">50</field>
+            <field name="afecta_inventario" eval="False"/>
+            <field name="genera_factura" eval="False"/>
+            <field name="es_servicio" eval="True"/>
+            <field name="requiere_precio" eval="False"/>
+            <field name="descripcion">Recepción de arroz para servicio de prelimpieza. NO entra al inventario.</field>
+            <field name="color">4</field>
+        </record>
+
+        <!-- Servicio de Prelimpieza - Salida -->
+        <record id="tipo_op_prelimpieza_salida" model="secadora.tipo.operacion">
+            <field name="name">Servicio Prelimpieza (Salida)</field>
+            <field name="codigo">PRELIM_SAL</field>
+            <field name="direccion">salida</field>
+            <field name="sequence">60</field>
+            <field name="afecta_inventario" eval="False"/>
+            <field name="genera_factura" eval="True"/>
+            <field name="tipo_factura">cliente</field>
+            <field name="es_servicio" eval="True"/>
+            <field name="requiere_precio" eval="True"/>
+            <field name="descripcion">Devolución de arroz prelimpiado al cliente. Se cobra el servicio. NO afecta inventario.</field>
+            <field name="color">4</field>
+        </record>
+
+    </data>
+</odoo>

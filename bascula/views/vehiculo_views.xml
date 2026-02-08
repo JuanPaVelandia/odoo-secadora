@@ -2,19 +2,19 @@
 <odoo>
     <data>
 
-        <!-- Vista Tree de Vehículos -->
-        <record id="view_secadora_vehiculo_tree" model="ir.ui.view">
-            <field name="name">secadora.vehiculo.tree</field>
+        <!-- Vista List de Vehículos -->
+        <record id="view_secadora_vehiculo_list" model="ir.ui.view">
+            <field name="name">secadora.vehiculo.list</field>
             <field name="model">secadora.vehiculo</field>
             <field name="arch" type="xml">
-                <tree string="Vehículos">
+                <list string="Vehículos">
                     <field name="placa"/>
                     <field name="tipo_vehiculo"/>
                     <field name="capacidad_kg"/>
                     <field name="tara_promedio"/>
                     <field name="conductor_habitual_id"/>
                     <field name="transportadora_id"/>
-                </tree>
+                </list>
             </field>
         </record>
 
@@ -70,7 +70,7 @@
         <record id="action_secadora_vehiculo" model="ir.actions.act_window">
             <field name="name">Vehículos</field>
             <field name="res_model">secadora.vehiculo</field>
-            <field name="view_mode">tree,form</field>
+            <field name="view_mode">list,form</field>
             <field name="context">{'search_default_active': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">

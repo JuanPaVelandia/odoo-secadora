@@ -1,0 +1,335 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+SIMULADOR de Báscula Prometálicos → Odoo CloudPepper
+======================================================
+
+Este script SIMULA una báscula sin necesidad de hardware físico.
+Perfecto para hacer pruebas del sistema completo.
+
+Genera pesos aleatorios que varían ligeramente para simular
+un vehículo sobre la báscula.
+
+Autor: Secadora La Gran Colombia S.A.S
+Fecha: 2026-02
+"""
+
+import requests
+import time
+import logging
+import sys
+import random
+from datetime import datetime
+
+# ===== CONFIGURACIÓN =====
+# IMPORTANTE: Modifica estos valores según tu instalación
+
+# URL de tu instancia Odoo en CloudPepper
+ODOO_URL = "https://223ivyj1eb1.cloudpepper.site"
+
+# API Key (generar desde Odoo → Configuración → Báscula)
+API_KEY = "iSwm4bN-4VnFyWaY8HAj7Bxh_EP2zpthZgodO9N3gGQ"
+
+# Peso base a simular (kg)
+PESO_BASE_MIN = 5000   # Peso mínimo (5 toneladas)
+PESO_BASE_MAX = 35000  # Peso máximo (35 toneladas)
+
+# Variación del peso (simula vibración de báscula)
+VARIACION_PESO = 10  # +/- 10 kg
+
+# Intervalo de actualización (en segundos)
+INTERVALO_ACTUALIZACION = 1  # Actualizar cada 1 segundo
+
+# Modo de simulación
+MODO_SIMULACION = "aleatorio"  # "aleatorio" o "fijo"
+PESO_FIJO = 28345.50  # Si modo = "fijo", usar este peso
+
+# ===== FIN CONFIGURACIÓN =====
+
+# Configurar logging (con encoding UTF-8 para Windows)
+logging.basicConfig(
+    level=logging.DEBUG,  # Cambiado a DEBUG para ver más detalles
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('bascula_simulador.log', encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# Configurar encoding UTF-8 para stdout en Windows
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+
+
+class BasculaSimulador:
+    """Simulador de báscula Prometálicos"""
+
+    def __init__(self):
+        self.pesaje_activo = None
+        self.peso_actual = None
+        self.peso_base = None
+
+    def generar_peso(self):
+        """Genera un peso simulado"""
+        if MODO_SIMULACION == "fijo":
+            # Peso fijo con pequeña variación
+            variacion = random.uniform(-2, 2)
+            return round(PESO_FIJO + variacion, 2)
+        else:
+            # Peso aleatorio
+            if self.peso_base is None or random.random() < 0.1:  # 10% chance de cambiar base
+                # Generar nuevo peso base (simula nuevo vehículo)
+                self.peso_base = random.uniform(PESO_BASE_MIN, PESO_BASE_MAX)
+
+            # Agregar variación (simula vibración)
+            variacion = random.uniform(-VARIACION_PESO, VARIACION_PESO)
+            peso = self.peso_base + variacion
+
+            # Redondear a 2 decimales
+            return round(max(0, peso), 2)
+
+    def obtener_pesaje_activo(self):
+        """Obtiene el ID del pesaje activo desde Odoo"""
+        try:
+            url = f"{ODOO_URL}/api/bascula/pesaje_activo"
+            payload = {"api_key": API_KEY}
+
+            logger.debug(f"[DEBUG] Consultando: {url}")
+            logger.debug(f"[DEBUG] Payload: {payload}")
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers={'Content-Type': 'application/json'},
+                timeout=5
+            )
+
+            logger.debug(f"[DEBUG] Status Code: {response.status_code}")
+            logger.debug(f"[DEBUG] Response: {response.text}")
+
+            if response.status_code == 200:
+                data = response.json()
+                logger.debug(f"[DEBUG] Data parsed: {data}")
+
+                # Odoo usa JSON-RPC, la respuesta real está en 'result'
+                result = data.get('result', data)
+
+                if result.get('success'):
+                    pesaje_id = result.get('pesaje_id')
+                    placa = result.get('placa', '')
+                    tipo = result.get('tipo_proceso', '')
+                    logger.info(f"[PESAJE] Pesaje activo: ID {pesaje_id}, Placa: {placa}, Tipo: {tipo}")
+                    return pesaje_id
+                else:
+                    logger.info(f"[INFO] No hay pesajes activos: {result.get('message')}")
+                    return None
+            else:
+                logger.error(f"[ERROR] Error HTTP {response.status_code}: {response.text}")
+                return None
+
+        except requests.exceptions.Timeout:
+            logger.error("[ERROR] Timeout conectando a Odoo")
+            return None
+        except requests.exceptions.ConnectionError:
+            logger.error("[ERROR] No se puede conectar a Odoo. Verifica la URL y conexion a internet.")
+            return None
+        except Exception as e:
+            logger.error(f"[ERROR] Error obteniendo pesaje activo: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def enviar_peso_odoo(self, pesaje_id, peso):
+        """Envía el peso simulado a Odoo"""
+        try:
+            url = f"{ODOO_URL}/api/bascula/actualizar_peso"
+            payload = {
+                "pesaje_id": pesaje_id,
+                "peso": peso,
+                "api_key": API_KEY
+            }
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers={'Content-Type': 'application/json'},
+                timeout=3
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+
+                # Odoo usa JSON-RPC, la respuesta real está en 'result'
+                result = data.get('result', data)
+
+                if result.get('success'):
+                    return True
+                else:
+                    logger.error(f"[ERROR] Error desde Odoo: {result.get('message')}")
+                    return False
+            else:
+                logger.error(f"[ERROR] Error HTTP {response.status_code}")
+                return False
+
+        except Exception as e:
+            logger.error(f"[ERROR] Error enviando peso: {e}")
+            return False
+
+    def verificar_configuracion(self):
+        """Verifica que la configuración esté completa"""
+        errores = []
+
+        if "TU_API_KEY_AQUI" in API_KEY:
+            errores.append("[ADVERTENCIA] Debes configurar el API_KEY en el script")
+
+        if "tu-instancia.cloudpepper.site" in ODOO_URL:
+            errores.append("[ADVERTENCIA] Debes configurar el ODOO_URL en el script")
+
+        if errores:
+            logger.error("[ERROR] CONFIGURACION INCOMPLETA:")
+            for error in errores:
+                logger.error(f"   {error}")
+            logger.error("\n[INSTRUCCIONES] Edita el archivo bascula_simulador.py y configura:")
+            logger.error("   - ODOO_URL: URL de tu Odoo en CloudPepper")
+            logger.error("   - API_KEY: Genera una en Odoo -> Configuracion -> Bascula\n")
+            return False
+
+        return True
+
+    def run(self):
+        """Loop principal del simulador"""
+        logger.info("=" * 70)
+        logger.info("SIMULADOR DE BASCULA PROMETALICOS -> ODOO CLOUDPEPPER")
+        logger.info("=" * 70)
+        logger.info(f"Odoo URL: {ODOO_URL}")
+        logger.info(f"Modo: {MODO_SIMULACION.upper()}")
+        if MODO_SIMULACION == "fijo":
+            logger.info(f"Peso fijo: {PESO_FIJO} kg (+/- 2 kg)")
+        else:
+            logger.info(f"Rango de peso: {PESO_BASE_MIN} - {PESO_BASE_MAX} kg")
+            logger.info(f"Variacion: +/- {VARIACION_PESO} kg")
+        logger.info(f"Intervalo: {INTERVALO_ACTUALIZACION}s")
+        logger.info("=" * 70)
+
+        # Verificar configuración
+        if not self.verificar_configuracion():
+            return
+
+        logger.info("\n[OK] Simulador iniciado correctamente")
+        logger.info("[INFO] Esperando pesajes en Odoo...")
+        logger.info("[INFO] Crea un pesaje en Odoo para empezar a ver datos\n")
+
+        contador_actualizaciones = 0
+
+        try:
+            while True:
+                # Obtener pesaje activo cada 5 actualizaciones
+                if contador_actualizaciones % 5 == 0:
+                    nuevo_pesaje = self.obtener_pesaje_activo()
+                    if nuevo_pesaje != self.pesaje_activo:
+                        self.pesaje_activo = nuevo_pesaje
+                        if self.pesaje_activo:
+                            logger.info(f"\n[NUEVO] Nuevo pesaje activo: {self.pesaje_activo}")
+                            logger.info("[INICIANDO] Iniciando envio de pesos simulados...\n")
+                            # Resetear peso base para nuevo pesaje
+                            self.peso_base = None
+
+                # Generar y enviar peso
+                if self.pesaje_activo:
+                    peso = self.generar_peso()
+
+                    # Mostrar con indicadores de variación
+                    if self.peso_actual:
+                        if peso > self.peso_actual:
+                            indicador = "[+]"
+                        elif peso < self.peso_actual:
+                            indicador = "[-]"
+                        else:
+                            indicador = "[=]"
+                    else:
+                        indicador = "[PESO]"
+
+                    logger.info(f"{indicador} Peso simulado: {peso:,.2f} kg")
+
+                    # Enviar a Odoo
+                    if self.enviar_peso_odoo(self.pesaje_activo, peso):
+                        logger.debug(f"[OK] Peso enviado a Odoo")
+                        self.peso_actual = peso
+                    else:
+                        logger.warning("[ADVERTENCIA] No se pudo enviar peso a Odoo")
+
+                else:
+                    # No hay pesaje activo
+                    if contador_actualizaciones % 30 == 0:  # Cada 30 segundos
+                        logger.info("[ESPERANDO] Esperando pesaje activo en Odoo...")
+
+                contador_actualizaciones += 1
+                time.sleep(INTERVALO_ACTUALIZACION)
+
+        except KeyboardInterrupt:
+            logger.info("\n\n[DETENIDO] Simulador detenido por el usuario")
+            logger.info(f"[ESTADISTICAS] Total de actualizaciones enviadas: {contador_actualizaciones}")
+        except Exception as e:
+            logger.error(f"\n[ERROR FATAL] Error fatal: {e}")
+            import traceback
+            traceback.print_exc()
+
+
+def menu_interactivo():
+    """Menú para configuración rápida"""
+    print("\n" + "=" * 70)
+    print("SIMULADOR DE BASCULA - CONFIGURACION RAPIDA")
+    print("=" * 70)
+
+    # Verificar configuración actual
+    if "TU_API_KEY_AQUI" in API_KEY:
+        print("\n[ADVERTENCIA] API KEY NO CONFIGURADA")
+        print("[INSTRUCCIONES] Edita el archivo y configura:")
+        print(f"   ODOO_URL = '{ODOO_URL}'")
+        print("   API_KEY = 'tu_api_key_aqui'")
+        print("\nLuego ejecuta de nuevo el script.\n")
+        return
+
+    print(f"\n[OK] Configuracion actual:")
+    print(f"   URL: {ODOO_URL}")
+    print(f"   Modo: {MODO_SIMULACION}")
+    if MODO_SIMULACION == "fijo":
+        print(f"   Peso: {PESO_FIJO} kg")
+
+    print("\nQue deseas hacer?")
+    print("1. Iniciar simulador")
+    print("2. Cambiar a peso fijo")
+    print("3. Cambiar a peso aleatorio")
+    print("4. Salir")
+
+    opcion = input("\nOpcion (1-4): ").strip()
+
+    if opcion == "1":
+        return True
+    elif opcion == "2":
+        peso = input(f"Ingresa peso fijo (actual: {PESO_FIJO}): ").strip()
+        if peso:
+            print(f"\n[NOTA] Para usar peso fijo de {peso} kg:")
+            print(f"   Edita el script y cambia:")
+            print(f"   MODO_SIMULACION = 'fijo'")
+            print(f"   PESO_FIJO = {peso}")
+    elif opcion == "3":
+        print(f"\n[NOTA] Para usar peso aleatorio:")
+        print(f"   Edita el script y cambia:")
+        print(f"   MODO_SIMULACION = 'aleatorio'")
+    else:
+        print("\nHasta luego!")
+        return False
+
+
+if __name__ == "__main__":
+    # Mostrar menú si no está configurado
+    if len(sys.argv) > 1 and sys.argv[1] == "--menu":
+        if not menu_interactivo():
+            sys.exit(0)
+
+    # Iniciar simulador
+    simulador = BasculaSimulador()
+    simulador.run()

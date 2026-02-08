@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+import pytz
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -21,15 +23,28 @@ class SecadoraPesaje(models.Model):
     fecha = fields.Date(
         string='Fecha',
         required=True,
-        default=fields.Date.context_today,
-        index=True
+        default=lambda self: self._get_colombia_date(),
+        index=True,
+        readonly=True
     )
     hora_entrada = fields.Datetime(string='Hora Entrada')
     hora_salida = fields.Datetime(string='Hora Salida')
+
+    # Tipo de Operación (desde catálogo)
+    tipo_operacion_id = fields.Many2one(
+        'secadora.tipo.operacion',
+        string='Tipo de Operación',
+        required=True,
+        index=True,
+        help='Selecciona el tipo de operación: compra, venta, servicio de secamiento, etc.'
+    )
+
+    # Campo legacy mantenido por compatibilidad (computed)
     tipo_proceso = fields.Selection([
-        ('entrada', 'Entrada (Compra)'),
-        ('salida', 'Salida (Venta/Despacho)'),
-    ], string='Tipo de Proceso', required=True, default='entrada', index=True)
+        ('entrada', 'Entrada'),
+        ('salida', 'Salida'),
+    ], string='Dirección', compute='_compute_tipo_proceso', store=True, index=True)
+
     state = fields.Selection([
         ('borrador', 'Borrador'),
         ('en_transito', 'En Tránsito'),
@@ -79,20 +94,28 @@ class SecadoraPesaje(models.Model):
     )
 
     # Origen y destino
-    origen = fields.Char(
-        string='Origen (Finca)',
-        help='Nombre de la finca de origen'
+    origen_id = fields.Many2one(
+        'secadora.lugar',
+        string='Origen',
+        help='Lugar de origen (finca, bodega, etc.)'
     )
     lote_finca = fields.Char(
-        string='Lote Finca',
-        help='Lote dentro de la finca (ej: 180, La Esperanza)'
+        string='Lote',
+        help='Lote o número específico (ej: 180, La Esperanza)'
     )
-    destino = fields.Char(string='Destino')
+    destino_id = fields.Many2one(
+        'secadora.lugar',
+        string='Destino',
+        help='Lugar de destino (finca, bodega, etc.)'
+    )
 
     # Producto
-    producto = fields.Char(
+    producto_id = fields.Many2one(
+        'product.product',
         string='Producto',
-        help='Ej: Arroz Paddy Verde'
+        help='Producto del inventario',
+        domain=[('type', 'in', ['product', 'consu'])],
+        index=True
     )
     variedad_id = fields.Many2one(
         'secadora.variedad.arroz',
@@ -100,13 +123,32 @@ class SecadoraPesaje(models.Model):
     )
 
     # Pesaje
+    peso_actual = fields.Float(
+        string='Peso Actual (Kg)
+
+    # Vínculo con Orden de Servicio
+    orden_servicio_id = fields.Many2one(
+        'secadora.orden.servicio',
+        string='Orden de Servicio',
+        index=True,
+        help='Orden de servicio a la que pertenece este pesaje (para servicios a terceros)'
+    )',
+        help='Peso en tiempo real desde la báscula',
+        digits=(12, 2),
+        readonly=True
+    )
+    escuchando_bascula = fields.Boolean(
+        string='Escuchando Báscula',
+        default=False,
+        help='Indica si el sistema está recibiendo peso de la báscula'
+    )
     peso_bruto = fields.Float(
-        string='Peso Bruto (Kg)',
+        string='Peso Lleno (Kg)',
         help='Primera pesada - Vehículo lleno',
         digits=(12, 2)
     )
     peso_tara = fields.Float(
-        string='Peso Tara (Kg)',
+        string='Peso Vacío (Kg)',
         help='Segunda pesada - Vehículo vacío',
         digits=(12, 2)
     )
@@ -148,6 +190,15 @@ class SecadoraPesaje(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.pesaje') or 'Nuevo'
         return super().create(vals_list)
 
+    @api.depends('tipo_operacion_id')
+    def _compute_tipo_proceso(self):
+        """Compute tipo_proceso desde tipo_operacion_id para mantener compatibilidad"""
+        for record in self:
+            if record.tipo_operacion_id:
+                record.tipo_proceso = record.tipo_operacion_id.direccion
+            else:
+                record.tipo_proceso = 'entrada'
+
     @api.depends('peso_bruto', 'peso_tara')
     def _compute_peso_neto(self):
         for record in self:
@@ -161,14 +212,56 @@ class SecadoraPesaje(models.Model):
         for record in self:
             record.nit_tercero = record.tercero_id.vat or ''
 
+    def _get_colombia_date(self):
+        """Obtiene la fecha actual de Colombia (America/Bogota)"""
+        colombia_tz = pytz.timezone('America/Bogota')
+        utc_now = datetime.now(pytz.UTC)
+        colombia_now = utc_now.astimezone(colombia_tz)
+        return colombia_now.date()
+
+    def _get_colombia_time(self):
+        """Obtiene la hora actual de Colombia (America/Bogota)"""
+        colombia_tz = pytz.timezone('America/Bogota')
+        utc_now = datetime.now(pytz.UTC)
+        colombia_now = utc_now.astimezone(colombia_tz)
+        # Convertir de vuelta a UTC para almacenar en Odoo
+        return colombia_now.astimezone(pytz.UTC).replace(tzinfo=None)
+
     def action_primera_pesada(self):
         for record in self:
             if record.state != 'borrador':
                 raise UserError('Solo se puede registrar la primera pesada en estado borrador.')
-            if not record.peso_bruto or record.peso_bruto <= 0:
-                raise UserError('Debe ingresar un peso bruto válido.')
+
+            # Obtener peso actual de la báscula
+            peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+
+            # Si no hay peso_actual en este registro (ej: registro nuevo sin guardar),
+            # buscar el último peso disponible en la BD
+            if peso_a_usar <= 0:
+                ultimo_pesaje = self.search([
+                    ('peso_actual', '>', 0),
+                    ('state', 'in', ['borrador', 'en_transito'])
+                ], order='write_date desc', limit=1)
+
+                if ultimo_pesaje:
+                    peso_a_usar = ultimo_pesaje.peso_actual
+                    # Actualizar el peso_actual de este registro también
+                    record.peso_actual = peso_a_usar
+
+            # Validación según tipo de proceso
+            if record.tipo_proceso == 'entrada':
+                # Entrada: 1ª pesada = peso bruto (camión lleno)
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
+                record.peso_bruto = peso_a_usar
+            else:
+                # Salida: 1ª pesada = peso tara (camión vacío)
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
+                record.peso_tara = peso_a_usar
+
             record.write({
-                'hora_entrada': fields.Datetime.now(),
+                'hora_entrada': self._get_colombia_time(),
                 'state': 'en_transito'
             })
 
@@ -176,12 +269,45 @@ class SecadoraPesaje(models.Model):
         for record in self:
             if record.state != 'en_transito':
                 raise UserError('Solo se puede registrar la segunda pesada en estado en tránsito.')
-            if not record.peso_tara or record.peso_tara <= 0:
-                raise UserError('Debe ingresar un peso tara válido.')
-            if record.peso_tara >= record.peso_bruto:
-                raise UserError('El peso tara debe ser menor que el peso bruto.')
+
+            # Obtener peso actual de la báscula
+            peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+
+            # Si no hay peso_actual en este registro, buscar el último peso disponible
+            if peso_a_usar <= 0:
+                ultimo_pesaje = self.search([
+                    ('peso_actual', '>', 0),
+                    ('state', 'in', ['borrador', 'en_transito'])
+                ], order='write_date desc', limit=1)
+
+                if ultimo_pesaje:
+                    peso_a_usar = ultimo_pesaje.peso_actual
+                    # Actualizar el peso_actual de este registro también
+                    record.peso_actual = peso_a_usar
+
+            # Validación según tipo de proceso
+            if record.tipo_proceso == 'entrada':
+                # Entrada: 2ª pesada = peso tara (camión vacío)
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
+                if not record.peso_bruto or record.peso_bruto <= 0:
+                    raise UserError('Debe tener registrado el peso bruto de la primera pesada.')
+                record.peso_tara = peso_a_usar
+            else:
+                # Salida: 2ª pesada = peso bruto (camión lleno)
+                if peso_a_usar <= 0:
+                    raise UserError('No hay peso disponible desde la báscula. Verifica que el simulador/báscula esté enviando datos.')
+                if not record.peso_tara or record.peso_tara <= 0:
+                    raise UserError('Debe tener registrado el peso tara de la primera pesada.')
+                record.peso_bruto = peso_a_usar
+
+            # Validar que el peso neto no sea negativo
+            peso_neto_calc = record.peso_bruto - record.peso_tara
+            if peso_neto_calc <= 0:
+                raise UserError(f'El peso neto no puede ser negativo o cero. Peso bruto: {record.peso_bruto} kg, Peso tara: {record.peso_tara} kg')
+
             record.write({
-                'hora_salida': fields.Datetime.now(),
+                'hora_salida': self._get_colombia_time(),
                 'state': 'completado'
             })
 
@@ -194,3 +320,100 @@ class SecadoraPesaje(models.Model):
     def action_borrador(self):
         for record in self:
             record.state = 'borrador'
+
+    # ===== MÉTODOS PARA INTEGRACIÓN CON BÁSCULA =====
+
+    @api.model
+    def actualizar_peso_bascula(self, pesaje_id, peso, api_key):
+        """
+        Método llamado por el bridge externo para actualizar el peso en tiempo real
+
+        Args:
+            pesaje_id: ID del pesaje activo
+            peso: Peso actual en kg
+            api_key: Clave de autenticación
+
+        Returns:
+            dict: {'success': bool, 'peso': float, 'message': str}
+        """
+        # Validar API Key
+        api_key_config = self.env['ir.config_parameter'].sudo().get_param('bascula.api_key', '')
+        if not api_key_config or api_key != api_key_config:
+            return {'success': False, 'message': 'API Key inválida'}
+
+        try:
+            pesaje = self.browse(pesaje_id)
+            if not pesaje.exists():
+                return {'success': False, 'message': 'Pesaje no encontrado'}
+
+            # Actualizar peso actual
+            pesaje.sudo().write({'peso_actual': peso, 'escuchando_bascula': True})
+
+            return {
+                'success': True,
+                'peso': peso,
+                'message': 'Peso actualizado correctamente'
+            }
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    @api.model
+    def obtener_pesaje_activo(self, api_key):
+        """
+        Obtiene el pesaje que está actualmente esperando pesaje
+
+        Args:
+            api_key: Clave de autenticación
+
+        Returns:
+            dict: {'success': bool, 'pesaje_id': int, 'state': str}
+        """
+        # Validar API Key
+        api_key_config = self.env['ir.config_parameter'].sudo().get_param('bascula.api_key', '')
+        if not api_key_config or api_key != api_key_config:
+            return {'success': False, 'message': 'API Key inválida'}
+
+        # Buscar pesaje en borrador o en tránsito (más reciente)
+        pesaje = self.search([
+            ('state', 'in', ['borrador', 'en_transito'])
+        ], order='id desc', limit=1)
+
+        if pesaje:
+            return {
+                'success': True,
+                'pesaje_id': pesaje.id,
+                'state': pesaje.state,
+                'tipo_proceso': pesaje.tipo_proceso,
+                'placa': pesaje.placa_texto or ''
+            }
+        else:
+            return {
+                'success': False,
+                'message': 'No hay pesajes activos esperando pesaje'
+            }
+
+    def action_refrescar_peso(self):
+        """Refrescar el peso actual desde la base de datos"""
+        for record in self:
+            # Solo refrescar, Odoo recargará el valor actual desde la BD
+            record.invalidate_recordset(['peso_actual', 'escuchando_bascula'])
+        return True
+
+    def action_usar_peso_actual(self):
+        """Usar el peso actual de la báscula y asignarlo al campo correspondiente"""
+        for record in self:
+            if record.peso_actual <= 0:
+                raise UserError('No hay peso actual de la báscula disponible.')
+
+            if record.state == 'borrador':
+                # Asignar a peso bruto (entrada) o peso tara (salida)
+                if record.tipo_proceso == 'entrada':
+                    record.peso_bruto = record.peso_actual
+                else:
+                    record.peso_tara = record.peso_actual
+            elif record.state == 'en_transito':
+                # Asignar a peso tara (entrada) o peso bruto (salida)
+                if record.tipo_proceso == 'entrada':
+                    record.peso_tara = record.peso_actual
+                else:
+                    record.peso_bruto = record.peso_actual

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form de Tipo de Operación -->
+        <record id="view_secadora_tipo_operacion_form" model="ir.ui.view">
+            <field name="name">secadora.tipo.operacion.form</field>
+            <field name="model">secadora.tipo.operacion</field>
+            <field name="arch" type="xml">
+                <form string="Tipo de Operación">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">
+                                <field name="active" widget="boolean_button" options="{&quot;terminology&quot;: &quot;archive&quot;}"/>
+                            </button>
+                        </div>
+
+                        <group>
+                            <group>
+                                <field name="name" placeholder="Ej: Compra de Arroz"/>
+                                <field name="codigo" placeholder="Ej: COMP"/>
+                                <field name="direccion"/>
+                                <field name="sequence"/>
+                                <field name="color" widget="color_picker"/>
+                            </group>
+                            <group>
+                                <field name="es_servicio"/>
+                                <field name="requiere_precio"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Configuración de Integración">
+                                <group>
+                                    <group string="Inventario">
+                                        <field name="afecta_inventario"/>
+                                        <field name="tipo_inventario" invisible="not afecta_inventario" required="afecta_inventario"/>
+                                    </group>
+                                    <group string="Facturación">
+                                        <field name="genera_factura"/>
+                                        <field name="tipo_factura" invisible="not genera_factura" required="genera_factura"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Descripción">
+                                <field name="descripcion" placeholder="Describe cuándo usar este tipo de operación..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List de Tipo de Operación -->
+        <record id="view_secadora_tipo_operacion_list" model="ir.ui.view">
+            <field name="name">secadora.tipo.operacion.list</field>
+            <field name="model">secadora.tipo.operacion</field>
+            <field name="arch" type="xml">
+                <list string="Tipos de Operación">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="codigo"/>
+                    <field name="direccion" widget="badge"
+                           decoration-success="direccion == 'entrada'"
+                           decoration-info="direccion == 'salida'"/>
+                    <field name="es_servicio" widget="boolean_toggle"/>
+                    <field name="afecta_inventario" widget="boolean_toggle"/>
+                    <field name="genera_factura" widget="boolean_toggle"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Acción -->
+        <record id="action_secadora_tipo_operacion" model="ir.actions.act_window">
+            <field name="name">Tipos de Operación</field>
+            <field name="res_model">secadora.tipo.operacion</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear un nuevo tipo de operación
+                </p>
+                <p>
+                    Define los diferentes tipos de operaciones de la báscula:<br/>
+                    - Compra de arroz<br/>
+                    - Venta de arroz<br/>
+                    - Servicio de secamiento<br/>
+                    - Servicio de prelimpieza<br/>
+                    - Otros servicios personalizados
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
