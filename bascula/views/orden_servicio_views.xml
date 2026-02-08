@@ -126,9 +126,14 @@
                         </page>
                         <page string="Liquidación">
                             <group>
-                                <field name="peso_salida_real" readonly="1"/>
-                                <field name="merma_real" readonly="1"/>
-                                <field name="merma_real_porcentaje" readonly="1"/>
+                                <group string="Pesos">
+                                    <field name="peso_entrada" readonly="1"/>
+                                    <field name="peso_salida_real" readonly="1"/>
+                                </group>
+                                <group string="Merma">
+                                    <field name="merma_real" readonly="1"/>
+                                    <field name="merma_real_porcentaje" readonly="1"/>
+                                </group>
                             </group>
                         </page>
                     </notebook>

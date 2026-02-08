@@ -93,43 +93,14 @@ class OrdenServicio(models.Model):
     # ==================== MEDICIONES ENTRADA ====================
 
     peso_entrada = fields.Float(
-        string='Peso Entrada (kg)',
-        digits=(12, 2),
-        tracking=True,
-        help='Peso del arroz al ingresar'
-    )
-
-    humedad_inicial = fields.Float(
-        string='Humedad Inicial (%)',
-        digits=(5, 2),
-        tracking=True,
-        help='Porcentaje de humedad al ingresar'
-    )
-
-    impureza_inicial = fields.Float(
-        string='Impureza Inicial (%)',
-        digits=(5, 2),
-        tracking=True,
-        help='Porcentaje de impureza al ingresar'
-    )
-
-    # ==================== ESTIMACIONES ====================
-
-    merma_estimada_porcentaje = fields.Float(
-        string='Merma Estimada (%)',
-        compute='_compute_merma_estimada',
-        store=True,
-        digits=(5, 2),
-        help='Estimación de merma basada en humedad e impureza'
-    )
-
-    peso_salida_estimado = fields.Float(
-        string='Peso Salida Estimado (kg)',
-        compute='_compute_peso_salida_estimado',
+        string='Peso Entrada Total (kg)',
+        compute='_compute_peso_entrada',
         store=True,
         digits=(12, 2),
-        help='Estimación del peso de salida después de secar'
+        tracking=True,
+        help='Suma de todos los pesos netos de los pesajes de entrada'
     )
+
 
     # ==================== MODALIDAD DE SALIDA ====================
 
@@ -291,24 +262,12 @@ class OrdenServicio(models.Model):
             count = len(record.pesaje_entrada_ids) + len(record.pesaje_salida_ids)
             record.pesaje_count = count
 
-    @api.depends('humedad_inicial', 'impureza_inicial')
-    def _compute_merma_estimada(self):
+    @api.depends('pesaje_entrada_ids.peso_neto')
+    def _compute_peso_entrada(self):
+        """Calcular peso total de entrada sumando todos los pesajes de entrada"""
         for record in self:
-            if record.humedad_inicial or record.impureza_inicial:
-                humedad = record.humedad_inicial or 0
-                impureza = record.impureza_inicial or 0
-                record.merma_estimada_porcentaje = humedad + impureza
-            else:
-                record.merma_estimada_porcentaje = 0.0
+            record.peso_entrada = sum(record.pesaje_entrada_ids.mapped('peso_neto'))
 
-    @api.depends('peso_entrada', 'merma_estimada_porcentaje')
-    def _compute_peso_salida_estimado(self):
-        for record in self:
-            if record.peso_entrada and record.merma_estimada_porcentaje:
-                merma_kg = record.peso_entrada * (record.merma_estimada_porcentaje / 100)
-                record.peso_salida_estimado = record.peso_entrada - merma_kg
-            else:
-                record.peso_salida_estimado = record.peso_entrada
 
     @api.depends('registro_bultos_ids.cantidad',
                  'registro_bultos_ids.peso_promedio',
@@ -383,8 +342,8 @@ class OrdenServicio(models.Model):
         for record in self:
             if record.state != 'borrador':
                 raise UserError('Solo se pueden iniciar órdenes en estado Borrador.')
-            if not record.peso_entrada:
-                raise UserError('Debe registrar el peso de entrada antes de iniciar el proceso.')
+            if not record.pesaje_entrada_ids:
+                raise UserError('Debe registrar al menos un pesaje de entrada antes de iniciar el proceso.')
 
             # Aplicar reglas de servicios automáticos
             record.aplicar_reglas_servicios()
