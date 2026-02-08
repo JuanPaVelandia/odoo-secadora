@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Tree de Conductores -->
+        <record id="view_secadora_conductor_tree" model="ir.ui.view">
+            <field name="name">secadora.conductor.tree</field>
+            <field name="model">secadora.conductor</field>
+            <field name="arch" type="xml">
+                <tree string="Conductores">
+                    <field name="name"/>
+                    <field name="cedula"/>
+                    <field name="telefono"/>
+                    <field name="licencia"/>
+                    <field name="licencia_vencimiento"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Vista Form de Conductores -->
+        <record id="view_secadora_conductor_form" model="ir.ui.view">
+            <field name="name">secadora.conductor.form</field>
+            <field name="model">secadora.conductor</field>
+            <field name="arch" type="xml">
+                <form string="Conductor">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="cedula"/>
+                                <field name="telefono"/>
+                            </group>
+                            <group>
+                                <field name="licencia"/>
+                                <field name="licencia_vencimiento"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Vehículos Asociados">
+                                <field name="vehiculo_ids">
+                                    <tree>
+                                        <field name="placa"/>
+                                        <field name="tipo_vehiculo"/>
+                                        <field name="transportadora_id"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista Search de Conductores -->
+        <record id="view_secadora_conductor_search" model="ir.ui.view">
+            <field name="name">secadora.conductor.search</field>
+            <field name="model">secadora.conductor</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Conductores">
+                    <field name="name"/>
+                    <field name="cedula"/>
+                    <field name="licencia"/>
+                    <filter string="Activos" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Inactivos" name="inactive" domain="[('active', '=', False)]"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción de Conductores -->
+        <record id="action_secadora_conductor" model="ir.actions.act_window">
+            <field name="name">Conductores</field>
+            <field name="res_model">secadora.conductor</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_active': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear un nuevo conductor
+                </p>
+                <p>
+                    Registre los conductores de vehículos de transporte.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

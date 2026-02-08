@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_secadora_vehiculo_basculero,secadora.vehiculo.basculero,model_secadora_vehiculo,group_basculero,1,1,1,0
+access_secadora_vehiculo_admin,secadora.vehiculo.admin,model_secadora_vehiculo,group_bascula_admin,1,1,1,1
+access_secadora_conductor_basculero,secadora.conductor.basculero,model_secadora_conductor,group_basculero,1,1,1,0
+access_secadora_conductor_admin,secadora.conductor.admin,model_secadora_conductor,group_bascula_admin,1,1,1,1
+access_secadora_transportadora_basculero,secadora.transportadora.basculero,model_secadora_transportadora,group_basculero,1,1,1,0
+access_secadora_transportadora_admin,secadora.transportadora.admin,model_secadora_transportadora,group_bascula_admin,1,1,1,1
+access_secadora_variedad_arroz_basculero,secadora.variedad.arroz.basculero,model_secadora_variedad_arroz,group_basculero,1,1,1,0
+access_secadora_variedad_arroz_admin,secadora.variedad.arroz.admin,model_secadora_variedad_arroz,group_bascula_admin,1,1,1,1
+access_secadora_pesaje_basculero,secadora.pesaje.basculero,model_secadora_pesaje,group_basculero,1,1,1,0
+access_secadora_pesaje_admin,secadora.pesaje.admin,model_secadora_pesaje,group_bascula_admin,1,1,1,1
+access_secadora_orden_servicio_basculero,secadora.orden.servicio.basculero,model_secadora_orden_servicio,group_basculero,1,1,1,0
+access_secadora_orden_servicio_admin,secadora.orden.servicio.admin,model_secadora_orden_servicio,group_bascula_admin,1,1,1,1
+access_secadora_registro_bultos_basculero,secadora.registro.bultos.basculero,model_secadora_registro_bultos,group_basculero,1,1,1,0
+access_secadora_registro_bultos_admin,secadora.registro.bultos.admin,model_secadora_registro_bultos,group_bascula_admin,1,1,1,1
+access_secadora_orden_servicio_linea_basculero,secadora.orden.servicio.linea.basculero,model_secadora_orden_servicio_linea,group_basculero,1,1,1,0
+access_secadora_orden_servicio_linea_admin,secadora.orden.servicio.linea.admin,model_secadora_orden_servicio_linea,group_bascula_admin,1,1,1,1

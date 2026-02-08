@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        
+        <!-- Categoría de Productos: Empaques -->
+        <record id="product_category_empaques" model="product.category">
+            <field name="name">Empaques</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+        <!-- Productos de Empaque -->
+        <record id="product_bulto_50kg" model="product.product">
+            <field name="name">Bulto 50 kg</field>
+            <field name="type">product</field>
+            <field name="categ_id" ref="product_category_empaques"/>
+            <field name="list_price">800</field>
+            <field name="standard_price">600</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="detailed_type">product</field>
+            <field name="description">Bulto de polipropileno para 50 kg de arroz</field>
+        </record>
+
+        <record id="product_bulto_25kg" model="product.product">
+            <field name="name">Bulto 25 kg</field>
+            <field name="type">product</field>
+            <field name="categ_id" ref="product_category_empaques"/>
+            <field name="list_price">500</field>
+            <field name="standard_price">350</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="detailed_type">product</field>
+            <field name="description">Bulto de polipropileno para 25 kg de arroz</field>
+        </record>
+
+        <record id="product_bulto_10kg" model="product.product">
+            <field name="name">Bulto 10 kg</field>
+            <field name="type">product</field>
+            <field name="categ_id" ref="product_category_empaques"/>
+            <field name="list_price">300</field>
+            <field name="standard_price">200</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="detailed_type">product</field>
+            <field name="description">Bulto de polipropileno para 10 kg de arroz</field>
+        </record>
+
+        <!-- Servicios Adicionales -->
+        <record id="product_servicio_cargue" model="product.product">
+            <field name="name">Servicio de Cargue</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">50000</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="detailed_type">service</field>
+            <field name="description">Servicio de cargue de arroz</field>
+        </record>
+
+        <record id="product_servicio_descargue" model="product.product">
+            <field name="name">Servicio de Descargue</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">50000</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="detailed_type">service</field>
+            <field name="description">Servicio de descargue de arroz</field>
+        </record>
+
+        <record id="product_servicio_limpieza" model="product.product">
+            <field name="name">Servicio de Limpieza Adicional</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">30000</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="uom_po_id" ref="uom.product_uom_unit"/>
+            <field name="detailed_type">service</field>
+            <field name="description">Servicio de limpieza adicional de arroz</field>
+        </record>
+
+        <record id="product_servicio_secamiento" model="product.product">
+            <field name="name">Servicio de Secamiento</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">150</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
+            <field name="detailed_type">service</field>
+            <field name="description">Servicio de secamiento de arroz por kilogramo</field>
+        </record>
+
+        <record id="product_servicio_almacenamiento" model="product.product">
+            <field name="name">Servicio de Almacenamiento en Silobolsa</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">100</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
+            <field name="detailed_type">service</field>
+            <field name="description">Servicio de almacenamiento en silobolsa por kilogramo</field>
+        </record>
+
+    </data>
+</odoo>

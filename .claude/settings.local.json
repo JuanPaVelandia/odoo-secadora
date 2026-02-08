@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: Simulador de báscula para pruebas sin hardware\n\n🎮 NUEVO: Simulador que permite probar el sistema sin báscula física\n\nCaracterísticas:\n- Genera pesos aleatorios (5,000 - 35,000 kg)\n- Simula variaciones naturales (± 10 kg)\n- Dos modos: aleatorio o peso fijo\n- Mismo protocolo que báscula real\n- Logging completo\n- Fácil configuración (solo URL y API Key)\n\nUso:\n1. Configurar API Key en Odoo\n2. Editar bascula_simulador.py (URL + API Key)\n3. Ejecutar: python bascula_simulador.py\n4. Crear pesaje en Odoo\n5. Ver peso actualizándose en tiempo real\n\nPerfecto para:\n- ✅ Pruebas sin hardware\n- ✅ Demos a clientes\n- ✅ Entrenamiento de usuarios\n- ✅ Desarrollo y testing\n- ✅ Validar flujo completo\n\nDocumentación completa en: bridge/SIMULADOR.md\n\nFlujo de prueba:\n1. Usuario crea pesaje en Odoo\n2. Simulador detecta pesaje activo\n3. Genera peso aleatorio (ej: 28,345 kg)\n4. Envía a Odoo cada segundo\n5. Usuario ve peso en pantalla (verde, grande)\n6. Usuario registra 1ª pesada\n7. Simulador genera nuevo peso (ej: 8,120 kg)\n8. Usuario registra 2ª pesada\n9. Sistema calcula peso neto\n10. Usuario imprime tiquete\n\nDiferencia con báscula real:\n- Simulador: pesos generados aleatoriamente\n- Báscula real: pesos del puerto serial\n- El resto del código es idéntico\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

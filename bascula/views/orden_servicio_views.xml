@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_orden_servicio_tree" model="ir.ui.view">
+        <field name="name">secadora.orden.servicio.tree</field>
+        <field name="model">secadora.orden.servicio</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="fecha_inicio"/>
+                <field name="cliente_id"/>
+                <field name="tipo_servicio"/>
+                <field name="peso_entrada"/>
+                <field name="peso_salida_real"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_orden_servicio_form" model="ir.ui.view">
+        <field name="name">secadora.orden.servicio.form</field>
+        <field name="model">secadora.orden.servicio</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_iniciar_proceso" type="object" string="Iniciar Proceso"
+                            class="oe_highlight" invisible="state != 'borrador'"/>
+                    <button name="action_listo_liquidar" type="object" string="Listo para Liquidar"
+                            class="oe_highlight" invisible="state != 'en_proceso'"/>
+                    <button name="action_generar_factura" type="object" string="Generar Factura"
+                            class="oe_highlight" invisible="state not in ('listo_liquidar', 'liquidado')"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="cliente_id"/>
+                            <field name="tipo_servicio"/>
+                            <field name="variedad_id"/>
+                        </group>
+                        <group>
+                            <field name="fecha_inicio"/>
+                            <field name="modalidad_salida"/>
+                            <field name="factura_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Entrada">
+                            <group>
+                                <field name="peso_entrada"/>
+                                <field name="humedad_inicial"/>
+                                <field name="impureza_inicial"/>
+                            </group>
+                        </page>
+                        <page string="Bultos" invisible="modalidad_salida != 'bultos'">
+                            <field name="registro_bultos_ids">
+                                <tree editable="bottom">
+                                    <field name="fecha"/>
+                                    <field name="producto_empaque_id"/>
+                                    <field name="cantidad"/>
+                                    <field name="peso_promedio"/>
+                                    <field name="peso_total"/>
+                                    <field name="proveedor_empaque"/>
+                                    <field name="precio_unitario_empaque"/>
+                                    <field name="subtotal_empaque"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Servicios">
+                            <field name="linea_servicio_ids">
+                                <tree editable="bottom">
+                                    <field name="producto_id"/>
+                                    <field name="cantidad"/>
+                                    <field name="precio_unitario"/>
+                                    <field name="subtotal"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Liquidación">
+                            <group>
+                                <field name="peso_salida_real" readonly="1"/>
+                                <field name="merma_real" readonly="1"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_orden_servicio" model="ir.actions.act_window">
+        <field name="name">Órdenes de Servicio</field>
+        <field name="res_model">secadora.orden.servicio</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
