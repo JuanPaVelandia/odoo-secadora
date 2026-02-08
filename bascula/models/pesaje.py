@@ -122,17 +122,17 @@ class SecadoraPesaje(models.Model):
         string='Variedad de Arroz'
     )
 
-    # Pesaje
-    peso_actual = fields.Float(
-        string='Peso Actual (Kg)
-
     # Vínculo con Orden de Servicio
     orden_servicio_id = fields.Many2one(
         'secadora.orden.servicio',
         string='Orden de Servicio',
         index=True,
         help='Orden de servicio a la que pertenece este pesaje (para servicios a terceros)'
-    )',
+    )
+
+    # Pesaje
+    peso_actual = fields.Float(
+        string='Peso Actual (Kg)',
         help='Peso en tiempo real desde la báscula',
         digits=(12, 2),
         readonly=True
