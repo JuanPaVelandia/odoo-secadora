@@ -33,6 +33,7 @@
         'views/variedad_arroz_views.xml',
         'views/lugar_views.xml',
         'views/tipo_operacion_views.xml',
+        'views/servicio_regla_views.xml',
         'views/orden_servicio_views.xml',
         'views/pesaje_views.xml',
         'views/pesaje_report.xml',

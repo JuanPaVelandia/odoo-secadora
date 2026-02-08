@@ -19,3 +19,5 @@ access_secadora_registro_bultos_basculero,secadora.registro.bultos.basculero,mod
 access_secadora_registro_bultos_admin,secadora.registro.bultos.admin,model_secadora_registro_bultos,group_bascula_admin,1,1,1,1
 access_secadora_orden_servicio_linea_basculero,secadora.orden.servicio.linea.basculero,model_secadora_orden_servicio_linea,group_basculero,1,1,1,0
 access_secadora_orden_servicio_linea_admin,secadora.orden.servicio.linea.admin,model_secadora_orden_servicio_linea,group_bascula_admin,1,1,1,1
+access_secadora_servicio_regla_basculero,secadora.servicio.regla.basculero,model_secadora_servicio_regla,group_basculero,1,0,0,0
+access_secadora_servicio_regla_admin,secadora.servicio.regla.admin,model_secadora_servicio_regla,group_bascula_admin,1,1,1,1

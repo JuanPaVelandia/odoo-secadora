@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista List de Reglas de Servicios -->
+        <record id="view_servicio_regla_list" model="ir.ui.view">
+            <field name="name">secadora.servicio.regla.list</field>
+            <field name="model">secadora.servicio.regla</field>
+            <field name="arch" type="xml">
+                <list string="Reglas de Servicios Automáticos">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="tipo_servicio"/>
+                    <field name="condicion"/>
+                    <field name="producto_id"/>
+                    <field name="base_calculo"/>
+                    <field name="incluir_en_factura" widget="boolean_toggle"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Form de Reglas de Servicios -->
+        <record id="view_servicio_regla_form" model="ir.ui.view">
+            <field name="name">secadora.servicio.regla.form</field>
+            <field name="model">secadora.servicio.regla</field>
+            <field name="arch" type="xml">
+                <form string="Regla de Servicio Automático">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <widget name="web_ribbon" title="Inactivo" bg_color="text-bg-danger" invisible="active"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name" placeholder="Ej: Cargue automático para todo servicio"/>
+                                <field name="sequence"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Condiciones">
+                                <group>
+                                    <group>
+                                        <field name="tipo_servicio"/>
+                                        <field name="condicion"/>
+                                        <field name="peso_referencia"
+                                               invisible="condicion == 'siempre'"
+                                               required="condicion != 'siempre'"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="Servicio a Agregar">
+                                <group>
+                                    <group>
+                                        <field name="producto_id"
+                                               options="{'no_create': True}"/>
+                                        <field name="precio_unitario" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="base_calculo"/>
+                                        <field name="cantidad_fija"
+                                               invisible="base_calculo != 'fijo'"
+                                               required="base_calculo == 'fijo'"/>
+                                        <field name="factor_multiplicador"
+                                               invisible="base_calculo == 'fijo'"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="incluir_en_factura"/>
+                                </group>
+                            </page>
+
+                            <page string="Descripción">
+                                <field name="descripcion"
+                                       placeholder="Describe cuándo y cómo se aplica esta regla..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción de Reglas de Servicios -->
+        <record id="action_servicio_regla" model="ir.actions.act_window">
+            <field name="name">Reglas de Servicios Automáticos</field>
+            <field name="res_model">secadora.servicio.regla</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear una nueva regla de servicio automático
+                </p>
+                <p>
+                    Las reglas permiten agregar servicios automáticamente a las órdenes cuando se cumplan ciertas condiciones.
+                    Por ejemplo: agregar "Cargue" y "Descargue" a todos los servicios de secamiento.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

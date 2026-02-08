@@ -69,11 +69,12 @@ class OrdenServicio(models.Model):
 
     # ==================== PESAJES ====================
 
-    pesaje_entrada_id = fields.Many2one(
+    pesaje_entrada_ids = fields.One2many(
         'secadora.pesaje',
-        string='Pesaje de Entrada',
-        readonly=True,
-        help='Pesaje cuando ingresa el arroz'
+        'orden_servicio_id',
+        string='Pesajes de Entrada',
+        domain=[('tipo_proceso', '=', 'entrada')],
+        help='Pesajes de entrada del arroz (normalmente uno, pero puede haber varios viajes)'
     )
 
     pesaje_salida_ids = fields.One2many(
@@ -288,10 +289,7 @@ class OrdenServicio(models.Model):
 
     def _compute_pesaje_count(self):
         for record in self:
-            count = 0
-            if record.pesaje_entrada_id:
-                count += 1
-            count += len(record.pesaje_salida_ids)
+            count = len(record.pesaje_entrada_ids) + len(record.pesaje_salida_ids)
             record.pesaje_count = count
 
     @api.depends('humedad_inicial', 'impureza_inicial')
@@ -388,6 +386,10 @@ class OrdenServicio(models.Model):
                 raise UserError('Solo se pueden iniciar órdenes en estado Borrador.')
             if not record.peso_entrada:
                 raise UserError('Debe registrar el peso de entrada antes de iniciar el proceso.')
+
+            # Aplicar reglas de servicios automáticos
+            record.aplicar_reglas_servicios()
+
             record.write({'state': 'en_proceso', 'fecha_inicio': fields.Datetime.now()})
 
     def action_listo_liquidar(self):
@@ -402,12 +404,38 @@ class OrdenServicio(models.Model):
         for record in self:
             record.state = 'en_proceso'
 
+    def aplicar_reglas_servicios(self):
+        """Aplicar reglas automáticas de servicios a esta orden"""
+        self.ensure_one()
+
+        # Buscar todas las reglas activas
+        reglas = self.env['secadora.servicio.regla'].search([('active', '=', True)], order='sequence, id')
+
+        for regla in reglas:
+            # Evaluar si la regla aplica
+            if regla.evaluar_condicion(self):
+                # Verificar si ya existe una línea con este producto
+                linea_existente = self.linea_servicio_ids.filtered(
+                    lambda l: l.producto_id == regla.producto_id
+                )
+
+                if not linea_existente:
+                    # Calcular cantidad
+                    cantidad = regla.calcular_cantidad(self)
+
+                    # Crear línea de servicio
+                    self.env['secadora.orden.servicio.linea'].create({
+                        'orden_id': self.id,
+                        'producto_id': regla.producto_id.id,
+                        'base_calculo': regla.base_calculo,
+                        'cantidad': cantidad,
+                        'precio_unitario': regla.producto_id.list_price if regla.incluir_en_factura else 0.0,
+                        'descripcion': regla.name,
+                    })
+
     def action_crear_pesaje_entrada(self):
         """Crear un pesaje de entrada vinculado a esta orden"""
         self.ensure_one()
-
-        if self.pesaje_entrada_id:
-            raise UserError('Ya existe un pesaje de entrada para esta orden.')
 
         # Determinar tipo de operación según tipo de servicio
         tipo_op_map = {
@@ -429,9 +457,6 @@ class OrdenServicio(models.Model):
             vals['tipo_operacion_id'] = tipo_operacion.id
 
         pesaje = self.env['secadora.pesaje'].create(vals)
-
-        # Vincularlo como pesaje de entrada
-        self.pesaje_entrada_id = pesaje.id
 
         # Abrir el pesaje creado
         return {
@@ -480,10 +505,7 @@ class OrdenServicio(models.Model):
         """Ver todos los pesajes vinculados a esta orden"""
         self.ensure_one()
 
-        pesaje_ids = []
-        if self.pesaje_entrada_id:
-            pesaje_ids.append(self.pesaje_entrada_id.id)
-        pesaje_ids.extend(self.pesaje_salida_ids.ids)
+        pesaje_ids = self.pesaje_entrada_ids.ids + self.pesaje_salida_ids.ids
 
         return {
             'type': 'ir.actions.act_window',

@@ -39,8 +39,7 @@
                             <field name="pesaje_count" widget="statinfo" string="Pesajes"/>
                         </button>
                         <button name="action_crear_pesaje_entrada" type="object"
-                                class="oe_stat_button" icon="fa-sign-in"
-                                invisible="pesaje_entrada_id">
+                                class="oe_stat_button" icon="fa-sign-in">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_text">Crear</span>
                                 <span class="o_stat_text">Entrada</span>
@@ -103,13 +102,19 @@
                             </field>
                         </page>
                         <page string="Pesajes">
-                            <group>
-                                <group string="Pesaje de Entrada">
-                                    <field name="pesaje_entrada_id" readonly="1"/>
-                                </group>
+                            <group string="Pesajes de Entrada">
+                                <field name="pesaje_entrada_ids" readonly="1" nolabel="1">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="fecha"/>
+                                        <field name="vehiculo_id"/>
+                                        <field name="peso_neto"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
                             </group>
                             <group string="Pesajes de Salida">
-                                <field name="pesaje_salida_ids" readonly="1">
+                                <field name="pesaje_salida_ids" readonly="1" nolabel="1">
                                     <list>
                                         <field name="name"/>
                                         <field name="fecha"/>

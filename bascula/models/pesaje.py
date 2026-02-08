@@ -213,6 +213,18 @@ class SecadoraPesaje(models.Model):
         for record in self:
             record.nit_tercero = record.tercero_id.vat or ''
 
+    @api.constrains('orden_servicio_id', 'tercero_id')
+    def _check_tercero_matches_orden(self):
+        """Validar que el tercero del pesaje coincida con el cliente de la orden de servicio"""
+        for record in self:
+            if record.orden_servicio_id and record.tercero_id:
+                if record.tercero_id != record.orden_servicio_id.cliente_id:
+                    raise UserError(
+                        f'El tercero del pesaje ({record.tercero_id.name}) no coincide con '
+                        f'el cliente de la orden de servicio ({record.orden_servicio_id.cliente_id.name}).\n\n'
+                        f'Solo se pueden vincular pesajes del mismo cliente a una orden de servicio.'
+                    )
+
     def _get_colombia_date(self):
         """Obtiene la fecha actual de Colombia (America/Bogota)"""
         colombia_tz = pytz.timezone('America/Bogota')
@@ -433,12 +445,8 @@ class SecadoraPesaje(models.Model):
             'tipo_servicio': 'secamiento',  # Por defecto
         })
 
-        # Vincular pesaje a la orden
+        # Vincular pesaje a la orden (se vinculará automáticamente vía One2many)
         self.orden_servicio_id = orden.id
-
-        # Si es entrada, vincularlo como pesaje de entrada
-        if self.tipo_proceso == 'entrada':
-            orden.pesaje_entrada_id = self.id
 
         # Abrir la orden creada
         return {

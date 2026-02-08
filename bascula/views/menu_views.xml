@@ -88,5 +88,11 @@
                   action="action_secadora_tipo_operacion"
                   sequence="5"/>
 
+        <menuitem id="menu_bascula_reglas_servicios"
+                  name="Reglas de Servicios"
+                  parent="menu_bascula_configuracion"
+                  action="action_servicio_regla"
+                  sequence="60"/>
+
     </data>
 </odoo>
