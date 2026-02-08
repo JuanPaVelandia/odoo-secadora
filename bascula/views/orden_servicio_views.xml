@@ -60,7 +60,6 @@
                         <group>
                             <field name="cliente_id"/>
                             <field name="tipo_servicio"/>
-                            <field name="variedad_id"/>
                         </group>
                         <group>
                             <field name="fecha_inicio"/>
@@ -69,12 +68,32 @@
                             <!-- <field name="factura_id" readonly="1"/> -->
                         </group>
                     </group>
+                    <group>
+                        <field name="observaciones" placeholder="Variedades, instrucciones especiales, notas..."/>
+                    </group>
                     <notebook>
-                        <page string="Entrada">
-                            <group>
-                                <field name="peso_entrada"/>
-                                <field name="humedad_inicial"/>
-                                <field name="impureza_inicial"/>
+                        <page string="Pesajes">
+                            <group string="Pesajes de Entrada">
+                                <field name="pesaje_entrada_ids" readonly="1" nolabel="1">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="fecha"/>
+                                        <field name="vehiculo_id"/>
+                                        <field name="peso_neto"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <group string="Pesajes de Salida">
+                                <field name="pesaje_salida_ids" readonly="1" nolabel="1">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="fecha"/>
+                                        <field name="vehiculo_id"/>
+                                        <field name="peso_neto"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
                             </group>
                         </page>
                         <page string="Bultos" invisible="modalidad_salida != 'bultos'">
@@ -103,34 +122,11 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Pesajes">
-                            <group string="Pesajes de Entrada">
-                                <field name="pesaje_entrada_ids" readonly="1" nolabel="1">
-                                    <list>
-                                        <field name="name"/>
-                                        <field name="fecha"/>
-                                        <field name="vehiculo_id"/>
-                                        <field name="peso_neto"/>
-                                        <field name="state" widget="badge"/>
-                                    </list>
-                                </field>
-                            </group>
-                            <group string="Pesajes de Salida">
-                                <field name="pesaje_salida_ids" readonly="1" nolabel="1">
-                                    <list>
-                                        <field name="name"/>
-                                        <field name="fecha"/>
-                                        <field name="vehiculo_id"/>
-                                        <field name="peso_neto"/>
-                                        <field name="state" widget="badge"/>
-                                    </list>
-                                </field>
-                            </group>
-                        </page>
                         <page string="Liquidación">
                             <group>
                                 <field name="peso_salida_real" readonly="1"/>
                                 <field name="merma_real" readonly="1"/>
+                                <field name="merma_real_porcentaje" readonly="1"/>
                             </group>
                         </page>
                     </notebook>

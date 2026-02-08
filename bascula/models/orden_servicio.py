@@ -31,9 +31,10 @@ class OrdenServicio(models.Model):
     )
 
     fecha_inicio = fields.Datetime(
-        string='Fecha Inicio',
+        string='Fecha de Creación',
         default=fields.Datetime.now,
         required=True,
+        readonly=True,
         tracking=True
     )
 
@@ -54,11 +55,10 @@ class OrdenServicio(models.Model):
 
     # ==================== DATOS DEL ARROZ ====================
 
-    variedad_id = fields.Many2one(
-        'secadora.variedad.arroz',
-        string='Variedad de Arroz',
+    observaciones = fields.Text(
+        string='Observaciones',
         tracking=True,
-        help='Variedad del arroz (ej: Fedearroz 67)'
+        help='Observaciones generales (variedades, instrucciones especiales, etc.)'
     )
 
     lote_cliente = fields.Char(
@@ -390,14 +390,15 @@ class OrdenServicio(models.Model):
             # Aplicar reglas de servicios automáticos
             record.aplicar_reglas_servicios()
 
-            record.write({'state': 'en_proceso', 'fecha_inicio': fields.Datetime.now()})
+            record.write({'state': 'en_proceso'})
 
     def action_listo_liquidar(self):
         for record in self:
             if record.state != 'en_proceso':
                 raise UserError('Solo se pueden liquidar órdenes en proceso.')
-            if not record.peso_salida_real:
-                raise UserError('Debe registrar el peso de salida antes de liquidar.')
+            # Validar que haya al menos un pesaje de salida o bultos registrados
+            if not record.pesaje_salida_ids and not record.registro_bultos_ids:
+                raise UserError('Debe registrar al menos un pesaje de salida o bultos antes de liquidar.')
             record.write({'state': 'listo_liquidar', 'fecha_fin': fields.Datetime.now()})
 
     def action_volver_proceso(self):
@@ -458,7 +459,6 @@ class OrdenServicio(models.Model):
         vals = {
             'orden_servicio_id': self.id,
             'tercero_id': self.cliente_id.id if self.cliente_id else False,
-            'variedad_id': self.variedad_id.id if self.variedad_id else False,
         }
 
         if tipo_operacion:
@@ -492,7 +492,6 @@ class OrdenServicio(models.Model):
         vals = {
             'orden_servicio_id': self.id,
             'tercero_id': self.cliente_id.id if self.cliente_id else False,
-            'variedad_id': self.variedad_id.id if self.variedad_id else False,
         }
 
         if tipo_operacion:
