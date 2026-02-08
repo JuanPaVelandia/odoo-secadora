@@ -11,7 +11,7 @@
         <!-- Productos de Empaque -->
         <record id="product_bulto_50kg" model="product.product">
             <field name="name">Bulto 50 kg</field>
-            <field name="type">product</field>
+            <field name="type">consu</field>
             <field name="categ_id" ref="product_category_empaques"/>
             <field name="list_price">800</field>
             <field name="standard_price">600</field>
@@ -22,7 +22,7 @@
 
         <record id="product_bulto_25kg" model="product.product">
             <field name="name">Bulto 25 kg</field>
-            <field name="type">product</field>
+            <field name="type">consu</field>
             <field name="categ_id" ref="product_category_empaques"/>
             <field name="list_price">500</field>
             <field name="standard_price">350</field>
@@ -33,7 +33,7 @@
 
         <record id="product_bulto_10kg" model="product.product">
             <field name="name">Bulto 10 kg</field>
-            <field name="type">product</field>
+            <field name="type">consu</field>
             <field name="categ_id" ref="product_category_empaques"/>
             <field name="list_price">300</field>
             <field name="standard_price">200</field>
