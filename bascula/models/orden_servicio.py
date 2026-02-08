@@ -26,7 +26,6 @@ class OrdenServicio(models.Model):
         required=True,
         tracking=True,
         index=True,
-        domain=[('customer_rank', '>', 0)],
         help='Cliente que solicita el servicio'
     )
 
