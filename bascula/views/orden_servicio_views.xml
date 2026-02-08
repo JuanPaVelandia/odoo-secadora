@@ -95,9 +95,11 @@
                             <field name="linea_servicio_ids">
                                 <list editable="bottom">
                                     <field name="producto_id"/>
+                                    <field name="descripcion" optional="hide"/>
+                                    <field name="base_calculo" optional="hide"/>
                                     <field name="cantidad"/>
-                                    <field name="precio_unitario"/>
-                                    <field name="subtotal"/>
+                                    <field name="precio_unitario" force_save="1"/>
+                                    <field name="subtotal" readonly="1"/>
                                 </list>
                             </field>
                         </page>
