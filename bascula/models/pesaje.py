@@ -146,9 +146,8 @@ class SecadoraPesaje(models.Model):
         ('entrada', 'Entrada'),
         ('salida', 'Salida'),
     ], string='Dirección',
-       compute='_compute_direccion',
-       store=True,
-       readonly=False,
+       required=True,
+       default='entrada',
        help='Dirección del pesaje: Entrada o Salida')
 
     # Pesaje
@@ -219,18 +218,14 @@ class SecadoraPesaje(models.Model):
                 record.orden_servicio_id = record.lote_id.orden_id
             # Si no hay lote, mantener el valor actual (podría ser pesaje directo sin lote)
 
-    @api.depends('tipo_operacion_id', 'tipo_operacion_id.direccion_fija')
-    def _compute_direccion(self):
-        """Computar dirección desde tipo_operacion si tiene dirección fija (compra/venta)"""
-        for record in self:
-            if record.tipo_operacion_id and record.tipo_operacion_id.direccion_fija:
-                # Compra/Venta tienen dirección automática
-                record.direccion = record.tipo_operacion_id.direccion_fija
-            elif not record.direccion:
-                # Para servicios, si no hay dirección, poner entrada por defecto
-                record.direccion = 'entrada'
+    @api.onchange('tipo_operacion_id')
+    def _onchange_tipo_operacion_direccion(self):
+        """Auto-llenar dirección si el tipo de operación tiene dirección fija (compra/venta)"""
+        if self.tipo_operacion_id and self.tipo_operacion_id.direccion_fija:
+            # Compra/Venta tienen dirección automática
+            self.direccion = self.tipo_operacion_id.direccion_fija
 
-    @api.depends('tipo_operacion_id')
+    @api.depends('direccion', 'tipo_operacion_id')
     def _compute_tipo_proceso(self):
         """Compute tipo_proceso desde direccion para mantener compatibilidad LEGACY"""
         for record in self:
