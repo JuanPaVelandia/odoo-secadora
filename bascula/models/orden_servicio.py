@@ -46,24 +46,11 @@ class OrdenServicio(models.Model):
         ('secamiento', 'Secamiento'),
         ('prelimpieza', 'Prelimpieza'),
         ('secamiento_prelimpieza', 'Secamiento + Prelimpieza'),
-    ], string='Tipo de Servicio (Legacy)',
+    ], string='Tipo de Servicio',
+       required=True,
+       default='secamiento',
        tracking=True,
-       help='DEPRECADO: Usar lotes en su lugar. Solo para compatibilidad con órdenes antiguas')
-
-    # ==================== LOTES ====================
-
-    lote_ids = fields.One2many(
-        'secadora.orden.lote',
-        'orden_id',
-        string='Lotes',
-        help='Lotes de servicio dentro de esta orden (permite múltiples servicios en una orden)'
-    )
-
-    lote_count = fields.Integer(
-        string='Total Lotes',
-        compute='_compute_lote_count',
-        store=False
-    )
+       help='Tipo de servicio a realizar en esta orden')
 
     # ==================== DATOS DEL ARROZ ====================
 
@@ -275,10 +262,6 @@ class OrdenServicio(models.Model):
             count = len(record.pesaje_entrada_ids) + len(record.pesaje_salida_ids)
             record.pesaje_count = count
 
-    def _compute_lote_count(self):
-        for record in self:
-            record.lote_count = len(record.lote_ids)
-
     @api.depends('pesaje_entrada_ids.peso_neto')
     def _compute_peso_entrada(self):
         """Calcular peso total de entrada sumando todos los pesajes de entrada"""
@@ -424,58 +407,24 @@ class OrdenServicio(models.Model):
                         'descripcion': regla.name,
                     })
 
-    def action_crear_lote(self):
-        """Crear un nuevo lote en esta orden"""
-        self.ensure_one()
-
-        # Contar lotes existentes para asignar secuencia
-        lote_count = len(self.lote_ids)
-
-        lote = self.env['secadora.orden.lote'].create({
-            'orden_id': self.id,
-            'sequence': (lote_count + 1) * 10,
-        })
-
-        return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'secadora.orden.lote',
-            'res_id': lote.id,
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {'default_orden_id': self.id}
-        }
-
-    def action_ver_lotes(self):
-        """Ver todos los lotes de esta orden"""
-        self.ensure_one()
-
-        return {
-            'type': 'ir.actions.act_window',
-            'name': f'Lotes - {self.name}',
-            'res_model': 'secadora.orden.lote',
-            'domain': [('orden_id', '=', self.id)],
-            'view_mode': 'list,form',
-            'target': 'current',
-            'context': {'default_orden_id': self.id}
-        }
-
     def action_crear_pesaje_entrada(self):
         """Crear un pesaje de entrada vinculado a esta orden"""
         self.ensure_one()
 
-        # Determinar tipo de operación según tipo de servicio
+        # Determinar tipo de operación según tipo de servicio (usando nuevos registros)
         tipo_op_map = {
-            'secamiento': 'bascula.tipo_op_secamiento_entrada',
-            'prelimpieza': 'bascula.tipo_op_prelimpieza_entrada',
-            'combinado': 'bascula.tipo_op_secamiento_entrada',  # Por defecto secamiento
+            'secamiento': 'bascula.tipo_op_secamiento',
+            'prelimpieza': 'bascula.tipo_op_prelimpieza',
+            'secamiento_prelimpieza': 'bascula.tipo_op_secamiento_prelimpieza',
         }
-        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento_entrada')
+        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento')
         tipo_operacion = self.env.ref(tipo_op_xmlid, raise_if_not_found=False)
 
         # Crear nuevo pesaje de entrada
         vals = {
             'orden_servicio_id': self.id,
             'tercero_id': self.cliente_id.id if self.cliente_id else False,
+            'direccion': 'entrada',
         }
 
         if tipo_operacion:
@@ -496,19 +445,20 @@ class OrdenServicio(models.Model):
         """Crear un pesaje de salida vinculado a esta orden"""
         self.ensure_one()
 
-        # Determinar tipo de operación según tipo de servicio
+        # Determinar tipo de operación según tipo de servicio (usando nuevos registros)
         tipo_op_map = {
-            'secamiento': 'bascula.tipo_op_secamiento_salida',
-            'prelimpieza': 'bascula.tipo_op_prelimpieza_salida',
-            'combinado': 'bascula.tipo_op_secamiento_salida',  # Por defecto secamiento
+            'secamiento': 'bascula.tipo_op_secamiento',
+            'prelimpieza': 'bascula.tipo_op_prelimpieza',
+            'secamiento_prelimpieza': 'bascula.tipo_op_secamiento_prelimpieza',
         }
-        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento_salida')
+        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento')
         tipo_operacion = self.env.ref(tipo_op_xmlid, raise_if_not_found=False)
 
         # Crear nuevo pesaje de salida
         vals = {
             'orden_servicio_id': self.id,
             'tercero_id': self.cliente_id.id if self.cliente_id else False,
+            'direccion': 'salida',
         }
 
         if tipo_operacion:

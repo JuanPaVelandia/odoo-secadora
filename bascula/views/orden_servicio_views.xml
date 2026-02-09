@@ -35,21 +35,23 @@
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
-                        <button name="action_ver_lotes" type="object"
-                                class="oe_stat_button" icon="fa-cubes"
-                                invisible="lote_count == 0">
-                            <field name="lote_count" widget="statinfo" string="Lotes"/>
-                        </button>
                         <button name="action_ver_pesajes" type="object"
                                 class="oe_stat_button" icon="fa-truck"
                                 invisible="pesaje_count == 0">
                             <field name="pesaje_count" widget="statinfo" string="Pesajes"/>
                         </button>
-                        <button name="action_crear_lote" type="object"
-                                class="oe_stat_button" icon="fa-plus-square">
+                        <button name="action_crear_pesaje_entrada" type="object"
+                                class="oe_stat_button" icon="fa-sign-in">
                             <div class="o_field_widget o_stat_info">
                                 <span class="o_stat_text">Crear</span>
-                                <span class="o_stat_text">Lote</span>
+                                <span class="o_stat_text">Entrada</span>
+                            </div>
+                        </button>
+                        <button name="action_crear_pesaje_salida" type="object"
+                                class="oe_stat_button" icon="fa-sign-out">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Crear</span>
+                                <span class="o_stat_text">Salida</span>
                             </div>
                         </button>
                     </div>
@@ -61,7 +63,7 @@
                             <field name="cliente_id"
                                    options="{'no_open': False, 'no_create': False}"
                                    context="{'default_is_company': False, 'default_customer_rank': 1, 'res_partner_search_mode': 'customer', 'show_vat': True}"/>
-                            <field name="tipo_servicio" invisible="1"/>
+                            <field name="tipo_servicio"/>
                         </group>
                         <group>
                             <field name="fecha_inicio"/>
@@ -74,19 +76,6 @@
                         <field name="observaciones" placeholder="Variedades, instrucciones especiales, notas..."/>
                     </group>
                     <notebook>
-                        <page string="Lotes">
-                            <field name="lote_ids">
-                                <list>
-                                    <field name="sequence" widget="handle"/>
-                                    <field name="name"/>
-                                    <field name="tipo_operacion_id"/>
-                                    <field name="peso_entrada"/>
-                                    <field name="peso_salida"/>
-                                    <field name="merma"/>
-                                    <field name="merma_porcentaje"/>
-                                </list>
-                            </field>
-                        </page>
                         <page string="Pesajes">
                             <group string="Pesajes de Entrada">
                                 <field name="pesaje_entrada_ids" readonly="1" nolabel="1">

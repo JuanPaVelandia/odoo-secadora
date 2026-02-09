@@ -122,23 +122,12 @@ class SecadoraPesaje(models.Model):
         string='Variedad de Arroz'
     )
 
-    # Vínculo con Lote y Orden de Servicio
-    lote_id = fields.Many2one(
-        'secadora.orden.lote',
-        string='Lote',
-        index=True,
-        ondelete='cascade',
-        help='Lote al que pertenece este pesaje (para servicios con múltiples lotes)'
-    )
-
+    # Vínculo con Orden de Servicio
     orden_servicio_id = fields.Many2one(
         'secadora.orden.servicio',
         string='Orden de Servicio',
-        compute='_compute_orden_servicio_id',
-        store=True,
-        readonly=False,
         index=True,
-        help='Orden de servicio (se infiere del lote, o se puede asignar manualmente para pesajes sin lote)'
+        help='Orden de servicio a la que pertenece este pesaje (opcional para compra/venta)'
     )
 
     # Dirección del pesaje (reemplaza tipo_proceso para mayor claridad)
@@ -209,14 +198,6 @@ class SecadoraPesaje(models.Model):
             if vals.get('name', 'Nuevo') == 'Nuevo':
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.pesaje') or 'Nuevo'
         return super().create(vals_list)
-
-    @api.depends('lote_id', 'lote_id.orden_id')
-    def _compute_orden_servicio_id(self):
-        """Computar orden de servicio desde el lote"""
-        for record in self:
-            if record.lote_id:
-                record.orden_servicio_id = record.lote_id.orden_id
-            # Si no hay lote, mantener el valor actual (podría ser pesaje directo sin lote)
 
     @api.onchange('tipo_operacion_id')
     def _onchange_tipo_operacion_direccion(self):
