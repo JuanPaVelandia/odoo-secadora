@@ -359,6 +359,13 @@ class OrdenServicio(models.Model):
                 raise UserError('Debe registrar al menos un pesaje de salida o bultos antes de liquidar.')
             record.write({'state': 'listo_liquidar', 'fecha_fin': fields.Datetime.now()})
 
+    def action_confirmar_liquidacion(self):
+        """Confirmar liquidación sin generar factura (para cuando no hay módulo account)"""
+        for record in self:
+            if record.state != 'listo_liquidar':
+                raise UserError('Solo se pueden confirmar órdenes listas para liquidar.')
+            record.write({'state': 'liquidado'})
+
     def action_volver_proceso(self):
         for record in self:
             record.state = 'en_proceso'

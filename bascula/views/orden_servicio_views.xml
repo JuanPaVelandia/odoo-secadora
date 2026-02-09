@@ -26,6 +26,8 @@
                             class="oe_highlight" invisible="state != 'borrador'"/>
                     <button name="action_listo_liquidar" type="object" string="Listo para Liquidar"
                             class="oe_highlight" invisible="state != 'en_proceso'"/>
+                    <button name="action_confirmar_liquidacion" type="object" string="Confirmar Liquidación"
+                            class="oe_highlight" invisible="state != 'listo_liquidar'"/>
                     <!-- TODO: Descomentar cuando se instale el módulo 'account' -->
                     <!-- <button name="action_generar_factura" type="object" string="Generar Factura"
                             class="oe_highlight" invisible="state not in ('listo_liquidar', 'liquidado')"/> -->
@@ -85,6 +87,9 @@
                                         <field name="state" widget="badge"/>
                                     </list>
                                 </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="peso_entrada" string="Total Entrada" class="oe_subtotal_footer_separator"/>
+                                </group>
                             </group>
                             <group string="Pesajes de Salida">
                                 <field name="pesaje_salida_ids" readonly="1" nolabel="1">
