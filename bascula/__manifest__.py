@@ -35,6 +35,7 @@
         'views/tipo_operacion_views.xml',
         'views/servicio_regla_views.xml',
         'views/orden_servicio_views.xml',
+        'views/orden_lote_views.xml',
         'views/pesaje_views.xml',
         'views/pesaje_report.xml',
         'views/res_config_settings_views.xml',

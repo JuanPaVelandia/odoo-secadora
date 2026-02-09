@@ -46,11 +46,24 @@ class OrdenServicio(models.Model):
         ('secamiento', 'Secamiento'),
         ('prelimpieza', 'Prelimpieza'),
         ('secamiento_prelimpieza', 'Secamiento + Prelimpieza'),
-    ], string='Tipo de Servicio',
-       required=True,
-       default='secamiento',
+    ], string='Tipo de Servicio (Legacy)',
        tracking=True,
-       help='Tipo de servicio principal a realizar')
+       help='DEPRECADO: Usar lotes en su lugar. Solo para compatibilidad con órdenes antiguas')
+
+    # ==================== LOTES ====================
+
+    lote_ids = fields.One2many(
+        'secadora.orden.lote',
+        'orden_id',
+        string='Lotes',
+        help='Lotes de servicio dentro de esta orden (permite múltiples servicios en una orden)'
+    )
+
+    lote_count = fields.Integer(
+        string='Total Lotes',
+        compute='_compute_lote_count',
+        store=False
+    )
 
     # ==================== DATOS DEL ARROZ ====================
 
@@ -262,6 +275,10 @@ class OrdenServicio(models.Model):
             count = len(record.pesaje_entrada_ids) + len(record.pesaje_salida_ids)
             record.pesaje_count = count
 
+    def _compute_lote_count(self):
+        for record in self:
+            record.lote_count = len(record.lote_ids)
+
     @api.depends('pesaje_entrada_ids.peso_neto')
     def _compute_peso_entrada(self):
         """Calcular peso total de entrada sumando todos los pesajes de entrada"""
@@ -406,6 +423,41 @@ class OrdenServicio(models.Model):
                         'precio_unitario': precio,
                         'descripcion': regla.name,
                     })
+
+    def action_crear_lote(self):
+        """Crear un nuevo lote en esta orden"""
+        self.ensure_one()
+
+        # Contar lotes existentes para asignar secuencia
+        lote_count = len(self.lote_ids)
+
+        lote = self.env['secadora.orden.lote'].create({
+            'orden_id': self.id,
+            'sequence': (lote_count + 1) * 10,
+        })
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'secadora.orden.lote',
+            'res_id': lote.id,
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_orden_id': self.id}
+        }
+
+    def action_ver_lotes(self):
+        """Ver todos los lotes de esta orden"""
+        self.ensure_one()
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Lotes - {self.name}',
+            'res_model': 'secadora.orden.lote',
+            'domain': [('orden_id', '=', self.id)],
+            'view_mode': 'list,form',
+            'target': 'current',
+            'context': {'default_orden_id': self.id}
+        }
 
     def action_crear_pesaje_entrada(self):
         """Crear un pesaje de entrada vinculado a esta orden"""

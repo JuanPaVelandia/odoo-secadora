@@ -122,14 +122,34 @@ class SecadoraPesaje(models.Model):
         string='Variedad de Arroz'
     )
 
-    # Vínculo con Orden de Servicio
+    # Vínculo con Lote y Orden de Servicio
+    lote_id = fields.Many2one(
+        'secadora.orden.lote',
+        string='Lote',
+        index=True,
+        ondelete='cascade',
+        help='Lote al que pertenece este pesaje (para servicios con múltiples lotes)'
+    )
+
     orden_servicio_id = fields.Many2one(
         'secadora.orden.servicio',
         string='Orden de Servicio',
-        required=True,
+        compute='_compute_orden_servicio_id',
+        store=True,
+        readonly=False,
         index=True,
-        help='Orden de servicio a la que pertenece este pesaje'
+        help='Orden de servicio (se infiere del lote, o se puede asignar manualmente para pesajes sin lote)'
     )
+
+    # Dirección del pesaje (reemplaza tipo_proceso para mayor claridad)
+    direccion = fields.Selection([
+        ('entrada', 'Entrada'),
+        ('salida', 'Salida'),
+    ], string='Dirección',
+       compute='_compute_direccion',
+       store=True,
+       readonly=False,
+       help='Dirección del pesaje: Entrada o Salida')
 
     # Pesaje
     peso_actual = fields.Float(
@@ -191,12 +211,34 @@ class SecadoraPesaje(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.pesaje') or 'Nuevo'
         return super().create(vals_list)
 
+    @api.depends('lote_id', 'lote_id.orden_id')
+    def _compute_orden_servicio_id(self):
+        """Computar orden de servicio desde el lote"""
+        for record in self:
+            if record.lote_id:
+                record.orden_servicio_id = record.lote_id.orden_id
+            # Si no hay lote, mantener el valor actual (podría ser pesaje directo sin lote)
+
+    @api.depends('tipo_operacion_id', 'tipo_operacion_id.direccion_fija')
+    def _compute_direccion(self):
+        """Computar dirección desde tipo_operacion si tiene dirección fija (compra/venta)"""
+        for record in self:
+            if record.tipo_operacion_id and record.tipo_operacion_id.direccion_fija:
+                # Compra/Venta tienen dirección automática
+                record.direccion = record.tipo_operacion_id.direccion_fija
+            elif not record.direccion:
+                # Para servicios, si no hay dirección, poner entrada por defecto
+                record.direccion = 'entrada'
+
     @api.depends('tipo_operacion_id')
     def _compute_tipo_proceso(self):
-        """Compute tipo_proceso desde tipo_operacion_id para mantener compatibilidad"""
+        """Compute tipo_proceso desde direccion para mantener compatibilidad LEGACY"""
         for record in self:
-            if record.tipo_operacion_id:
-                record.tipo_proceso = record.tipo_operacion_id.direccion
+            if record.direccion:
+                record.tipo_proceso = record.direccion
+            elif record.tipo_operacion_id:
+                # Fallback a direccion legacy del tipo_operacion
+                record.tipo_proceso = record.tipo_operacion_id.direccion or 'entrada'
             else:
                 record.tipo_proceso = 'entrada'
 

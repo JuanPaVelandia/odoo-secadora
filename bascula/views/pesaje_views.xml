@@ -40,14 +40,21 @@
                         <group>
                             <group>
                                 <field name="tipo_operacion_id" options="{'no_create': False, 'no_open': True}"/>
+                                <field name="direccion"
+                                       readonly="tipo_operacion_id.direccion_fija"
+                                       required="True"/>
                                 <field name="tipo_proceso" invisible="1"/>
                                 <field name="name" readonly="1"/>
                                 <field name="fecha" readonly="1"/>
                             </group>
                             <group>
-                                <field name="orden_servicio_id"
+                                <field name="lote_id"
                                        options="{'no_create': False, 'no_open': False}"
-                                       placeholder="Seleccione o cree una orden de servicio"/>
+                                       placeholder="Seleccione el lote (opcional)"/>
+                                <field name="orden_servicio_id"
+                                       readonly="lote_id"
+                                       options="{'no_create': False, 'no_open': False}"
+                                       placeholder="Se infiere del lote o seleccione manualmente"/>
                             </group>
                         </group>
 
@@ -125,6 +132,7 @@
                     <field name="name"/>
                     <field name="fecha"/>
                     <field name="tipo_operacion_id" widget="badge"/>
+                    <field name="direccion" widget="badge"/>
                     <field name="tipo_proceso" column_invisible="1"/>
                     <field name="placa_texto"/>
                     <field name="tercero_id"/>

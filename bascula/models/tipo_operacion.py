@@ -21,8 +21,14 @@ class TipoOperacion(models.Model):
     direccion = fields.Selection([
         ('entrada', 'Entrada'),
         ('salida', 'Salida'),
-    ], string='Dirección', required=True,
-       help='Define si esta operación es una entrada o salida de peso')
+    ], string='Dirección (Legacy)',
+       help='DEPRECADO: Solo para compatibilidad con registros antiguos')
+
+    direccion_fija = fields.Selection([
+        ('entrada', 'Entrada'),
+        ('salida', 'Salida'),
+    ], string='Dirección Fija',
+       help='Para compra/venta: dirección automática. Para servicios: dejar vacío (se elige en cada pesaje)')
 
     # Configuración de integración
     afecta_inventario = fields.Boolean(

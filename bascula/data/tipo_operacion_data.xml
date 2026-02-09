@@ -2,11 +2,15 @@
 <odoo>
     <data noupdate="1">
 
+        <!-- ============================================ -->
+        <!-- OPERACIONES DE COMPRA/VENTA (dirección fija) -->
+        <!-- ============================================ -->
+
         <!-- Compra de Arroz -->
         <record id="tipo_op_compra" model="secadora.tipo.operacion">
             <field name="name">Compra de Arroz</field>
             <field name="codigo">COMPRA</field>
-            <field name="direccion">entrada</field>
+            <field name="direccion_fija">entrada</field>
             <field name="sequence">10</field>
             <field name="afecta_inventario" eval="True"/>
             <field name="tipo_inventario">entrada</field>
@@ -22,7 +26,7 @@
         <record id="tipo_op_venta" model="secadora.tipo.operacion">
             <field name="name">Venta de Arroz</field>
             <field name="codigo">VENTA</field>
-            <field name="direccion">salida</field>
+            <field name="direccion_fija">salida</field>
             <field name="sequence">20</field>
             <field name="afecta_inventario" eval="True"/>
             <field name="tipo_inventario">salida</field>
@@ -34,62 +38,92 @@
             <field name="color">2</field>
         </record>
 
-        <!-- Servicio de Secamiento - Entrada -->
-        <record id="tipo_op_secamiento_entrada" model="secadora.tipo.operacion">
-            <field name="name">Servicio Secamiento (Entrada)</field>
-            <field name="codigo">SEC_ENT</field>
-            <field name="direccion">entrada</field>
+        <!-- ============================================ -->
+        <!-- SERVICIOS (sin dirección fija, se elige por pesaje) -->
+        <!-- ============================================ -->
+
+        <!-- Servicio de Secamiento -->
+        <record id="tipo_op_secamiento" model="secadora.tipo.operacion">
+            <field name="name">Servicio de Secamiento</field>
+            <field name="codigo">SECAMIENTO</field>
             <field name="sequence">30</field>
             <field name="afecta_inventario" eval="False"/>
             <field name="genera_factura" eval="False"/>
             <field name="es_servicio" eval="True"/>
             <field name="requiere_precio" eval="False"/>
-            <field name="descripcion">Recepción de arroz del cliente para servicio de secamiento. El arroz NO entra al inventario (no es propio).</field>
+            <field name="descripcion">Servicio de secamiento de arroz del cliente. El arroz NO entra al inventario (no es propio). La dirección (entrada/salida) se define en cada pesaje.</field>
             <field name="color">5</field>
         </record>
 
-        <!-- Servicio de Secamiento - Salida -->
-        <record id="tipo_op_secamiento_salida" model="secadora.tipo.operacion">
-            <field name="name">Servicio Secamiento (Salida)</field>
-            <field name="codigo">SEC_SAL</field>
-            <field name="direccion">salida</field>
+        <!-- Servicio de Prelimpieza -->
+        <record id="tipo_op_prelimpieza" model="secadora.tipo.operacion">
+            <field name="name">Servicio de Prelimpieza</field>
+            <field name="codigo">PRELIMPIEZA</field>
             <field name="sequence">40</field>
             <field name="afecta_inventario" eval="False"/>
-            <field name="genera_factura" eval="True"/>
-            <field name="tipo_factura">cliente</field>
+            <field name="genera_factura" eval="False"/>
             <field name="es_servicio" eval="True"/>
-            <field name="requiere_precio" eval="True"/>
-            <field name="descripcion">Devolución de arroz secado al cliente. Se cobra el servicio de secamiento. NO afecta inventario.</field>
-            <field name="color">5</field>
+            <field name="requiere_precio" eval="False"/>
+            <field name="descripcion">Servicio de prelimpieza de arroz del cliente. NO entra al inventario. La dirección se define en cada pesaje.</field>
+            <field name="color">4</field>
         </record>
 
-        <!-- Servicio de Prelimpieza - Entrada -->
-        <record id="tipo_op_prelimpieza_entrada" model="secadora.tipo.operacion">
-            <field name="name">Servicio Prelimpieza (Entrada)</field>
-            <field name="codigo">PRELIM_ENT</field>
-            <field name="direccion">entrada</field>
+        <!-- Servicio de Secamiento + Prelimpieza -->
+        <record id="tipo_op_secamiento_prelimpieza" model="secadora.tipo.operacion">
+            <field name="name">Servicio de Secamiento + Prelimpieza</field>
+            <field name="codigo">SEC_PRELIM</field>
             <field name="sequence">50</field>
             <field name="afecta_inventario" eval="False"/>
             <field name="genera_factura" eval="False"/>
             <field name="es_servicio" eval="True"/>
             <field name="requiere_precio" eval="False"/>
-            <field name="descripcion">Recepción de arroz para servicio de prelimpieza. NO entra al inventario.</field>
-            <field name="color">4</field>
+            <field name="descripcion">Servicio combinado de secamiento y prelimpieza. NO afecta inventario. La dirección se define en cada pesaje.</field>
+            <field name="color">6</field>
         </record>
 
-        <!-- Servicio de Prelimpieza - Salida -->
+        <!-- ============================================ -->
+        <!-- REGISTROS LEGACY (para compatibilidad) -->
+        <!-- Se mantienen inactivos para no romper datos existentes -->
+        <!-- ============================================ -->
+
+        <record id="tipo_op_secamiento_entrada" model="secadora.tipo.operacion">
+            <field name="name">[LEGACY] Servicio Secamiento (Entrada)</field>
+            <field name="codigo">SEC_ENT</field>
+            <field name="direccion">entrada</field>
+            <field name="sequence">100</field>
+            <field name="active" eval="False"/>
+            <field name="es_servicio" eval="True"/>
+            <field name="descripcion">REGISTRO LEGACY - Usar en su lugar: Servicio de Secamiento</field>
+        </record>
+
+        <record id="tipo_op_secamiento_salida" model="secadora.tipo.operacion">
+            <field name="name">[LEGACY] Servicio Secamiento (Salida)</field>
+            <field name="codigo">SEC_SAL</field>
+            <field name="direccion">salida</field>
+            <field name="sequence">101</field>
+            <field name="active" eval="False"/>
+            <field name="es_servicio" eval="True"/>
+            <field name="descripcion">REGISTRO LEGACY - Usar en su lugar: Servicio de Secamiento</field>
+        </record>
+
+        <record id="tipo_op_prelimpieza_entrada" model="secadora.tipo.operacion">
+            <field name="name">[LEGACY] Servicio Prelimpieza (Entrada)</field>
+            <field name="codigo">PRELIM_ENT</field>
+            <field name="direccion">entrada</field>
+            <field name="sequence">102</field>
+            <field name="active" eval="False"/>
+            <field name="es_servicio" eval="True"/>
+            <field name="descripcion">REGISTRO LEGACY - Usar en su lugar: Servicio de Prelimpieza</field>
+        </record>
+
         <record id="tipo_op_prelimpieza_salida" model="secadora.tipo.operacion">
-            <field name="name">Servicio Prelimpieza (Salida)</field>
+            <field name="name">[LEGACY] Servicio Prelimpieza (Salida)</field>
             <field name="codigo">PRELIM_SAL</field>
             <field name="direccion">salida</field>
-            <field name="sequence">60</field>
-            <field name="afecta_inventario" eval="False"/>
-            <field name="genera_factura" eval="True"/>
-            <field name="tipo_factura">cliente</field>
+            <field name="sequence">103</field>
+            <field name="active" eval="False"/>
             <field name="es_servicio" eval="True"/>
-            <field name="requiere_precio" eval="True"/>
-            <field name="descripcion">Devolución de arroz prelimpiado al cliente. Se cobra el servicio. NO afecta inventario.</field>
-            <field name="color">4</field>
+            <field name="descripcion">REGISTRO LEGACY - Usar en su lugar: Servicio de Prelimpieza</field>
         </record>
 
     </data>
