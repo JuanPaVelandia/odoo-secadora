@@ -109,12 +109,20 @@ class OrdenLote(models.Model):
         """Generar nombre automático: Lote 1, Lote 2, etc."""
         for record in self:
             if record.orden_id:
-                # Contar cuántos lotes hay antes de este en la misma orden
-                lotes_anteriores = self.search([
-                    ('orden_id', '=', record.orden_id.id),
-                    ('id', '<', record.id)
-                ], order='sequence, id')
-                numero = len(lotes_anteriores) + 1
+                # Contar cuántos lotes hay en la misma orden (solo registros guardados)
+                if record.id and isinstance(record.id, int):
+                    # Registro ya guardado: contar lotes anteriores por ID
+                    lotes_anteriores = self.search([
+                        ('orden_id', '=', record.orden_id.id),
+                        ('id', '<', record.id)
+                    ], order='sequence, id')
+                    numero = len(lotes_anteriores) + 1
+                else:
+                    # Registro nuevo (aún no guardado): contar todos los lotes existentes + 1
+                    lotes_existentes = self.search([
+                        ('orden_id', '=', record.orden_id.id)
+                    ])
+                    numero = len(lotes_existentes) + 1
                 record.name = f'Lote {numero}'
             else:
                 record.name = 'Nuevo Lote'
