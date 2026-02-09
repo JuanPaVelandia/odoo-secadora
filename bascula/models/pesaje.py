@@ -243,6 +243,26 @@ class SecadoraPesaje(models.Model):
                         f'Solo se pueden vincular pesajes del mismo cliente a una orden de servicio.'
                     )
 
+    @api.constrains('tipo_operacion_id', 'direccion')
+    def _check_direccion_coherente(self):
+        """Validar que la dirección sea coherente con el tipo de operación"""
+        for record in self:
+            if record.tipo_operacion_id and record.tipo_operacion_id.direccion_fija:
+                # Si el tipo de operación tiene dirección fija, debe coincidir
+                if record.direccion != record.tipo_operacion_id.direccion_fija:
+                    tipo_nombre = record.tipo_operacion_id.name
+                    direccion_esperada = 'Entrada' if record.tipo_operacion_id.direccion_fija == 'entrada' else 'Salida'
+                    direccion_actual = 'Entrada' if record.direccion == 'entrada' else 'Salida'
+
+                    raise UserError(
+                        f'⚠️ ERROR DE DIRECCIÓN\n\n'
+                        f'Tipo de Operación: {tipo_nombre}\n'
+                        f'Dirección esperada: {direccion_esperada}\n'
+                        f'Dirección seleccionada: {direccion_actual}\n\n'
+                        f'Una "{tipo_nombre}" siempre debe ser "{direccion_esperada}".\n'
+                        f'Por favor corrija la dirección antes de guardar.'
+                    )
+
     def _get_colombia_date(self):
         """Obtiene la fecha actual de Colombia (America/Bogota)"""
         colombia_tz = pytz.timezone('America/Bogota')
