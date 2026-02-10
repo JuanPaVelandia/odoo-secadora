@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Formato de papel: Carta (8.5 x 11 pulgadas) -->
+        <record id="paperformat_orden_servicio_carta" model="report.paperformat">
+            <field name="name">Orden de Servicio Carta</field>
+            <field name="default" eval="False"/>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">40</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">15</field>
+            <field name="margin_right">15</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">35</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Acción de impresión -->
+        <record id="action_report_orden_servicio" model="ir.actions.report">
+            <field name="name">Orden de Servicio</field>
+            <field name="model">secadora.orden.servicio</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">bascula.report_orden_servicio_document</field>
+            <field name="report_file">bascula.report_orden_servicio_document</field>
+            <field name="binding_model_id" ref="model_secadora_orden_servicio"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Orden %s' % (object.name)</field>
+            <field name="paperformat_id" ref="bascula.paperformat_orden_servicio_carta"/>
+        </record>
+
+        <!-- Plantilla del reporte -->
+        <template id="report_orden_servicio_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: Arial, sans-serif; font-size: 12px;">
+
+                            <!-- Encabezado -->
+                            <div class="text-center" style="border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+                                <h2 style="margin: 0; font-size: 20px;"><strong>Secadora La Gran Colombia S.A.S</strong></h2>
+                                <h3 style="margin: 5px 0; font-size: 16px;">ORDEN DE SERVICIO</h3>
+                                <p style="margin: 5px 0; font-size: 14px;">
+                                    <strong>No. <span t-field="o.name"/></strong>
+                                </p>
+                            </div>
+
+                            <!-- Información general -->
+                            <div class="row" style="margin-bottom: 20px;">
+                                <div class="col-6">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Cliente:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.cliente_id"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Tipo de Servicio:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.tipo_servicio"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Estado:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.state"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-6">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Fecha Inicio:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.fecha_inicio"/></td>
+                                        </tr>
+                                        <tr t-if="o.fecha_fin">
+                                            <td style="padding: 5px;"><strong>Fecha Fin:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.fecha_fin"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Modalidad Salida:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.modalidad_salida"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div t-if="o.observaciones" style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #333;">
+                                <strong>Observaciones:</strong><br/>
+                                <span t-field="o.observaciones"/>
+                            </div>
+
+                            <!-- Pesajes de Entrada -->
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Entrada</h4>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                    <thead>
+                                        <tr style="background-color: #f0f0f0;">
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Número</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Fecha</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Vehículo</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Neto (kg)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.pesaje_entrada_ids" t-as="pesaje">
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="pesaje.name"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="pesaje.fecha"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="pesaje.vehiculo_id"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="pesaje.peso_neto" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                            <td colspan="3" style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTAL ENTRADA:</td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="o.peso_entrada" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pesajes de Salida -->
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Salida</h4>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                    <thead>
+                                        <tr style="background-color: #f0f0f0;">
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Número</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Fecha</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Vehículo</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Neto (kg)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.pesaje_salida_ids" t-as="pesaje">
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="pesaje.name"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="pesaje.fecha"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="pesaje.vehiculo_id"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="pesaje.peso_neto" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                            <td colspan="3" style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTAL SALIDA:</td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="o.peso_salida_real" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Resumen de Liquidación -->
+                            <div style="margin-bottom: 20px; border: 2px solid #333; padding: 15px;">
+                                <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center;"><strong>RESUMEN DE LIQUIDACIÓN</strong></h4>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px; font-size: 14px;"><strong>Peso Total Entrada:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px;">
+                                            <strong><span t-field="o.peso_entrada" t-options='{"widget": "float", "precision": 2}'/> kg</strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px; font-size: 14px;"><strong>Peso Total Salida:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px;">
+                                            <strong><span t-field="o.peso_salida_real" t-options='{"widget": "float", "precision": 2}'/> kg</strong>
+                                        </td>
+                                    </tr>
+                                    <tr style="border-top: 2px solid #333;">
+                                        <td style="padding: 8px; font-size: 16px;"><strong>Merma:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 16px;">
+                                            <strong>
+                                                <span t-field="o.merma_real" t-options='{"widget": "float", "precision": 2}'/> kg
+                                                (<span t-field="o.merma_real_porcentaje" t-options='{"widget": "float", "precision": 2}'/>%)
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Servicios Adicionales -->
+                            <div t-if="o.linea_servicio_ids" style="margin-bottom: 20px;">
+                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Servicios Adicionales</h4>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                    <thead>
+                                        <tr style="background-color: #f0f0f0;">
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Servicio</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Cantidad</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Precio Unit.</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.linea_servicio_ids" t-as="linea">
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="linea.producto_id"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                                                <span t-field="linea.cantidad" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="linea.precio_unitario" t-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="linea.subtotal" t-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                            <td colspan="3" style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTAL SERVICIOS:</td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="o.subtotal_servicios" t-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pie de página -->
+                            <div style="margin-top: 40px; text-align: center; font-size: 10px; color: #666;">
+                                <p>Este documento es un registro de la orden de servicio y no constituye factura.</p>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

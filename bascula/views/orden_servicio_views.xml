@@ -101,6 +101,9 @@
                                         <field name="state" widget="badge"/>
                                     </list>
                                 </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="peso_salida_bascula" string="Total Salida" class="oe_subtotal_footer_separator"/>
+                                </group>
                             </group>
                         </page>
                         <page string="Bultos" invisible="modalidad_salida != 'bultos'">
