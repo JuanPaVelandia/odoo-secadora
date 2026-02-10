@@ -196,16 +196,16 @@
                                                 <span t-field="linea.cantidad" t-options='{"widget": "float", "precision": 2}'/>
                                             </td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
-                                                $<span t-field="linea.precio_unitario" t-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                                $<span t-field="linea.precio_unitario" t-options='{"widget": "float", "precision": 0}'/>
                                             </td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
-                                                $<span t-field="linea.subtotal" t-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                                $<span t-field="linea.subtotal" t-options='{"widget": "float", "precision": 0}'/>
                                             </td>
                                         </tr>
                                         <tr style="background-color: #f0f0f0; font-weight: bold;">
                                             <td colspan="3" style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTAL SERVICIOS:</td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
-                                                $<span t-field="o.subtotal_servicios" t-options='{"widget": "monetary", "display_currency": "o.currency_id"}'/>
+                                                $<span t-field="o.subtotal_servicios" t-options='{"widget": "float", "precision": 0}'/>
                                             </td>
                                         </tr>
                                     </tbody>

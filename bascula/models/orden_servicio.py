@@ -14,7 +14,7 @@ class OrdenServicio(models.Model):
         string='Número de Orden',
         required=True,
         readonly=True,
-        default='/',
+        default='Nuevo',
         copy=False,
         tracking=True,
         help='Número de orden de servicio generado automáticamente'
@@ -334,8 +334,8 @@ class OrdenServicio(models.Model):
 
     @api.model
     def create(self, vals):
-        if vals.get('name', '/') == '/':
-            vals['name'] = self.env['ir.sequence'].next_by_code('secadora.orden.servicio') or '/'
+        if not vals.get('name') or vals.get('name') in ('/', 'Nuevo'):
+            vals['name'] = self.env['ir.sequence'].next_by_code('secadora.orden.servicio') or 'OS-Nuevo'
         return super(OrdenServicio, self).create(vals)
 
     def action_iniciar_proceso(self):

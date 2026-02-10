@@ -482,14 +482,20 @@ class SecadoraPesaje(models.Model):
             'tipo_servicio': 'secamiento',  # Por defecto
         })
 
-        # Vincular pesaje a la orden (se vinculará automáticamente vía One2many)
-        self.orden_servicio_id = orden.id
+        # Vincular pesaje a la orden y guardar
+        self.write({'orden_servicio_id': orden.id})
 
-        # Abrir la orden creada
+        # Mensaje de éxito
         return {
-            'type': 'ir.actions.act_window',
-            'res_model': 'secadora.orden.servicio',
-            'res_id': orden.id,
-            'view_mode': 'form',
-            'target': 'current',
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': 'Orden Creada',
+                'message': f'Orden {orden.name} creada y vinculada exitosamente',
+                'type': 'success',
+                'sticky': False,
+                'next': {
+                    'type': 'ir.actions.act_window_close',
+                }
+            }
         }
