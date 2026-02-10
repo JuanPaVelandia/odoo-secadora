@@ -124,12 +124,13 @@
                                 <list editable="bottom">
                                     <field name="fecha"/>
                                     <field name="producto_empaque_id"/>
-                                    <field name="cantidad"/>
+                                    <field name="cantidad" sum="Total Bultos"/>
                                     <field name="peso_promedio"/>
-                                    <field name="peso_total"/>
+                                    <field name="peso_total" sum="Peso Total"/>
                                     <field name="proveedor_empaque"/>
                                     <field name="precio_unitario_empaque"/>
-                                    <field name="subtotal_empaque"/>
+                                    <field name="subtotal_empaque" sum="Total Empaques"/>
+                                    <field name="observaciones" optional="show"/>
                                 </list>
                             </field>
                         </page>
