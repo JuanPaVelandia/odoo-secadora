@@ -28,12 +28,20 @@
                             class="oe_highlight" invisible="state != 'en_proceso'"/>
                     <button name="action_confirmar_liquidacion" type="object" string="Confirmar Liquidación"
                             class="oe_highlight" invisible="state != 'listo_liquidar'"/>
+
+                    <!-- Botones para retroceder estados -->
+                    <button name="action_volver_proceso" type="object" string="← Volver a En Proceso"
+                            invisible="state not in ('listo_liquidar', 'liquidado')"/>
+                    <button name="action_volver_borrador" type="object" string="← Volver a Borrador"
+                            invisible="state not in ('en_proceso', 'listo_liquidar', 'liquidado')"/>
+
                     <!-- TODO: Descomentar cuando se instale el módulo 'account' -->
                     <!-- <button name="action_generar_factura" type="object" string="Generar Factura"
                             class="oe_highlight" invisible="state not in ('listo_liquidar', 'liquidado')"/> -->
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
+                    <widget name="web_ribbon" title="Facturado - No Modificable" bg_color="text-bg-danger" invisible="state != 'facturado'"/>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_ver_pesajes" type="object"
                                 class="oe_stat_button" icon="fa-truck"
@@ -61,19 +69,24 @@
                     <group>
                         <group>
                             <field name="cliente_id"
+                                   readonly="state == 'facturado'"
                                    options="{'no_open': False, 'no_create': False}"
                                    context="{'default_is_company': False, 'default_customer_rank': 1, 'res_partner_search_mode': 'customer', 'show_vat': True}"/>
-                            <field name="tipo_servicio_id" options="{'no_create': True, 'no_open': False}"/>
+                            <field name="tipo_servicio_id"
+                                   readonly="state == 'facturado'"
+                                   options="{'no_create': True, 'no_open': False}"/>
                         </group>
                         <group>
-                            <field name="fecha_inicio"/>
-                            <field name="modalidad_salida"/>
+                            <field name="fecha_inicio" readonly="state == 'facturado'"/>
+                            <field name="modalidad_salida" readonly="state == 'facturado'"/>
                             <!-- TODO: Descomentar cuando se instale el módulo 'account' -->
                             <!-- <field name="factura_id" readonly="1"/> -->
                         </group>
                     </group>
                     <group>
-                        <field name="observaciones" placeholder="Variedades, instrucciones especiales, notas..."/>
+                        <field name="observaciones"
+                               readonly="state == 'facturado'"
+                               placeholder="Variedades, instrucciones especiales, notas..."/>
                     </group>
                     <notebook>
                         <page string="Pesajes">
@@ -107,7 +120,7 @@
                             </group>
                         </page>
                         <page string="Bultos" invisible="modalidad_salida != 'bultos'">
-                            <field name="registro_bultos_ids">
+                            <field name="registro_bultos_ids" readonly="state == 'facturado'">
                                 <list editable="bottom">
                                     <field name="fecha"/>
                                     <field name="producto_empaque_id"/>
@@ -121,7 +134,7 @@
                             </field>
                         </page>
                         <page string="Servicios">
-                            <field name="linea_servicio_ids">
+                            <field name="linea_servicio_ids" readonly="state == 'facturado'">
                                 <list editable="bottom">
                                     <field name="producto_id"/>
                                     <field name="descripcion" optional="hide"/>

@@ -422,9 +422,23 @@ class OrdenServicio(models.Model):
                 raise UserError('Solo se pueden confirmar órdenes listas para liquidar.')
             record.write({'state': 'liquidado'})
 
-    def action_volver_proceso(self):
+    def action_volver_borrador(self):
+        """Volver al estado Borrador desde En Proceso o Listo para Liquidar"""
         for record in self:
-            record.state = 'en_proceso'
+            if record.state == 'facturado':
+                raise UserError('No se puede volver a Borrador una orden que ya está Facturada.')
+            if record.state not in ('en_proceso', 'listo_liquidar', 'liquidado'):
+                raise UserError('Solo se puede volver a Borrador desde En Proceso, Listo para Liquidar o Liquidado.')
+            record.write({'state': 'borrador', 'fecha_fin': False})
+
+    def action_volver_proceso(self):
+        """Volver al estado En Proceso desde Listo para Liquidar o Liquidado"""
+        for record in self:
+            if record.state == 'facturado':
+                raise UserError('No se puede volver a En Proceso una orden que ya está Facturada.')
+            if record.state not in ('listo_liquidar', 'liquidado'):
+                raise UserError('Solo se puede volver a En Proceso desde Listo para Liquidar o Liquidado.')
+            record.write({'state': 'en_proceso', 'fecha_fin': False})
 
     def aplicar_reglas_servicios(self):
         """Aplicar reglas automáticas de servicios a esta orden"""
