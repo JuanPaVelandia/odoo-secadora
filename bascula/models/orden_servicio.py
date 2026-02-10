@@ -390,9 +390,15 @@ class OrdenServicio(models.Model):
         for record in self:
             if record.state != 'en_proceso':
                 raise UserError('Solo se pueden liquidar órdenes en proceso.')
+
+            # Validar que modalidad_salida esté seleccionada
+            if not record.modalidad_salida:
+                raise UserError('Debe seleccionar una Modalidad de Salida antes de liquidar.')
+
             # Validar que haya al menos un pesaje de salida o bultos registrados
             if not record.pesaje_salida_ids and not record.registro_bultos_ids:
                 raise UserError('Debe registrar al menos un pesaje de salida o bultos antes de liquidar.')
+
             record.write({'state': 'listo_liquidar', 'fecha_fin': fields.Datetime.now()})
 
     def action_confirmar_liquidacion(self):
