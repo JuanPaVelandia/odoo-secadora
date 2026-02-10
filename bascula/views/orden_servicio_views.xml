@@ -131,6 +131,9 @@
                                     <field name="subtotal" readonly="1"/>
                                 </list>
                             </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="subtotal_servicios" string="Total Servicios" class="oe_subtotal_footer_separator"/>
+                            </group>
                         </page>
                         <page string="Liquidación">
                             <group>
