@@ -42,15 +42,22 @@ class OrdenServicio(models.Model):
         tracking=True
     )
 
-    tipo_servicio = fields.Selection([
-        ('secamiento', 'Secamiento'),
-        ('prelimpieza', 'Prelimpieza'),
-        ('secamiento_prelimpieza', 'Secamiento + Prelimpieza'),
-    ], string='Tipo de Servicio',
-       required=True,
-       default='secamiento',
-       tracking=True,
-       help='Tipo de servicio a realizar en esta orden')
+    tipo_servicio_id = fields.Many2one(
+        'secadora.tipo.operacion',
+        string='Tipo de Servicio',
+        required=True,
+        domain=[('es_servicio', '=', True), ('active', '=', True)],
+        tracking=True,
+        help='Tipo de servicio a realizar en esta orden'
+    )
+
+    # Campo legacy para compatibilidad con código existente
+    tipo_servicio = fields.Char(
+        string='Tipo Servicio (Legacy)',
+        compute='_compute_tipo_servicio_legacy',
+        store=True,
+        help='Campo calculado para compatibilidad con código existente'
+    )
 
     # ==================== DATOS DEL ARROZ ====================
 
@@ -262,6 +269,24 @@ class OrdenServicio(models.Model):
             count = len(record.pesaje_entrada_ids) + len(record.pesaje_salida_ids)
             record.pesaje_count = count
 
+    @api.depends('tipo_servicio_id.codigo')
+    def _compute_tipo_servicio_legacy(self):
+        """Calcular valor legacy de tipo_servicio para compatibilidad"""
+        for record in self:
+            if record.tipo_servicio_id:
+                codigo = record.tipo_servicio_id.codigo
+                # Mapear códigos a valores legacy
+                if codigo == 'SECAMIENTO':
+                    record.tipo_servicio = 'secamiento'
+                elif codigo == 'PRELIMPIEZA':
+                    record.tipo_servicio = 'prelimpieza'
+                elif codigo == 'SEC_PRELIM':
+                    record.tipo_servicio = 'secamiento_prelimpieza'
+                else:
+                    record.tipo_servicio = codigo.lower()
+            else:
+                record.tipo_servicio = False
+
     @api.depends('pesaje_entrada_ids.peso_neto')
     def _compute_peso_entrada(self):
         """Calcular peso total de entrada sumando todos los pesajes de entrada"""
@@ -336,6 +361,17 @@ class OrdenServicio(models.Model):
     def create(self, vals):
         if not vals.get('name') or vals.get('name') in ('/', 'Nuevo'):
             vals['name'] = self.env['ir.sequence'].next_by_code('secadora.orden.servicio') or 'OS-Nuevo'
+
+        # Establecer tipo_servicio_id por defecto si no se proporciona
+        if not vals.get('tipo_servicio_id'):
+            tipo_default = self.env['secadora.tipo.operacion'].search([
+                ('codigo', '=', 'SECAMIENTO'),
+                ('es_servicio', '=', True),
+                ('active', '=', True)
+            ], limit=1)
+            if tipo_default:
+                vals['tipo_servicio_id'] = tipo_default.id
+
         return super(OrdenServicio, self).create(vals)
 
     def action_iniciar_proceso(self):
@@ -411,24 +447,15 @@ class OrdenServicio(models.Model):
         """Crear un pesaje de entrada vinculado a esta orden"""
         self.ensure_one()
 
-        # Determinar tipo de operación según tipo de servicio (usando nuevos registros)
-        tipo_op_map = {
-            'secamiento': 'bascula.tipo_op_secamiento',
-            'prelimpieza': 'bascula.tipo_op_prelimpieza',
-            'secamiento_prelimpieza': 'bascula.tipo_op_secamiento_prelimpieza',
-        }
-        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento')
-        tipo_operacion = self.env.ref(tipo_op_xmlid, raise_if_not_found=False)
-
-        # Crear nuevo pesaje de entrada
+        # Crear nuevo pesaje de entrada usando directamente el tipo_servicio_id
         vals = {
             'orden_servicio_id': self.id,
             'tercero_id': self.cliente_id.id if self.cliente_id else False,
             'direccion': 'entrada',
         }
 
-        if tipo_operacion:
-            vals['tipo_operacion_id'] = tipo_operacion.id
+        if self.tipo_servicio_id:
+            vals['tipo_operacion_id'] = self.tipo_servicio_id.id
 
         pesaje = self.env['secadora.pesaje'].create(vals)
 
@@ -445,24 +472,15 @@ class OrdenServicio(models.Model):
         """Crear un pesaje de salida vinculado a esta orden"""
         self.ensure_one()
 
-        # Determinar tipo de operación según tipo de servicio (usando nuevos registros)
-        tipo_op_map = {
-            'secamiento': 'bascula.tipo_op_secamiento',
-            'prelimpieza': 'bascula.tipo_op_prelimpieza',
-            'secamiento_prelimpieza': 'bascula.tipo_op_secamiento_prelimpieza',
-        }
-        tipo_op_xmlid = tipo_op_map.get(self.tipo_servicio, 'bascula.tipo_op_secamiento')
-        tipo_operacion = self.env.ref(tipo_op_xmlid, raise_if_not_found=False)
-
-        # Crear nuevo pesaje de salida
+        # Crear nuevo pesaje de salida usando directamente el tipo_servicio_id
         vals = {
             'orden_servicio_id': self.id,
             'tercero_id': self.cliente_id.id if self.cliente_id else False,
             'direccion': 'salida',
         }
 
-        if tipo_operacion:
-            vals['tipo_operacion_id'] = tipo_operacion.id
+        if self.tipo_servicio_id:
+            vals['tipo_operacion_id'] = self.tipo_servicio_id.id
 
         pesaje = self.env['secadora.pesaje'].create(vals)
 

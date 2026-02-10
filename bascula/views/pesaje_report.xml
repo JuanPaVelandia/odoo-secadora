@@ -126,12 +126,12 @@
                                     <div class="col-6">
                                         <strong>Producto:</strong> <span t-field="o.producto_id"/><br/>
                                         <strong>Variedad:</strong> <span t-field="o.variedad_id"/><br/>
-                                        <strong>Bultos:</strong> <span t-field="o.bultos"/>
+                                        <strong>Humedad:</strong> <span t-field="o.humedad"/>%
                                     </div>
                                     <div class="col-6">
-                                        <strong>Humedad:</strong> <span t-field="o.humedad"/>%<br/>
                                         <strong>Grano Partido:</strong> <span t-field="o.grano_partido"/>%<br/>
-                                        <strong>Impurezas:</strong> <span t-field="o.impurezas"/>%
+                                        <strong>Impurezas:</strong> <span t-field="o.impurezas"/>%<br/>
+                                        <strong>Bultos:</strong> <span t-field="o.bultos"/>
                                     </div>
                                 </div>
                             </div>

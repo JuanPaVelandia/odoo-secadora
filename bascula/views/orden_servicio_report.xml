@@ -56,7 +56,7 @@
                                         </tr>
                                         <tr>
                                             <td style="padding: 5px;"><strong>Tipo de Servicio:</strong></td>
-                                            <td style="padding: 5px;"><span t-field="o.tipo_servicio"/></td>
+                                            <td style="padding: 5px;"><span t-field="o.tipo_servicio_id"/></td>
                                         </tr>
                                         <tr>
                                             <td style="padding: 5px;"><strong>Estado:</strong></td>
@@ -163,6 +163,15 @@
                                         <td style="padding: 8px; font-size: 14px;"><strong>Peso Total Salida:</strong></td>
                                         <td style="padding: 8px; text-align: right; font-size: 14px;">
                                             <strong><span t-field="o.peso_salida_real" t-options='{"widget": "float", "precision": 2}'/> kg</strong>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.modalidad_salida == 'bultos' and o.total_bultos > 0">
+                                        <td style="padding: 8px; font-size: 14px;"><strong>Total Bultos:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px;">
+                                            <strong>
+                                                <span t-field="o.total_bultos"/> bultos
+                                                (<span t-field="o.total_empaques_secadora"/> secadora + <span t-field="o.total_empaques_cliente"/> cliente)
+                                            </strong>
                                         </td>
                                     </tr>
                                     <tr style="border-top: 2px solid #333;">

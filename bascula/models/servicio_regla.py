@@ -27,15 +27,11 @@ class ServicioRegla(models.Model):
 
     # ==================== CONDICIONES ====================
 
-    tipo_servicio = fields.Selection([
-        ('secamiento', 'Secamiento'),
-        ('prelimpieza', 'Prelimpieza'),
-        ('combinado', 'Secamiento + Prelimpieza'),
-        ('todos', 'Todos los servicios'),
-    ], string='Aplica a Tipo de Servicio',
-       default='todos',
-       required=True,
-       help='A qué tipo de servicio aplica esta regla')
+    tipo_servicio_ids = fields.Many2many(
+        'secadora.tipo.operacion',
+        string='Aplica a Tipos de Operación',
+        help='Tipos de operación a los que aplica esta regla. Si está vacío, aplica a todos.'
+    )
 
     condicion = fields.Selection([
         ('siempre', 'Siempre'),
@@ -117,9 +113,15 @@ class ServicioRegla(models.Model):
         """
         self.ensure_one()
 
-        # Verificar tipo de servicio
-        if self.tipo_servicio != 'todos' and orden.tipo_servicio != self.tipo_servicio:
-            return False
+        # Verificar tipo de operación
+        # Si tipo_servicio_ids está vacío, aplica a todos
+        # Si no está vacío, verificar que el tipo_operacion_id de algún pesaje esté en la lista
+        if self.tipo_servicio_ids:
+            # Obtener todos los tipos de operación usados en los pesajes de esta orden
+            tipos_en_orden = (orden.pesaje_entrada_ids | orden.pesaje_salida_ids).mapped('tipo_operacion_id')
+            # Si ninguno de los tipos de operación de la orden está en la regla, no aplica
+            if not any(tipo in self.tipo_servicio_ids for tipo in tipos_en_orden):
+                return False
 
         # Evaluar condición
         if self.condicion == 'siempre':

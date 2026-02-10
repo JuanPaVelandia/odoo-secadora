@@ -8,7 +8,7 @@
                 <field name="name"/>
                 <field name="fecha_inicio"/>
                 <field name="cliente_id"/>
-                <field name="tipo_servicio"/>
+                <field name="tipo_servicio_id"/>
                 <field name="peso_entrada"/>
                 <field name="peso_salida_real"/>
                 <field name="state" widget="badge"/>
@@ -63,7 +63,7 @@
                             <field name="cliente_id"
                                    options="{'no_open': False, 'no_create': False}"
                                    context="{'default_is_company': False, 'default_customer_rank': 1, 'res_partner_search_mode': 'customer', 'show_vat': True}"/>
-                            <field name="tipo_servicio"/>
+                            <field name="tipo_servicio_id" options="{'no_create': True, 'no_open': False}"/>
                         </group>
                         <group>
                             <field name="fecha_inicio"/>

@@ -476,11 +476,19 @@ class SecadoraPesaje(models.Model):
         if self.orden_servicio_id:
             raise UserError('Este pesaje ya está vinculado a una orden de servicio.')
 
+        # Obtener tipo_servicio_id desde tipo_operacion_id si existe
+        tipo_servicio_id = False
+        if self.tipo_operacion_id and self.tipo_operacion_id.es_servicio:
+            tipo_servicio_id = self.tipo_operacion_id.id
+
         # Crear nueva orden
-        orden = self.env['secadora.orden.servicio'].create({
+        orden_vals = {
             'cliente_id': self.tercero_id.id if self.tercero_id else False,
-            'tipo_servicio': 'secamiento',  # Por defecto
-        })
+        }
+        if tipo_servicio_id:
+            orden_vals['tipo_servicio_id'] = tipo_servicio_id
+
+        orden = self.env['secadora.orden.servicio'].create(orden_vals)
 
         # Vincular pesaje a la orden y guardar
         self.write({'orden_servicio_id': orden.id})

@@ -10,7 +10,7 @@
                 <list string="Reglas de Servicios Automáticos">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
-                    <field name="tipo_servicio"/>
+                    <field name="tipo_servicio_ids" widget="many2many_tags"/>
                     <field name="condicion"/>
                     <field name="producto_id"/>
                     <field name="base_calculo"/>
@@ -42,7 +42,8 @@
                             <page string="Condiciones">
                                 <group>
                                     <group>
-                                        <field name="tipo_servicio"/>
+                                        <field name="tipo_servicio_ids" widget="many2many_tags"
+                                               placeholder="Dejar vacío para aplicar a todos los tipos de operación"/>
                                         <field name="condicion"/>
                                         <field name="peso_referencia"
                                                invisible="condicion == 'siempre'"
