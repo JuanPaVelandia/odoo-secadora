@@ -220,6 +220,14 @@ class OrdenServicio(models.Model):
         help='Total de servicios adicionales'
     )
 
+    total_a_facturar = fields.Float(
+        string='Total a Facturar',
+        compute='_compute_total_a_facturar',
+        store=True,
+        digits='Product Price',
+        help='Total general: servicios + empaques'
+    )
+
     # ==================== SERVICIOS RÁPIDOS ====================
 
     servicio_descargue = fields.Boolean(
@@ -354,6 +362,12 @@ class OrdenServicio(models.Model):
     def _compute_subtotal_servicios(self):
         for record in self:
             record.subtotal_servicios = sum(record.linea_servicio_ids.mapped('subtotal'))
+
+    @api.depends('subtotal_servicios', 'subtotal_empaques')
+    def _compute_total_a_facturar(self):
+        """Calcular total general: servicios + empaques"""
+        for record in self:
+            record.total_a_facturar = record.subtotal_servicios + record.subtotal_empaques
 
     # ==================== MÉTODOS ====================
 

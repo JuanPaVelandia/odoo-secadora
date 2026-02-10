@@ -206,6 +206,12 @@ class SecadoraPesaje(models.Model):
             # Compra/Venta tienen dirección automática
             self.direccion = self.tipo_operacion_id.direccion_fija
 
+    @api.onchange('orden_servicio_id')
+    def _onchange_orden_servicio_tercero(self):
+        """Auto-llenar tercero cuando se selecciona una orden de servicio"""
+        if self.orden_servicio_id and self.orden_servicio_id.cliente_id:
+            self.tercero_id = self.orden_servicio_id.cliente_id
+
     @api.depends('direccion', 'tipo_operacion_id')
     def _compute_tipo_proceso(self):
         """Compute tipo_proceso desde direccion para mantener compatibilidad LEGACY"""

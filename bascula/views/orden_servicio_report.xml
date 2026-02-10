@@ -149,6 +149,60 @@
                                 </table>
                             </div>
 
+                            <!-- Detalle de Bultos Empacados -->
+                            <div t-if="o.modalidad_salida == 'bultos' and o.registro_bultos_ids" style="margin-bottom: 20px;">
+                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Registro de Bultos Empacados</h4>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                    <thead>
+                                        <tr style="background-color: #f0f0f0;">
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Fecha</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Cantidad</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Prom. (kg)</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Total (kg)</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Proveedor</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Costo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.registro_bultos_ids" t-as="bulto">
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="bulto.fecha"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                                                <span t-field="bulto.cantidad"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="bulto.peso_promedio" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="bulto.peso_total" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                                                <span t-if="bulto.proveedor_empaque == 'secadora'">Secadora</span>
+                                                <span t-if="bulto.proveedor_empaque == 'cliente'">Cliente</span>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="bulto.subtotal_empaque" t-options='{"widget": "float", "precision": 0}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                            <td colspan="1" style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTALES:</td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                                                <span t-field="o.total_bultos"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="o.peso_total_bultos" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
+                                                <span t-field="o.total_empaques_secadora"/> / <span t-field="o.total_empaques_cliente"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="o.subtotal_empaques" t-options='{"widget": "float", "precision": 0}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <!-- Resumen de Liquidación -->
                             <div style="margin-bottom: 20px; border: 2px solid #333; padding: 15px;">
                                 <h4 style="margin: 0 0 10px 0; font-size: 14px; text-align: center;"><strong>RESUMEN DE LIQUIDACIÓN</strong></h4>
@@ -224,6 +278,30 @@
                                             </td>
                                         </tr>
                                     </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Total General -->
+                            <div t-if="o.total_a_facturar > 0" style="margin-bottom: 20px; border: 3px solid #000; padding: 15px; background-color: #f9f9f9;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr t-if="o.subtotal_servicios > 0">
+                                        <td style="padding: 8px; font-size: 14px;"><strong>Subtotal Servicios:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px;">
+                                            <strong>$<span t-field="o.subtotal_servicios" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.subtotal_empaques > 0">
+                                        <td style="padding: 8px; font-size: 14px;"><strong>Subtotal Empaques:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px;">
+                                            <strong>$<span t-field="o.subtotal_empaques" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                        </td>
+                                    </tr>
+                                    <tr style="border-top: 3px solid #000;">
+                                        <td style="padding: 10px; font-size: 18px;"><strong>TOTAL A FACTURAR:</strong></td>
+                                        <td style="padding: 10px; text-align: right; font-size: 18px;">
+                                            <strong style="color: #00A09D;">$<span t-field="o.total_a_facturar" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                        </td>
+                                    </tr>
                                 </table>
                             </div>
 
