@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Activar consignación (tracking de propietario) en inventario -->
+        <function model="res.config.settings" name="create">
+            <value eval="[{'group_stock_tracking_owner': True}]"/>
+        </function>
+
+    </data>
+</odoo>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Categoría de Productos: Arroz -->
+        <record id="product_category_arroz" model="product.category">
+            <field name="name">Arroz</field>
+            <field name="parent_id" ref="product.product_category_all"/>
+        </record>
+
+        <!-- Producto por defecto: Arroz Paddy -->
+        <record id="product_arroz_paddy" model="product.product">
+            <field name="name">Arroz Paddy</field>
+            <field name="type">product</field>
+            <field name="categ_id" ref="product_category_arroz"/>
+            <field name="list_price">0</field>
+            <field name="standard_price">0</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
+            <field name="tracking">none</field>
+            <field name="description">Arroz paddy sin procesar (con cáscara)</field>
+        </record>
+
+    </data>
+</odoo>

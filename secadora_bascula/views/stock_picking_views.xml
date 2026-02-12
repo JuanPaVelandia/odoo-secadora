@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
+    <!-- Herencia: Agregar campos de bascula en formulario de stock.picking -->
     <record id="view_picking_form_inherit_secadora" model="ir.ui.view">
         <field name="name">stock.picking.form.inherit.secadora</field>
         <field name="model">stock.picking</field>
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='origin']" position="after">
-                <field name="x_numero_tiquete"/>
+                <field name="x_numero_tiquete" readonly="1"/>
+                <field name="x_pesaje_id" readonly="1" options="{'no_open': False}"/>
+                <field name="x_orden_servicio_id" readonly="1" options="{'no_open': False}"/>
             </xpath>
         </field>
     </record>
+
 </odoo>
