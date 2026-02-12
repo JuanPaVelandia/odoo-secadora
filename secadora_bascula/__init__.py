@@ -13,27 +13,45 @@ def _create_arroz_paddy(env):
 
 
 def _create_product_arroz(env):
-    """Crea el producto Arroz Paddy si no existe"""
+    """Crea los productos Arroz Paddy Verde y Seco si no existen"""
     category = env.ref('secadora_bascula.product_category_arroz', raise_if_not_found=False)
     if not category:
         return
 
-    existing = env['product.template'].search([('name', '=', 'Arroz Paddy')], limit=1)
-    if existing:
-        return
-
     uom_kg = env.ref('uom.product_uom_kgm', raise_if_not_found=False)
-    env['product.template'].create({
-        'name': 'Arroz Paddy',
-        'type': 'consu',
-        'is_storable': True,
-        'categ_id': category.id,
-        'list_price': 0,
-        'standard_price': 0,
-        'uom_id': uom_kg.id if uom_kg else False,
-        'uom_po_id': uom_kg.id if uom_kg else False,
-        'description': 'Arroz paddy sin procesar (con cascara)',
-    })
+
+    # Renombrar "Arroz Paddy" existente a "Arroz Paddy Verde" si existe
+    arroz_viejo = env['product.template'].search([('name', '=', 'Arroz Paddy')], limit=1)
+    if arroz_viejo:
+        arroz_viejo.write({'name': 'Arroz Paddy Verde'})
+
+    productos = [
+        {
+            'name': 'Arroz Paddy Verde',
+            'description': 'Arroz paddy verde (humedo, sin procesar)',
+        },
+        {
+            'name': 'Arroz Paddy Seco',
+            'description': 'Arroz paddy seco (procesado, listo para entregar)',
+        },
+    ]
+
+    for prod in productos:
+        existing = env['product.template'].search([('name', '=', prod['name'])], limit=1)
+        if existing:
+            continue
+
+        env['product.template'].create({
+            'name': prod['name'],
+            'type': 'consu',
+            'is_storable': True,
+            'categ_id': category.id,
+            'list_price': 0,
+            'standard_price': 0,
+            'uom_id': uom_kg.id if uom_kg else False,
+            'uom_po_id': uom_kg.id if uom_kg else False,
+            'description': prod['description'],
+        })
 
 
 def _create_picking_types(env):

@@ -111,6 +111,13 @@ class SecadoraPesajeStock(models.Model):
 
         return self.env['stock.picking.type'].create(vals)
 
+    def _get_producto_servicio(self, nombre):
+        """Busca un producto por nombre para servicios"""
+        tmpl = self.env['product.template'].search([('name', '=', nombre)], limit=1)
+        if tmpl:
+            return tmpl.product_variant_id
+        return False
+
     def _crear_picking_inventario(self):
         """Crea picking para operaciones de COMPRA o VENTA"""
         self.ensure_one()
@@ -164,21 +171,19 @@ class SecadoraPesajeStock(models.Model):
         if self.picking_id:
             return
 
-        producto = self.producto_id
-        if not producto:
-            tmpl = self.env['product.template'].search([('name', '=', 'Arroz Paddy')], limit=1)
-            if tmpl:
-                producto = tmpl.product_variant_id
-        if not producto:
-            raise UserError(
-                'No se encontro el producto Arroz Paddy.\n'
-                'Por favor seleccione un producto o verifique que los datos del modulo esten instalados.'
-            )
-
+        # Asignar producto automaticamente segun direccion
         if self.direccion == 'entrada':
+            producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Verde')
             picking_type = self._get_picking_type('ENT-SRV')
         else:
+            producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Seco')
             picking_type = self._get_picking_type('SAL-SRV')
+
+        if not producto:
+            raise UserError(
+                'No se encontro el producto de arroz.\n'
+                'Por favor seleccione un producto o verifique que los datos del modulo esten instalados.'
+            )
 
         picking_vals = {
             'picking_type_id': picking_type.id,
