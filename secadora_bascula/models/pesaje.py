@@ -102,7 +102,9 @@ class SecadoraPesajeStock(models.Model):
 
         producto = self.producto_id
         if not producto:
-            producto = self.env.ref('secadora_bascula.product_arroz_paddy', raise_if_not_found=False)
+            tmpl = self.env.ref('secadora_bascula.product_template_arroz_paddy', raise_if_not_found=False)
+            if tmpl:
+                producto = tmpl.product_variant_id
         if not producto:
             raise UserError(
                 'No se encontro el producto Arroz Paddy.\n'
