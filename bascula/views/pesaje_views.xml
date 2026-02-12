@@ -34,13 +34,14 @@
                         </div>
                         <group>
                             <group>
-                                <field name="orden_servicio_id"
-                                       options="{'no_create': False, 'no_open': False}"
-                                       placeholder="Seleccione la orden de servicio (opcional)"/>
                                 <field name="tipo_operacion_id"
                                        options="{'no_create': False, 'no_open': True}"
                                        readonly="orden_servicio_id"
                                        force_save="1"/>
+                                <field name="orden_servicio_id"
+                                       options="{'no_create': False, 'no_open': False}"
+                                       placeholder="Seleccione la orden de servicio (opcional)"
+                                       invisible="tipo_operacion_id and not tipo_operacion_id.es_servicio"/>
                                 <field name="direccion"/>
                                 <field name="tipo_proceso" invisible="1"/>
                             </group>
