@@ -8,18 +8,9 @@
             <field name="parent_id" ref="product.product_category_all"/>
         </record>
 
-        <!-- Producto por defecto: Arroz Paddy -->
-        <record id="product_template_arroz_paddy" model="product.template">
-            <field name="name">Arroz Paddy</field>
-            <field name="type">consu</field>
-            <field name="is_storable" eval="True"/>
-            <field name="categ_id" ref="product_category_arroz"/>
-            <field name="list_price">0</field>
-            <field name="standard_price">0</field>
-            <field name="uom_id" ref="uom.product_uom_kgm"/>
-            <field name="uom_po_id" ref="uom.product_uom_kgm"/>
-            <field name="description">Arroz paddy sin procesar (con cáscara)</field>
-        </record>
+        <!-- Nota: El producto Arroz Paddy se crea via post_init_hook
+             para compatibilidad con modulos que agregan constraints SQL
+             (sale, account, etc.) -->
 
     </data>
 </odoo>

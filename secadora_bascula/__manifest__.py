@@ -24,6 +24,7 @@
         'views/pesaje_views.xml',
         'views/orden_servicio_views.xml',
     ],
+    'post_init_hook': '_create_arroz_paddy',
     'installable': True,
     'application': False,
     'auto_install': False,
