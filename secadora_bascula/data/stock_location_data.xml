@@ -22,49 +22,8 @@
             <field name="comment">Arroz de clientes en proceso de prelimpieza (usar owner_id para identificar propietario)</field>
         </record>
 
-        <!-- ============================================ -->
-        <!-- TIPOS DE OPERACIÓN DE PICKING                -->
-        <!-- ============================================ -->
-
-        <!-- Recepción Báscula (compras de arroz) -->
-        <record id="picking_type_recepcion_bascula" model="stock.picking.type">
-            <field name="name">Recepción Báscula</field>
-            <field name="code">incoming</field>
-            <field name="sequence_code">REC-BAS</field>
-            <field name="warehouse_id" ref="stock.warehouse0"/>
-            <field name="default_location_src_id" ref="stock.stock_location_suppliers"/>
-            <field name="default_location_dest_id" ref="stock.stock_location_stock"/>
-        </record>
-
-        <!-- Despacho Báscula (ventas de arroz) -->
-        <record id="picking_type_despacho_bascula" model="stock.picking.type">
-            <field name="name">Despacho Báscula</field>
-            <field name="code">outgoing</field>
-            <field name="sequence_code">DES-BAS</field>
-            <field name="warehouse_id" ref="stock.warehouse0"/>
-            <field name="default_location_src_id" ref="stock.stock_location_stock"/>
-            <field name="default_location_dest_id" ref="stock.stock_location_customers"/>
-        </record>
-
-        <!-- Entrada Servicio (arroz de cliente que llega para secado/prelimpieza) -->
-        <record id="picking_type_entrada_servicio" model="stock.picking.type">
-            <field name="name">Entrada Servicio</field>
-            <field name="code">incoming</field>
-            <field name="sequence_code">ENT-SRV</field>
-            <field name="warehouse_id" ref="stock.warehouse0"/>
-            <field name="default_location_src_id" ref="stock.stock_location_suppliers"/>
-            <field name="default_location_dest_id" ref="stock_location_secado"/>
-        </record>
-
-        <!-- Salida Servicio (arroz procesado que sale) -->
-        <record id="picking_type_salida_servicio" model="stock.picking.type">
-            <field name="name">Salida Servicio</field>
-            <field name="code">outgoing</field>
-            <field name="sequence_code">SAL-SRV</field>
-            <field name="warehouse_id" ref="stock.warehouse0"/>
-            <field name="default_location_src_id" ref="stock_location_secado"/>
-            <field name="default_location_dest_id" ref="stock.stock_location_customers"/>
-        </record>
+        <!-- Nota: Los picking types se crean via post_init_hook
+             para compatibilidad con constraints SQL de modulos instalados -->
 
     </data>
 </odoo>
