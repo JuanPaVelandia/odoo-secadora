@@ -21,6 +21,17 @@ class SecadoraPesajeStock(models.Model):
         readonly=True,
     )
 
+    def unlink(self):
+        """Impedir borrar pesajes que tienen picking vinculado"""
+        for record in self:
+            if record.picking_id:
+                raise UserError(
+                    f'No se puede eliminar el pesaje {record.name} porque tiene '
+                    f'un movimiento de inventario asociado ({record.picking_id.name}).\n\n'
+                    'Cancele primero el movimiento de inventario antes de eliminar el pesaje.'
+                )
+        return super().unlink()
+
     def action_segunda_pesada(self):
         """Extiende la segunda pesada para crear picking si aplica"""
         res = super().action_segunda_pesada()
