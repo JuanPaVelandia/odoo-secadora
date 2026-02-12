@@ -47,6 +47,59 @@ class SecadoraPesajeStock(models.Model):
                 record.picking_id.action_cancel()
         return super().action_cancelar()
 
+    def _get_picking_type(self, sequence_code):
+        """Busca un picking type por sequence_code, lo crea si no existe"""
+        picking_type = self.env['stock.picking.type'].search([
+            ('sequence_code', '=', sequence_code),
+        ], limit=1)
+        if not picking_type:
+            picking_type = self._create_picking_type(sequence_code)
+        return picking_type
+
+    def _create_picking_type(self, sequence_code):
+        """Crea un picking type que no existe aun"""
+        warehouse = self.env['stock.warehouse'].search([], limit=1)
+        loc_stock = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+        loc_suppliers = self.env.ref('stock.stock_location_suppliers', raise_if_not_found=False)
+        loc_customers = self.env.ref('stock.stock_location_customers', raise_if_not_found=False)
+        loc_secado = self.env['stock.location'].search([('name', '=', 'Secado En Proceso')], limit=1)
+
+        configs = {
+            'REC-BAS': {
+                'name': 'Recepcion Bascula',
+                'code': 'incoming',
+                'default_location_src_id': loc_suppliers.id if loc_suppliers else False,
+                'default_location_dest_id': loc_stock.id if loc_stock else False,
+            },
+            'DES-BAS': {
+                'name': 'Despacho Bascula',
+                'code': 'outgoing',
+                'default_location_src_id': loc_stock.id if loc_stock else False,
+                'default_location_dest_id': loc_customers.id if loc_customers else False,
+            },
+            'ENT-SRV': {
+                'name': 'Entrada Servicio',
+                'code': 'incoming',
+                'default_location_src_id': loc_suppliers.id if loc_suppliers else False,
+                'default_location_dest_id': loc_secado.id if loc_secado else (loc_stock.id if loc_stock else False),
+            },
+            'SAL-SRV': {
+                'name': 'Salida Servicio',
+                'code': 'outgoing',
+                'default_location_src_id': loc_secado.id if loc_secado else (loc_stock.id if loc_stock else False),
+                'default_location_dest_id': loc_customers.id if loc_customers else False,
+            },
+        }
+
+        if sequence_code not in configs:
+            raise UserError(f'Tipo de operacion de inventario desconocido: {sequence_code}')
+
+        vals = configs[sequence_code]
+        vals['sequence_code'] = sequence_code
+        vals['warehouse_id'] = warehouse.id if warehouse else False
+
+        return self.env['stock.picking.type'].create(vals)
+
     def _crear_picking_inventario(self):
         """Crea picking para operaciones de COMPRA o VENTA"""
         self.ensure_one()
@@ -63,9 +116,9 @@ class SecadoraPesajeStock(models.Model):
         tipo = self.tipo_operacion_id
 
         if tipo.tipo_inventario == 'entrada':
-            picking_type = self.env.ref('secadora_bascula.picking_type_recepcion_bascula')
+            picking_type = self._get_picking_type('REC-BAS')
         else:
-            picking_type = self.env.ref('secadora_bascula.picking_type_despacho_bascula')
+            picking_type = self._get_picking_type('DES-BAS')
 
         picking_vals = {
             'picking_type_id': picking_type.id,
@@ -112,9 +165,9 @@ class SecadoraPesajeStock(models.Model):
             )
 
         if self.direccion == 'entrada':
-            picking_type = self.env.ref('secadora_bascula.picking_type_entrada_servicio')
+            picking_type = self._get_picking_type('ENT-SRV')
         else:
-            picking_type = self.env.ref('secadora_bascula.picking_type_salida_servicio')
+            picking_type = self._get_picking_type('SAL-SRV')
 
         picking_vals = {
             'picking_type_id': picking_type.id,
