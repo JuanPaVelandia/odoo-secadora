@@ -49,7 +49,7 @@ class RegistroBultos(models.Model):
         'product.product',
         string='Tipo de Empaque',
         required=True,
-        domain=[('type', '=', 'product')],
+        domain=[('type', '=', 'consu')],
         help='Producto de tipo empaque (ej: Bulto 50kg, Bulto 25kg)'
     )
 

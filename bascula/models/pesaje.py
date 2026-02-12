@@ -114,7 +114,7 @@ class SecadoraPesaje(models.Model):
         'product.product',
         string='Producto',
         help='Producto del inventario',
-        domain=[('type', 'in', ['product', 'consu'])],
+        domain=[('type', '=', 'consu')],
         index=True
     )
     variedad_id = fields.Many2one(

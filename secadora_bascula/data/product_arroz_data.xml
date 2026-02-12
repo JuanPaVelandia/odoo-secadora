@@ -11,13 +11,13 @@
         <!-- Producto por defecto: Arroz Paddy -->
         <record id="product_arroz_paddy" model="product.product">
             <field name="name">Arroz Paddy</field>
-            <field name="type">product</field>
+            <field name="type">consu</field>
+            <field name="is_storable" eval="True"/>
             <field name="categ_id" ref="product_category_arroz"/>
             <field name="list_price">0</field>
             <field name="standard_price">0</field>
             <field name="uom_id" ref="uom.product_uom_kgm"/>
             <field name="uom_po_id" ref="uom.product_uom_kgm"/>
-            <field name="tracking">none</field>
             <field name="description">Arroz paddy sin procesar (con cáscara)</field>
         </record>
 
