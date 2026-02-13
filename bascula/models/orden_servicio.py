@@ -299,7 +299,10 @@ class OrdenServicio(models.Model):
     def _compute_peso_entrada(self):
         """Calcular peso total de entrada sumando todos los pesajes de entrada"""
         for record in self:
+            peso_anterior = record.peso_entrada
             record.peso_entrada = sum(record.pesaje_entrada_ids.mapped('peso_neto'))
+            if record.peso_entrada != peso_anterior:
+                record._recalcular_servicios('peso_entrada')
 
 
     @api.depends('registro_bultos_ids.cantidad',
@@ -324,18 +327,24 @@ class OrdenServicio(models.Model):
                 else:
                     empaques_cliente += linea.cantidad
 
+            bultos_anterior = record.total_bultos
             record.total_bultos = total_bultos
             record.peso_total_bultos = peso_total
             record.total_empaques_secadora = empaques_secadora
             record.total_empaques_cliente = empaques_cliente
             record.subtotal_empaques = subtotal_empaques
+            if total_bultos != bultos_anterior:
+                record._recalcular_servicios('bultos')
 
     @api.depends('pesaje_salida_ids.peso_neto')
     def _compute_peso_salida_bascula(self):
         for record in self:
+            peso_anterior = record.peso_salida_bascula
             record.peso_salida_bascula = sum(
                 record.pesaje_salida_ids.mapped('peso_neto')
             )
+            if record.peso_salida_bascula != peso_anterior:
+                record._recalcular_servicios('peso_salida')
 
     @api.depends('modalidad_salida', 'peso_total_bultos', 'peso_salida_bascula')
     def _compute_peso_salida_real(self):
@@ -439,6 +448,52 @@ class OrdenServicio(models.Model):
             if record.state not in ('listo_liquidar', 'liquidado'):
                 raise UserError('Solo se puede volver a En Proceso desde Listo para Liquidar o Liquidado.')
             record.write({'state': 'en_proceso', 'fecha_fin': False})
+
+    def _recalcular_servicios(self, base_modificada=False):
+        """Recalcular cantidades de líneas de servicio cuando cambian los pesos o bultos.
+
+        Solo actualiza líneas cuyo base_calculo corresponde al campo que cambió.
+        No toca líneas con base_calculo='fijo' ni líneas editadas manualmente.
+        """
+        self.ensure_one()
+        if not self.linea_servicio_ids:
+            return
+
+        # Mapear qué bases de cálculo deben recalcularse
+        bases_a_recalcular = {
+            'peso_entrada': ['peso_entrada'],
+            'peso_salida': ['peso_salida'],
+            'bultos': ['bultos'],
+        }
+
+        bases = bases_a_recalcular.get(base_modificada, [])
+        if not bases:
+            return
+
+        for linea in self.linea_servicio_ids:
+            if linea.base_calculo not in bases:
+                continue
+
+            # Buscar la regla original para obtener el factor_multiplicador
+            regla = self.env['secadora.servicio.regla'].search([
+                ('producto_id', '=', linea.producto_id.id),
+                ('base_calculo', '=', linea.base_calculo),
+                ('active', '=', True),
+            ], limit=1)
+
+            factor = regla.factor_multiplicador if regla else 1.0
+
+            if linea.base_calculo == 'peso_entrada':
+                nueva_cantidad = self.peso_entrada * factor
+            elif linea.base_calculo == 'peso_salida':
+                nueva_cantidad = self.peso_salida_real * factor
+            elif linea.base_calculo == 'bultos':
+                nueva_cantidad = self.total_bultos * factor
+            else:
+                continue
+
+            if nueva_cantidad != linea.cantidad:
+                linea.cantidad = nueva_cantidad
 
     def aplicar_reglas_servicios(self):
         """Aplicar reglas automáticas de servicios a esta orden"""
