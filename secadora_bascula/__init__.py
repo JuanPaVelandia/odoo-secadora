@@ -8,8 +8,22 @@ def _create_arroz_paddy(env):
     agregan constraints NOT NULL a nivel SQL que no se llenan via XML.
     El ORM aplica todos los defaults correctamente via create().
     """
+    _activate_consignment(env)
     _create_product_arroz(env)
     _create_picking_types(env)
+
+
+def _activate_consignment(env):
+    """Activa consignacion (owner_id) para todos los usuarios internos.
+
+    Se agrega stock.group_tracking_owner como implied de base.group_user,
+    asi todos los usuarios internos ven el filtro de propietario en inventario.
+    """
+    group_owner = env.ref('stock.group_tracking_owner', raise_if_not_found=False)
+    group_user = env.ref('base.group_user', raise_if_not_found=False)
+    if group_owner and group_user:
+        if group_owner not in group_user.implied_ids:
+            group_user.write({'implied_ids': [(4, group_owner.id)]})
 
 
 def _create_product_arroz(env):
