@@ -21,6 +21,7 @@
         'data/product_arroz_data.xml',
         'data/stock_location_data.xml',
         'views/stock_picking_views.xml',
+        'views/stock_quant_views.xml',
         'views/pesaje_views.xml',
         'views/orden_servicio_views.xml',
     ],
