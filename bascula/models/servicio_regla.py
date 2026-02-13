@@ -33,6 +33,16 @@ class ServicioRegla(models.Model):
         help='Tipos de operación a los que aplica esta regla. Si está vacío, aplica a todos.'
     )
 
+    modalidad_salida = fields.Selection([
+        ('todas', 'Todas'),
+        ('bultos', 'Solo Bultos'),
+        ('granel', 'Solo Granel'),
+        ('silobolsa', 'Solo Silobolsa'),
+    ], string='Modalidad de Salida',
+       default='todas',
+       required=True,
+       help='Modalidad de salida en la que aplica esta regla. "Todas" aplica sin importar la modalidad.')
+
     condicion = fields.Selection([
         ('siempre', 'Siempre'),
         ('peso_minimo', 'Si el peso supera un mínimo'),
@@ -112,6 +122,11 @@ class ServicioRegla(models.Model):
         Retorna True si la regla debe aplicarse
         """
         self.ensure_one()
+
+        # Verificar modalidad de salida
+        if self.modalidad_salida != 'todas':
+            if not orden.modalidad_salida or orden.modalidad_salida != self.modalidad_salida:
+                return False
 
         # Verificar tipo de operación
         # Si tipo_servicio_ids está vacío, aplica a todos

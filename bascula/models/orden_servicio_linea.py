@@ -62,6 +62,12 @@ class OrdenServicioLinea(models.Model):
         help='Cantidad × Precio Unitario'
     )
 
+    es_automatica = fields.Boolean(
+        string='Generada por Regla',
+        default=False,
+        help='Indica si esta línea fue creada automáticamente por una regla de servicio'
+    )
+
     # ==================== COMPUTED FIELDS ====================
 
     @api.depends('cantidad', 'precio_unitario')

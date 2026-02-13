@@ -495,6 +495,15 @@ class OrdenServicio(models.Model):
             if nueva_cantidad != linea.cantidad:
                 linea.cantidad = nueva_cantidad
 
+    def write(self, vals):
+        """Detectar cambio de modalidad_salida para re-aplicar reglas"""
+        res = super(OrdenServicio, self).write(vals)
+        if 'modalidad_salida' in vals:
+            for record in self:
+                if record.state not in ('cancelado', 'facturado'):
+                    record._reaplicar_reglas_servicios()
+        return res
+
     def aplicar_reglas_servicios(self):
         """Aplicar reglas automáticas de servicios a esta orden"""
         self.ensure_one()
@@ -505,9 +514,9 @@ class OrdenServicio(models.Model):
         for regla in reglas:
             # Evaluar si la regla aplica
             if regla.evaluar_condicion(self):
-                # Verificar si ya existe una línea con este producto
+                # Verificar si ya existe una línea automática con este producto y misma base
                 linea_existente = self.linea_servicio_ids.filtered(
-                    lambda l: l.producto_id == regla.producto_id
+                    lambda l: l.producto_id == regla.producto_id and l.es_automatica
                 )
 
                 if not linea_existente:
@@ -530,7 +539,16 @@ class OrdenServicio(models.Model):
                         'cantidad': cantidad,
                         'precio_unitario': precio,
                         'descripcion': regla.name,
+                        'es_automatica': True,
                     })
+
+    def _reaplicar_reglas_servicios(self):
+        """Borrar líneas automáticas y volver a aplicar reglas (al cambiar modalidad)"""
+        self.ensure_one()
+        # Borrar solo las líneas generadas automáticamente
+        self.linea_servicio_ids.filtered('es_automatica').unlink()
+        # Volver a aplicar reglas con la nueva modalidad
+        self.aplicar_reglas_servicios()
 
     def action_crear_pesaje_entrada(self):
         """Crear un pesaje de entrada vinculado a esta orden"""
