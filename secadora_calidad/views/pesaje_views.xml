@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Agregar calidad al form de pesaje -->
+        <record id="view_pesaje_form_inherit_calidad" model="ir.ui.view">
+            <field name="name">secadora.pesaje.form.inherit.calidad</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="inherit_id" ref="bascula.view_secadora_pesaje_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Agregar stat button de Análisis en button_box -->
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_ver_analisis" type="object"
+                            class="oe_stat_button" icon="fa-flask"
+                            invisible="analisis_count == 0">
+                        <field name="analisis_count" widget="statinfo" string="Análisis"/>
+                    </button>
+                </xpath>
+
+                <!-- Agregar botón "Análisis Lab" en header -->
+                <xpath expr="//header/button[@name='action_crear_orden_servicio']" position="after">
+                    <button name="action_crear_analisis" string="Análisis Lab" type="object"
+                            class="btn-secondary" icon="fa-flask"/>
+                </xpath>
+
+                <!-- Agregar sección de Calidad de Laboratorio después de "Producto y Calidad" -->
+                <xpath expr="//group[@string='Producto y Calidad']" position="after">
+                    <group string="Calidad de Laboratorio" invisible="analisis_count == 0">
+                        <group>
+                            <field name="humedad_analisis" readonly="1"/>
+                            <field name="peso_comercial" readonly="1"
+                                   style="font-size: 18px; font-weight: bold; color: #00A09D;"/>
+                        </group>
+                        <group>
+                            <field name="analisis_lab_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="punto_muestreo" widget="badge"/>
+                                    <field name="humedad"/>
+                                    <field name="state" widget="badge"/>
+                                </list>
+                            </field>
+                        </group>
+                    </group>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

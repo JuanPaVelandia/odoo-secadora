@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_analisis_lab_laboratorista,secadora.analisis.lab.laboratorista,model_secadora_analisis_lab,group_laboratorista,1,1,1,0
+access_analisis_lab_calidad_admin,secadora.analisis.lab.calidad_admin,model_secadora_analisis_lab,group_calidad_admin,1,1,1,1
+access_analisis_lab_basculero,secadora.analisis.lab.basculero,model_secadora_analisis_lab,bascula.group_basculero,1,0,0,0
+access_descuento_calidad_laboratorista,secadora.descuento.calidad.laboratorista,model_secadora_descuento_calidad,group_laboratorista,1,0,0,0
+access_descuento_calidad_calidad_admin,secadora.descuento.calidad.calidad_admin,model_secadora_descuento_calidad,group_calidad_admin,1,1,1,1
+access_descuento_calidad_basculero,secadora.descuento.calidad.basculero,model_secadora_descuento_calidad,bascula.group_basculero,1,0,0,0

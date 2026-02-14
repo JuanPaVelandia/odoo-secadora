@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form de Análisis de Laboratorio -->
+        <record id="view_analisis_lab_form" model="ir.ui.view">
+            <field name="name">secadora.analisis.lab.form</field>
+            <field name="model">secadora.analisis.lab</field>
+            <field name="arch" type="xml">
+                <form string="Análisis de Laboratorio">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"/>
+                        <button name="action_borrador" string="Volver a Borrador" type="object"
+                                invisible="state != 'confirmado'"
+                                groups="secadora_calidad.group_calidad_admin"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmado"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" type="object"
+                                    name="action_confirmar" icon="fa-flask"
+                                    invisible="not pesaje_id">
+                                <field name="peso_neto_pesaje" widget="statinfo" string="Peso Neto"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+
+                        <group>
+                            <group>
+                                <field name="pesaje_id"
+                                       options="{'no_create': True, 'no_open': False}"/>
+                                <field name="orden_servicio_id"
+                                       options="{'no_create': True, 'no_open': False}"/>
+                                <field name="tercero_id"
+                                       options="{'no_create': False, 'no_open': False}"/>
+                            </group>
+                            <group>
+                                <field name="fecha_hora"/>
+                                <field name="usuario_id"/>
+                                <field name="punto_muestreo" widget="radio"/>
+                                <field name="variedad_id"/>
+                                <field name="tipo_operacion_id" invisible="1"/>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Parámetros Principales">
+                                <group>
+                                    <group>
+                                        <field name="humedad"/>
+                                        <field name="impurezas"/>
+                                        <field name="grano_partido"/>
+                                        <field name="grano_partido_verde"/>
+                                        <field name="grano_rojo"/>
+                                        <field name="infestacion"/>
+                                    </group>
+                                    <group>
+                                        <field name="dispersion"/>
+                                        <field name="merma_estufa"/>
+                                        <field name="integral_pct"/>
+                                        <field name="cascarilla_pct"/>
+                                        <field name="grano_partido_integral_pct"/>
+                                        <field name="rendimiento_pilada_pct"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="Molinería">
+                                <group>
+                                    <group>
+                                        <field name="harina_pct"/>
+                                        <field name="grano_partido_blanco_pct"/>
+                                        <field name="indice_pilada_pct"/>
+                                    </group>
+                                    <group>
+                                        <field name="blancura_kett"/>
+                                        <field name="transparencia"/>
+                                        <field name="grado_pulimento"/>
+                                        <field name="grano_yesado_pct"/>
+                                        <field name="grano_ambarino_pct"/>
+                                        <field name="grano_con_dano_pct"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="Peso Comercial" invisible="not pesaje_id">
+                                <group>
+                                    <group>
+                                        <field name="peso_neto_pesaje" readonly="1"/>
+                                        <field name="humedad" readonly="1"
+                                               string="Humedad Medida (%)"/>
+                                    </group>
+                                    <group>
+                                        <field name="peso_comercial" readonly="1"
+                                               style="font-size: 18px; font-weight: bold; color: #00A09D;"/>
+                                        <field name="descuento_peso" readonly="1"/>
+                                        <field name="peso_comercial_neto" readonly="1"
+                                               style="font-size: 18px; font-weight: bold;"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="Otro">
+                                <field name="otro" placeholder="Comentarios adicionales sobre el análisis..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List de Análisis de Laboratorio -->
+        <record id="view_analisis_lab_list" model="ir.ui.view">
+            <field name="name">secadora.analisis.lab.list</field>
+            <field name="model">secadora.analisis.lab</field>
+            <field name="arch" type="xml">
+                <list string="Análisis de Laboratorio"
+                      decoration-success="state == 'confirmado'"
+                      decoration-muted="state == 'borrador'">
+                    <field name="name"/>
+                    <field name="fecha_hora"/>
+                    <field name="tercero_id"/>
+                    <field name="pesaje_id" optional="show"/>
+                    <field name="orden_servicio_id" optional="show"/>
+                    <field name="punto_muestreo" widget="badge"/>
+                    <field name="variedad_id" optional="hide"/>
+                    <field name="humedad"/>
+                    <field name="impurezas"/>
+                    <field name="grano_partido"/>
+                    <field name="peso_comercial" optional="show"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'confirmado'"
+                           decoration-muted="state == 'borrador'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Search de Análisis de Laboratorio -->
+        <record id="view_analisis_lab_search" model="ir.ui.view">
+            <field name="name">secadora.analisis.lab.search</field>
+            <field name="model">secadora.analisis.lab</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Análisis">
+                    <field name="name"/>
+                    <field name="tercero_id"/>
+                    <field name="pesaje_id"/>
+                    <field name="orden_servicio_id"/>
+                    <field name="variedad_id"/>
+
+                    <filter string="Borrador" name="filter_borrador"
+                            domain="[('state', '=', 'borrador')]"/>
+                    <filter string="Confirmado" name="filter_confirmado"
+                            domain="[('state', '=', 'confirmado')]"/>
+                    <separator/>
+                    <filter string="Entrada" name="filter_entrada"
+                            domain="[('punto_muestreo', '=', 'entrada')]"/>
+                    <filter string="Proceso" name="filter_proceso"
+                            domain="[('punto_muestreo', '=', 'proceso')]"/>
+                    <filter string="Salida" name="filter_salida"
+                            domain="[('punto_muestreo', '=', 'salida')]"/>
+                    <separator/>
+                    <filter string="Hoy" name="filter_hoy"
+                            domain="[('fecha_hora', '&gt;=', (context_today()).strftime('%Y-%m-%d 00:00:00')),
+                                     ('fecha_hora', '&lt;=', (context_today()).strftime('%Y-%m-%d 23:59:59'))]"/>
+
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Estado" name="group_estado"
+                                context="{'group_by': 'state'}"/>
+                        <filter string="Punto de Muestreo" name="group_punto"
+                                context="{'group_by': 'punto_muestreo'}"/>
+                        <filter string="Tercero" name="group_tercero"
+                                context="{'group_by': 'tercero_id'}"/>
+                        <filter string="Fecha" name="group_fecha"
+                                context="{'group_by': 'fecha_hora:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción: Análisis de Laboratorio -->
+        <record id="action_analisis_lab" model="ir.actions.act_window">
+            <field name="name">Análisis de Laboratorio</field>
+            <field name="res_model">secadora.analisis.lab</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear un nuevo análisis de laboratorio
+                </p>
+                <p>
+                    Registre los análisis de calidad del arroz: humedad, impurezas, grano partido, y más.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

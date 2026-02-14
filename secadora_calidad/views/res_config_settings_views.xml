@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Agregar sección de Calidad en ajustes -->
+        <record id="res_config_settings_view_form_inherit_calidad" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.calidad</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="91"/>
+            <field name="inherit_id" ref="bascula.res_config_settings_view_form_inherit_bascula"/>
+            <field name="arch" type="xml">
+                <xpath expr="//app[@name='bascula']" position="inside">
+                    <block title="Calidad y Laboratorio">
+                        <setting help="Humedad base para el cálculo de peso comercial">
+                            <label for="calidad_humedad_base" string="Humedad Base (%)"/>
+                            <div>
+                                <field name="calidad_humedad_base" class="oe_inline"/>
+                                <span class="text-muted ms-2">% (normalmente 13%)</span>
+                            </div>
+                        </setting>
+                        <setting help="Calcular peso comercial ajustado por humedad en los análisis de laboratorio">
+                            <field name="calidad_activar_peso_comercial"/>
+                            <label for="calidad_activar_peso_comercial"/>
+                        </setting>
+                        <setting help="Aplicar descuentos automáticos de peso según reglas de calidad configuradas">
+                            <field name="calidad_activar_descuentos"/>
+                            <label for="calidad_activar_descuentos"/>
+                        </setting>
+                    </block>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Agregar calidad al form de orden de servicio -->
+        <record id="view_orden_servicio_form_inherit_calidad" model="ir.ui.view">
+            <field name="name">secadora.orden.servicio.form.inherit.calidad</field>
+            <field name="model">secadora.orden.servicio</field>
+            <field name="inherit_id" ref="bascula.view_orden_servicio_form"/>
+            <field name="arch" type="xml">
+
+                <!-- Agregar stat button de Análisis en button_box -->
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_ver_analisis" type="object"
+                            class="oe_stat_button" icon="fa-flask"
+                            invisible="analisis_count == 0">
+                        <field name="analisis_count" widget="statinfo" string="Análisis"/>
+                    </button>
+                </xpath>
+
+                <!-- Agregar pestaña "Calidad" en el notebook -->
+                <xpath expr="//notebook/page[@string='Liquidación']" position="after">
+                    <page string="Calidad">
+                        <group string="Resumen de Calidad">
+                            <group>
+                                <field name="humedad_entrada" readonly="1"/>
+                                <field name="impurezas_entrada" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="humedad_salida" readonly="1"/>
+                                <field name="impurezas_salida" readonly="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="diferencia_humedad" readonly="1"
+                                       style="font-size: 20px; font-weight: bold; color: #00A09D;"/>
+                            </group>
+                        </group>
+                        <group string="Análisis de Laboratorio">
+                            <div>
+                                <button name="action_crear_analisis_entrada" type="object"
+                                        string="Nuevo Análisis Entrada" class="btn-primary me-2"
+                                        icon="fa-sign-in"/>
+                                <button name="action_crear_analisis_salida" type="object"
+                                        string="Nuevo Análisis Salida" class="btn-primary"
+                                        icon="fa-sign-out"/>
+                            </div>
+                            <field name="analisis_lab_ids" nolabel="1" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="fecha_hora"/>
+                                    <field name="punto_muestreo" widget="badge"/>
+                                    <field name="humedad"/>
+                                    <field name="impurezas"/>
+                                    <field name="grano_partido"/>
+                                    <field name="peso_comercial" optional="show"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'confirmado'"/>
+                                </list>
+                            </field>
+                        </group>
+                    </page>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Acción de impresión -->
+        <record id="action_report_analisis_lab" model="ir.actions.report">
+            <field name="name">Certificado de Análisis</field>
+            <field name="model">secadora.analisis.lab</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">secadora_calidad.report_analisis_lab_document</field>
+            <field name="report_file">secadora_calidad.report_analisis_lab_document</field>
+            <field name="binding_model_id" ref="model_secadora_analisis_lab"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Analisis - %s' % (object.name)</field>
+        </record>
+
+        <!-- Plantilla del certificado de análisis -->
+        <template id="report_analisis_lab_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+
+                            <!-- Encabezado -->
+                            <div class="text-center" style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+                                <h3 style="margin: 0; font-size: 14px;"><strong>Secadora La Gran Colombia S.A.S</strong></h3>
+                                <h4 style="margin: 3px 0; font-size: 12px;">CERTIFICADO DE ANÁLISIS DE LABORATORIO</h4>
+                                <p style="margin: 3px 0; font-size: 11px;">
+                                    <strong>No. <span t-field="o.name"/></strong>
+                                </p>
+                            </div>
+
+                            <!-- Información general -->
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-6">
+                                    <strong>Fecha/Hora:</strong> <span t-field="o.fecha_hora"/><br/>
+                                    <strong>Analista:</strong> <span t-field="o.usuario_id"/><br/>
+                                    <strong>Tercero:</strong> <span t-field="o.tercero_id"/>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Pesaje:</strong> <span t-field="o.pesaje_id"/><br/>
+                                    <strong>Orden Servicio:</strong> <span t-field="o.orden_servicio_id"/><br/>
+                                    <strong>Variedad:</strong> <span t-field="o.variedad_id"/><br/>
+                                    <strong>Punto Muestreo:</strong> <span t-field="o.punto_muestreo"/>
+                                </div>
+                            </div>
+
+                            <hr style="margin: 8px 0;"/>
+
+                            <!-- Estado -->
+                            <div class="text-center" style="margin-bottom: 10px;">
+                                <t t-if="o.state == 'confirmado'">
+                                    <span style="background-color: #28a745; color: white; padding: 3px 12px; border-radius: 3px; font-weight: bold;">CONFIRMADO</span>
+                                </t>
+                                <t t-else="">
+                                    <span style="background-color: #6c757d; color: white; padding: 3px 12px; border-radius: 3px; font-weight: bold;">BORRADOR</span>
+                                </t>
+                            </div>
+
+                            <hr style="margin: 8px 0;"/>
+
+                            <!-- Parámetros Principales -->
+                            <div style="margin-bottom: 10px;">
+                                <h5 style="background-color: #f0f0f0; padding: 3px; margin: 0 0 5px 0; font-size: 11px;">
+                                    <strong>Parámetros Principales</strong>
+                                </h5>
+                                <table class="table table-sm table-bordered" style="font-size: 11px;">
+                                    <tr>
+                                        <td style="width: 35%;"><strong>Humedad (%)</strong></td>
+                                        <td style="width: 15%; text-align: right;"><span t-field="o.humedad"/></td>
+                                        <td style="width: 35%;"><strong>Dispersión</strong></td>
+                                        <td style="width: 15%; text-align: right;"><span t-field="o.dispersion"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Impurezas (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.impurezas"/></td>
+                                        <td><strong>Merma en Estufa</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.merma_estufa"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Grano Partido (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_partido"/></td>
+                                        <td><strong>Integral (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.integral_pct"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Grano Partido Verde (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_partido_verde"/></td>
+                                        <td><strong>Cascarilla (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.cascarilla_pct"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Grano Rojo (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_rojo"/></td>
+                                        <td><strong>G. Partido Integral (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_partido_integral_pct"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Infestación</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.infestacion"/></td>
+                                        <td><strong>Rendimiento Pilada (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.rendimiento_pilada_pct"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Molinería -->
+                            <div style="margin-bottom: 10px;">
+                                <h5 style="background-color: #f0f0f0; padding: 3px; margin: 0 0 5px 0; font-size: 11px;">
+                                    <strong>Molinería</strong>
+                                </h5>
+                                <table class="table table-sm table-bordered" style="font-size: 11px;">
+                                    <tr>
+                                        <td style="width: 35%;"><strong>Harina (%)</strong></td>
+                                        <td style="width: 15%; text-align: right;"><span t-field="o.harina_pct"/></td>
+                                        <td style="width: 35%;"><strong>Blancura (kett)</strong></td>
+                                        <td style="width: 15%; text-align: right;"><span t-field="o.blancura_kett"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>G. Partido Blanco (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_partido_blanco_pct"/></td>
+                                        <td><strong>Transparencia</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.transparencia"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Índice de Pilada (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.indice_pilada_pct"/></td>
+                                        <td><strong>Grado Pulimento</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grado_pulimento"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Grano Yesado (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_yesado_pct"/></td>
+                                        <td><strong>Grano con Daño (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_con_dano_pct"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Grano Ambarino (%)</strong></td>
+                                        <td style="text-align: right;"><span t-field="o.grano_ambarino_pct"/></td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Peso Comercial (solo si hay pesaje) -->
+                            <t t-if="o.pesaje_id">
+                                <div style="margin-bottom: 10px; border: 2px solid #000; padding: 8px; background-color: #f9f9f9;">
+                                    <h5 style="text-align: center; margin: 0 0 5px 0; font-size: 12px;">
+                                        <strong>PESO COMERCIAL</strong>
+                                    </h5>
+                                    <table class="table table-borderless" style="font-size: 11px; margin-bottom: 0;">
+                                        <tr>
+                                            <td style="width: 50%;"><strong>Peso Neto:</strong></td>
+                                            <td style="text-align: right;"><span t-field="o.peso_neto_pesaje"/> Kg</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Humedad Medida:</strong></td>
+                                            <td style="text-align: right;"><span t-field="o.humedad"/> %</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Peso Comercial:</strong></td>
+                                            <td style="text-align: right;"><strong><span t-field="o.peso_comercial"/> Kg</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Descuento Calidad:</strong></td>
+                                            <td style="text-align: right;"><span t-field="o.descuento_peso"/> Kg</td>
+                                        </tr>
+                                        <tr style="border-top: 2px solid #000;">
+                                            <td style="padding-top: 5px;">
+                                                <strong style="font-size: 14px;">Peso Comercial Neto:</strong>
+                                            </td>
+                                            <td style="text-align: right; padding-top: 5px;">
+                                                <strong style="font-size: 14px; color: #00A09D;">
+                                                    <span t-field="o.peso_comercial_neto"/> Kg
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </t>
+
+                            <!-- Comentarios -->
+                            <t t-if="o.otro">
+                                <hr style="margin: 8px 0;"/>
+                                <div style="margin-bottom: 8px;">
+                                    <strong>Comentarios:</strong><br/>
+                                    <span t-field="o.otro"/>
+                                </div>
+                            </t>
+
+                            <!-- Firmas -->
+                            <div class="row" style="margin-top: 50px;">
+                                <div class="col-6 text-center">
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 20px;">
+                                        Analista de Laboratorio
+                                    </div>
+                                </div>
+                                <div class="col-6 text-center">
+                                    <div style="border-top: 1px solid #000; padding-top: 5px; margin: 0 20px;">
+                                        Jefe de Calidad
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer -->
+                            <div class="text-center" style="margin-top: 30px; font-size: 10px; color: #666;">
+                                <p>Este documento certifica los resultados del análisis de laboratorio realizado</p>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

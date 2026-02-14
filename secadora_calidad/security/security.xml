@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Grupo: Laboratorista -->
+        <record id="group_laboratorista" model="res.groups">
+            <field name="name">Laboratorista</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Calidad (hereda de laboratorista) -->
+        <record id="group_calidad_admin" model="res.groups">
+            <field name="name">Administrador Calidad</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_laboratorista'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

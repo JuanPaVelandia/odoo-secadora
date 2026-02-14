@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menú: Calidad (bajo Báscula) -->
+        <menuitem id="menu_bascula_calidad"
+                  name="Calidad"
+                  parent="bascula.menu_bascula_root"
+                  sequence="30"
+                  groups="secadora_calidad.group_laboratorista"/>
+
+        <!-- Menú: Análisis de Laboratorio -->
+        <menuitem id="menu_calidad_analisis"
+                  name="Análisis de Laboratorio"
+                  parent="menu_bascula_calidad"
+                  action="action_analisis_lab"
+                  sequence="10"/>
+
+        <!-- Menú: Reglas de Descuento (en Configuración) -->
+        <menuitem id="menu_bascula_descuento_calidad"
+                  name="Reglas de Descuento por Calidad"
+                  parent="bascula.menu_bascula_configuracion"
+                  action="action_descuento_calidad"
+                  sequence="70"
+                  groups="secadora_calidad.group_calidad_admin"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form de Regla de Descuento -->
+        <record id="view_descuento_calidad_form" model="ir.ui.view">
+            <field name="name">secadora.descuento.calidad.form</field>
+            <field name="model">secadora.descuento.calidad</field>
+            <field name="arch" type="xml">
+                <form string="Regla de Descuento por Calidad">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="parametro"/>
+                                <field name="umbral"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="modo_descuento"/>
+                                <field name="factor"/>
+                                <field name="sequence"/>
+                            </group>
+                        </group>
+                        <group string="Aplica a Tipos de Operación">
+                            <field name="tipo_operacion_ids" nolabel="1"
+                                   widget="many2many_tags"
+                                   placeholder="Dejar vacío para aplicar a todos"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List de Regla de Descuento -->
+        <record id="view_descuento_calidad_list" model="ir.ui.view">
+            <field name="name">secadora.descuento.calidad.list</field>
+            <field name="model">secadora.descuento.calidad</field>
+            <field name="arch" type="xml">
+                <list string="Reglas de Descuento por Calidad">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="parametro"/>
+                    <field name="umbral"/>
+                    <field name="modo_descuento"/>
+                    <field name="factor"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Acción: Reglas de Descuento -->
+        <record id="action_descuento_calidad" model="ir.actions.act_window">
+            <field name="name">Reglas de Descuento por Calidad</field>
+            <field name="res_model">secadora.descuento.calidad</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'active_test': False}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear una nueva regla de descuento
+                </p>
+                <p>
+                    Configure reglas para descontar peso automáticamente según parámetros de calidad.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

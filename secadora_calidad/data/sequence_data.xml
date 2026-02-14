@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Secuencia para Análisis de Laboratorio -->
+        <record id="seq_secadora_analisis_lab" model="ir.sequence">
+            <field name="name">Secuencia Análisis de Laboratorio</field>
+            <field name="code">secadora.analisis.lab</field>
+            <field name="prefix">LAB-</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>
