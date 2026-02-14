@@ -19,7 +19,7 @@
                 </xpath>
 
                 <!-- Agregar pestaña "Calidad" en el notebook -->
-                <xpath expr="//notebook/page[@string='Liquidación']" position="after">
+                <xpath expr="//field[@name='merma_real_porcentaje']/../../.." position="after">
                     <page string="Calidad">
                         <group string="Resumen de Calidad">
                             <group>

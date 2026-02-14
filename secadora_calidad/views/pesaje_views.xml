@@ -25,7 +25,7 @@
                 </xpath>
 
                 <!-- Agregar sección de Calidad de Laboratorio después de "Producto y Calidad" -->
-                <xpath expr="//group[@string='Producto y Calidad']" position="after">
+                <xpath expr="//field[@name='producto_id']/../.." position="after">
                     <group string="Calidad de Laboratorio" invisible="analisis_count == 0">
                         <group>
                             <field name="humedad_analisis" readonly="1"/>
