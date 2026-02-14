@@ -161,6 +161,7 @@ class SecadoraPesajeStock(models.Model):
 
         picking = self.env['stock.picking'].create(picking_vals)
         picking.action_confirm()
+        self._validar_picking(picking)
 
         self.picking_id = picking.id
 
@@ -209,8 +210,15 @@ class SecadoraPesajeStock(models.Model):
 
         picking = self.env['stock.picking'].create(picking_vals)
         picking.action_confirm()
+        self._validar_picking(picking)
 
         self.picking_id = picking.id
+
+    def _validar_picking(self, picking):
+        """Valida el picking automáticamente asignando las cantidades hechas"""
+        for move in picking.move_ids:
+            move.quantity = move.product_uom_qty
+        picking.button_validate()
 
     def action_ver_picking(self):
         """Abre el picking vinculado"""
