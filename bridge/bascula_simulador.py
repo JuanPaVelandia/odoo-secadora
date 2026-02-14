@@ -40,8 +40,9 @@ VARIACION_PESO = 10  # +/- 10 kg
 # Intervalo de actualización (en segundos)
 INTERVALO_ACTUALIZACION = 1  # Actualizar cada 1 segundo
 
-# Modo de simulación
-MODO_SIMULACION = "aleatorio"  # "aleatorio" o "fijo"
+# Modo de simulación: "aleatorio", "fijo" o "manual"
+# manual = escribir el peso desde la terminal
+MODO_SIMULACION = "aleatorio"
 PESO_FIJO = 28345.50  # Si modo = "fijo", usar este peso
 
 # ===== FIN CONFIGURACIÓN =====
@@ -200,6 +201,10 @@ class BasculaSimulador:
 
     def run(self):
         """Loop principal del simulador"""
+        if MODO_SIMULACION == "manual":
+            self.run_manual()
+            return
+
         logger.info("=" * 70)
         logger.info("SIMULADOR DE BASCULA PROMETALICOS -> ODOO CLOUDPEPPER")
         logger.info("=" * 70)
@@ -276,6 +281,71 @@ class BasculaSimulador:
             import traceback
             traceback.print_exc()
 
+    def run_manual(self):
+        """Modo manual: escribir pesos desde la terminal"""
+        print("=" * 70)
+        print("SIMULADOR MANUAL DE BASCULA -> ODOO CLOUDPEPPER")
+        print("=" * 70)
+        print(f"Odoo URL: {ODOO_URL}")
+        print("=" * 70)
+        print()
+        print("Escribe el peso en kg y presiona Enter para enviarlo.")
+        print("Escribe 'q' para salir.")
+        print()
+
+        if not self.verificar_configuracion():
+            return
+
+        try:
+            while True:
+                # Buscar pesaje activo
+                pesaje_id = self.obtener_pesaje_activo()
+                if not pesaje_id:
+                    input("[ESPERANDO] No hay pesaje activo. Crea uno en Odoo y presiona Enter...")
+                    continue
+
+                print(f"\n[PESAJE ACTIVO] ID: {pesaje_id}")
+                print("-" * 40)
+
+                while True:
+                    entrada = input("Peso (kg): ").strip()
+
+                    if entrada.lower() == 'q':
+                        print("\nHasta luego!")
+                        return
+
+                    if entrada == '':
+                        # Refrescar pesaje activo
+                        nuevo = self.obtener_pesaje_activo()
+                        if nuevo != pesaje_id:
+                            pesaje_id = nuevo
+                            if pesaje_id:
+                                print(f"\n[PESAJE ACTIVO] ID: {pesaje_id}")
+                            else:
+                                print("[INFO] Ya no hay pesaje activo.")
+                                break
+                        continue
+
+                    try:
+                        peso = float(entrada.replace(',', ''))
+                    except ValueError:
+                        print("[ERROR] Escribe un numero valido. Ej: 15000")
+                        continue
+
+                    if peso < 0 or peso > 100000:
+                        print("[ERROR] Peso fuera de rango (0 - 100,000 kg)")
+                        continue
+
+                    if self.enviar_peso_odoo(pesaje_id, peso):
+                        print(f"[OK] {peso:,.2f} kg enviado a Odoo")
+                    else:
+                        print("[ERROR] No se pudo enviar el peso")
+
+        except KeyboardInterrupt:
+            print("\n\n[DETENIDO] Simulador detenido.")
+        except Exception as e:
+            print(f"\n[ERROR FATAL] {e}")
+
 
 def menu_interactivo():
     """Menú para configuración rápida"""
@@ -299,37 +369,34 @@ def menu_interactivo():
         print(f"   Peso: {PESO_FIJO} kg")
 
     print("\nQue deseas hacer?")
-    print("1. Iniciar simulador")
-    print("2. Cambiar a peso fijo")
-    print("3. Cambiar a peso aleatorio")
-    print("4. Salir")
+    print("1. Iniciar simulador (automatico)")
+    print("2. Modo manual (escribir pesos)")
+    print("3. Salir")
 
-    opcion = input("\nOpcion (1-4): ").strip()
+    opcion = input("\nOpcion (1-3): ").strip()
 
     if opcion == "1":
-        return True
+        return "auto"
     elif opcion == "2":
-        peso = input(f"Ingresa peso fijo (actual: {PESO_FIJO}): ").strip()
-        if peso:
-            print(f"\n[NOTA] Para usar peso fijo de {peso} kg:")
-            print(f"   Edita el script y cambia:")
-            print(f"   MODO_SIMULACION = 'fijo'")
-            print(f"   PESO_FIJO = {peso}")
-    elif opcion == "3":
-        print(f"\n[NOTA] Para usar peso aleatorio:")
-        print(f"   Edita el script y cambia:")
-        print(f"   MODO_SIMULACION = 'aleatorio'")
+        return "manual"
     else:
         print("\nHasta luego!")
         return False
 
 
 if __name__ == "__main__":
-    # Mostrar menú si no está configurado
-    if len(sys.argv) > 1 and sys.argv[1] == "--menu":
-        if not menu_interactivo():
-            sys.exit(0)
-
-    # Iniciar simulador
     simulador = BasculaSimulador()
-    simulador.run()
+
+    # --manual: modo manual directo
+    if len(sys.argv) > 1 and sys.argv[1] == "--manual":
+        simulador.run_manual()
+    # --menu: menú interactivo
+    elif len(sys.argv) > 1 and sys.argv[1] == "--menu":
+        resultado = menu_interactivo()
+        if resultado == "manual":
+            simulador.run_manual()
+        elif resultado == "auto":
+            simulador.run()
+    else:
+        # Modo por defecto segun MODO_SIMULACION
+        simulador.run()
