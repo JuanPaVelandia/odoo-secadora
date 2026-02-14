@@ -20,7 +20,6 @@ class OrdenServicioCalidad(models.Model):
     humedad_entrada = fields.Float(
         string='Humedad Entrada (%)',
         compute='_compute_calidad_resumen',
-        store=True,
         digits=(5, 2),
         help='Promedio de humedad de análisis de entrada confirmados'
     )
@@ -28,7 +27,6 @@ class OrdenServicioCalidad(models.Model):
     humedad_salida = fields.Float(
         string='Humedad Salida (%)',
         compute='_compute_calidad_resumen',
-        store=True,
         digits=(5, 2),
         help='Promedio de humedad de análisis de salida confirmados'
     )
@@ -36,7 +34,6 @@ class OrdenServicioCalidad(models.Model):
     diferencia_humedad = fields.Float(
         string='Reducción Humedad (puntos %)',
         compute='_compute_calidad_resumen',
-        store=True,
         digits=(5, 2),
         help='Diferencia entre humedad de entrada y salida'
     )
@@ -44,7 +41,6 @@ class OrdenServicioCalidad(models.Model):
     impurezas_entrada = fields.Float(
         string='Impurezas Entrada (%)',
         compute='_compute_calidad_resumen',
-        store=True,
         digits=(5, 2),
         help='Promedio de impurezas de análisis de entrada confirmados'
     )
@@ -52,7 +48,6 @@ class OrdenServicioCalidad(models.Model):
     impurezas_salida = fields.Float(
         string='Impurezas Salida (%)',
         compute='_compute_calidad_resumen',
-        store=True,
         digits=(5, 2),
         help='Promedio de impurezas de análisis de salida confirmados'
     )

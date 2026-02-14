@@ -20,7 +20,6 @@ class SecadoraPesajeCalidad(models.Model):
     peso_comercial = fields.Float(
         string='Peso Comercial (kg)',
         compute='_compute_calidad_desde_analisis',
-        store=True,
         digits=(12, 2),
         help='Peso ajustado por humedad desde el último análisis confirmado'
     )
@@ -28,7 +27,6 @@ class SecadoraPesajeCalidad(models.Model):
     humedad_analisis = fields.Float(
         string='Humedad Laboratorio (%)',
         compute='_compute_calidad_desde_analisis',
-        store=True,
         digits=(5, 2),
         help='Humedad del último análisis de laboratorio confirmado'
     )
