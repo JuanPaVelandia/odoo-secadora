@@ -71,10 +71,12 @@
                                        invisible="state == 'completado' or state == 'cancelado'"/>
                                 <field name="escuchando_bascula" invisible="1"/>
 
-                                <field name="peso_bruto" readonly="1"
+                                <field name="peso_bruto"
+                                       readonly="state == 'completado' or state == 'cancelado'"
                                        help="ENTRADA: 1ª pesada (lleno) | SALIDA: 2ª pesada (lleno)"
                                        style="font-size: 18px; font-weight: bold;"/>
-                                <field name="peso_tara" readonly="1"
+                                <field name="peso_tara"
+                                       readonly="state == 'completado' or state == 'cancelado'"
                                        help="ENTRADA: 2ª pesada (vacío) | SALIDA: 1ª pesada (vacío)"
                                        style="font-size: 18px; font-weight: bold;"/>
                                 <field name="peso_neto" readonly="1"
