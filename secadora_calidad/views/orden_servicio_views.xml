@@ -39,18 +39,16 @@
                         </group>
                         <group string="Análisis de Laboratorio">
                             <div>
-                                <button name="action_crear_analisis_entrada" type="object"
-                                        string="Nuevo Análisis Entrada" class="btn-primary me-2"
-                                        icon="fa-sign-in"/>
-                                <button name="action_crear_analisis_salida" type="object"
-                                        string="Nuevo Análisis Salida" class="btn-primary"
-                                        icon="fa-sign-out"/>
+                                <button name="action_crear_analisis" type="object"
+                                        string="Nuevo Análisis" class="btn-primary"
+                                        icon="fa-flask"/>
                             </div>
                             <field name="analisis_lab_ids" nolabel="1" readonly="1">
                                 <list>
                                     <field name="name"/>
                                     <field name="fecha_hora"/>
-                                    <field name="punto_muestreo" widget="badge"/>
+                                    <field name="origen_muestra_id"/>
+                                    <field name="sitio_muestra_id" optional="hide"/>
                                     <field name="humedad"/>
                                     <field name="impurezas"/>
                                     <field name="grano_partido"/>

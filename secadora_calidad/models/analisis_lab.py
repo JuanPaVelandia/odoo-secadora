@@ -5,6 +5,7 @@ from odoo import models, fields, api
 
 class AnalisisLab(models.Model):
     _name = 'secadora.analisis.lab'
+    _inherit = ['mail.thread']
     _description = 'Análisis de Laboratorio'
     _order = 'name desc'
 
@@ -59,11 +60,19 @@ class AnalisisLab(models.Model):
         'secadora.tipo.operacion',
         string='Tipo de Operación'
     )
-    punto_muestreo = fields.Selection([
-        ('entrada', 'Entrada'),
-        ('proceso', 'Proceso'),
-        ('salida', 'Salida'),
-    ], string='Punto de Muestreo', default='entrada')
+    origen_muestra_id = fields.Many2one(
+        'secadora.origen.muestra',
+        string='Origen de Muestra',
+        index=True,
+        help='Categoría del origen de la muestra'
+    )
+    sitio_muestra_id = fields.Many2one(
+        'secadora.sitio.muestra',
+        string='Sitio de Muestra',
+        index=True,
+        domain="[('origen_id', '=', origen_muestra_id)]",
+        help='Sitio específico donde se tomó la muestra'
+    )
 
     # === Parámetros principales ===
     humedad = fields.Float(string='Humedad (%)', digits=(5, 2))
@@ -133,6 +142,12 @@ class AnalisisLab(models.Model):
             if vals.get('name', 'Nuevo') == 'Nuevo':
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.analisis.lab') or 'Nuevo'
         return super().create(vals_list)
+
+    @api.onchange('origen_muestra_id')
+    def _onchange_origen_muestra_id(self):
+        """Limpiar sitio cuando cambia el origen"""
+        if self.sitio_muestra_id and self.sitio_muestra_id.origen_id != self.origen_muestra_id:
+            self.sitio_muestra_id = False
 
     @api.onchange('pesaje_id')
     def _onchange_pesaje_id(self):

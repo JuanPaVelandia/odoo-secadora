@@ -12,13 +12,15 @@
         - Descuentos de peso por calidad
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
-    'depends': ['bascula'],
+    'depends': ['bascula', 'mail'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
         'data/descuento_calidad_data.xml',
+        'data/origen_muestra_data.xml',
         'views/descuento_calidad_views.xml',
+        'views/origen_muestra_views.xml',
         'views/analisis_lab_views.xml',
         'views/pesaje_views.xml',
         'views/orden_servicio_views.xml',

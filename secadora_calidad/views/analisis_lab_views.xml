@@ -32,17 +32,17 @@
                             <group>
                                 <field name="pesaje_id"
                                        options="{'no_create': True, 'no_open': False}"/>
-                                <field name="orden_servicio_id"
-                                       options="{'no_create': True, 'no_open': False}"/>
                                 <field name="tercero_id"
                                        options="{'no_create': False, 'no_open': False}"/>
+                                <field name="variedad_id"/>
                             </group>
                             <group>
                                 <field name="fecha_hora"/>
                                 <field name="usuario_id"/>
-                                <field name="punto_muestreo" widget="radio"/>
-                                <field name="variedad_id"/>
+                                <field name="origen_muestra_id"/>
+                                <field name="sitio_muestra_id"/>
                                 <field name="tipo_operacion_id" invisible="1"/>
+                                <field name="orden_servicio_id" invisible="1"/>
                             </group>
                         </group>
 
@@ -108,6 +108,7 @@
                             </page>
                         </notebook>
                     </sheet>
+                    <chatter/>
                 </form>
             </field>
         </record>
@@ -124,8 +125,8 @@
                     <field name="fecha_hora"/>
                     <field name="tercero_id"/>
                     <field name="pesaje_id" optional="show"/>
-                    <field name="orden_servicio_id" optional="show"/>
-                    <field name="punto_muestreo" widget="badge"/>
+                    <field name="origen_muestra_id" optional="show"/>
+                    <field name="sitio_muestra_id" optional="hide"/>
                     <field name="variedad_id" optional="hide"/>
                     <field name="humedad"/>
                     <field name="impurezas"/>
@@ -149,18 +150,12 @@
                     <field name="pesaje_id"/>
                     <field name="orden_servicio_id"/>
                     <field name="variedad_id"/>
+                    <field name="origen_muestra_id"/>
 
                     <filter string="Borrador" name="filter_borrador"
                             domain="[('state', '=', 'borrador')]"/>
                     <filter string="Confirmado" name="filter_confirmado"
                             domain="[('state', '=', 'confirmado')]"/>
-                    <separator/>
-                    <filter string="Entrada" name="filter_entrada"
-                            domain="[('punto_muestreo', '=', 'entrada')]"/>
-                    <filter string="Proceso" name="filter_proceso"
-                            domain="[('punto_muestreo', '=', 'proceso')]"/>
-                    <filter string="Salida" name="filter_salida"
-                            domain="[('punto_muestreo', '=', 'salida')]"/>
                     <separator/>
                     <filter string="Hoy" name="filter_hoy"
                             domain="[('fecha_hora', '&gt;=', (context_today()).strftime('%Y-%m-%d 00:00:00')),
@@ -169,8 +164,8 @@
                     <group expand="0" string="Agrupar por">
                         <filter string="Estado" name="group_estado"
                                 context="{'group_by': 'state'}"/>
-                        <filter string="Punto de Muestreo" name="group_punto"
-                                context="{'group_by': 'punto_muestreo'}"/>
+                        <filter string="Origen de Muestra" name="group_origen"
+                                context="{'group_by': 'origen_muestra_id'}"/>
                         <filter string="Tercero" name="group_tercero"
                                 context="{'group_by': 'tercero_id'}"/>
                         <filter string="Fecha" name="group_fecha"

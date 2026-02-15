@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ==================== Origen de Muestra ==================== -->
+
+        <!-- Vista Form -->
+        <record id="view_origen_muestra_form" model="ir.ui.view">
+            <field name="name">secadora.origen.muestra.form</field>
+            <field name="model">secadora.origen.muestra</field>
+            <field name="arch" type="xml">
+                <form string="Origen de Muestra">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="codigo"/>
+                            </group>
+                            <group>
+                                <field name="sequence"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List -->
+        <record id="view_origen_muestra_list" model="ir.ui.view">
+            <field name="name">secadora.origen.muestra.list</field>
+            <field name="model">secadora.origen.muestra</field>
+            <field name="arch" type="xml">
+                <list string="Orígenes de Muestra" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="codigo"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Acción -->
+        <record id="action_origen_muestra" model="ir.actions.act_window">
+            <field name="name">Orígenes de Muestra</field>
+            <field name="res_model">secadora.origen.muestra</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- ==================== Sitio de Muestra ==================== -->
+
+        <!-- Vista Form -->
+        <record id="view_sitio_muestra_form" model="ir.ui.view">
+            <field name="name">secadora.sitio.muestra.form</field>
+            <field name="model">secadora.sitio.muestra</field>
+            <field name="arch" type="xml">
+                <form string="Sitio de Muestra">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="origen_id"/>
+                            </group>
+                            <group>
+                                <field name="codigo"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List -->
+        <record id="view_sitio_muestra_list" model="ir.ui.view">
+            <field name="name">secadora.sitio.muestra.list</field>
+            <field name="model">secadora.sitio.muestra</field>
+            <field name="arch" type="xml">
+                <list string="Sitios de Muestra">
+                    <field name="name"/>
+                    <field name="origen_id"/>
+                    <field name="codigo"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Search -->
+        <record id="view_sitio_muestra_search" model="ir.ui.view">
+            <field name="name">secadora.sitio.muestra.search</field>
+            <field name="model">secadora.sitio.muestra</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Sitios">
+                    <field name="name"/>
+                    <field name="origen_id"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Origen" name="group_origen"
+                                context="{'group_by': 'origen_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción -->
+        <record id="action_sitio_muestra" model="ir.actions.act_window">
+            <field name="name">Sitios de Muestra</field>
+            <field name="res_model">secadora.sitio.muestra</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+    </data>
+</odoo>

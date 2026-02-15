@@ -41,7 +41,10 @@
                                     <strong>Pesaje:</strong> <span t-field="o.pesaje_id"/><br/>
                                     <strong>Orden Servicio:</strong> <span t-field="o.orden_servicio_id"/><br/>
                                     <strong>Variedad:</strong> <span t-field="o.variedad_id"/><br/>
-                                    <strong>Punto Muestreo:</strong> <span t-field="o.punto_muestreo"/>
+                                    <strong>Origen Muestra:</strong> <span t-field="o.origen_muestra_id"/><br/>
+                                    <t t-if="o.sitio_muestra_id">
+                                        <strong>Sitio:</strong> <span t-field="o.sitio_muestra_id"/>
+                                    </t>
                                 </div>
                             </div>
 

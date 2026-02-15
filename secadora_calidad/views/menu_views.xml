@@ -24,5 +24,21 @@
                   sequence="70"
                   groups="secadora_calidad.group_calidad_admin"/>
 
+        <!-- Menú: Orígenes de Muestra (en Configuración) -->
+        <menuitem id="menu_bascula_origen_muestra"
+                  name="Orígenes de Muestra"
+                  parent="bascula.menu_bascula_configuracion"
+                  action="action_origen_muestra"
+                  sequence="75"
+                  groups="secadora_calidad.group_calidad_admin"/>
+
+        <!-- Menú: Sitios de Muestra (en Configuración) -->
+        <menuitem id="menu_bascula_sitio_muestra"
+                  name="Sitios de Muestra"
+                  parent="bascula.menu_bascula_configuracion"
+                  action="action_sitio_muestra"
+                  sequence="76"
+                  groups="secadora_calidad.group_calidad_admin"/>
+
     </data>
 </odoo>
