@@ -36,7 +36,7 @@
                             <field name="analisis_lab_ids" nolabel="1" readonly="1">
                                 <list>
                                     <field name="name"/>
-                                    <field name="punto_muestreo" widget="badge"/>
+                                    <field name="origen_muestra_id"/>
                                     <field name="humedad"/>
                                     <field name="state" widget="badge"/>
                                 </list>
