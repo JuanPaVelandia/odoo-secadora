@@ -1,0 +1,14 @@
+services:
+  bascula-bridge:
+    build: .
+    container_name: bascula-bridge
+    restart: unless-stopped
+    env_file:
+      - .env
+    # Linux host serial mapping (ajusta según tu equipo)
+    devices:
+      - "${BASCULA_PUERTO_SERIAL:-/dev/ttyUSB0}:${BASCULA_PUERTO_SERIAL:-/dev/ttyUSB0}"
+    volumes:
+      - ./logs:/app/logs
+    working_dir: /app
+    command: ["python", "/app/bascula_bridge.py"]
