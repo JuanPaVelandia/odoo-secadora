@@ -107,6 +107,11 @@
                                         <field name="diferencia_peso" readonly="1"/>
                                     </group>
                                 </group>
+                                <group>
+                                    <field name="detalle_descuento" readonly="1"
+                                           widget="text" nolabel="1"
+                                           placeholder="El detalle del cálculo aparecerá aquí..."/>
+                                </group>
                             </page>
 
                             <page string="Otro">

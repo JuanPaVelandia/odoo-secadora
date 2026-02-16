@@ -131,7 +131,7 @@ class AnalisisLab(models.Model):
         compute='_compute_peso_comercial',
         store=True,
         digits=(12, 2),
-        help='Pc = Pb × ((100 - Hr) / (100 - He)) × ((100 - Ir) / (100 - Ie))'
+        help='Peso neto ajustado por descuentos de calidad',
     )
 
     diferencia_peso = fields.Float(
@@ -139,7 +139,14 @@ class AnalisisLab(models.Model):
         compute='_compute_peso_comercial',
         store=True,
         digits=(12, 2),
-        help='Peso neto - Peso comercial (kg descontados por humedad e impurezas)'
+        help='Peso neto - Peso comercial (kg descontados)',
+    )
+
+    detalle_descuento = fields.Text(
+        string='Detalle del Descuento',
+        compute='_compute_peso_comercial',
+        store=True,
+        help='Desglose paso a paso del cálculo de peso comercial',
     )
 
     @api.model_create_multi
@@ -165,30 +172,106 @@ class AnalisisLab(models.Model):
             if self.pesaje_id.orden_servicio_id:
                 self.orden_servicio_id = self.pesaje_id.orden_servicio_id
 
-    @api.depends('pesaje_id.peso_neto', 'humedad', 'impurezas')
+    @api.depends(
+        'pesaje_id.peso_neto', 'pesaje_id.tipo_operacion_id', 'pesaje_id.producto_id',
+        'tipo_operacion_id',
+        'humedad', 'impurezas', 'grano_partido', 'grano_partido_verde',
+        'grano_rojo', 'infestacion', 'cascarilla_pct', 'harina_pct',
+        'grano_yesado_pct', 'grano_ambarino_pct', 'grano_con_dano_pct',
+    )
     def _compute_peso_comercial(self):
-        """Pc = Pb × ((100 - Hr) / (100 - He)) × ((100 - Ir) / (100 - Ie))"""
         ICP = self.env['ir.config_parameter'].sudo()
         activar = ICP.get_param('calidad.activar_peso_comercial', 'True')
-        humedad_base = float(ICP.get_param('calidad.humedad_base', '13.0'))
-        impurezas_base = float(ICP.get_param('calidad.impurezas_base', '3.0'))
+        Descuento = self.env['secadora.descuento.calidad']
 
         for record in self:
             if activar != 'True' or not record.pesaje_id:
                 record.peso_comercial = 0.0
                 record.diferencia_peso = 0.0
+                record.detalle_descuento = ''
                 continue
 
             peso_neto = record.pesaje_id.peso_neto
-            if peso_neto <= 0 or (100.0 - humedad_base) <= 0 or (100.0 - impurezas_base) <= 0:
+            if peso_neto <= 0:
                 record.peso_comercial = 0.0
                 record.diferencia_peso = 0.0
+                record.detalle_descuento = ''
                 continue
 
-            factor_humedad = (100.0 - (record.humedad or 0.0)) / (100.0 - humedad_base)
-            factor_impurezas = (100.0 - (record.impurezas or 0.0)) / (100.0 - impurezas_base)
-            record.peso_comercial = peso_neto * factor_humedad * factor_impurezas
-            record.diferencia_peso = peso_neto - record.peso_comercial
+            tipo_op = record.tipo_operacion_id or record.pesaje_id.tipo_operacion_id
+            producto = record.pesaje_id.producto_id
+
+            if not tipo_op:
+                record.peso_comercial = peso_neto
+                record.diferencia_peso = 0.0
+                record.detalle_descuento = 'Sin tipo de operación — sin descuentos'
+                continue
+
+            # Buscar reglas: producto específico + genéricas
+            domain = [
+                ('tipo_operacion_id', '=', tipo_op.id),
+                ('active', '=', True),
+            ]
+            todas_reglas = Descuento.search(domain)
+
+            # Para cada parámetro, elegir la regla más específica
+            reglas_a_aplicar = {}
+            for regla in todas_reglas:
+                param = regla.parametro
+                if regla.producto_id and producto and regla.producto_id == producto:
+                    # Producto específico: siempre tiene prioridad
+                    reglas_a_aplicar[param] = regla
+                elif not regla.producto_id:
+                    # Genérica: solo si no hay específica ya asignada
+                    if param not in reglas_a_aplicar or not reglas_a_aplicar[param].producto_id:
+                        reglas_a_aplicar[param] = regla
+
+            factores = []
+            kg_descuentos = []
+            detalles = []
+            detalles.append(f"Peso neto: {peso_neto:.2f} kg")
+            detalles.append(f"Tipo operación: {tipo_op.name}")
+            if producto:
+                detalles.append(f"Producto: {producto.display_name}")
+            detalles.append("---")
+
+            for regla in sorted(reglas_a_aplicar.values(), key=lambda r: r.sequence):
+                resultado = regla.calcular_descuento(record)
+                if not resultado['detalle']:
+                    continue
+                if resultado['tipo'] == 'factor':
+                    factores.append(resultado['valor'])
+                    detalles.append(f"× {resultado['detalle']}")
+                elif resultado['tipo'] == 'kg':
+                    kg_descuentos.append(resultado['valor'])
+                    detalles.append(f"- {resultado['detalle']}")
+
+            # peso_comercial = peso_neto × (∏ factores) - (∑ kg)
+            producto_factores = 1.0
+            for f in factores:
+                producto_factores *= f
+
+            suma_kg = sum(kg_descuentos)
+
+            peso_comercial = peso_neto * producto_factores - suma_kg
+
+            if factores or kg_descuentos:
+                detalles.append("---")
+                if factores:
+                    detalles.append(
+                        f"Factor total: {' × '.join(f'{f:.6f}' for f in factores)} = {producto_factores:.6f}"
+                    )
+                detalles.append(
+                    f"Peso comercial: {peso_neto:.2f} × {producto_factores:.6f}"
+                    + (f" - {suma_kg:.2f}" if suma_kg else "")
+                    + f" = {peso_comercial:.2f} kg"
+                )
+            else:
+                detalles.append("Sin descuentos aplicables")
+
+            record.peso_comercial = peso_comercial
+            record.diferencia_peso = peso_neto - peso_comercial
+            record.detalle_descuento = '\n'.join(detalles)
 
     def action_confirmar(self):
         for record in self:

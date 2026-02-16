@@ -157,25 +157,14 @@
                                     <h5 style="text-align: center; margin: 0 0 5px 0; font-size: 12px;">
                                         <strong>PESO COMERCIAL</strong>
                                     </h5>
-                                    <p style="text-align: center; font-size: 10px; color: #666; margin: 0 0 5px 0;">
-                                        Pc = Pb × ((100 - Hr) / (100 - He)) × ((100 - Ir) / (100 - Ie))
-                                    </p>
                                     <table class="table table-borderless" style="font-size: 11px; margin-bottom: 0;">
                                         <tr>
-                                            <td style="width: 50%;"><strong>Peso Neto (Pb):</strong></td>
+                                            <td style="width: 50%;"><strong>Peso Neto:</strong></td>
                                             <td style="text-align: right;"><span t-field="o.peso_neto_pesaje"/> Kg</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Humedad Medida (Hr):</strong></td>
-                                            <td style="text-align: right;"><span t-field="o.humedad"/> %</td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Impurezas Medidas (Ir):</strong></td>
-                                            <td style="text-align: right;"><span t-field="o.impurezas"/> %</td>
                                         </tr>
                                         <tr style="border-top: 2px solid #000;">
                                             <td style="padding-top: 5px;">
-                                                <strong style="font-size: 14px;">Peso Comercial (Pc):</strong>
+                                                <strong style="font-size: 14px;">Peso Comercial:</strong>
                                             </td>
                                             <td style="text-align: right; padding-top: 5px;">
                                                 <strong style="font-size: 14px; color: #00A09D;">
@@ -188,6 +177,12 @@
                                             <td style="text-align: right;"><span t-field="o.diferencia_peso"/> Kg</td>
                                         </tr>
                                     </table>
+                                    <t t-if="o.detalle_descuento">
+                                        <div style="margin-top: 5px; padding-top: 5px; border-top: 1px solid #ccc;">
+                                            <strong style="font-size: 10px;">Detalle del cálculo:</strong>
+                                            <pre style="font-size: 9px; margin: 3px 0 0 0; white-space: pre-wrap; font-family: monospace;"><t t-out="o.detalle_descuento"/></pre>
+                                        </div>
+                                    </t>
                                 </div>
                             </t>
 

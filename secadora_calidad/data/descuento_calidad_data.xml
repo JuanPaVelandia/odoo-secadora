@@ -2,36 +2,83 @@
 <odoo>
     <data noupdate="1">
 
-        <!-- Regla: Descuento por Impurezas -->
-        <record id="descuento_impurezas" model="secadora.descuento.calidad">
-            <field name="name">Descuento por Impurezas</field>
+        <!-- ============================================ -->
+        <!-- Reglas para COMPRA                           -->
+        <!-- ============================================ -->
+
+        <!-- Compra: Descuento por Humedad (doble descuento, He=13%) -->
+        <record id="descuento_compra_humedad" model="secadora.descuento.calidad">
+            <field name="name">Compra - Humedad</field>
             <field name="sequence">10</field>
             <field name="active" eval="True"/>
+            <field name="tipo_operacion_id" ref="bascula.tipo_op_compra"/>
+            <field name="parametro">humedad</field>
+            <field name="umbral">13.0</field>
+            <field name="modo_descuento">doble_descuento</field>
+            <field name="factor">1.0</field>
+        </record>
+
+        <!-- Compra: Descuento por Impurezas (doble descuento, Ie=3%) -->
+        <record id="descuento_compra_impurezas" model="secadora.descuento.calidad">
+            <field name="name">Compra - Impurezas</field>
+            <field name="sequence">20</field>
+            <field name="active" eval="True"/>
+            <field name="tipo_operacion_id" ref="bascula.tipo_op_compra"/>
             <field name="parametro">impurezas</field>
             <field name="umbral">3.0</field>
-            <field name="modo_descuento">porcentaje_exceso</field>
+            <field name="modo_descuento">doble_descuento</field>
             <field name="factor">1.0</field>
         </record>
 
-        <!-- Regla: Descuento por Grano Partido -->
-        <record id="descuento_grano_partido" model="secadora.descuento.calidad">
-            <field name="name">Descuento por Grano Partido</field>
-            <field name="sequence">20</field>
-            <field name="active" eval="False"/>
-            <field name="parametro">grano_partido</field>
-            <field name="umbral">5.0</field>
-            <field name="modo_descuento">porcentaje_exceso</field>
-            <field name="factor">1.0</field>
-        </record>
-
-        <!-- Regla: Descuento por Grano Rojo -->
-        <record id="descuento_grano_rojo" model="secadora.descuento.calidad">
-            <field name="name">Descuento por Grano Rojo</field>
+        <!-- Compra: Descuento por Grano Partido (% por punto, umbral=5%, inactivo) -->
+        <record id="descuento_compra_grano_partido" model="secadora.descuento.calidad">
+            <field name="name">Compra - Grano Partido</field>
             <field name="sequence">30</field>
             <field name="active" eval="False"/>
+            <field name="tipo_operacion_id" ref="bascula.tipo_op_compra"/>
+            <field name="parametro">grano_partido</field>
+            <field name="umbral">5.0</field>
+            <field name="modo_descuento">porcentaje_por_punto</field>
+            <field name="factor">1.0</field>
+        </record>
+
+        <!-- Compra: Descuento por Grano Rojo (% por punto, umbral=2%, inactivo) -->
+        <record id="descuento_compra_grano_rojo" model="secadora.descuento.calidad">
+            <field name="name">Compra - Grano Rojo</field>
+            <field name="sequence">40</field>
+            <field name="active" eval="False"/>
+            <field name="tipo_operacion_id" ref="bascula.tipo_op_compra"/>
             <field name="parametro">grano_rojo</field>
             <field name="umbral">2.0</field>
-            <field name="modo_descuento">porcentaje_exceso</field>
+            <field name="modo_descuento">porcentaje_por_punto</field>
+            <field name="factor">1.0</field>
+        </record>
+
+        <!-- ============================================ -->
+        <!-- Reglas para SECAMIENTO                       -->
+        <!-- ============================================ -->
+
+        <!-- Secamiento: Descuento por Humedad (doble descuento, He=25%) -->
+        <record id="descuento_secamiento_humedad" model="secadora.descuento.calidad">
+            <field name="name">Secamiento - Humedad</field>
+            <field name="sequence">10</field>
+            <field name="active" eval="True"/>
+            <field name="tipo_operacion_id" ref="bascula.tipo_op_secamiento"/>
+            <field name="parametro">humedad</field>
+            <field name="umbral">25.0</field>
+            <field name="modo_descuento">doble_descuento</field>
+            <field name="factor">1.0</field>
+        </record>
+
+        <!-- Secamiento: Descuento por Impurezas (doble descuento, Ie=3%) -->
+        <record id="descuento_secamiento_impurezas" model="secadora.descuento.calidad">
+            <field name="name">Secamiento - Impurezas</field>
+            <field name="sequence">20</field>
+            <field name="active" eval="True"/>
+            <field name="tipo_operacion_id" ref="bascula.tipo_op_secamiento"/>
+            <field name="parametro">impurezas</field>
+            <field name="umbral">3.0</field>
+            <field name="modo_descuento">doble_descuento</field>
             <field name="factor">1.0</field>
         </record>
 

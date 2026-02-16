@@ -12,20 +12,32 @@
                         <group>
                             <group>
                                 <field name="name"/>
+                                <field name="tipo_operacion_id"/>
+                                <field name="producto_id"/>
                                 <field name="parametro"/>
                                 <field name="umbral"/>
-                                <field name="active"/>
                             </group>
                             <group>
                                 <field name="modo_descuento"/>
                                 <field name="factor"/>
                                 <field name="sequence"/>
+                                <field name="active"/>
                             </group>
                         </group>
-                        <group string="Aplica a Tipos de Operación">
-                            <field name="tipo_operacion_ids" nolabel="1"
-                                   widget="many2many_tags"
-                                   placeholder="Dejar vacío para aplicar a todos"/>
+                        <group invisible="modo_descuento != 'formula_personalizada'">
+                            <field name="formula" placeholder='{"tipo": "factor", "valor": (100 - valor) / (100 - umbral)}'/>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Variables disponibles:</strong>
+                                <ul class="mb-0">
+                                    <li><code>peso</code> — Peso neto del pesaje (kg)</li>
+                                    <li><code>valor</code> — Valor real del parámetro medido</li>
+                                    <li><code>umbral</code> — Umbral configurado en esta regla</li>
+                                    <li><code>exceso</code> — valor - umbral</li>
+                                    <li><code>factor</code> — Factor configurado en esta regla</li>
+                                </ul>
+                                <strong>Debe retornar:</strong>
+                                <code>{"tipo": "factor"|"kg", "valor": float}</code>
+                            </div>
                         </group>
                     </sheet>
                 </form>
@@ -40,12 +52,44 @@
                 <list string="Reglas de Descuento por Calidad">
                     <field name="sequence" widget="handle"/>
                     <field name="name"/>
+                    <field name="tipo_operacion_id"/>
+                    <field name="producto_id" optional="show"/>
                     <field name="parametro"/>
                     <field name="umbral"/>
                     <field name="modo_descuento"/>
                     <field name="factor"/>
                     <field name="active"/>
                 </list>
+            </field>
+        </record>
+
+        <!-- Vista Search de Regla de Descuento -->
+        <record id="view_descuento_calidad_search" model="ir.ui.view">
+            <field name="name">secadora.descuento.calidad.search</field>
+            <field name="model">secadora.descuento.calidad</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Reglas de Descuento">
+                    <field name="name"/>
+                    <field name="tipo_operacion_id"/>
+                    <field name="producto_id"/>
+                    <field name="parametro"/>
+
+                    <filter string="Activos" name="filter_activos"
+                            domain="[('active', '=', True)]"/>
+                    <filter string="Inactivos" name="filter_inactivos"
+                            domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Tipo de Operación" name="group_tipo_operacion"
+                                context="{'group_by': 'tipo_operacion_id'}"/>
+                        <filter string="Producto" name="group_producto"
+                                context="{'group_by': 'producto_id'}"/>
+                        <filter string="Parámetro" name="group_parametro"
+                                context="{'group_by': 'parametro'}"/>
+                        <filter string="Modo de Descuento" name="group_modo"
+                                context="{'group_by': 'modo_descuento'}"/>
+                    </group>
+                </search>
             </field>
         </record>
 
@@ -61,6 +105,7 @@
                 </p>
                 <p>
                     Configure reglas para descontar peso automáticamente según parámetros de calidad.
+                    Cada regla se asocia a un tipo de operación y opcionalmente a un producto específico.
                 </p>
             </field>
         </record>
