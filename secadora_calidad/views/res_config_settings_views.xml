@@ -11,20 +11,23 @@
             <field name="arch" type="xml">
                 <xpath expr="//app[@name='bascula']" position="inside">
                     <block title="Calidad y Laboratorio">
-                        <setting help="Humedad base para el cálculo de peso comercial">
+                        <setting help="Calcular peso comercial: Pc = Pb × ((100-Hr)/(100-He)) × ((100-Ir)/(100-Ie))">
+                            <field name="calidad_activar_peso_comercial"/>
+                            <label for="calidad_activar_peso_comercial"/>
+                        </setting>
+                        <setting help="Humedad estándar (He) para el cálculo de peso comercial">
                             <label for="calidad_humedad_base" string="Humedad Base (%)"/>
                             <div>
                                 <field name="calidad_humedad_base" class="oe_inline"/>
                                 <span class="text-muted ms-2">% (normalmente 13%)</span>
                             </div>
                         </setting>
-                        <setting help="Calcular peso comercial ajustado por humedad en los análisis de laboratorio">
-                            <field name="calidad_activar_peso_comercial"/>
-                            <label for="calidad_activar_peso_comercial"/>
-                        </setting>
-                        <setting help="Aplicar descuentos automáticos de peso según reglas de calidad configuradas">
-                            <field name="calidad_activar_descuentos"/>
-                            <label for="calidad_activar_descuentos"/>
+                        <setting help="Impurezas estándar (Ie) para el cálculo de peso comercial">
+                            <label for="calidad_impurezas_base" string="Impurezas Base (%)"/>
+                            <div>
+                                <field name="calidad_impurezas_base" class="oe_inline"/>
+                                <span class="text-muted ms-2">% (normalmente 3%)</span>
+                            </div>
                         </setting>
                     </block>
                 </xpath>

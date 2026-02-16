@@ -98,13 +98,13 @@
                                         <field name="peso_neto_pesaje" readonly="1"/>
                                         <field name="humedad" readonly="1"
                                                string="Humedad Medida (%)"/>
+                                        <field name="impurezas" readonly="1"
+                                               string="Impurezas Medidas (%)"/>
                                     </group>
                                     <group>
                                         <field name="peso_comercial" readonly="1"
                                                style="font-size: 18px; font-weight: bold; color: #00A09D;"/>
-                                        <field name="descuento_peso" readonly="1"/>
-                                        <field name="peso_comercial_neto" readonly="1"
-                                               style="font-size: 18px; font-weight: bold;"/>
+                                        <field name="diferencia_peso" readonly="1"/>
                                     </group>
                                 </group>
                             </page>

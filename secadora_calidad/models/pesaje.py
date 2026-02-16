@@ -59,7 +59,6 @@ class SecadoraPesajeCalidad(models.Model):
             'variedad_id': self.variedad_id.id if self.variedad_id else False,
             'tipo_operacion_id': self.tipo_operacion_id.id if self.tipo_operacion_id else False,
             'orden_servicio_id': self.orden_servicio_id.id if self.orden_servicio_id else False,
-            'punto_muestreo': 'entrada' if self.direccion == 'entrada' else 'salida',
         }
         analisis = self.env['secadora.analisis.lab'].create(vals)
         return {

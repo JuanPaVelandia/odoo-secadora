@@ -131,23 +131,15 @@ class AnalisisLab(models.Model):
         compute='_compute_peso_comercial',
         store=True,
         digits=(12, 2),
-        help='Peso ajustado por humedad: peso_neto × (100 - humedad) / (100 - humedad_base)'
+        help='Pc = Pb × ((100 - Hr) / (100 - He)) × ((100 - Ir) / (100 - Ie))'
     )
 
-    descuento_peso = fields.Float(
-        string='Descuento de Peso (kg)',
-        compute='_compute_descuento_peso',
+    diferencia_peso = fields.Float(
+        string='Diferencia (kg)',
+        compute='_compute_peso_comercial',
         store=True,
         digits=(12, 2),
-        help='Total kg descontados por reglas de calidad'
-    )
-
-    peso_comercial_neto = fields.Float(
-        string='Peso Comercial Neto (kg)',
-        compute='_compute_peso_comercial_neto',
-        store=True,
-        digits=(12, 2),
-        help='Peso comercial menos descuentos por calidad'
+        help='Peso neto - Peso comercial (kg descontados por humedad e impurezas)'
     )
 
     @api.model_create_multi
@@ -173,54 +165,30 @@ class AnalisisLab(models.Model):
             if self.pesaje_id.orden_servicio_id:
                 self.orden_servicio_id = self.pesaje_id.orden_servicio_id
 
-    @api.depends('pesaje_id.peso_neto', 'humedad')
+    @api.depends('pesaje_id.peso_neto', 'humedad', 'impurezas')
     def _compute_peso_comercial(self):
-        activar = self.env['ir.config_parameter'].sudo().get_param(
-            'calidad.activar_peso_comercial', 'True'
-        )
-        humedad_base = float(self.env['ir.config_parameter'].sudo().get_param(
-            'calidad.humedad_base', '13.0'
-        ))
-        for record in self:
-            if activar == 'True' and record.pesaje_id and record.humedad and humedad_base:
-                peso_neto = record.pesaje_id.peso_neto
-                if peso_neto > 0 and (100.0 - humedad_base) > 0:
-                    record.peso_comercial = peso_neto * (100.0 - record.humedad) / (100.0 - humedad_base)
-                else:
-                    record.peso_comercial = 0.0
-            else:
-                record.peso_comercial = 0.0
+        """Pc = Pb × ((100 - Hr) / (100 - He)) × ((100 - Ir) / (100 - Ie))"""
+        ICP = self.env['ir.config_parameter'].sudo()
+        activar = ICP.get_param('calidad.activar_peso_comercial', 'True')
+        humedad_base = float(ICP.get_param('calidad.humedad_base', '13.0'))
+        impurezas_base = float(ICP.get_param('calidad.impurezas_base', '3.0'))
 
-    @api.depends(
-        'pesaje_id.peso_neto', 'humedad', 'impurezas', 'grano_partido',
-        'grano_partido_verde', 'grano_rojo', 'infestacion',
-        'cascarilla_pct', 'harina_pct', 'grano_yesado_pct',
-        'grano_ambarino_pct', 'grano_con_dano_pct'
-    )
-    def _compute_descuento_peso(self):
-        activar = self.env['ir.config_parameter'].sudo().get_param(
-            'calidad.activar_descuentos', 'False'
-        )
         for record in self:
             if activar != 'True' or not record.pesaje_id:
-                record.descuento_peso = 0.0
+                record.peso_comercial = 0.0
+                record.diferencia_peso = 0.0
                 continue
-            reglas = self.env['secadora.descuento.calidad'].search([
-                ('active', '=', True)
-            ], order='sequence, id')
-            total_descuento = 0.0
-            for regla in reglas:
-                # Filtrar por tipo de operación si aplica
-                if regla.tipo_operacion_ids and record.tipo_operacion_id:
-                    if record.tipo_operacion_id not in regla.tipo_operacion_ids:
-                        continue
-                total_descuento += regla.calcular_descuento(record)
-            record.descuento_peso = total_descuento
 
-    @api.depends('peso_comercial', 'descuento_peso')
-    def _compute_peso_comercial_neto(self):
-        for record in self:
-            record.peso_comercial_neto = record.peso_comercial - record.descuento_peso
+            peso_neto = record.pesaje_id.peso_neto
+            if peso_neto <= 0 or (100.0 - humedad_base) <= 0 or (100.0 - impurezas_base) <= 0:
+                record.peso_comercial = 0.0
+                record.diferencia_peso = 0.0
+                continue
+
+            factor_humedad = (100.0 - (record.humedad or 0.0)) / (100.0 - humedad_base)
+            factor_impurezas = (100.0 - (record.impurezas or 0.0)) / (100.0 - impurezas_base)
+            record.peso_comercial = peso_neto * factor_humedad * factor_impurezas
+            record.diferencia_peso = peso_neto - record.peso_comercial
 
     def action_confirmar(self):
         for record in self:

@@ -157,32 +157,35 @@
                                     <h5 style="text-align: center; margin: 0 0 5px 0; font-size: 12px;">
                                         <strong>PESO COMERCIAL</strong>
                                     </h5>
+                                    <p style="text-align: center; font-size: 10px; color: #666; margin: 0 0 5px 0;">
+                                        Pc = Pb × ((100 - Hr) / (100 - He)) × ((100 - Ir) / (100 - Ie))
+                                    </p>
                                     <table class="table table-borderless" style="font-size: 11px; margin-bottom: 0;">
                                         <tr>
-                                            <td style="width: 50%;"><strong>Peso Neto:</strong></td>
+                                            <td style="width: 50%;"><strong>Peso Neto (Pb):</strong></td>
                                             <td style="text-align: right;"><span t-field="o.peso_neto_pesaje"/> Kg</td>
                                         </tr>
                                         <tr>
-                                            <td><strong>Humedad Medida:</strong></td>
+                                            <td><strong>Humedad Medida (Hr):</strong></td>
                                             <td style="text-align: right;"><span t-field="o.humedad"/> %</td>
                                         </tr>
                                         <tr>
-                                            <td><strong>Peso Comercial:</strong></td>
-                                            <td style="text-align: right;"><strong><span t-field="o.peso_comercial"/> Kg</strong></td>
-                                        </tr>
-                                        <tr>
-                                            <td><strong>Descuento Calidad:</strong></td>
-                                            <td style="text-align: right;"><span t-field="o.descuento_peso"/> Kg</td>
+                                            <td><strong>Impurezas Medidas (Ir):</strong></td>
+                                            <td style="text-align: right;"><span t-field="o.impurezas"/> %</td>
                                         </tr>
                                         <tr style="border-top: 2px solid #000;">
                                             <td style="padding-top: 5px;">
-                                                <strong style="font-size: 14px;">Peso Comercial Neto:</strong>
+                                                <strong style="font-size: 14px;">Peso Comercial (Pc):</strong>
                                             </td>
                                             <td style="text-align: right; padding-top: 5px;">
                                                 <strong style="font-size: 14px; color: #00A09D;">
-                                                    <span t-field="o.peso_comercial_neto"/> Kg
+                                                    <span t-field="o.peso_comercial"/> Kg
                                                 </strong>
                                             </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Diferencia:</strong></td>
+                                            <td style="text-align: right;"><span t-field="o.diferencia_peso"/> Kg</td>
                                         </tr>
                                     </table>
                                 </div>
