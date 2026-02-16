@@ -27,6 +27,9 @@
                                 <h4 style="margin: 3px 0; font-size: 12px;">CERTIFICADO DE ANÁLISIS DE LABORATORIO</h4>
                                 <p style="margin: 3px 0; font-size: 11px;">
                                     <strong>No. <span t-field="o.name"/></strong>
+                                    <t t-if="o.numero_talonario">
+                                        — Talonario: <span t-field="o.numero_talonario"/>
+                                    </t>
                                 </p>
                             </div>
 
@@ -43,7 +46,10 @@
                                     <strong>Variedad:</strong> <span t-field="o.variedad_id"/><br/>
                                     <strong>Origen Muestra:</strong> <span t-field="o.origen_muestra_id"/><br/>
                                     <t t-if="o.sitio_muestra_id">
-                                        <strong>Sitio:</strong> <span t-field="o.sitio_muestra_id"/>
+                                        <strong>Sitio:</strong> <span t-field="o.sitio_muestra_id"/><br/>
+                                    </t>
+                                    <t t-if="o.finca_id">
+                                        <strong>Finca:</strong> <span t-field="o.finca_id"/>
                                     </t>
                                 </div>
                             </div>

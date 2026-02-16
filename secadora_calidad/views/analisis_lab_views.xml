@@ -26,6 +26,10 @@
                         </div>
                         <div class="oe_title">
                             <h1><field name="name" readonly="1"/></h1>
+                            <div class="o_row">
+                                <label for="numero_talonario"/>
+                                <field name="numero_talonario" placeholder="Ej: 001234"/>
+                            </div>
                         </div>
 
                         <group>
@@ -41,6 +45,8 @@
                                 <field name="usuario_id"/>
                                 <field name="origen_muestra_id"/>
                                 <field name="sitio_muestra_id"/>
+                                <field name="origen_muestra_codigo" invisible="1"/>
+                                <field name="finca_id" invisible="origen_muestra_codigo != 'CULT'"/>
                                 <field name="tipo_operacion_id" invisible="1"/>
                                 <field name="orden_servicio_id" invisible="1"/>
                             </group>
@@ -122,6 +128,7 @@
                       decoration-success="state == 'confirmado'"
                       decoration-muted="state == 'borrador'">
                     <field name="name"/>
+                    <field name="numero_talonario" optional="show"/>
                     <field name="fecha_hora"/>
                     <field name="tercero_id"/>
                     <field name="pesaje_id" optional="show"/>

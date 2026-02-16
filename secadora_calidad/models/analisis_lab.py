@@ -18,6 +18,10 @@ class AnalisisLab(models.Model):
         index=True,
         default=lambda self: 'Nuevo'
     )
+    numero_talonario = fields.Char(
+        string='No. Talonario',
+        help='Número del talonario físico de laboratorio'
+    )
     fecha_hora = fields.Datetime(
         string='Fecha/Hora',
         required=True,
@@ -66,12 +70,22 @@ class AnalisisLab(models.Model):
         index=True,
         help='Categoría del origen de la muestra'
     )
+    origen_muestra_codigo = fields.Char(
+        related='origen_muestra_id.codigo',
+        string='Código Origen',
+    )
     sitio_muestra_id = fields.Many2one(
         'secadora.sitio.muestra',
         string='Sitio de Muestra',
         index=True,
         domain="[('origen_id', '=', origen_muestra_id)]",
         help='Sitio específico donde se tomó la muestra'
+    )
+    finca_id = fields.Many2one(
+        'secadora.lugar',
+        string='Finca',
+        domain="[('tipo', '=', 'finca')]",
+        help='Finca de origen (cuando el origen de muestra es Cultivo)'
     )
 
     # === Parámetros principales ===
