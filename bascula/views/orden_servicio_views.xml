@@ -28,6 +28,10 @@
                             class="oe_highlight" invisible="state != 'en_proceso'"/>
                     <button name="action_confirmar_liquidacion" type="object" string="Confirmar Liquidación"
                             class="oe_highlight" invisible="state != 'listo_liquidar'"/>
+                        <button name="action_generar_factura" type="object" string="Generar Factura"
+                            class="oe_highlight" invisible="state not in ('listo_liquidar', 'liquidado') or factura_id"/>
+                        <button name="action_ver_factura" type="object" string="Ver Factura"
+                            class="btn-secondary" invisible="not factura_id"/>
 
                     <!-- Botones para retroceder estados -->
                     <button name="action_volver_proceso" type="object" string="← Volver a En Proceso"
@@ -35,9 +39,6 @@
                     <button name="action_volver_borrador" type="object" string="← Volver a Borrador"
                             invisible="state not in ('en_proceso', 'listo_liquidar', 'liquidado')"/>
 
-                    <!-- TODO: Descomentar cuando se instale el módulo 'account' -->
-                    <!-- <button name="action_generar_factura" type="object" string="Generar Factura"
-                            class="oe_highlight" invisible="state not in ('listo_liquidar', 'liquidado')"/> -->
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
@@ -62,6 +63,14 @@
                                 <span class="o_stat_text">Salida</span>
                             </div>
                         </button>
+                        <button name="action_ver_factura" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="not factura_id">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_text">Ver</span>
+                                <span class="o_stat_text">Factura</span>
+                            </div>
+                        </button>
                     </div>
                     <div class="oe_title">
                         <h1><field name="name" readonly="1"/></h1>
@@ -79,8 +88,7 @@
                         <group>
                             <field name="fecha_inicio" readonly="state == 'facturado'"/>
                             <field name="modalidad_salida" readonly="state == 'facturado'"/>
-                            <!-- TODO: Descomentar cuando se instale el módulo 'account' -->
-                            <!-- <field name="factura_id" readonly="1"/> -->
+                            <field name="factura_id" readonly="1"/>
                         </group>
                     </group>
                     <group>

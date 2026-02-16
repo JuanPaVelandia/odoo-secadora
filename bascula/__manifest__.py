@@ -18,7 +18,7 @@
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
     'website': '',
-    'depends': ['base', 'contacts', 'product'],
+    'depends': ['base', 'contacts', 'product', 'account'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',

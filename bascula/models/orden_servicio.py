@@ -247,14 +247,14 @@ class OrdenServicio(models.Model):
 
     # ==================== FACTURACIÓN ====================
 
-    # TODO: Descomentar cuando se instale el módulo 'account'
-    # factura_id = fields.Many2one(
-    #     'account.move',
-    #     string='Factura Generada',
-    #     readonly=True,
-    #     tracking=True,
-    #     help='Factura de cliente generada para esta orden'
-    # )
+    factura_id = fields.Many2one(
+        'account.move',
+        string='Factura Generada',
+        readonly=True,
+        tracking=True,
+        ondelete='set null',
+        help='Factura de cliente generada para esta orden'
+    )
 
     # ==================== ESTADOS ====================
 
@@ -616,78 +616,82 @@ class OrdenServicio(models.Model):
             'context': {'default_orden_servicio_id': self.id}
         }
 
-    # TODO: Descomentar cuando se instale el módulo 'account'
-    # def action_generar_factura(self):
-    #     self.ensure_one()
-    #     if self.state not in ['listo_liquidar', 'liquidado']:
-    #         raise UserError('La orden debe estar lista para liquidar.')
-    #     if self.factura_id:
-    #         raise UserError('Ya existe una factura generada para esta orden.')
-    #
-    #     lines = self._preparar_lineas_factura()
-    #     if not lines:
-    #         raise UserError('No hay líneas para facturar.')
-    #
-    #     factura = self.env['account.move'].create({
-    #         'move_type': 'out_invoice',
-    #         'partner_id': self.cliente_id.id,
-    #         'invoice_date': fields.Date.today(),
-    #         'invoice_origin': self.name,
-    #         'invoice_line_ids': [(0, 0, line) for line in lines],
-    #     })
-    #
-    #     self.write({'factura_id': factura.id, 'state': 'facturado'})
-    #
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'res_model': 'account.move',
-    #         'res_id': factura.id,
-    #         'view_mode': 'form',
-    #         'target': 'current',
-    #     }
-    #
-    # def _preparar_lineas_factura(self):
-    #     self.ensure_one()
-    #     lines = []
-    #
-    #     registros_empaques = self.registro_bultos_ids.filtered(
-    #         lambda r: r.proveedor_empaque == 'secadora' and r.cobrar_empaque
-    #     )
-    #
-    #     for registro in registros_empaques:
-    #         lines.append({
-    #             'product_id': registro.producto_empaque_id.id,
-    #             'quantity': registro.cantidad,
-    #             'price_unit': registro.precio_unitario_empaque,
-    #             'name': f'{registro.producto_empaque_id.name} - {registro.fecha}',
-    #         })
-    #
-    #     for servicio in self.linea_servicio_ids:
-    #         lines.append({
-    #             'product_id': servicio.producto_id.id,
-    #             'quantity': servicio.cantidad,
-    #             'price_unit': servicio.precio_unitario,
-    #             'name': servicio.descripcion or servicio.producto_id.name,
-    #         })
-    #
-    #     return lines
+    def action_generar_factura(self):
+        self.ensure_one()
+
+        if self.state not in ['listo_liquidar', 'liquidado']:
+            raise UserError('La orden debe estar en estado Listo para Liquidar o Liquidado.')
+
+        if self.factura_id:
+            raise UserError('Ya existe una factura generada para esta orden.')
+
+        lines = self._preparar_lineas_factura()
+        if not lines:
+            raise UserError('No hay líneas para facturar. Verifica servicios y/o empaques.')
+
+        factura = self.env['account.move'].create({
+            'move_type': 'out_invoice',
+            'partner_id': self.cliente_id.id,
+            'invoice_date': fields.Date.today(),
+            'invoice_origin': self.name,
+            'invoice_line_ids': [(0, 0, line) for line in lines],
+        })
+
+        self.write({'factura_id': factura.id, 'state': 'facturado'})
+
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'res_id': factura.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def _preparar_lineas_factura(self):
+        self.ensure_one()
+        lines = []
+
+        registros_empaques = self.registro_bultos_ids.filtered(
+            lambda r: r.proveedor_empaque == 'secadora' and r.cobrar_empaque and r.cantidad > 0
+        )
+
+        for registro in registros_empaques:
+            if not registro.producto_empaque_id:
+                continue
+            lines.append({
+                'product_id': registro.producto_empaque_id.id,
+                'quantity': registro.cantidad,
+                'price_unit': registro.precio_unitario_empaque,
+                'name': f'{registro.producto_empaque_id.name} - {registro.fecha}',
+            })
+
+        servicios_facturables = self.linea_servicio_ids.filtered(lambda s: s.cantidad > 0)
+        for servicio in servicios_facturables:
+            if not servicio.producto_id:
+                continue
+            lines.append({
+                'product_id': servicio.producto_id.id,
+                'quantity': servicio.cantidad,
+                'price_unit': servicio.precio_unitario,
+                'name': servicio.descripcion or servicio.producto_id.name,
+            })
+
+        return lines
 
     def action_cancelar(self):
         for record in self:
-            # TODO: Descomentar cuando se instale el módulo 'account'
-            # if record.state == 'facturado':
-            #     raise UserError('No se puede cancelar una orden facturada.')
+            if record.state == 'facturado':
+                raise UserError('No se puede cancelar una orden facturada.')
             record.state = 'cancelado'
 
-    # TODO: Descomentar cuando se instale el módulo 'account'
-    # def action_ver_factura(self):
-    #     self.ensure_one()
-    #     if not self.factura_id:
-    #         raise UserError('No hay factura generada para esta orden.')
-    #     return {
-    #         'type': 'ir.actions.act_window',
-    #         'res_model': 'account.move',
-    #         'res_id': self.factura_id.id,
-    #         'view_mode': 'form',
-    #         'target': 'current',
-    #     }
+    def action_ver_factura(self):
+        self.ensure_one()
+        if not self.factura_id:
+            raise UserError('No hay factura generada para esta orden.')
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'res_id': self.factura_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
