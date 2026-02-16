@@ -395,7 +395,19 @@ class OrdenServicio(models.Model):
             if tipo_default:
                 vals['tipo_servicio_id'] = tipo_default.id
 
-        return super(OrdenServicio, self).create(vals)
+        orden = super(OrdenServicio, self).create(vals)
+
+        orden.message_post(
+            body=(
+                f"<b>Orden de servicio creada</b><br/>"
+                f"Usuario: {self.env.user.display_name}<br/>"
+                f"Cliente: {orden.cliente_id.display_name or '-'}<br/>"
+                f"Tipo de servicio: {orden.tipo_servicio_id.display_name or '-'}"
+            ),
+            subtype_xmlid='mail.mt_note'
+        )
+
+        return orden
 
     def action_iniciar_proceso(self):
         for record in self:
@@ -566,6 +578,15 @@ class OrdenServicio(models.Model):
 
         pesaje = self.env['secadora.pesaje'].create(vals)
 
+        self.message_post(
+            body=(
+                f"<b>Pesaje de entrada creado</b><br/>"
+                f"Pesaje: {pesaje.name}<br/>"
+                f"Usuario: {self.env.user.display_name}"
+            ),
+            subtype_xmlid='mail.mt_note'
+        )
+
         # Abrir el pesaje creado
         return {
             'type': 'ir.actions.act_window',
@@ -590,6 +611,15 @@ class OrdenServicio(models.Model):
             vals['tipo_operacion_id'] = self.tipo_servicio_id.id
 
         pesaje = self.env['secadora.pesaje'].create(vals)
+
+        self.message_post(
+            body=(
+                f"<b>Pesaje de salida creado</b><br/>"
+                f"Pesaje: {pesaje.name}<br/>"
+                f"Usuario: {self.env.user.display_name}"
+            ),
+            subtype_xmlid='mail.mt_note'
+        )
 
         # Abrir el pesaje creado
         return {
@@ -638,6 +668,16 @@ class OrdenServicio(models.Model):
         })
 
         self.write({'factura_id': factura.id, 'state': 'facturado'})
+
+        self.message_post(
+            body=(
+                f"<b>Factura generada desde la orden</b><br/>"
+                f"Factura: {factura.name or factura.id}<br/>"
+                f"Usuario: {self.env.user.display_name}<br/>"
+                f"Total: {factura.amount_total:.2f}"
+            ),
+            subtype_xmlid='mail.mt_note'
+        )
 
         return {
             'type': 'ir.actions.act_window',
