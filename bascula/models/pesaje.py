@@ -190,7 +190,7 @@ class SecadoraPesaje(models.Model):
         digits=(12, 2)
     )
     plazo = fields.Char(string='Plazo')
-    observaciones = fields.Text(string='Observaciones')
+    observaciones = fields.Text(string='Observaciones', help='Notas internas adicionales del proceso de pesaje.')
 
     @api.model_create_multi
     def create(self, vals_list):
