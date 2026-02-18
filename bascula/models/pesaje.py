@@ -408,6 +408,13 @@ class SecadoraPesaje(models.Model):
             if not pesaje.exists():
                 return {'success': False, 'message': 'Pesaje no encontrado'}
 
+            # Guardar también como peso global para formularios nuevos (sin guardar)
+            self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso))
+            self.env['ir.config_parameter'].sudo().set_param(
+                'bascula.last_weight_timestamp',
+                fields.Datetime.now().isoformat()
+            )
+
             # Actualizar peso actual
             pesaje.sudo().write({'peso_actual': peso, 'escuchando_bascula': True})
 
@@ -453,6 +460,46 @@ class SecadoraPesaje(models.Model):
                 'success': False,
                 'message': 'No hay pesajes activos esperando pesaje'
             }
+
+    @api.model
+    def actualizar_peso_global_bascula(self, peso, api_key):
+        """Actualiza el peso global para formularios nuevos sin pesaje guardado."""
+        api_key_config = self.env['ir.config_parameter'].sudo().get_param('bascula.api_key', '')
+        if not api_key_config or api_key != api_key_config:
+            return {'success': False, 'message': 'API Key inválida'}
+
+        try:
+            peso_val = float(peso)
+            if peso_val < 0 or peso_val > 100000:
+                return {'success': False, 'message': 'Peso fuera de rango'}
+
+            self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso_val))
+            timestamp = fields.Datetime.now().isoformat()
+            self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight_timestamp', timestamp)
+            return {
+                'success': True,
+                'peso_actual': peso_val,
+                'timestamp': timestamp,
+                'message': 'Peso global actualizado'
+            }
+        except Exception as e:
+            return {'success': False, 'message': str(e)}
+
+    @api.model
+    def obtener_peso_actual_global_ui(self):
+        """Devuelve el último peso global para el widget en formularios nuevos."""
+        peso_str = self.env['ir.config_parameter'].sudo().get_param('bascula.last_weight', '0')
+        timestamp = self.env['ir.config_parameter'].sudo().get_param('bascula.last_weight_timestamp', False)
+        try:
+            peso_val = float(peso_str or 0)
+        except Exception:
+            peso_val = 0.0
+
+        return {
+            'success': True,
+            'peso_actual': peso_val,
+            'timestamp': timestamp,
+        }
 
     def action_refrescar_peso(self):
         """Refrescar el peso actual desde la base de datos"""

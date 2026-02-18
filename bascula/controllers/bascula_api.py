@@ -73,6 +73,36 @@ class BasculaAPI(http.Controller):
             _logger.error(f"Error obteniendo pesaje activo: {str(e)}")
             return {'success': False, 'message': str(e)}
 
+    @http.route('/api/bascula/actualizar_peso_global', type='json', auth='none', methods=['POST'], csrf=False)
+    def actualizar_peso_global(self, **kwargs):
+        """
+        Endpoint para actualizar el peso global (sin pesaje_id).
+
+        POST /api/bascula/actualizar_peso_global
+        Body: {
+            "peso": 28345.50,
+            "api_key": "tu_api_key_secreta"
+        }
+        """
+        try:
+            data = json.loads(request.httprequest.data.decode('utf-8'))
+            peso = data.get('peso')
+            api_key = data.get('api_key')
+
+            if not all([peso is not None, api_key]):
+                return {
+                    'success': False,
+                    'message': 'Parámetros faltantes: peso, api_key'
+                }
+
+            Pesaje = request.env['secadora.pesaje'].sudo()
+            result = Pesaje.actualizar_peso_global_bascula(peso, api_key)
+            return result
+
+        except Exception as e:
+            _logger.error(f"Error actualizando peso global: {str(e)}")
+            return {'success': False, 'message': str(e)}
+
     @http.route('/api/bascula/peso_actual_global', type='json', auth='public', methods=['POST'], csrf=False)
     def obtener_peso_actual_global(self, **kwargs):
         """
@@ -85,27 +115,8 @@ class BasculaAPI(http.Controller):
         Body: {} (no requiere parámetros)
         """
         try:
-            # Obtener el pesaje más reciente que tenga peso_actual
             Pesaje = request.env['secadora.pesaje'].sudo()
-            pesaje = Pesaje.search([
-                ('peso_actual', '>', 0),
-                ('state', 'in', ['borrador', 'en_transito'])
-            ], order='write_date desc', limit=1)
-
-            if pesaje:
-                return {
-                    'success': True,
-                    'peso_actual': pesaje.peso_actual,
-                    'timestamp': pesaje.write_date.isoformat() if pesaje.write_date else None,
-                    'pesaje_id': pesaje.id
-                }
-            else:
-                return {
-                    'success': True,
-                    'peso_actual': 0.0,
-                    'timestamp': None,
-                    'message': 'No hay peso disponible'
-                }
+            return Pesaje.obtener_peso_actual_global_ui()
 
         except Exception as e:
             _logger.error(f"Error obteniendo peso actual global: {str(e)}")

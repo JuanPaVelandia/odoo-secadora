@@ -60,17 +60,12 @@ class PesoActualField extends Component {
 
                 const result = await this.orm.call(
                     "secadora.pesaje",
-                    "search_read",
-                    [[['peso_actual', '>', 0], ['state', 'in', ['borrador', 'en_transito']]]],
-                    {
-                        fields: ['peso_actual'],
-                        order: 'write_date desc',
-                        limit: 1
-                    }
+                    "obtener_peso_actual_global_ui",
+                    []
                 );
 
-                if (result && result.length > 0) {
-                    nuevoPeso = result[0].peso_actual || 0.0;
+                if (result && result.success) {
+                    nuevoPeso = result.peso_actual || 0.0;
                     console.log("[PESO WIDGET] Peso global obtenido:", nuevoPeso);
                 } else {
                     console.log("[PESO WIDGET] No hay peso global disponible");

@@ -12,3 +12,14 @@ services:
       - ./logs:/app/logs
     working_dir: /app
     command: ["python", "/app/bascula_bridge.py"]
+
+  bascula-simulador:
+    build: .
+    container_name: bascula-simulador
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+    working_dir: /app
+    command: ["python", "/app/bascula_simulador.py"]

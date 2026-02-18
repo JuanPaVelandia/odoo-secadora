@@ -12,37 +12,72 @@ Fecha: 2026-02
 """
 
 import serial
+from serial.tools import list_ports
 import requests
 import time
 import re
 import logging
 import sys
+import os
+import xmlrpc.client
+import secrets
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ===== CONFIGURACIÓN =====
 # IMPORTANTE: Modifica estos valores según tu instalación
 
-# URL de tu instancia Odoo en CloudPepper
-ODOO_URL = "https://tu-instancia.cloudpepper.site"
+# URL de tu instancia Odoo
+ODOO_URL = os.getenv("BASCULA_ODOO_URL", "https://tu-instancia.cloudpepper.site").rstrip('/')
 
 # API Key (generar desde Odoo → Configuración → Báscula)
-API_KEY = "TU_API_KEY_AQUI"
+API_KEY = os.getenv("BASCULA_API_KEY", "TU_API_KEY_AQUI")
+ODOO_DB = os.getenv("BASCULA_ODOO_DB", "")
+ODOO_USER = os.getenv("BASCULA_ODOO_USER", "")
+ODOO_PASSWORD = os.getenv("BASCULA_ODOO_PASSWORD", "")
 
-# Puerto serial de la báscula (ver en Administrador de Dispositivos de Windows)
-PUERTO_SERIAL = "COM3"  # Cambiar según tu PC (COM1, COM2, COM3, etc.)
+# Puerto serial de la báscula (Windows: COM3, Linux: /dev/ttyUSB0)
+# Usa "auto" para autodetección
+PUERTO_SERIAL = os.getenv("BASCULA_PUERTO_SERIAL", "auto")
 
 # Configuración serial para Prometálicos
-BAUDRATE = 9600
-DATA_BITS = 8
-PARITY = 'N'  # None
-STOP_BITS = 1
-TIMEOUT = 1
+BAUDRATE = int(os.getenv("BASCULA_BAUDRATE", "9600"))
+DATA_BITS = int(os.getenv("BASCULA_DATA_BITS", "8"))
+PARITY = os.getenv("BASCULA_PARITY", "N").upper()
+STOP_BITS = float(os.getenv("BASCULA_STOP_BITS", "1"))
+TIMEOUT = float(os.getenv("BASCULA_TIMEOUT", "1"))
+
+DATA_BITS_MAP = {
+    5: serial.FIVEBITS,
+    6: serial.SIXBITS,
+    7: serial.SEVENBITS,
+    8: serial.EIGHTBITS,
+}
+
+PARITY_MAP = {
+    'N': serial.PARITY_NONE,
+    'E': serial.PARITY_EVEN,
+    'O': serial.PARITY_ODD,
+    'M': serial.PARITY_MARK,
+    'S': serial.PARITY_SPACE,
+}
+
+STOP_BITS_MAP = {
+    1.0: serial.STOPBITS_ONE,
+    1.5: serial.STOPBITS_ONE_POINT_FIVE,
+    2.0: serial.STOPBITS_TWO,
+}
 
 # Intervalo de lectura (en segundos)
-INTERVALO_LECTURA = 0.5  # Leer cada 500ms
+INTERVALO_LECTURA = float(os.getenv("BASCULA_INTERVALO_LECTURA", "0.5"))  # Leer cada 500ms
 
 # Nivel de logging
-LOG_LEVEL = logging.INFO  # Cambiar a DEBUG para más detalles
+log_level_name = os.getenv("BASCULA_LOG_LEVEL", "INFO").upper()
+LOG_LEVEL = getattr(logging, log_level_name, logging.INFO)
+LOG_FILE = os.getenv("BASCULA_LOG_FILE", "logs/bascula_bridge.log")
+os.makedirs(os.path.dirname(LOG_FILE) or '.', exist_ok=True)
 
 # ===== FIN CONFIGURACIÓN =====
 
@@ -51,7 +86,7 @@ logging.basicConfig(
     level=LOG_LEVEL,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('bascula_bridge.log'),
+        logging.FileHandler(LOG_FILE),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -65,18 +100,98 @@ class BasculaBridge:
         self.serial_conn = None
         self.pesaje_activo = None
         self.ultimo_peso = None
+        self.ultimo_peso_global = None
         self.conectado = False
+        self.api_key = API_KEY
+        self.puerto_serial = PUERTO_SERIAL
+
+    def _es_puerto_candidato(self, port_info):
+        texto = f"{port_info.device} {port_info.description} {port_info.hwid}".lower()
+        patrones = [
+            'usb', 'serial', 'ch340', 'cp210', 'ftdi', 'prolific',
+            'ttyusb', 'ttyacm', 'com'
+        ]
+        return any(p in texto for p in patrones)
+
+    def _detectar_puerto_bascula(self):
+        """Retorna el puerto serial a usar. Si está en modo auto, intenta detectar."""
+        if self.puerto_serial and self.puerto_serial.lower() not in ('auto', 'autodetect', 'detect'):
+            return self.puerto_serial
+
+        puertos = list(list_ports.comports())
+        if not puertos:
+            return None
+
+        # Priorizar puertos típicos de convertidores serial USB
+        candidatos = [p for p in puertos if self._es_puerto_candidato(p)]
+        if not candidatos:
+            candidatos = puertos
+
+        elegido = candidatos[0].device
+        logger.info(f"🔎 Puerto detectado automáticamente: {elegido}")
+        return elegido
+
+    def _tiene_credenciales(self):
+        return all([ODOO_DB, ODOO_USER, ODOO_PASSWORD])
+
+    def _obtener_api_key_desde_credenciales(self):
+        """Obtiene (o crea) la API key de báscula desde Odoo usando credenciales."""
+        try:
+            common = xmlrpc.client.ServerProxy(f"{ODOO_URL}/xmlrpc/2/common")
+            uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_PASSWORD, {})
+            if not uid:
+                logger.error("❌ No se pudo autenticar en Odoo con las credenciales suministradas")
+                return None
+
+            models = xmlrpc.client.ServerProxy(f"{ODOO_URL}/xmlrpc/2/object")
+            api_key = models.execute_kw(
+                ODOO_DB,
+                uid,
+                ODOO_PASSWORD,
+                'ir.config_parameter',
+                'get_param',
+                ['bascula.api_key', '']
+            )
+
+            if api_key:
+                logger.info("✅ API key obtenida desde Odoo con credenciales")
+                return api_key
+
+            nueva_api_key = secrets.token_urlsafe(32)
+            models.execute_kw(
+                ODOO_DB,
+                uid,
+                ODOO_PASSWORD,
+                'ir.config_parameter',
+                'set_param',
+                ['bascula.api_key', nueva_api_key]
+            )
+            logger.info("✅ Se creó automáticamente 'bascula.api_key' en Odoo")
+            return nueva_api_key
+        except Exception as e:
+            logger.error(f"❌ No se pudo obtener API key desde credenciales: {e}")
+            return None
 
     def conectar_bascula(self):
         """Conecta al puerto serial de la báscula"""
         try:
-            logger.info(f"Conectando a báscula en puerto {PUERTO_SERIAL}...")
+            puerto = self._detectar_puerto_bascula()
+            if not puerto:
+                logger.error("❌ No se encontró ningún puerto serial. Configura BASCULA_PUERTO_SERIAL en .env")
+                return False
+
+            self.puerto_serial = puerto
+            logger.info(f"Conectando a báscula en puerto {self.puerto_serial}...")
+            bytesize = DATA_BITS_MAP.get(DATA_BITS, serial.EIGHTBITS)
+            parity = PARITY_MAP.get(PARITY, serial.PARITY_NONE)
+            stopbits = STOP_BITS_MAP.get(STOP_BITS, serial.STOPBITS_ONE)
+
             self.serial_conn = serial.Serial(
-                port=PUERTO_SERIAL,
+                port=self.puerto_serial,
                 baudrate=BAUDRATE,
-                bytesize=DATA_BITS,
-                parity=PARITY,
-                stopbits=STOP_BITS,
+                bytesize=bytesize,
+                parity=parity,
+                stopbits=stopbits,
                 timeout=TIMEOUT
             )
             self.conectado = True
@@ -85,7 +200,7 @@ class BasculaBridge:
         except serial.SerialException as e:
             logger.error(f"❌ Error conectando a báscula: {e}")
             logger.error("Verifica que:")
-            logger.error("  - El puerto COM es correcto (ver Administrador de Dispositivos)")
+            logger.error("  - El puerto COM es correcto (o usa BASCULA_PUERTO_SERIAL=auto)")
             logger.error("  - La báscula está encendida")
             logger.error("  - El cable está conectado")
             return False
@@ -132,7 +247,7 @@ class BasculaBridge:
         """Obtiene el ID del pesaje activo desde Odoo"""
         try:
             url = f"{ODOO_URL}/api/bascula/pesaje_activo"
-            payload = {"api_key": API_KEY}
+            payload = {"api_key": self.api_key}
 
             response = requests.post(
                 url,
@@ -172,7 +287,7 @@ class BasculaBridge:
             payload = {
                 "pesaje_id": pesaje_id,
                 "peso": peso,
-                "api_key": API_KEY
+                "api_key": self.api_key
             }
 
             response = requests.post(
@@ -197,12 +312,43 @@ class BasculaBridge:
             logger.error(f"❌ Error enviando peso: {e}")
             return False
 
+    def enviar_peso_global_odoo(self, peso):
+        """Envía el peso global a Odoo para formularios nuevos sin guardar."""
+        try:
+            url = f"{ODOO_URL}/api/bascula/actualizar_peso_global"
+            payload = {
+                "peso": peso,
+                "api_key": self.api_key
+            }
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers={'Content-Type': 'application/json'},
+                timeout=3
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                return bool(data.get('success'))
+
+            return False
+        except Exception:
+            return False
+
     def verificar_configuracion(self):
         """Verifica que la configuración esté completa"""
         errores = []
 
-        if "TU_API_KEY_AQUI" in API_KEY:
-            errores.append("⚠️  Debes configurar el API_KEY en el script")
+        if (not self.api_key) or ("TU_API_KEY_AQUI" in self.api_key):
+            if self._tiene_credenciales():
+                api_key_obtenida = self._obtener_api_key_desde_credenciales()
+                if api_key_obtenida:
+                    self.api_key = api_key_obtenida
+                else:
+                    errores.append("⚠️  No fue posible obtener API_KEY usando credenciales")
+            else:
+                errores.append("⚠️  Configura BASCULA_API_KEY o credenciales Odoo (DB/usuario/contraseña)")
 
         if "tu-instancia.cloudpepper.site" in ODOO_URL:
             errores.append("⚠️  Debes configurar el ODOO_URL en el script")
@@ -211,10 +357,10 @@ class BasculaBridge:
             logger.error("❌ CONFIGURACIÓN INCOMPLETA:")
             for error in errores:
                 logger.error(f"   {error}")
-            logger.error("\n👉 Edita el archivo bascula_bridge.py y configura:")
-            logger.error("   - ODOO_URL: URL de tu Odoo en CloudPepper")
-            logger.error("   - API_KEY: Genera una en Odoo → Configuración → Báscula")
-            logger.error("   - PUERTO_SERIAL: Puerto COM de tu báscula\n")
+            logger.error("\n👉 Revisa el archivo .env y configura:")
+            logger.error("   - BASCULA_ODOO_URL")
+            logger.error("   - BASCULA_API_KEY o credenciales Odoo")
+            logger.error("   - BASCULA_PUERTO_SERIAL\n")
             return False
 
         return True
@@ -225,7 +371,7 @@ class BasculaBridge:
         logger.info("🔌 BRIDGE BÁSCULA PROMETÁLICOS → ODOO CLOUDPEPPER")
         logger.info("=" * 60)
         logger.info(f"Odoo URL: {ODOO_URL}")
-        logger.info(f"Puerto Serial: {PUERTO_SERIAL}")
+        logger.info(f"Puerto Serial (config): {PUERTO_SERIAL}")
         logger.info(f"Intervalo: {INTERVALO_LECTURA}s")
         logger.info("=" * 60)
 
@@ -254,9 +400,13 @@ class BasculaBridge:
                             logger.info(f"\n🎯 Nuevo pesaje activo: {self.pesaje_activo}")
 
                 # Leer peso de báscula
-                if self.pesaje_activo:
-                    peso = self.leer_peso()
+                peso = self.leer_peso()
 
+                if peso is not None and peso != self.ultimo_peso_global:
+                    self.enviar_peso_global_odoo(peso)
+                    self.ultimo_peso_global = peso
+
+                if self.pesaje_activo and peso is not None:
                     if peso is not None and peso != self.ultimo_peso:
                         logger.info(f"⚖️  Peso leído: {peso:.2f} kg")
 

@@ -19,40 +19,54 @@ import time
 import logging
 import sys
 import random
+import os
+import secrets
+import xmlrpc.client
 from datetime import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ===== CONFIGURACIÓN =====
 # IMPORTANTE: Modifica estos valores según tu instalación
 
-# URL de tu instancia Odoo en CloudPepper
-ODOO_URL = "https://223ivyj1eb1.cloudpepper.site"
+# URL de tu instancia Odoo
+ODOO_URL = os.getenv("BASCULA_ODOO_URL", "https://tu-instancia.cloudpepper.site").rstrip('/')
 
 # API Key (generar desde Odoo → Configuración → Báscula)
-API_KEY = "iSwm4bN-4VnFyWaY8HAj7Bxh_EP2zpthZgodO9N3gGQ"
+API_KEY = os.getenv("BASCULA_API_KEY", "TU_API_KEY_AQUI")
+ODOO_DB = os.getenv("BASCULA_ODOO_DB", "")
+ODOO_USER = os.getenv("BASCULA_ODOO_USER", "")
+ODOO_PASSWORD = os.getenv("BASCULA_ODOO_PASSWORD", "")
 
 # Peso base a simular (kg)
-PESO_BASE_MIN = 5000   # Peso mínimo (5 toneladas)
-PESO_BASE_MAX = 35000  # Peso máximo (35 toneladas)
+PESO_BASE_MIN = float(os.getenv("BASCULA_SIM_PESO_BASE_MIN", "5000"))   # Peso mínimo (5 toneladas)
+PESO_BASE_MAX = float(os.getenv("BASCULA_SIM_PESO_BASE_MAX", "35000"))  # Peso máximo (35 toneladas)
 
 # Variación del peso (simula vibración de báscula)
-VARIACION_PESO = 10  # +/- 10 kg
+VARIACION_PESO = float(os.getenv("BASCULA_SIM_VARIACION_PESO", "10"))  # +/- 10 kg
 
 # Intervalo de actualización (en segundos)
-INTERVALO_ACTUALIZACION = 1  # Actualizar cada 1 segundo
+INTERVALO_ACTUALIZACION = float(os.getenv("BASCULA_SIM_INTERVALO", "1"))  # Actualizar cada 1 segundo
 
 # Modo de simulación: "aleatorio", "fijo" o "manual"
 # manual = escribir el peso desde la terminal
-MODO_SIMULACION = "aleatorio"
-PESO_FIJO = 28345.50  # Si modo = "fijo", usar este peso
+MODO_SIMULACION = os.getenv("BASCULA_SIM_MODO", "aleatorio").lower()
+PESO_FIJO = float(os.getenv("BASCULA_SIM_PESO_FIJO", "28345.50"))  # Si modo = "fijo", usar este peso
+
+log_level_name = os.getenv("BASCULA_LOG_LEVEL", "INFO").upper()
+LOG_LEVEL = getattr(logging, log_level_name, logging.INFO)
+LOG_FILE = os.getenv("BASCULA_SIM_LOG_FILE", "logs/bascula_simulador.log")
+os.makedirs(os.path.dirname(LOG_FILE) or '.', exist_ok=True)
 
 # ===== FIN CONFIGURACIÓN =====
 
 # Configurar logging (con encoding UTF-8 para Windows)
 logging.basicConfig(
-    level=logging.DEBUG,  # Cambiado a DEBUG para ver más detalles
+    level=LOG_LEVEL,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('bascula_simulador.log', encoding='utf-8'),
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -71,6 +85,49 @@ class BasculaSimulador:
         self.pesaje_activo = None
         self.peso_actual = None
         self.peso_base = None
+        self.api_key = API_KEY
+        self.ultimo_peso_global = None
+
+    def _tiene_credenciales(self):
+        return all([ODOO_DB, ODOO_USER, ODOO_PASSWORD])
+
+    def _obtener_api_key_desde_credenciales(self):
+        """Obtiene la API key guardada en Odoo usando credenciales admin."""
+        try:
+            common = xmlrpc.client.ServerProxy(f"{ODOO_URL}/xmlrpc/2/common")
+            uid = common.authenticate(ODOO_DB, ODOO_USER, ODOO_PASSWORD, {})
+            if not uid:
+                logger.error("[ERROR] No se pudo autenticar en Odoo con las credenciales suministradas")
+                return None
+
+            models = xmlrpc.client.ServerProxy(f"{ODOO_URL}/xmlrpc/2/object")
+            api_key = models.execute_kw(
+                ODOO_DB,
+                uid,
+                ODOO_PASSWORD,
+                'ir.config_parameter',
+                'get_param',
+                ['bascula.api_key', '']
+            )
+
+            if api_key:
+                logger.info("[OK] API key obtenida desde Odoo con credenciales")
+                return api_key
+
+            nueva_api_key = secrets.token_urlsafe(32)
+            models.execute_kw(
+                ODOO_DB,
+                uid,
+                ODOO_PASSWORD,
+                'ir.config_parameter',
+                'set_param',
+                ['bascula.api_key', nueva_api_key]
+            )
+            logger.info("[OK] Se creó automáticamente 'bascula.api_key' en Odoo")
+            return nueva_api_key
+        except Exception as e:
+            logger.error(f"[ERROR] No se pudo obtener API key desde credenciales: {e}")
+            return None
 
     def generar_peso(self):
         """Genera un peso simulado"""
@@ -95,7 +152,7 @@ class BasculaSimulador:
         """Obtiene el ID del pesaje activo desde Odoo"""
         try:
             url = f"{ODOO_URL}/api/bascula/pesaje_activo"
-            payload = {"api_key": API_KEY}
+            payload = {"api_key": self.api_key}
 
             logger.debug(f"[DEBUG] Consultando: {url}")
             logger.debug(f"[DEBUG] Payload: {payload}")
@@ -149,7 +206,7 @@ class BasculaSimulador:
             payload = {
                 "pesaje_id": pesaje_id,
                 "peso": peso,
-                "api_key": API_KEY
+                "api_key": self.api_key
             }
 
             response = requests.post(
@@ -178,12 +235,43 @@ class BasculaSimulador:
             logger.error(f"[ERROR] Error enviando peso: {e}")
             return False
 
+    def enviar_peso_global_odoo(self, peso):
+        """Envía el peso global a Odoo para formularios nuevos sin guardar."""
+        try:
+            url = f"{ODOO_URL}/api/bascula/actualizar_peso_global"
+            payload = {
+                "peso": peso,
+                "api_key": self.api_key
+            }
+
+            response = requests.post(
+                url,
+                json=payload,
+                headers={'Content-Type': 'application/json'},
+                timeout=3
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                result = data.get('result', data)
+                return bool(result.get('success'))
+            return False
+        except Exception:
+            return False
+
     def verificar_configuracion(self):
         """Verifica que la configuración esté completa"""
         errores = []
 
-        if "TU_API_KEY_AQUI" in API_KEY:
-            errores.append("[ADVERTENCIA] Debes configurar el API_KEY en el script")
+        if (not self.api_key) or ("TU_API_KEY_AQUI" in self.api_key):
+            if self._tiene_credenciales():
+                api_key_obtenida = self._obtener_api_key_desde_credenciales()
+                if api_key_obtenida:
+                    self.api_key = api_key_obtenida
+                else:
+                    errores.append("[ADVERTENCIA] No fue posible obtener API_KEY usando credenciales")
+            else:
+                errores.append("[ADVERTENCIA] Configura BASCULA_API_KEY o credenciales Odoo (DB/usuario/contraseña)")
 
         if "tu-instancia.cloudpepper.site" in ODOO_URL:
             errores.append("[ADVERTENCIA] Debes configurar el ODOO_URL en el script")
@@ -194,7 +282,7 @@ class BasculaSimulador:
                 logger.error(f"   {error}")
             logger.error("\n[INSTRUCCIONES] Edita el archivo bascula_simulador.py y configura:")
             logger.error("   - ODOO_URL: URL de tu Odoo en CloudPepper")
-            logger.error("   - API_KEY: Genera una en Odoo -> Configuracion -> Bascula\n")
+            logger.error("   - API_KEY o credenciales Odoo (BASCULA_ODOO_DB, BASCULA_ODOO_USER, BASCULA_ODOO_PASSWORD)\n")
             return False
 
         return True
@@ -242,8 +330,13 @@ class BasculaSimulador:
                             self.peso_base = None
 
                 # Generar y enviar peso
+                peso = self.generar_peso()
+
+                if peso is not None and peso != self.ultimo_peso_global:
+                    self.enviar_peso_global_odoo(peso)
+                    self.ultimo_peso_global = peso
+
                 if self.pesaje_activo:
-                    peso = self.generar_peso()
 
                     # Mostrar con indicadores de variación
                     if self.peso_actual:
