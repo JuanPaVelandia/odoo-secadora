@@ -3,6 +3,7 @@
 ## Odoo 18 - Errores comunes a evitar
 - Las vistas de lista se llaman `list`, NUNCA `tree`. Ejemplo: `<list>`, no `<tree>`
 - NUNCA usar `@string` como selector xpath — usar `@name` o navegar via `//field[@name='...']`
+- NUNCA usar `ancestor::` en xpath de herencia de vistas — no es soportado. Usar selectores directos como `//notebook`, `//div[@name='...']`, `//field[@name='...']`
 - XMLIDs de ubicaciones de stock:
   - Virtual Locations parent: `stock.stock_location_locations_virtual` (NO `stock.stock_location_virtual`)
   - Physical Locations parent: `stock.stock_location_locations`

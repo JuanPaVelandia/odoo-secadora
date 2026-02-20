@@ -287,7 +287,7 @@
                             </div>
 
                             <!-- Total General -->
-                            <div t-if="o.total_a_facturar > 0" style="margin-bottom: 20px; border: 3px solid #000; padding: 15px; background-color: #f9f9f9;">
+                            <div t-if="o.total_a_facturar > 0 or o.descuento_monto > 0" style="margin-bottom: 20px; border: 3px solid #000; padding: 15px; background-color: #f9f9f9;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <tr t-if="o.subtotal_servicios > 0">
                                         <td style="padding: 8px; font-size: 14px;"><strong>Subtotal Servicios:</strong></td>
@@ -299,6 +299,17 @@
                                         <td style="padding: 8px; font-size: 14px;"><strong>Subtotal Empaques:</strong></td>
                                         <td style="padding: 8px; text-align: right; font-size: 14px;">
                                             <strong>$<span t-field="o.subtotal_empaques" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.descuento_monto > 0">
+                                        <td style="padding: 8px; font-size: 14px;">
+                                            <strong>Descuento:</strong>
+                                            <span t-if="o.descuento_motivo" style="font-size: 11px; color: #666;">
+                                                (<span t-field="o.descuento_motivo"/>)
+                                            </span>
+                                        </td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px; color: #c00;">
+                                            <strong>- $<span t-field="o.descuento_monto" t-options='{"widget": "float", "precision": 0}'/></strong>
                                         </td>
                                     </tr>
                                     <tr style="border-top: 3px solid #000;">

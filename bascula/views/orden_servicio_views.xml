@@ -168,6 +168,18 @@
                                     <field name="merma_real_porcentaje" readonly="1"/>
                                 </group>
                             </group>
+                            <group string="Descuento">
+                                <group>
+                                    <field name="descuento_monto" readonly="state == 'facturado'"/>
+                                    <field name="descuento_motivo" readonly="state == 'facturado'"/>
+                                </group>
+                            </group>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="subtotal_servicios" readonly="1"/>
+                                <field name="subtotal_empaques" readonly="1"/>
+                                <field name="descuento_monto" string="Descuento (-)" readonly="1"/>
+                                <field name="total_a_facturar" class="oe_subtotal_footer_separator"/>
+                            </group>
                         </page>
                     </notebook>
                 </sheet>

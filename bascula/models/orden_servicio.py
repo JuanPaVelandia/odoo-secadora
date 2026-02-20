@@ -225,7 +225,23 @@ class OrdenServicio(models.Model):
         compute='_compute_total_a_facturar',
         store=True,
         digits='Product Price',
-        help='Total general: servicios + empaques'
+        help='Total general: servicios + empaques - descuento'
+    )
+
+    # ==================== DESCUENTO ====================
+
+    descuento_monto = fields.Float(
+        string='Descuento ($)',
+        digits='Product Price',
+        default=0.0,
+        tracking=True,
+        help='Monto de descuento al cliente'
+    )
+
+    descuento_motivo = fields.Text(
+        string='Motivo del Descuento',
+        tracking=True,
+        help='Razón del descuento aplicado'
     )
 
     # ==================== SERVICIOS RÁPIDOS ====================
@@ -372,11 +388,11 @@ class OrdenServicio(models.Model):
         for record in self:
             record.subtotal_servicios = sum(record.linea_servicio_ids.mapped('subtotal'))
 
-    @api.depends('subtotal_servicios', 'subtotal_empaques')
+    @api.depends('subtotal_servicios', 'subtotal_empaques', 'descuento_monto')
     def _compute_total_a_facturar(self):
-        """Calcular total general: servicios + empaques"""
+        """Calcular total general: servicios + empaques - descuento"""
         for record in self:
-            record.total_a_facturar = record.subtotal_servicios + record.subtotal_empaques
+            record.total_a_facturar = record.subtotal_servicios + record.subtotal_empaques - record.descuento_monto
 
     # ==================== MÉTODOS ====================
 
