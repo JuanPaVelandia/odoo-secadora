@@ -26,7 +26,7 @@
         <record id="stock_location_merma_secado" model="stock.location">
             <field name="name">Merma Secado</field>
             <field name="usage">inventory</field>
-            <field name="location_id" ref="stock.stock_location_virtual"/>
+            <field name="location_id" ref="stock.stock_location_locations_virtual"/>
             <field name="comment">Merma generada durante el proceso de secamiento de arroz</field>
         </record>
 
