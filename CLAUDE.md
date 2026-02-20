@@ -2,7 +2,15 @@
 
 ## Odoo 18 - Errores comunes a evitar
 - Las vistas de lista se llaman `list`, NUNCA `tree`. Ejemplo: `<list>`, no `<tree>`
-- (Se iran agregando mas reglas conforme el usuario las identifique)
+- NUNCA usar `@string` como selector xpath — usar `@name` o navegar via `//field[@name='...']`
+- XMLIDs de ubicaciones de stock:
+  - Virtual Locations parent: `stock.stock_location_locations_virtual` (NO `stock.stock_location_virtual`)
+  - Physical Locations parent: `stock.stock_location_locations`
+  - Production: `stock.stock_location_production`
+  - Suppliers: `stock.stock_location_suppliers`
+  - Customers: `stock.stock_location_customers`
+  - WH/Stock: `stock.stock_location_stock`
+  - Inventory loss: se crea dinamicamente por compania (no tiene xmlid estatico)
 
 ## Convenciones del proyecto
 - Timezone: America/Bogota (Colombia)
