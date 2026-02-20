@@ -31,6 +31,14 @@
                                 </div>
                             </setting>
                         </block>
+                        <block title="Transformación de Inventario">
+                            <setting help="Factor para calcular cuánto Verde se consume al vender Seco en operaciones propias (compra/venta). Ejemplo: 1.18 significa que 8,500 kg Seco requirieron 10,030 kg Verde.">
+                                <label for="factor_conversion_verde_seco" string="Factor Conversión Verde → Seco"/>
+                                <div>
+                                    <field name="factor_conversion_verde_seco" class="oe_inline"/>
+                                </div>
+                            </setting>
+                        </block>
                     </app>
                 </xpath>
             </field>

@@ -22,6 +22,14 @@
             <field name="comment">Arroz de clientes en proceso de prelimpieza (usar owner_id para identificar propietario)</field>
         </record>
 
+        <!-- Ubicación: Merma Secado (hija de Virtual Locations) -->
+        <record id="stock_location_merma_secado" model="stock.location">
+            <field name="name">Merma Secado</field>
+            <field name="usage">inventory</field>
+            <field name="location_id" ref="stock.stock_location_virtual"/>
+            <field name="comment">Merma generada durante el proceso de secamiento de arroz</field>
+        </record>
+
         <!-- Nota: Los picking types se crean via post_init_hook
              para compatibilidad con constraints SQL de modulos instalados -->
 

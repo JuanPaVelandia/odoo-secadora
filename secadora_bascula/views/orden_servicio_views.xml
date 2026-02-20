@@ -1,19 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Herencia: Smart button de pickings en formulario de orden de servicio -->
+    <!-- Herencia: Smart buttons y pestaña de inventario en formulario de orden de servicio -->
     <record id="view_orden_servicio_form_inherit_stock" model="ir.ui.view">
         <field name="name">secadora.orden.servicio.form.inherit.stock</field>
         <field name="model">secadora.orden.servicio</field>
         <field name="inherit_id" ref="bascula.view_orden_servicio_form"/>
         <field name="arch" type="xml">
-            <!-- Agregar smart button de pickings en button_box -->
+            <!-- Smart buttons de inventario en button_box -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_ver_pickings" type="object"
                         class="oe_stat_button" icon="fa-cubes"
                         invisible="picking_count == 0">
                     <field name="picking_count" widget="statinfo" string="Inventario"/>
                 </button>
+                <button name="action_ver_merma" type="object"
+                        class="oe_stat_button" icon="fa-fire"
+                        invisible="not merma_inventario_registrada">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Ver</span>
+                        <span class="o_stat_text">Merma Inv.</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Pestaña de Inventario/Transformación (después de la página que contiene total_a_facturar) -->
+            <xpath expr="//field[@name='total_a_facturar']/ancestor::page" position="after">
+                <page string="Inventario" invisible="not merma_inventario_registrada">
+                    <group>
+                        <group>
+                            <field name="merma_inventario_registrada" readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Movimientos de Transformacion e Inventario">
+                        <field name="transformacion_move_ids" nolabel="1" readonly="1">
+                            <list>
+                                <field name="name"/>
+                                <field name="product_id"/>
+                                <field name="x_tipo_movimiento_secadora"/>
+                                <field name="product_uom_qty" string="Cantidad (kg)"/>
+                                <field name="location_id"/>
+                                <field name="location_dest_id"/>
+                                <field name="state" widget="badge"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
             </xpath>
         </field>
     </record>

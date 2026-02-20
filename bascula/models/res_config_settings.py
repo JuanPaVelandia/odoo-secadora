@@ -13,6 +13,14 @@ class ResConfigSettings(models.TransientModel):
         help='Clave secreta para autenticación del bridge de báscula'
     )
 
+    factor_conversion_verde_seco = fields.Float(
+        string='Factor de Conversión Verde → Seco',
+        config_parameter='bascula.factor_conversion_verde_seco',
+        default=1.18,
+        help='Por cada 1 kg de Seco producido, se necesitan X kg de Verde. '
+             'Ejemplo: 1.18 significa que 1 kg Seco requiere 1.18 kg Verde.'
+    )
+
     def action_generate_bascula_api_key(self):
         """Genera una API Key aleatoria segura"""
         # Generar token aleatorio de 32 caracteres

@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from odoo import models, fields, api
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class SecadoraPesajeStock(models.Model):
@@ -165,20 +168,27 @@ class SecadoraPesajeStock(models.Model):
 
         self.picking_id = picking.id
 
+        # Para VENTA de Seco, crear movimientos de transformación Verde→Seco
+        if tipo.tipo_inventario == 'salida':
+            self._crear_transformacion_venta()
+
     def _crear_picking_servicio(self):
-        """Crea picking para operaciones de SERVICIO con owner_id = cliente"""
+        """Crea picking para operaciones de SERVICIO con owner_id = cliente.
+        Solo crea picking para ENTRADA. La salida se maneja en la orden de servicio
+        al pasar a 'Listo para Liquidar' con movimientos de transformación.
+        """
         self.ensure_one()
 
         if self.picking_id:
             return
 
-        # Asignar producto automaticamente segun direccion
-        if self.direccion == 'entrada':
-            producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Verde')
-            picking_type = self._get_picking_type('ENT-SRV')
-        else:
-            producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Seco')
-            picking_type = self._get_picking_type('SAL-SRV')
+        # No crear picking para salida de servicio - se maneja en la orden
+        if self.direccion == 'salida':
+            return
+
+        # Solo entrada de servicio
+        producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Verde')
+        picking_type = self._get_picking_type('ENT-SRV')
 
         if not producto:
             raise UserError(
@@ -219,6 +229,108 @@ class SecadoraPesajeStock(models.Model):
         for move in picking.move_ids:
             move.quantity = move.product_uom_qty
         picking.button_validate()
+
+    def _crear_transformacion_venta(self):
+        """Crea movimientos de transformación Verde→Seco para operaciones propias (VENTA).
+
+        Solo se dispara si el producto vendido es 'Arroz Paddy Seco'.
+        Usa el factor de conversión configurable para calcular cuánto Verde se consumió.
+
+        Genera 3 stock.moves:
+          1. Consumo: Verde X kg  WH/Stock → Virtual/Production
+          2. Producción: Seco Y kg  Virtual/Production → WH/Stock
+          3. Merma: Verde (X-Y) kg  WH/Stock → Merma Secado
+        """
+        self.ensure_one()
+
+        producto_seco = self._get_producto_servicio('Arroz Paddy Seco')
+        if not producto_seco or self.producto_id != producto_seco:
+            return
+
+        producto_verde = self._get_producto_servicio('Arroz Paddy Verde')
+        if not producto_verde:
+            _logger.warning('Pesaje %s: No se encontro producto Arroz Paddy Verde para transformacion', self.name)
+            return
+
+        # Obtener factor de conversión
+        factor = float(self.env['ir.config_parameter'].sudo().get_param(
+            'bascula.factor_conversion_verde_seco', '1.18'
+        ))
+
+        peso_seco = self.peso_neto
+        peso_verde_consumido = peso_seco * factor
+        merma = peso_verde_consumido - peso_seco
+
+        # Ubicaciones
+        loc_stock = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
+        loc_production = self.env.ref('stock.stock_location_production', raise_if_not_found=False)
+        loc_merma = self.env.ref('secadora_bascula.stock_location_merma_secado', raise_if_not_found=False)
+
+        if not loc_stock or not loc_production or not loc_merma:
+            _logger.warning('Pesaje %s: Ubicaciones faltantes para transformacion de venta', self.name)
+            return
+
+        # Verificar disponibilidad de Verde en Stock (advertencia, no bloquear)
+        quant_verde = self.env['stock.quant'].search([
+            ('product_id', '=', producto_verde.id),
+            ('location_id', '=', loc_stock.id),
+            ('owner_id', '=', False),
+        ])
+        verde_disponible = sum(quant_verde.mapped('quantity'))
+        if verde_disponible < peso_verde_consumido:
+            _logger.warning(
+                'Pesaje %s: Stock insuficiente de Verde. Disponible: %.2f kg, Requerido: %.2f kg. '
+                'Se procedera de todas formas.',
+                self.name, verde_disponible, peso_verde_consumido
+            )
+
+        uom_kg = producto_verde.uom_id
+
+        move_vals = []
+
+        # Move 1: Consumo Verde (Stock → Production)
+        move_vals.append({
+            'name': f'Consumo Verde - {self.name}',
+            'product_id': producto_verde.id,
+            'product_uom_qty': peso_verde_consumido,
+            'product_uom': uom_kg.id,
+            'location_id': loc_stock.id,
+            'location_dest_id': loc_production.id,
+            'x_pesaje_id': self.id,
+            'x_tipo_movimiento_secadora': 'transformacion_consumo',
+        })
+
+        # Move 2: Producción Seco (Production → Stock)
+        move_vals.append({
+            'name': f'Produccion Seco - {self.name}',
+            'product_id': producto_seco.id,
+            'product_uom_qty': peso_seco,
+            'product_uom': producto_seco.uom_id.id,
+            'location_id': loc_production.id,
+            'location_dest_id': loc_stock.id,
+            'x_pesaje_id': self.id,
+            'x_tipo_movimiento_secadora': 'transformacion_produccion',
+        })
+
+        # Move 3: Merma (Stock → Merma Secado) - solo si hay merma positiva
+        if merma > 0:
+            move_vals.append({
+                'name': f'Merma Secado - {self.name}',
+                'product_id': producto_verde.id,
+                'product_uom_qty': merma,
+                'product_uom': uom_kg.id,
+                'location_id': loc_stock.id,
+                'location_dest_id': loc_merma.id,
+                'x_pesaje_id': self.id,
+                'x_tipo_movimiento_secadora': 'merma',
+            })
+
+        for vals in move_vals:
+            move = self.env['stock.move'].create(vals)
+            move._action_confirm()
+            move.quantity = move.product_uom_qty
+            move.picked = True
+            move._action_done()
 
     def action_ver_picking(self):
         """Abre el picking vinculado"""
