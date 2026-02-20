@@ -24,8 +24,8 @@
                 </button>
             </xpath>
 
-            <!-- Pestaña de Inventario/Transformación (después de la página que contiene total_a_facturar) -->
-            <xpath expr="//field[@name='total_a_facturar']/ancestor::page" position="after">
+            <!-- Pestaña de Inventario/Transformación (al final del notebook) -->
+            <xpath expr="//notebook" position="inside">
                 <page string="Inventario" invisible="not merma_inventario_registrada">
                     <group>
                         <group>
