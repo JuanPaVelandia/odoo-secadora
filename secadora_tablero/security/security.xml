@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Grupo: Operador de Tablero -->
+        <record id="group_tablero_operador" model="res.groups">
+            <field name="name">Operador Tablero</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Tablero -->
+        <record id="group_tablero_admin" model="res.groups">
+            <field name="name">Administrador Tablero</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_tablero_operador'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

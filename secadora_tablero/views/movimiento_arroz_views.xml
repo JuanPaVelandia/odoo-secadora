@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ==================== List ==================== -->
+        <record id="view_movimiento_arroz_list" model="ir.ui.view">
+            <field name="name">secadora.movimiento.arroz.list</field>
+            <field name="model">secadora.movimiento.arroz</field>
+            <field name="arch" type="xml">
+                <list string="Historial de Movimientos" create="0">
+                    <field name="fecha"/>
+                    <field name="posicion_id"/>
+                    <field name="pesaje_id"/>
+                    <field name="tipo" widget="badge"/>
+                    <field name="sitio_origen_id"/>
+                    <field name="sitio_destino_id"/>
+                    <field name="peso_kg"/>
+                    <field name="usuario_id"/>
+                    <field name="notas"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ==================== Search ==================== -->
+        <record id="view_movimiento_arroz_search" model="ir.ui.view">
+            <field name="name">secadora.movimiento.arroz.search</field>
+            <field name="model">secadora.movimiento.arroz</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Movimientos">
+                    <field name="posicion_id"/>
+                    <field name="pesaje_id"/>
+
+                    <filter string="Creación" name="filter_creacion"
+                            domain="[('tipo', '=', 'creacion')]"/>
+                    <filter string="Movimiento" name="filter_movimiento"
+                            domain="[('tipo', '=', 'movimiento')]"/>
+                    <filter string="División" name="filter_division"
+                            domain="[('tipo', '=', 'division')]"/>
+                    <filter string="Retiro" name="filter_retiro"
+                            domain="[('tipo', '=', 'retiro')]"/>
+                    <separator/>
+                    <filter string="Hoy" name="filter_hoy"
+                            domain="[('fecha', '&gt;=', (context_today()).strftime('%Y-%m-%d')),
+                                     ('fecha', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Tipo" name="group_tipo"
+                                context="{'group_by': 'tipo'}"/>
+                        <filter string="Posición" name="group_posicion"
+                                context="{'group_by': 'posicion_id'}"/>
+                        <filter string="Pesaje" name="group_pesaje"
+                                context="{'group_by': 'pesaje_id'}"/>
+                        <filter string="Fecha" name="group_fecha"
+                                context="{'group_by': 'fecha:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ==================== Acción ==================== -->
+        <record id="action_movimiento_arroz" model="ir.actions.act_window">
+            <field name="name">Historial de Movimientos</field>
+            <field name="res_model">secadora.movimiento.arroz</field>
+            <field name="view_mode">list</field>
+        </record>
+
+    </data>
+</odoo>

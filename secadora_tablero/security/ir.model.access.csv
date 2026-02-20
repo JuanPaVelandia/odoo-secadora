@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_posicion_arroz_basculero,posicion.arroz.basculero,model_secadora_posicion_arroz,bascula.group_basculero,1,0,1,0
+access_posicion_arroz_operador,posicion.arroz.operador,model_secadora_posicion_arroz,group_tablero_operador,1,1,1,0
+access_posicion_arroz_admin,posicion.arroz.admin,model_secadora_posicion_arroz,group_tablero_admin,1,1,1,1
+access_movimiento_arroz_basculero,movimiento.arroz.basculero,model_secadora_movimiento_arroz,bascula.group_basculero,1,0,1,0
+access_movimiento_arroz_operador,movimiento.arroz.operador,model_secadora_movimiento_arroz,group_tablero_operador,1,0,1,0
+access_movimiento_arroz_admin,movimiento.arroz.admin,model_secadora_movimiento_arroz,group_tablero_admin,1,1,1,1
+access_dividir_wizard_operador,dividir.wizard.operador,model_secadora_dividir_posicion_wizard,group_tablero_operador,1,1,1,1
+access_dividir_wizard_admin,dividir.wizard.admin,model_secadora_dividir_posicion_wizard,group_tablero_admin,1,1,1,1

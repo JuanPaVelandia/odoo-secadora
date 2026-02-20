@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menú padre: Tablero de Arroz (bajo Báscula) -->
+        <menuitem id="menu_tablero_arroz"
+                  name="Tablero de Arroz"
+                  parent="bascula.menu_bascula_root"
+                  sequence="15"/>
+
+        <!-- Submenú: Tablero (kanban activos) -->
+        <menuitem id="menu_tablero_kanban"
+                  name="Tablero"
+                  parent="menu_tablero_arroz"
+                  action="action_posicion_arroz_kanban"
+                  sequence="10"/>
+
+        <!-- Submenú: Todas las Posiciones -->
+        <menuitem id="menu_tablero_todas"
+                  name="Todas las Posiciones"
+                  parent="menu_tablero_arroz"
+                  action="action_posicion_arroz_todas"
+                  sequence="20"/>
+
+        <!-- Submenú: Historial de Movimientos -->
+        <menuitem id="menu_tablero_movimientos"
+                  name="Historial de Movimientos"
+                  parent="menu_tablero_arroz"
+                  action="action_movimiento_arroz"
+                  sequence="30"/>
+
+    </data>
+</odoo>

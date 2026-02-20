@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Form de Sitio de Muestra — agregar es_contenedor -->
+        <record id="view_sitio_muestra_form_inherit_tablero" model="ir.ui.view">
+            <field name="name">secadora.sitio.muestra.form.inherit.tablero</field>
+            <field name="model">secadora.sitio.muestra</field>
+            <field name="inherit_id" ref="secadora_calidad.view_sitio_muestra_form"/>
+            <field name="arch" type="xml">
+                <field name="active" position="after">
+                    <field name="es_contenedor"/>
+                    <field name="sequence"/>
+                    <field name="capacidad_kg"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Herencia: List de Sitio de Muestra — agregar es_contenedor -->
+        <record id="view_sitio_muestra_list_inherit_tablero" model="ir.ui.view">
+            <field name="name">secadora.sitio.muestra.list.inherit.tablero</field>
+            <field name="model">secadora.sitio.muestra</field>
+            <field name="inherit_id" ref="secadora_calidad.view_sitio_muestra_list"/>
+            <field name="arch" type="xml">
+                <field name="codigo" position="after">
+                    <field name="es_contenedor"/>
+                    <field name="sequence"/>
+                    <field name="capacidad_kg" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Herencia: Search de Sitio de Muestra — agregar filtro contenedores -->
+        <record id="view_sitio_muestra_search_inherit_tablero" model="ir.ui.view">
+            <field name="name">secadora.sitio.muestra.search.inherit.tablero</field>
+            <field name="model">secadora.sitio.muestra</field>
+            <field name="inherit_id" ref="secadora_calidad.view_sitio_muestra_search"/>
+            <field name="arch" type="xml">
+                <field name="origen_id" position="after">
+                    <filter string="Contenedores" name="filter_contenedores"
+                            domain="[('es_contenedor', '=', True)]"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

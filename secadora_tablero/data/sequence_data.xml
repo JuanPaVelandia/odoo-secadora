@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_posicion_arroz" model="ir.sequence">
+            <field name="name">Posición de Arroz</field>
+            <field name="code">secadora.posicion.arroz</field>
+            <field name="prefix">POS-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>
