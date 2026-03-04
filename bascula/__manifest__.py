@@ -20,7 +20,7 @@
     'website': '',
     'depends': ['base', 'contacts', 'product', 'account', 'mail'],
     'data': [
-        'data/company_data.xml',
+        # 'data/company_data.xml',  # Empresas ya creadas manualmente
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
