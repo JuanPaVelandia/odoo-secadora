@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class SecadoraConductor(models.Model):
@@ -25,12 +25,23 @@ class SecadoraConductor(models.Model):
         string='Activo',
         default=True
     )
-    vehiculo_ids = fields.One2many(
+    vehiculo_ids = fields.Many2many(
         'secadora.vehiculo',
-        'conductor_habitual_id',
-        string='Vehículos'
+        'secadora_conductor_vehiculo_rel',
+        'conductor_id',
+        'vehiculo_id',
+        string='Vehículos',
     )
 
     _sql_constraints = [
         ('cedula_unique', 'unique(cedula)', 'La cédula del conductor debe ser única.')
     ]
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'vehiculo_ids' in vals:
+            for record in self:
+                record.vehiculo_ids.filtered(
+                    lambda v: v.conductor_habitual_id != record
+                ).write({'conductor_habitual_id': record.id})
+        return res

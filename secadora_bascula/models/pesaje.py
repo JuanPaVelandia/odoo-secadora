@@ -174,17 +174,19 @@ class SecadoraPesajeStock(models.Model):
 
     def _crear_picking_servicio(self):
         """Crea picking para operaciones de SERVICIO con owner_id = cliente.
-        Solo crea picking para ENTRADA. La salida se maneja en la orden de servicio
-        al pasar a 'Listo para Liquidar' con movimientos de transformación.
+        - ENTRADA: siempre crea picking ENT-SRV
+        - SALIDA modalidad bultos: crea picking SAL-SRV desde líneas de despacho
+        - SALIDA granel/silobolsa: crea picking SAL-SRV desde peso neto
         """
         self.ensure_one()
 
         if self.picking_id:
             return
 
-        # No crear picking para salida de servicio - se maneja en la orden
         if self.direccion == 'salida':
-            return
+            if self.orden_servicio_id and self.orden_servicio_id.modalidad_salida == 'bultos':
+                return self._crear_picking_salida_bultos()
+            return self._crear_picking_salida_servicio()
 
         # Solo entrada de servicio
         producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Verde')
@@ -209,6 +211,97 @@ class SecadoraPesajeStock(models.Model):
                 'name': f'{producto.name} - {self.name}',
                 'product_id': producto.id,
                 'product_uom_qty': self.peso_neto,
+                'product_uom': producto.uom_id.id,
+                'location_id': picking_type.default_location_src_id.id,
+                'location_dest_id': picking_type.default_location_dest_id.id,
+            })],
+        }
+
+        if self.orden_servicio_id:
+            picking_vals['x_orden_servicio_id'] = self.orden_servicio_id.id
+
+        picking = self.env['stock.picking'].create(picking_vals)
+        picking.action_confirm()
+        self._validar_picking(picking)
+
+        self.picking_id = picking.id
+
+    def _crear_picking_salida_servicio(self):
+        """Crea picking SAL-SRV para salida de servicio (granel/silobolsa)."""
+        self.ensure_one()
+
+        producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Seco')
+        picking_type = self._get_picking_type('SAL-SRV')
+
+        if not producto:
+            raise UserError(
+                'No se encontro el producto de arroz.\n'
+                'Por favor seleccione un producto o verifique que los datos del modulo esten instalados.'
+            )
+
+        picking_vals = {
+            'picking_type_id': picking_type.id,
+            'partner_id': self.tercero_id.id,
+            'owner_id': self.tercero_id.id,
+            'origin': self.name,
+            'x_numero_tiquete': self.name,
+            'x_pesaje_id': self.id,
+            'location_id': picking_type.default_location_src_id.id,
+            'location_dest_id': picking_type.default_location_dest_id.id,
+            'move_ids': [(0, 0, {
+                'name': f'{producto.name} - {self.name}',
+                'product_id': producto.id,
+                'product_uom_qty': self.peso_neto,
+                'product_uom': producto.uom_id.id,
+                'location_id': picking_type.default_location_src_id.id,
+                'location_dest_id': picking_type.default_location_dest_id.id,
+            })],
+        }
+
+        if self.orden_servicio_id:
+            picking_vals['x_orden_servicio_id'] = self.orden_servicio_id.id
+
+        picking = self.env['stock.picking'].create(picking_vals)
+        picking.action_confirm()
+        self._validar_picking(picking)
+
+        self.picking_id = picking.id
+
+    def _crear_picking_salida_bultos(self):
+        """Crea picking SAL-SRV para salida de servicio con modalidad bultos.
+
+        Usa las líneas de despacho (despacho_bultos_ids) para crear los
+        movimientos de inventario, en vez del peso neto del pesaje.
+        """
+        self.ensure_one()
+
+        if not self.despacho_bultos_ids:
+            return
+
+        picking_type = self._get_picking_type('SAL-SRV')
+        producto = self.producto_id or self._get_producto_servicio('Arroz Paddy Seco')
+
+        if not producto:
+            raise UserError(
+                'No se encontro el producto de arroz.\n'
+                'Por favor seleccione un producto o verifique que los datos del modulo esten instalados.'
+            )
+
+        peso_total_bultos = sum(self.despacho_bultos_ids.mapped('peso_subtotal'))
+
+        picking_vals = {
+            'picking_type_id': picking_type.id,
+            'partner_id': self.tercero_id.id,
+            'owner_id': self.tercero_id.id,
+            'origin': self.name,
+            'x_numero_tiquete': self.name,
+            'x_pesaje_id': self.id,
+            'location_id': picking_type.default_location_src_id.id,
+            'location_dest_id': picking_type.default_location_dest_id.id,
+            'move_ids': [(0, 0, {
+                'name': f'{producto.name} - {self.name} (bultos)',
+                'product_id': producto.id,
+                'product_uom_qty': peso_total_bultos,
                 'product_uom': producto.uom_id.id,
                 'location_id': picking_type.default_location_src_id.id,
                 'location_dest_id': picking_type.default_location_dest_id.id,
@@ -264,6 +357,10 @@ class SecadoraPesajeStock(models.Model):
         # Ubicaciones
         loc_stock = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
         loc_production = self.env.ref('stock.stock_location_production', raise_if_not_found=False)
+        if not loc_production:
+            loc_production = self.env['stock.location'].search(
+                [('usage', '=', 'production'), ('company_id', '=', self.env.company.id)], limit=1
+            )
         loc_merma = self.env.ref('secadora_bascula.stock_location_merma_secado', raise_if_not_found=False)
 
         if not loc_stock or not loc_production or not loc_merma:

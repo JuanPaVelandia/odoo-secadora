@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Agregar button_box y tab Fletes a Transportadora -->
+        <record id="view_transportadora_form_inherit_transporte" model="ir.ui.view">
+            <field name="name">secadora.transportadora.form.inherit.transporte</field>
+            <field name="model">secadora.transportadora</field>
+            <field name="inherit_id" ref="bascula.view_secadora_transportadora_form"/>
+            <field name="arch" type="xml">
+                <!-- Agregar button_box antes del primer group -->
+                <xpath expr="//sheet/group[1]" position="before">
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_ver_fletes" type="object"
+                                class="oe_stat_button" icon="fa-truck">
+                            <field name="flete_count" widget="statinfo" string="Fletes"/>
+                        </button>
+                        <button name="action_ver_facturas" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o"
+                                invisible="factura_count == 0">
+                            <field name="factura_count" widget="statinfo" string="Facturas"/>
+                        </button>
+                    </div>
+                </xpath>
+                <!-- Agregar tab Fletes al notebook -->
+                <xpath expr="//notebook" position="inside">
+                    <page string="Fletes">
+                        <field name="flete_ids">
+                            <list>
+                                <field name="name"/>
+                                <field name="fecha"/>
+                                <field name="origen_id"/>
+                                <field name="destino_id"/>
+                                <field name="peso_kg"/>
+                                <field name="costo_total"/>
+                                <field name="state" widget="badge"
+                                       decoration-success="state == 'entregado'"
+                                       decoration-info="state == 'en_ruta'"
+                                       decoration-muted="state == 'cancelado'"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

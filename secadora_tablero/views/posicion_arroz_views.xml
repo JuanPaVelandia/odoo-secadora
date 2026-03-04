@@ -21,66 +21,62 @@
                     <field name="state"/>
                     <field name="sitio_id"/>
                     <templates>
-                        <t t-name="kanban-box">
-                            <div t-attf-class="oe_kanban_global_click #{record.state.raw_value == 'retirado' ? 'o_kanban_record_muted' : ''}">
-                                <div class="oe_kanban_content">
-                                    <div class="o_kanban_record_top">
-                                        <div class="o_kanban_record_headings">
-                                            <strong class="o_kanban_record_title">
-                                                <span t-attf-style="font-size: 1.3em; font-weight: bold; color: #00A09D;">
-                                                    <field name="peso_kg" widget="float" digits="[12,2]"/> Kg
-                                                </span>
-                                            </strong>
-                                        </div>
-                                        <div>
-                                            <t t-if="record.es_division.raw_value">
-                                                <span class="badge text-bg-warning ms-1">DIV</span>
-                                            </t>
-                                        </div>
-                                    </div>
-                                    <div class="o_kanban_record_body">
-                                        <div>
-                                            <i class="fa fa-ticket me-1" title="Tiquete"/>
-                                            <field name="pesaje_name"/>
-                                            <span class="text-muted ms-2">
-                                                <field name="name"/>
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <i class="fa fa-user me-1" title="Tercero"/>
-                                            <field name="tercero_id"/>
-                                        </div>
-                                        <div t-if="record.placa_texto.raw_value">
-                                            <i class="fa fa-truck me-1" title="Placa"/>
-                                            <field name="placa_texto"/>
-                                        </div>
-                                        <div t-if="record.variedad_id.raw_value">
-                                            <i class="fa fa-leaf me-1" title="Variedad"/>
-                                            <field name="variedad_id"/>
-                                        </div>
-                                        <div t-if="record.orden_servicio_id.raw_value">
-                                            <i class="fa fa-file-text-o me-1" title="Orden de Servicio"/>
-                                            <field name="orden_servicio_id"/>
-                                        </div>
-                                    </div>
-                                    <div class="o_kanban_record_bottom">
-                                        <div class="oe_kanban_bottom_left">
-                                            <span class="text-muted" title="Último movimiento">
-                                                <i class="fa fa-clock-o"/>
-                                                <field name="fecha_movimiento" widget="timeago"/>
-                                            </span>
-                                        </div>
-                                        <div class="oe_kanban_bottom_right">
-                                            <button name="action_dividir" type="object"
-                                                    class="btn btn-link p-0"
-                                                    title="Dividir"
-                                                    invisible="state != 'activo'">
-                                                <i class="fa fa-code-fork"/>
-                                            </button>
-                                        </div>
+                        <t t-name="card">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <i class="fa fa-user me-1" title="Tercero"/>
+                                        <field name="tercero_id"/>
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle text-muted" t-if="record.variedad_id.raw_value">
+                                        <i class="fa fa-leaf me-1" title="Variedad"/>
+                                        <field name="variedad_id"/>
                                     </div>
                                 </div>
+                                <div>
+                                    <t t-if="record.es_division.raw_value">
+                                        <span class="badge text-bg-warning ms-1">DIV</span>
+                                    </t>
+                                </div>
                             </div>
+                            <div>
+                                <span style="font-size: 1.3em; font-weight: bold; color: #00A09D;">
+                                    <field name="peso_kg" widget="float" digits="[12,2]"/> Kg
+                                </span>
+                            </div>
+                            <div>
+                                <i class="fa fa-ticket me-1" title="Tiquete"/>
+                                <field name="pesaje_name"/>
+                                <span class="text-muted ms-2">
+                                    <field name="name"/>
+                                </span>
+                            </div>
+                            <div t-if="record.placa_texto.raw_value">
+                                <i class="fa fa-truck me-1" title="Placa"/>
+                                <field name="placa_texto"/>
+                            </div>
+                            <div t-if="record.orden_servicio_id.raw_value">
+                                <i class="fa fa-file-text-o me-1" title="Orden de Servicio"/>
+                                <field name="orden_servicio_id"/>
+                            </div>
+                            <footer>
+                                <span class="text-muted" title="Último movimiento">
+                                    <i class="fa fa-clock-o"/>
+                                    <field name="fecha_movimiento" widget="timeago"/>
+                                </span>
+                                <button name="action_despachar" type="object"
+                                        class="btn btn-link p-0 ms-auto me-1"
+                                        title="Despachar"
+                                        invisible="state != 'activo'">
+                                    <i class="fa fa-truck"/>
+                                </button>
+                                <button name="action_dividir" type="object"
+                                        class="btn btn-link p-0"
+                                        title="Dividir"
+                                        invisible="state != 'activo'">
+                                    <i class="fa fa-code-fork"/>
+                                </button>
+                            </footer>
                         </t>
                     </templates>
                 </kanban>
@@ -94,13 +90,18 @@
             <field name="arch" type="xml">
                 <form string="Posición de Arroz">
                     <header>
+                        <button name="action_despachar" string="Despachar" type="object"
+                                class="oe_highlight" invisible="state != 'activo'"/>
                         <button name="action_dividir" string="Dividir" type="object"
                                 class="oe_highlight" invisible="state != 'activo'"/>
+                        <button name="action_revertir_division" string="Revertir División" type="object"
+                                class="btn-secondary" invisible="state != 'activo' or not posicion_origen_id"
+                                confirm="¿Está seguro? El peso de esta tarjeta se devolverá a la posición origen y esta tarjeta se retirará."/>
                         <button name="action_retirar" string="Retirar" type="object"
                                 class="btn-secondary" invisible="state != 'activo'"
                                 confirm="¿Está seguro de retirar esta posición? El arroz se marca como salido de la planta."/>
                         <button name="action_reactivar" string="Reactivar" type="object"
-                                class="btn-secondary" invisible="state != 'retirado'"
+                                class="btn-secondary" invisible="state not in ('retirado', 'despachado')"
                                 groups="secadora_tablero.group_tablero_admin"/>
                         <field name="state" widget="statusbar"/>
                     </header>
@@ -124,6 +125,8 @@
                                 <field name="sitio_id"/>
                                 <field name="peso_kg"/>
                                 <field name="peso_original" readonly="1"/>
+                                <field name="humedad" readonly="1"/>
+                                <field name="impurezas" readonly="1"/>
                                 <field name="fecha_ingreso" readonly="1"/>
                                 <field name="fecha_movimiento" readonly="1"/>
                             </group>
@@ -132,6 +135,8 @@
                             <group>
                                 <field name="posicion_origen_id" readonly="1"
                                        invisible="not posicion_origen_id"/>
+                                <field name="posicion_combinada_id" readonly="1"
+                                       invisible="not posicion_combinada_id"/>
                                 <field name="es_division" invisible="1"/>
                             </group>
                         </group>
@@ -164,6 +169,18 @@
                                     </list>
                                 </field>
                             </page>
+                            <page string="Posiciones Origen (Combinación)" name="combinacion_origen"
+                                  invisible="not posicion_origen_combinacion_ids">
+                                <field name="posicion_origen_combinacion_ids" readonly="1">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="sitio_id"/>
+                                        <field name="peso_kg"/>
+                                        <field name="state" widget="badge"/>
+                                        <field name="fecha_ingreso"/>
+                                    </list>
+                                </field>
+                            </page>
                         </notebook>
                     </sheet>
                     <chatter/>
@@ -177,7 +194,8 @@
             <field name="model">secadora.posicion.arroz</field>
             <field name="arch" type="xml">
                 <list string="Posiciones de Arroz"
-                      decoration-muted="state == 'retirado'">
+                      decoration-muted="state == 'retirado'"
+                      decoration-info="state == 'combinado'">
                     <field name="name"/>
                     <field name="pesaje_name" string="Tiquete"/>
                     <field name="sitio_id"/>
@@ -210,6 +228,10 @@
                             domain="[('state', '=', 'activo')]"/>
                     <filter string="Retirados" name="filter_retirados"
                             domain="[('state', '=', 'retirado')]"/>
+                    <filter string="Combinados" name="filter_combinados"
+                            domain="[('state', '=', 'combinado')]"/>
+                    <filter string="Despachados" name="filter_despachados"
+                            domain="[('state', '=', 'despachado')]"/>
                     <separator/>
                     <filter string="Divididos" name="filter_divididos"
                             domain="[('es_division', '=', True)]"/>
@@ -251,6 +273,12 @@
                     Configure sitios contenedores en Calidad &gt; Sitios de Muestra.
                 </p>
             </field>
+        </record>
+
+        <!-- Acción: Grilla 2D del Tablero (OWL) -->
+        <record id="action_tablero_grid" model="ir.actions.client">
+            <field name="name">Tablero de Arroz (Grilla)</field>
+            <field name="tag">secadora_tablero_grid</field>
         </record>
 
         <!-- Acción: Todas las posiciones -->

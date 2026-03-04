@@ -59,6 +59,12 @@ class TipoOperacion(models.Model):
         help='Marca si es un servicio de maquila donde el producto no es propio'
     )
 
+    es_compraventa = fields.Boolean(
+        string='Es Compra/Venta',
+        default=False,
+        help='Si está marcado, los pesajes de este tipo pueden vincularse a una liquidación'
+    )
+
     requiere_precio = fields.Boolean(
         string='Requiere Precio',
         default=False,

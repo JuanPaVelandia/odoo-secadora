@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form -->
+        <record id="view_secadora_tipo_deduccion_form" model="ir.ui.view">
+            <field name="name">secadora.tipo.deduccion.form</field>
+            <field name="model">secadora.tipo.deduccion</field>
+            <field name="arch" type="xml">
+                <form string="Tipo de Deducción">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="codigo"/>
+                                <field name="sequence"/>
+                            </group>
+                            <group>
+                                <field name="tipo_calculo"/>
+                                <field name="valor"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                                <field name="active" invisible="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List -->
+        <record id="view_secadora_tipo_deduccion_list" model="ir.ui.view">
+            <field name="name">secadora.tipo.deduccion.list</field>
+            <field name="model">secadora.tipo.deduccion</field>
+            <field name="arch" type="xml">
+                <list string="Tipos de Deducción">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="codigo"/>
+                    <field name="tipo_calculo"/>
+                    <field name="valor"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                    <field name="active" column_invisible="1"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Search -->
+        <record id="view_secadora_tipo_deduccion_search" model="ir.ui.view">
+            <field name="name">secadora.tipo.deduccion.search</field>
+            <field name="model">secadora.tipo.deduccion</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Tipos de Deducción">
+                    <field name="name"/>
+                    <field name="codigo"/>
+                    <separator/>
+                    <filter name="filter_activos" string="Activos" domain="[('active', '=', True)]"/>
+                    <filter name="filter_porcentaje" string="Porcentaje" domain="[('tipo_calculo', '=', 'porcentaje')]"/>
+                    <filter name="filter_fijo" string="Monto Fijo" domain="[('tipo_calculo', '=', 'fijo')]"/>
+                    <separator/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_tipo_calculo" string="Tipo de Cálculo" context="{'group_by': 'tipo_calculo'}"/>
+                        <filter name="group_company" string="Empresa" context="{'group_by': 'company_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción -->
+        <record id="action_tipo_deduccion" model="ir.actions.act_window">
+            <field name="name">Tipos de Deducción</field>
+            <field name="res_model">secadora.tipo.deduccion</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_secadora_tipo_deduccion_search"/>
+            <field name="context">{'search_default_filter_activos': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Configurar tipos de deducción
+                </p>
+                <p>
+                    Defina las deducciones automáticas (retenciones, ICA, descargue, etc.)
+                    que se aplicarán en las liquidaciones.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

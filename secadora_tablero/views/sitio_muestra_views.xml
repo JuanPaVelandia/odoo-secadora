@@ -12,6 +12,10 @@
                     <field name="es_contenedor"/>
                     <field name="sequence"/>
                     <field name="capacidad_kg"/>
+                    <field name="fila"/>
+                    <field name="columna"/>
+                    <field name="es_punto_salida"/>
+                    <field name="ocultar_calidad"/>
                 </field>
             </field>
         </record>
@@ -26,6 +30,8 @@
                     <field name="es_contenedor"/>
                     <field name="sequence"/>
                     <field name="capacidad_kg" optional="hide"/>
+                    <field name="fila" optional="hide"/>
+                    <field name="columna" optional="hide"/>
                 </field>
             </field>
         </record>

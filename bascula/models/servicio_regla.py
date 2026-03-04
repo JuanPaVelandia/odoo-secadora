@@ -25,6 +25,12 @@ class ServicioRegla(models.Model):
         default=True
     )
 
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        help='Dejar vacío para que aplique a todas las empresas',
+    )
+
     # ==================== CONDICIONES ====================
 
     tipo_servicio_ids = fields.Many2many(
@@ -42,6 +48,12 @@ class ServicioRegla(models.Model):
        default='todas',
        required=True,
        help='Modalidad de salida en la que aplica esta regla. "Todas" aplica sin importar la modalidad.')
+
+    tipo_vehiculo_ids = fields.Many2many(
+        'secadora.tipo.vehiculo',
+        string='Aplica a Tipos de Vehículo',
+        help='Tipos de vehículo a los que aplica esta regla. Si está vacío, aplica a todos.',
+    )
 
     condicion = fields.Selection([
         ('siempre', 'Siempre'),
@@ -136,6 +148,14 @@ class ServicioRegla(models.Model):
             tipos_en_orden = (orden.pesaje_entrada_ids | orden.pesaje_salida_ids).mapped('tipo_operacion_id')
             # Si ninguno de los tipos de operación de la orden está en la regla, no aplica
             if not any(tipo in self.tipo_servicio_ids for tipo in tipos_en_orden):
+                return False
+
+        # Verificar tipo de vehículo
+        # Si tipo_vehiculo_ids está vacío, aplica a todos
+        if self.tipo_vehiculo_ids:
+            pesajes = orden.pesaje_entrada_ids | orden.pesaje_salida_ids
+            tipos_vehiculo_en_orden = pesajes.mapped('vehiculo_id.tipo_vehiculo_id')
+            if not any(tv in self.tipo_vehiculo_ids for tv in tipos_vehiculo_en_orden):
                 return False
 
         # Evaluar condición

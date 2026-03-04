@@ -13,8 +13,9 @@
                                 class="oe_highlight" invisible="state != 'borrador'"/>
                         <button name="action_segunda_pesada" string="2ª Pesada" type="object"
                                 class="oe_highlight" invisible="state != 'en_transito'"/>
-                        <button name="action_crear_orden_servicio" string="Crear Nueva Orden de Servicio" type="object"
-                                class="btn-secondary" invisible="orden_servicio_id"/>
+                        <button name="action_crear_orden_servicio" string="Crear Orden de Servicio" type="object"
+                                class="btn-secondary"
+                                invisible="orden_servicio_id or not tipo_operacion_id or not tipo_operacion_id.es_servicio"/>
                         <button name="action_cancelar" string="Cancelar" type="object"
                                 invisible="state in ['completado', 'cancelado']"/>
                         <button name="action_borrador" string="Volver a Borrador" type="object"
@@ -25,7 +26,7 @@
                         <div class="oe_button_box" name="button_box">
                             <button name="action_crear_orden_servicio" type="object"
                                     class="oe_stat_button" icon="fa-file-text-o"
-                                    invisible="orden_servicio_id">
+                                    invisible="orden_servicio_id or not tipo_operacion_id or not tipo_operacion_id.es_servicio">
                                 <div class="o_field_widget o_stat_info">
                                     <span class="o_stat_text">Crear</span>
                                     <span class="o_stat_text">Orden</span>
@@ -41,7 +42,7 @@
                                 <field name="orden_servicio_id"
                                        options="{'no_create': False, 'no_open': False}"
                                        placeholder="Seleccione la orden de servicio (opcional)"
-                                       invisible="tipo_operacion_id and not tipo_operacion_id.es_servicio"/>
+                                       invisible="not tipo_operacion_id or not tipo_operacion_id.es_servicio"/>
                                 <field name="direccion"/>
                                 <field name="tipo_proceso" invisible="1"/>
                             </group>
@@ -55,7 +56,9 @@
                             <group string="Información del Vehículo">
                                 <field name="vehiculo_id" string="Placa"/>
                                 <field name="tercero_id"/>
+                                <field name="empresa_arroz_id"/>
                                 <field name="nit_tercero" readonly="1"/>
+                                <field name="company_id" invisible="1"/>
                                 <field name="conductor_id"/>
                                 <field name="transportadora_id"/>
                                 <field name="origen_id"/>
@@ -88,6 +91,7 @@
                             <group>
                                 <field name="producto_id"/>
                                 <field name="variedad_id"/>
+                                <field name="es_semilla"/>
                             </group>
                             <group>
                                 <field name="humedad"/>
@@ -104,6 +108,44 @@
                             <group>
                                 <field name="plazo"/>
                             </group>
+                        </group>
+
+                        <field name="os_modalidad_salida" invisible="1"/>
+                        <group string="Bultos a Despachar"
+                               invisible="direccion != 'salida' or not tipo_operacion_id or not tipo_operacion_id.es_servicio">
+                            <field name="despacho_bultos_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="registro_bultos_id"
+                                           domain="[('orden_id.cliente_id', '=', parent.tercero_id), ('despachado', '=', False)]"
+                                           options="{'no_create': True}"/>
+                                    <field name="orden_id" readonly="1" string="OS"/>
+                                    <field name="producto_id" readonly="1"/>
+                                    <field name="cantidad_disponible"/>
+                                    <field name="cantidad"/>
+                                    <field name="producto_empaque_id" readonly="1"/>
+                                    <field name="peso_promedio" readonly="1"/>
+                                    <field name="peso_subtotal" sum="Peso Total"/>
+                                </list>
+                            </field>
+                            <group invisible="direccion != 'salida' or not despacho_bultos_ids">
+                                <group>
+                                    <field name="peso_total_bultos_despacho" readonly="1"/>
+                                    <field name="peso_neto" string="Peso Báscula (kg)" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="diferencia_bultos" readonly="1"
+                                           decoration-danger="alerta_diferencia_bultos"
+                                           decoration-success="not alerta_diferencia_bultos and diferencia_bultos != 0"/>
+                                    <field name="diferencia_bultos_pct" readonly="1"
+                                           decoration-danger="alerta_diferencia_bultos"/>
+                                    <field name="alerta_diferencia_bultos" invisible="1"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-danger" role="alert"
+                                 invisible="not alerta_diferencia_bultos">
+                                <strong>Alerta:</strong> La diferencia entre el peso de báscula y el peso de bultos supera el 0,1%.
+                                Verifique que los bultos están correctamente registrados.
+                            </div>
                         </group>
 
                         <group>
@@ -129,8 +171,11 @@
                     <field name="tipo_proceso" column_invisible="1"/>
                     <field name="placa_texto"/>
                     <field name="tercero_id"/>
+                    <field name="empresa_arroz_id" optional="hide"/>
                     <field name="producto_id"/>
+                    <field name="orden_servicio_id" optional="show"/>
                     <field name="peso_neto"/>
+                    <field name="company_id" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-success="state == 'completado'"
                            decoration-info="state == 'en_transito'"
@@ -166,6 +211,7 @@
                         <filter string="Tipo" name="group_tipo" context="{'group_by': 'tipo_proceso'}"/>
                         <filter string="Estado" name="group_estado" context="{'group_by': 'state'}"/>
                         <filter string="Producto" name="group_producto" context="{'group_by': 'producto_id'}"/>
+                        <filter string="Empresa Arroz" name="group_empresa_arroz" context="{'group_by': 'empresa_arroz_id'}"/>
                         <filter string="Fecha" name="group_fecha" context="{'group_by': 'fecha'}"/>
                     </group>
                 </search>

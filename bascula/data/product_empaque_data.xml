@@ -85,5 +85,50 @@
             <field name="description">Servicio de almacenamiento en silobolsa por kilogramo</field>
         </record>
 
+        <record id="product_servicio_prelimpieza" model="product.product">
+            <field name="name">Servicio de prelimpieza</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">50</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="description">Servicio de prelimpieza de arroz por kilogramo</field>
+        </record>
+
+        <record id="product_servicio_secamiento_limpieza" model="product.product">
+            <field name="name">Servicio de secamiento + limpieza</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">150</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+            <field name="description">Servicio combinado de secamiento y limpieza por kilogramo</field>
+        </record>
+
+        <record id="product_servicio_cargue_bulto" model="product.product">
+            <field name="name">Cargue automático en bulto</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">50000</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="description">Servicio de cargue automático para modalidad bultos</field>
+        </record>
+
+        <record id="product_servicio_cargue_granel" model="product.product">
+            <field name="name">Cargue automático a granel</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">50000</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="description">Servicio de cargue automático para modalidad granel</field>
+        </record>
+
+        <record id="product_servicio_descargue_granel" model="product.product">
+            <field name="name">Descargue automático a granel</field>
+            <field name="type">service</field>
+            <field name="categ_id" ref="product.product_category_all"/>
+            <field name="list_price">50000</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="description">Servicio de descargue automático para modalidad granel</field>
+        </record>
+
     </data>
 </odoo>

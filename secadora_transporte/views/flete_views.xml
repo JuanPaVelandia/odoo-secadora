@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form de Flete -->
+        <record id="view_secadora_flete_form" model="ir.ui.view">
+            <field name="name">secadora.flete.form</field>
+            <field name="model">secadora.flete</field>
+            <field name="arch" type="xml">
+                <form string="Flete">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"/>
+                        <button name="action_en_ruta" string="En Ruta" type="object"
+                                class="oe_highlight" invisible="state != 'confirmado'"/>
+                        <button name="action_entregar" string="Entregado" type="object"
+                                class="oe_highlight" invisible="state not in ('confirmado', 'en_ruta')"/>
+                        <button name="action_liquidar" string="Liquidar" type="object"
+                                class="oe_highlight" invisible="state != 'entregado'"/>
+                        <button name="action_facturar" string="Facturar" type="object"
+                                class="oe_highlight" invisible="state != 'liquidado'"/>
+                        <button name="action_cancelar" string="Cancelar" type="object"
+                                invisible="state in ('liquidado', 'facturado', 'cancelado')"/>
+                        <button name="action_borrador" string="Volver a Borrador" type="object"
+                                invisible="state != 'cancelado'" groups="secadora_transporte.group_transporte_admin"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmado,entregado,liquidado,facturado"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_ver_factura" type="object"
+                                    class="oe_stat_button" icon="fa-file-text-o"
+                                    invisible="not factura_transportadora_id">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Ver</span>
+                                    <span class="o_stat_text">Factura</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group string="Ruta">
+                                <field name="fecha" readonly="state not in ('borrador', 'confirmado')"/>
+                                <field name="tercero_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="pago_flete" readonly="state not in ('borrador', 'confirmado')"/>
+                                <field name="origen_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="empresa_origen_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="destino_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="empresa_destino_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                            </group>
+                            <group string="Transporte">
+                                <field name="vehiculo_id" string="Placa" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="conductor_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="transportadora_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="company_id" readonly="state not in ('borrador', 'confirmado')"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Carga">
+                                <field name="producto_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="variedad_id" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="peso_kg" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="bultos" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="humedad" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="impurezas" readonly="pesaje_id or state not in ('borrador', 'confirmado')"/>
+                                <field name="pesaje_id" readonly="state not in ('borrador', 'confirmado')"/>
+                                <field name="orden_servicio_id"/>
+                            </group>
+                            <group string="Costos">
+                                <field name="tarifa_id" readonly="state in ('facturado', 'cancelado')"/>
+                                <field name="tarifa_tipo" readonly="state in ('facturado', 'cancelado')"/>
+                                <field name="tarifa_unitaria" readonly="state in ('facturado', 'cancelado')"/>
+                                <field name="valor_adicional" readonly="state in ('facturado', 'cancelado')"/>
+                                <field name="razon_adicional" invisible="not valor_adicional" readonly="state in ('facturado', 'cancelado')"/>
+                                <field name="costo_total"
+                                       style="font-size: 18px; font-weight: bold; color: #00A09D;"/>
+                                <field name="factura_transportadora_id" readonly="state in ('facturado', 'cancelado')"/>
+                            </group>
+                        </group>
+                        <field name="pesaje_direccion" invisible="1"/>
+                        <group>
+                            <group string="Peso en Origen" invisible="pesaje_direccion != 'entrada'">
+                                <field name="peso_destino_kg" string="Peso en Origen (Kg)"/>
+                                <field name="usar_peso_destino" string="Usar Peso Origen para Costo" invisible="not peso_destino_kg"/>
+                                <field name="tiquete_destino" string="Tiquete de Origen" filename="tiquete_destino_nombre"/>
+                                <field name="tiquete_destino_nombre" invisible="1"/>
+                            </group>
+                            <group string="Peso en Destino" invisible="pesaje_direccion == 'entrada'">
+                                <field name="peso_destino_kg"/>
+                                <field name="usar_peso_destino" invisible="not peso_destino_kg"/>
+                                <field name="tiquete_destino" filename="tiquete_destino_nombre"/>
+                                <field name="tiquete_destino_nombre" invisible="1"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="observaciones" placeholder="Observaciones del flete..."/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List de Flete -->
+        <record id="view_secadora_flete_list" model="ir.ui.view">
+            <field name="name">secadora.flete.list</field>
+            <field name="model">secadora.flete</field>
+            <field name="arch" type="xml">
+                <list string="Fletes" decoration-success="state == 'entregado'"
+                      decoration-info="state == 'en_ruta'"
+                      decoration-muted="state == 'cancelado'">
+                    <field name="name"/>
+                    <field name="fecha"/>
+                    <field name="tercero_id"/>
+                    <field name="origen_id"/>
+                    <field name="destino_id"/>
+                    <field name="placa_texto"/>
+                    <field name="pago_flete" optional="hide"/>
+                    <field name="producto_id" optional="show"/>
+                    <field name="peso_kg"/>
+                    <field name="humedad" optional="show"/>
+                    <field name="impurezas" optional="show"/>
+                    <field name="costo_total"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="factura_transportadora_id" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'entregado'"
+                           decoration-info="state == 'en_ruta'"
+                           decoration-muted="state == 'cancelado'"
+                           decoration-warning="state == 'liquidado'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Search de Flete -->
+        <record id="view_secadora_flete_search" model="ir.ui.view">
+            <field name="name">secadora.flete.search</field>
+            <field name="model">secadora.flete</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Fletes">
+                    <field name="name"/>
+                    <field name="tercero_id"/>
+                    <field name="vehiculo_id"/>
+                    <field name="origen_id"/>
+                    <field name="destino_id"/>
+                    <field name="transportadora_id"/>
+
+                    <filter string="En Ruta" name="filter_en_ruta" domain="[('state', '=', 'en_ruta')]"/>
+                    <filter string="Entregados" name="filter_entregado" domain="[('state', '=', 'entregado')]"/>
+                    <filter string="Liquidados" name="filter_liquidado" domain="[('state', '=', 'liquidado')]"/>
+                    <separator/>
+                    <filter string="Hoy" name="filter_hoy" domain="[('fecha', '=', context_today().strftime('%Y-%m-%d'))]"/>
+
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Estado" name="group_estado" context="{'group_by': 'state'}"/>
+                        <filter string="Tercero" name="group_tercero" context="{'group_by': 'tercero_id'}"/>
+                        <filter string="Modalidad Pago" name="group_pago" context="{'group_by': 'pago_flete'}"/>
+                        <filter string="Origen" name="group_origen" context="{'group_by': 'origen_id'}"/>
+                        <filter string="Destino" name="group_destino" context="{'group_by': 'destino_id'}"/>
+                        <filter string="Transportadora" name="group_transportadora" context="{'group_by': 'transportadora_id'}"/>
+                        <filter string="Empresa" name="group_empresa" context="{'group_by': 'company_id'}"/>
+                        <filter string="Fecha" name="group_fecha" context="{'group_by': 'fecha'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción: Todos los Fletes -->
+        <record id="action_secadora_flete" model="ir.actions.act_window">
+            <field name="name">Fletes</field>
+            <field name="res_model">secadora.flete</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Registrar un nuevo flete
+                </p>
+                <p>
+                    Registre fletes de transporte de arroz entre fincas, bodegas y planta.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -8,12 +8,19 @@
                   parent="bascula.menu_bascula_root"
                   sequence="15"/>
 
-        <!-- Submenú: Tablero (kanban activos) -->
+        <!-- Submenú: Tablero Grilla 2D -->
         <menuitem id="menu_tablero_kanban"
                   name="Tablero"
                   parent="menu_tablero_arroz"
-                  action="action_posicion_arroz_kanban"
+                  action="action_tablero_grid"
                   sequence="10"/>
+
+        <!-- Submenú: Vista Kanban -->
+        <menuitem id="menu_tablero_kanban_view"
+                  name="Kanban"
+                  parent="menu_tablero_arroz"
+                  action="action_posicion_arroz_kanban"
+                  sequence="15"/>
 
         <!-- Submenú: Todas las Posiciones -->
         <menuitem id="menu_tablero_todas"

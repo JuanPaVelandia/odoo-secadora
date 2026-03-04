@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- ==================== LIST VIEW ==================== -->
+        <record id="view_registro_bultos_list" model="ir.ui.view">
+            <field name="name">secadora.registro.bultos.list</field>
+            <field name="model">secadora.registro.bultos</field>
+            <field name="arch" type="xml">
+                <list create="0" edit="0" delete="0">
+                    <field name="cliente_id"/>
+                    <field name="orden_id"/>
+                    <field name="producto_id"/>
+                    <field name="fecha"/>
+                    <field name="cantidad" sum="Total Bultos"/>
+                    <field name="cantidad_despachada" sum="Total Despachados"/>
+                    <field name="cantidad_pendiente" sum="Total Pendientes"/>
+                    <field name="peso_total" sum="Peso Total"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ==================== SEARCH VIEW ==================== -->
+        <record id="view_registro_bultos_search" model="ir.ui.view">
+            <field name="name">secadora.registro.bultos.search</field>
+            <field name="model">secadora.registro.bultos</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="cliente_id"/>
+                    <field name="orden_id"/>
+                    <field name="producto_id"/>
+                    <group expand="1" string="Agrupar por">
+                        <filter name="group_cliente" string="Dueño / Agricultor" context="{'group_by': 'cliente_id'}"/>
+                        <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                        <filter name="group_producto" string="Producto" context="{'group_by': 'producto_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- ==================== ACTION ==================== -->
+        <record id="action_registro_bultos" model="ir.actions.act_window">
+            <field name="name">Bultos Empacados</field>
+            <field name="res_model">secadora.registro.bultos</field>
+            <field name="view_mode">list</field>
+            <field name="search_view_id" ref="view_registro_bultos_search"/>
+            <field name="context">{'search_default_group_cliente': 1}</field>
+        </record>
+
+    </data>
+</odoo>

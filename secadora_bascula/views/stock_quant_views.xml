@@ -1,18 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <!-- Agregar filtro de agrupacion por Propietario en vista de Existencias -->
-    <record id="view_stock_quant_search_inherit_secadora" model="ir.ui.view">
-        <field name="name">stock.quant.search.inherit.secadora</field>
-        <field name="model">stock.quant</field>
-        <field name="inherit_id" ref="stock.quant_search_view"/>
-        <field name="arch" type="xml">
-            <xpath expr="//search" position="inside">
-                <filter string="Propietario" name="group_owner"
-                        context="{'group_by': 'owner_id'}"
-                        groups="stock.group_tracking_owner"/>
-            </xpath>
-        </field>
-    </record>
-
+    <!-- Odoo 18 ya incluye filtro "Owner" nativo en stock.quant_search_view -->
+    <!-- El grupo stock.group_tracking_owner se activa en res_groups_data.xml -->
 </odoo>

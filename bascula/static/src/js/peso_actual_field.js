@@ -115,7 +115,11 @@ class PesoActualField extends Component {
     }
 
     get formattedPeso() {
-        return this.state.peso.toFixed(2);
+        const peso = this.state.peso;
+        if (peso % 1 === 0) {
+            return peso.toLocaleString("es-CO", { maximumFractionDigits: 0 });
+        }
+        return peso.toLocaleString("es-CO", { minimumFractionDigits: 1, maximumFractionDigits: 2 });
     }
 }
 

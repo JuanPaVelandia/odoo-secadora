@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form de Tarifa de Flete -->
+        <record id="view_secadora_tarifa_flete_form" model="ir.ui.view">
+            <field name="name">secadora.tarifa.flete.form</field>
+            <field name="model">secadora.tarifa.flete</field>
+            <field name="arch" type="xml">
+                <form string="Tarifa de Flete">
+                    <sheet>
+                        <group>
+                            <group string="Ruta">
+                                <field name="origen_id"/>
+                                <field name="destino_id"/>
+                                <field name="active"/>
+                            </group>
+                            <group string="Tarifa">
+                                <field name="tarifa_tipo"/>
+                                <field name="tarifa_unitaria"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="notas" placeholder="Notas adicionales..."/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List de Tarifa de Flete -->
+        <record id="view_secadora_tarifa_flete_list" model="ir.ui.view">
+            <field name="name">secadora.tarifa.flete.list</field>
+            <field name="model">secadora.tarifa.flete</field>
+            <field name="arch" type="xml">
+                <list string="Tarifas de Flete" editable="bottom">
+                    <field name="origen_id"/>
+                    <field name="destino_id"/>
+                    <field name="tarifa_tipo"/>
+                    <field name="tarifa_unitaria"/>
+                    <field name="active" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Search de Tarifa de Flete -->
+        <record id="view_secadora_tarifa_flete_search" model="ir.ui.view">
+            <field name="name">secadora.tarifa.flete.search</field>
+            <field name="model">secadora.tarifa.flete</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Tarifas">
+                    <field name="origen_id"/>
+                    <field name="destino_id"/>
+                    <filter string="Activas" name="activas" domain="[('active', '=', True)]"/>
+                    <filter string="Inactivas" name="inactivas" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Origen" name="group_origen" context="{'group_by': 'origen_id'}"/>
+                        <filter string="Destino" name="group_destino" context="{'group_by': 'destino_id'}"/>
+                        <filter string="Tipo" name="group_tipo" context="{'group_by': 'tarifa_tipo'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción: Tarifas de Flete -->
+        <record id="action_secadora_tarifa_flete" model="ir.actions.act_window">
+            <field name="name">Tarifas de Flete</field>
+            <field name="res_model">secadora.tarifa.flete</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_activas': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear una nueva tarifa de flete
+                </p>
+                <p>
+                    Defina tarifas de transporte por ruta (origen → destino).
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -17,5 +17,26 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
+
+        <!-- ====== Reglas Multi-Empresa ====== -->
+
+        <!-- Posición de Arroz: Multi-Company -->
+        <record id="posicion_arroz_company_rule" model="ir.rule">
+            <field name="name">Posición Arroz: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_posicion_arroz"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Movimiento de Arroz: Multi-Company -->
+        <record id="movimiento_arroz_company_rule" model="ir.rule">
+            <field name="name">Movimiento Arroz: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_movimiento_arroz"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
     </data>
 </odoo>

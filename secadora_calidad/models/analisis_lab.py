@@ -33,6 +33,14 @@ class AnalisisLab(models.Model):
         default=lambda self: self.env.user,
         required=True
     )
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        required=True,
+        default=lambda self: self.env.company,
+        index=True,
+    )
+
     state = fields.Selection([
         ('borrador', 'Borrador'),
         ('confirmado', 'Confirmado'),
@@ -171,6 +179,11 @@ class AnalisisLab(models.Model):
             self.tipo_operacion_id = self.pesaje_id.tipo_operacion_id
             if self.pesaje_id.orden_servicio_id:
                 self.orden_servicio_id = self.pesaje_id.orden_servicio_id
+            # Trasladar humedad e impurezas del pesaje para evitar doble digitación
+            if self.pesaje_id.humedad:
+                self.humedad = self.pesaje_id.humedad
+            if self.pesaje_id.impurezas:
+                self.impurezas = self.pesaje_id.impurezas
 
     @api.depends(
         'pesaje_id.peso_neto', 'pesaje_id.tipo_operacion_id', 'pesaje_id.producto_id',
@@ -276,6 +289,23 @@ class AnalisisLab(models.Model):
     def action_confirmar(self):
         for record in self:
             record.state = 'confirmado'
+            if record.pesaje_id:
+                # Actualizar pesaje con valores del laboratorio
+                record.pesaje_id.write({
+                    'humedad': record.humedad,
+                    'impurezas': record.impurezas,
+                })
+                # Propagar a posiciones de arroz (excepto comerciales/combinadas)
+                posiciones = self.env['secadora.posicion.arroz'].search([
+                    ('pesaje_id', '=', record.pesaje_id.id),
+                    ('es_comercial', '=', False),
+                    ('company_id', 'in', self.env.user.company_ids.ids),
+                ])
+                if posiciones:
+                    posiciones.write({
+                        'humedad': record.humedad,
+                        'impurezas': record.impurezas,
+                    })
 
     def action_borrador(self):
         for record in self:

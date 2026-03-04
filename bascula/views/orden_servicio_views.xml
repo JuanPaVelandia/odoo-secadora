@@ -89,6 +89,7 @@
                             <field name="fecha_inicio" readonly="state == 'facturado'"/>
                             <field name="modalidad_salida" readonly="state == 'facturado'"/>
                             <field name="factura_id" readonly="1"/>
+                            <field name="company_id" invisible="1"/>
                         </group>
                     </group>
                     <group>
@@ -125,12 +126,20 @@
                                 <group class="oe_subtotal_footer oe_right">
                                     <field name="peso_salida_bascula" string="Total Salida" class="oe_subtotal_footer_separator"/>
                                 </group>
+                                <div class="alert alert-warning p-2" role="alert"
+                                     invisible="modalidad_salida != 'bultos'">
+                                    <strong>Nota:</strong> La modalidad de salida es <strong>Empaque en Bultos</strong>.
+                                    El peso de salida para la liquidación se toma del registro de bultos, no de estos pesajes.
+                                </div>
                             </group>
                         </page>
                         <page string="Bultos" invisible="modalidad_salida != 'bultos'">
                             <field name="registro_bultos_ids" readonly="state == 'facturado'">
-                                <list editable="bottom">
+                                <list editable="bottom"
+                                      decoration-success="despachado"
+                                      decoration-muted="despachado">
                                     <field name="fecha"/>
+                                    <field name="producto_id"/>
                                     <field name="producto_empaque_id"/>
                                     <field name="cantidad" sum="Total Bultos"/>
                                     <field name="peso_promedio"/>
@@ -138,9 +147,32 @@
                                     <field name="proveedor_empaque"/>
                                     <field name="precio_unitario_empaque"/>
                                     <field name="subtotal_empaque" sum="Total Empaques"/>
+                                    <field name="cantidad_despachada" sum="Despachados"/>
+                                    <field name="cantidad_pendiente" sum="Pendientes"/>
                                     <field name="observaciones" optional="show"/>
                                 </list>
                             </field>
+                            <div class="row mt-3 mb-3">
+                                <div class="col-md-6 offset-md-6">
+                                    <table class="table table-sm table-borderless">
+                                        <tr>
+                                            <td class="text-end"><strong>Empacados:</strong></td>
+                                            <td class="text-end"><field name="total_bultos" class="oe_inline"/> bultos</td>
+                                            <td class="text-end">(<field name="peso_total_bultos" class="oe_inline"/> kg)</td>
+                                        </tr>
+                                        <tr class="text-success">
+                                            <td class="text-end"><strong>Despachados:</strong></td>
+                                            <td class="text-end"><field name="bultos_despachados" class="oe_inline"/> bultos</td>
+                                            <td class="text-end">(<field name="peso_despachado" class="oe_inline"/> kg)</td>
+                                        </tr>
+                                        <tr class="text-warning">
+                                            <td class="text-end"><strong>Pendientes:</strong></td>
+                                            <td class="text-end"><field name="bultos_pendientes" class="oe_inline"/> bultos</td>
+                                            <td class="text-end">(<field name="peso_pendiente" class="oe_inline"/> kg)</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
                         </page>
                         <page string="Servicios">
                             <field name="linea_servicio_ids" readonly="state == 'facturado'">
@@ -158,6 +190,11 @@
                             </group>
                         </page>
                         <page string="Liquidación">
+                            <div class="alert alert-warning p-2 mb-3" role="alert"
+                                 invisible="modalidad_salida != 'bultos'">
+                                <strong>Nota:</strong> La modalidad de salida es <strong>Empaque en Bultos</strong>.
+                                El peso de salida real se toma del registro de bultos, no de los pesajes de salida en báscula.
+                            </div>
                             <group>
                                 <group string="Pesos">
                                     <field name="peso_entrada" readonly="1"/>

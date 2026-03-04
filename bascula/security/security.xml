@@ -50,5 +50,59 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <!-- ====== Reglas Multi-Empresa ====== -->
+
+        <!-- Pesaje: Multi-Company -->
+        <record id="pesaje_company_rule" model="ir.rule">
+            <field name="name">Pesaje: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_pesaje"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Orden de Servicio: Multi-Company -->
+        <record id="orden_servicio_company_rule" model="ir.rule">
+            <field name="name">Orden de Servicio: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_orden_servicio"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Línea de Orden de Servicio: Multi-Company -->
+        <record id="orden_servicio_linea_company_rule" model="ir.rule">
+            <field name="name">Línea de Orden: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_orden_servicio_linea"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Registro de Bultos: Multi-Company -->
+        <record id="registro_bultos_company_rule" model="ir.rule">
+            <field name="name">Registro de Bultos: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_registro_bultos"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Servicio Regla: Multi-Company -->
+        <record id="servicio_regla_company_rule" model="ir.rule">
+            <field name="name">Regla de Servicio: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_servicio_regla"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Lugar: Sin restricción (catálogo compartido, company_id es informativo) -->
+        <record id="lugar_company_rule" model="ir.rule">
+            <field name="name">Lugar: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_lugar"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
     </data>
 </odoo>

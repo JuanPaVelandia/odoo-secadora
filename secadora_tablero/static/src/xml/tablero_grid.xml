@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="secadora_tablero.TableroGrid">
+        <div class="tablero-grid-container p-3">
+            <div class="d-flex align-items-center mb-3">
+                <h2 class="mb-0 me-3">Tablero de Arroz</h2>
+                <button class="btn btn-outline-secondary btn-sm"
+                        t-on-click="onClickRefresh">
+                    <i class="fa fa-refresh"/> Actualizar
+                </button>
+                <button t-att-class="'btn btn-sm ms-2 ' + (state.bloqueado ? 'btn-danger' : 'btn-outline-secondary')"
+                        t-on-click="onClickToggleBloqueo"
+                        t-att-title="state.bloqueado ? 'Desbloquear tablero' : 'Bloquear tablero para evitar movimientos'">
+                    <i t-att-class="state.bloqueado ? 'fa fa-lock' : 'fa fa-unlock'"/>
+                    <t t-if="state.bloqueado"> Bloqueado</t>
+                    <t t-else=""> Bloquear</t>
+                </button>
+            </div>
+
+            <t t-if="state.loading">
+                <div class="text-center p-5">
+                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                    <p class="mt-2 text-muted">Cargando tablero...</p>
+                </div>
+            </t>
+
+            <t t-else="">
+                <!-- Vehículos en tránsito -->
+                <t t-if="state.en_transito.length or hasPreasignados()">
+                <div t-att-class="'tablero-transito-section mb-3' + (state.en_transito.length ? '' : ' tablero-transito-empty')"
+                     t-on-dragover="(ev) => this.onDragOver(ev)"
+                     t-on-dragenter="(ev) => ev.currentTarget.classList.add('tablero-transito-drag-over')"
+                     t-on-dragleave="(ev) => ev.currentTarget.classList.remove('tablero-transito-drag-over')"
+                     t-on-drop="(ev) => this.onDropTransitoSection(ev)">
+                    <h5 class="tablero-transito-title">
+                        <i class="fa fa-truck me-1"/>
+                        Vehículos en Tránsito
+                        <span class="badge text-bg-warning ms-1" t-if="state.en_transito.length" t-esc="state.en_transito.length"/>
+                    </h5>
+                    <div class="tablero-transito-list" t-if="state.en_transito.length">
+                            <t t-foreach="state.en_transito" t-as="transito" t-key="transito.id">
+                                <div class="tablero-card tablero-card-transito"
+                                     t-att-draggable="state.bloqueado ? 'false' : 'true'"
+                                     t-att-data-transito-idx="transito_index"
+                                     t-on-dragstart="(ev) => this.onDragStartTransito(ev, transito.id)"
+                                     t-on-dragend="(ev) => this.onDragEndTransito(ev)"
+                                     t-on-dragover="(ev) => this.onDragOverTransitoCard(ev)"
+                                     t-on-dragleave="(ev) => this.onDragLeaveTransitoCard(ev)"
+                                     t-on-drop="(ev) => this.onDropTransitoCard(ev)">
+                                    <div class="tablero-card-title">
+                                        <i class="fa fa-user me-1"/>
+                                        <t t-esc="transito.tercero"/>
+                                    </div>
+                                    <div class="tablero-card-highlight" t-if="transito.tipo_operacion">
+                                        <i class="fa fa-cog me-1"/>
+                                        <t t-esc="transito.tipo_operacion"/>
+                                    </div>
+                                    <div class="tablero-card-highlight" t-if="transito.conductor or transito.placa_texto">
+                                        <i class="fa fa-truck me-1"/>
+                                        <t t-if="transito.conductor" t-esc="transito.conductor"/>
+                                        <t t-if="transito.conductor and transito.placa_texto"> - </t>
+                                        <t t-if="transito.placa_texto" t-esc="transito.placa_texto"/>
+                                    </div>
+                                    <div class="tablero-card-variedad text-muted" t-if="transito.variedad">
+                                        <i class="fa fa-leaf me-1"/>
+                                        <t t-esc="transito.variedad"/>
+                                    </div>
+                                    <div class="tablero-card-peso tablero-peso-transito">
+                                        ~<t t-esc="formatPeso(transito.peso_bruto)"/> kg (bruto)
+                                    </div>
+                                    <div class="tablero-card-detail text-muted" t-if="transito.humedad or transito.impurezas">
+                                        <i class="fa fa-tint me-1"/>H: <t t-esc="transito.humedad.toFixed(1)"/>%
+                                        · Imp: <t t-esc="transito.impurezas.toFixed(1)"/>%
+                                    </div>
+                                    <div class="tablero-card-detail text-muted" t-if="transito.pesaje_name">
+                                        <i class="fa fa-ticket me-1"/>
+                                        <t t-esc="transito.pesaje_name"/>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    <p class="text-muted mb-0" t-if="!state.en_transito.length">
+                        <i class="fa fa-info-circle me-1"/>Arrastra aquí para devolver a tránsito
+                    </p>
+                </div>
+                </t>
+
+                <table class="tablero-grid-table">
+                    <tbody>
+                        <t t-foreach="state.filas" t-as="fila" t-key="fila">
+                            <tr>
+                                <t t-foreach="state.columnas" t-as="col" t-key="col">
+                                    <t t-set="sitio" t-value="getSitioAt(fila, col)"/>
+                                    <td class="tablero-grid-cell"
+                                        t-att-class="sitio ? '' : 'tablero-cell-empty'"
+                                        t-att-draggable="sitio and !state.bloqueado ? 'true' : 'false'"
+                                        t-on-dragstart="(ev) => sitio and this.onDragStartCell(ev, sitio.id)"
+                                        t-on-dragover="(ev) => this.onDragOver(ev)"
+                                        t-on-dragenter="(ev) => this.onDragEnter(ev)"
+                                        t-on-dragleave="(ev) => this.onDragLeave(ev)"
+                                        t-on-drop="(ev) => this.onDrop(ev, sitio and sitio.id, fila, col)">
+
+                                        <t t-if="sitio">
+                                            <div class="tablero-cell-header d-flex align-items-center">
+                                                <i class="fa fa-arrows text-muted me-1" title="Arrastrar ubicación" t-if="!state.bloqueado"/>
+                                                <strong t-esc="sitio.name"/>
+                                                <span class="text-muted ms-1" t-if="sitio.capacidad_kg">
+                                                    (<t t-esc="formatPeso(sitio.capacidad_kg)"/> kg)
+                                                </span>
+                                                <span class="ms-auto" t-if="!state.bloqueado">
+                                                    <button class="tablero-btn-combinar"
+                                                            title="Combinar tarjetas"
+                                                            t-if="getCombinableCount(sitio.id) > 1"
+                                                            t-on-click.stop="() => this.onClickCombinar(sitio.id)">
+                                                        <i class="fa fa-compress"/> Combinar
+                                                    </button>
+                                                    <button class="tablero-btn-despachar"
+                                                            title="Registrar empaque de bultos"
+                                                            t-if="sitio.es_punto_salida and sitioTieneBultos(sitio.id)"
+                                                            t-on-click.stop="() => this.onClickDespachar(sitio.id)">
+                                                        <i class="fa fa-archive"/> Empacar
+                                                    </button>
+                                                </span>
+                                            </div>
+                                            <t t-if="sitio.capacidad_kg">
+                                                <t t-set="pesoTotal" t-value="getPesoTotalSitio(sitio.id)"/>
+                                                <t t-set="pctUso" t-value="getPorcentajeUso(sitio.id, sitio.capacidad_kg)"/>
+                                                <t t-set="excedente" t-value="getExcedente(sitio.id, sitio.capacidad_kg)"/>
+                                                <div class="tablero-capacidad-bar">
+                                                    <div t-att-class="'tablero-capacidad-fill' + (excedente > 0 ? ' tablero-capacidad-over' : (pctUso >= 80 ? ' tablero-capacidad-warn' : ''))"
+                                                         t-att-style="'width:' + pctUso + '%'"/>
+                                                </div>
+                                                <div class="tablero-capacidad-text">
+                                                    <t t-esc="formatPeso(pesoTotal)"/> / <t t-esc="formatPeso(sitio.capacidad_kg)"/> kg
+                                                </div>
+                                                <div class="tablero-capacidad-alert" t-if="excedente > 0">
+                                                    <i class="fa fa-exclamation-triangle me-1"/>
+                                                    Excede <t t-esc="formatPeso(excedente)"/> kg — dividir o mover tarjetas
+                                                </div>
+                                            </t>
+                                            <t t-set="cellPositions" t-value="getPosicionesForSitio(sitio.id)"/>
+                                            <div t-att-class="'tablero-cell-cards-wrapper' + (cellPositions.length > 2 ? ' has-overflow' : '')">
+                                                <div class="tablero-cell-cards">
+                                                    <t t-foreach="cellPositions" t-as="pos" t-key="pos.id">
+                                                        <div t-att-class="'tablero-card' + (pos.es_preasignado ? ' tablero-card-preasignado' : '') + (state.bloqueado ? ' tablero-card-bloqueado' : '')"
+                                                             t-att-draggable="state.bloqueado ? 'false' : 'true'"
+                                                             t-on-dragstart="(ev) => this.onDragStartCard(ev, pos.id)"
+                                                             t-on-click="() => this.onClickPosicion(pos.id)">
+                                                            <div class="tablero-card-title">
+                                                                <i class="fa fa-user me-1" t-if="!pos.es_combinacion"/>
+                                                                <i class="fa fa-compress me-1" t-if="pos.es_combinacion"/>
+                                                                <t t-if="pos.es_combinacion">Comercial</t>
+                                                                <t t-else="" t-esc="pos.tercero"/>
+                                                                <span class="badge text-bg-warning ms-1" t-if="pos.es_division">DIV</span>
+                                                                <span class="badge text-bg-info ms-1" t-if="pos.es_combinacion">COMB</span>
+                                                                <span class="badge text-bg-success ms-1" t-if="pos.es_semilla">SEMILLA</span>
+                                                                <span class="badge text-bg-warning ms-1" t-if="pos.es_preasignado">EN CAMINO</span>
+                                                            </div>
+                                                            <div class="tablero-card-body-row">
+                                                                <div class="tablero-card-body-left">
+                                                                    <t t-if="!pos.es_combinacion">
+                                                                        <div class="tablero-card-highlight" t-if="pos.tipo_operacion">
+                                                                            <i class="fa fa-cog me-1"/>
+                                                                            <t t-esc="pos.tipo_operacion"/>
+                                                                        </div>
+                                                                        <div class="tablero-card-highlight" t-if="pos.conductor or pos.placa_texto">
+                                                                            <i class="fa fa-truck me-1"/>
+                                                                            <t t-if="pos.conductor" t-esc="pos.conductor"/>
+                                                                            <t t-if="pos.conductor and pos.placa_texto"> - </t>
+                                                                            <t t-if="pos.placa_texto" t-esc="pos.placa_texto"/>
+                                                                        </div>
+                                                                    </t>
+                                                                    <div class="tablero-card-detail text-muted" t-if="pos.modalidad_salida">
+                                                                        <i class="fa fa-sign-out me-1"/>
+                                                                        <t t-esc="pos.modalidad_salida"/>
+                                                                    </div>
+                                                                    <div class="tablero-card-variedad text-muted" t-if="pos.variedad">
+                                                                        <i class="fa fa-leaf me-1"/>
+                                                                        <t t-esc="pos.variedad"/>
+                                                                    </div>
+                                                                    <div t-att-class="'tablero-card-peso' + (pos.es_preasignado ? ' tablero-peso-transito' : '')">
+                                                                        <t t-if="pos.es_preasignado">~</t><t t-esc="formatPeso(pos.peso_kg)"/> kg<t t-if="pos.es_preasignado"> (bruto)</t>
+                                                                    </div>
+                                                                    <t t-if="!pos.es_combinacion">
+                                                                        <div class="tablero-card-detail text-muted" t-if="pos.pesaje_name">
+                                                                            <i class="fa fa-ticket me-1"/>
+                                                                            <t t-esc="pos.pesaje_name"/>
+                                                                        </div>
+                                                                    </t>
+                                                                </div>
+                                                                <div class="tablero-card-calidad" t-if="!sitio.ocultar_calidad and (pos.humedad or pos.impurezas)">
+                                                                    <div t-if="pos.humedad" title="Humedad">
+                                                                        <i class="fa fa-tint me-1"/><t t-esc="pos.humedad.toFixed(1)"/>%
+                                                                    </div>
+                                                                    <div t-if="pos.impurezas" title="Impurezas">
+                                                                        <i class="fa fa-trash me-1"/><t t-esc="pos.impurezas.toFixed(1)"/>%
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="tablero-card-footer" t-if="!state.bloqueado">
+                                                                <button class="tablero-btn-despachar"
+                                                                        title="Despachar"
+                                                                        t-on-click.stop="(ev) => this.onClickDespacharPosicion(pos.id)">
+                                                                    <i class="fa fa-truck"/> Despachar
+                                                                </button>
+                                                                <button class="tablero-btn-dividir"
+                                                                        title="Dividir"
+                                                                        t-on-click.stop="(ev) => this.onClickDividir(pos.id)">
+                                                                    <i class="fa fa-code-fork"/> Dividir
+                                                                </button>
+                                                                <button class="tablero-btn-revertir"
+                                                                        title="Revertir división"
+                                                                        t-if="pos.es_division_hija"
+                                                                        t-on-click.stop="(ev) => this.onClickRevertirDivision(pos.id)">
+                                                                    <i class="fa fa-undo"/> Revertir
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                            <div class="tablero-card-count" t-if="cellPositions.length > 2">
+                                                <i class="fa fa-chevron-down me-1"/>
+                                                <t t-esc="cellPositions.length"/> tarjetas
+                                            </div>
+                                        </t>
+                                    </td>
+                                </t>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <!-- Posiciones sin ubicar -->
+                <t t-set="sinUbicar" t-value="getSinUbicar()"/>
+                <t t-if="sinUbicar.length">
+                    <div class="mt-4">
+                        <h5 class="text-muted">Sin ubicación asignada</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            <t t-foreach="sinUbicar" t-as="pos" t-key="pos.id">
+                                <div class="tablero-card tablero-card-unassigned"
+                                     t-att-draggable="state.bloqueado ? 'false' : 'true'"
+                                     t-on-dragstart="(ev) => this.onDragStartCard(ev, pos.id)"
+                                     t-on-click="() => this.onClickPosicion(pos.id)">
+                                    <div class="tablero-card-title">
+                                        <i class="fa fa-user me-1"/>
+                                        <t t-esc="pos.tercero"/>
+                                    </div>
+                                    <div class="tablero-card-peso">
+                                        <t t-esc="formatPeso(pos.peso_kg)"/> kg
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </div>
+    </t>
+
+</templates>

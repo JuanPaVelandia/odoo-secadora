@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_flete_usuario,secadora.flete.usuario,model_secadora_flete,group_transporte_usuario,1,1,1,0
+access_flete_admin,secadora.flete.admin,model_secadora_flete,group_transporte_admin,1,1,1,1
+access_flete_basculero,secadora.flete.basculero,model_secadora_flete,bascula.group_basculero,1,1,1,0
+access_tarifa_flete_usuario,secadora.tarifa.flete.usuario,model_secadora_tarifa_flete,group_transporte_usuario,1,0,0,0
+access_tarifa_flete_admin,secadora.tarifa.flete.admin,model_secadora_tarifa_flete,group_transporte_admin,1,1,1,1
+access_tarifa_flete_basculero,secadora.tarifa.flete.basculero,model_secadora_tarifa_flete,bascula.group_basculero,1,0,0,0
+access_asociar_factura_wizard_usuario,secadora.asociar.factura.wizard.usuario,model_secadora_asociar_factura_wizard,group_transporte_usuario,1,1,1,0
+access_asociar_factura_wizard_admin,secadora.asociar.factura.wizard.admin,model_secadora_asociar_factura_wizard,group_transporte_admin,1,1,1,1

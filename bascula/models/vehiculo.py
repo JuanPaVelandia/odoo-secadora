@@ -15,13 +15,11 @@ class SecadoraVehiculo(models.Model):
         index=True,
         help='Placa del vehículo'
     )
-    tipo_vehiculo = fields.Selection([
-        ('camion', 'Camión'),
-        ('tractomula', 'Tractomula'),
-        ('turbo', 'Turbo'),
-        ('camioneta', 'Camioneta'),
-        ('otro', 'Otro'),
-    ], string='Tipo de Vehículo', default='camion')
+    tipo_vehiculo_id = fields.Many2one(
+        'secadora.tipo.vehiculo',
+        string='Tipo de Vehículo',
+        required=True,
+    )
     capacidad_kg = fields.Float(
         string='Capacidad (Kg)',
         help='Capacidad de carga en kilogramos'

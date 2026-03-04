@@ -9,7 +9,14 @@ from odoo.exceptions import UserError
 class SecadoraPesaje(models.Model):
     _name = 'secadora.pesaje'
     _description = 'Registro de Pesaje'
+    _inherit = ['mail.thread']
     _order = 'name desc'
+    _sql_constraints = [
+        ('peso_valido', 'CHECK(peso_bruto >= peso_tara OR peso_bruto = 0 OR peso_tara = 0)',
+         'El peso bruto no puede ser menor al peso tara.'),
+        ('name_company_unique', 'UNIQUE(name, company_id)',
+         'Número de pesaje duplicado para esta empresa.'),
+    ]
 
     # Información básica
     name = fields.Char(
@@ -79,12 +86,35 @@ class SecadoraPesaje(models.Model):
         string='Transportadora'
     )
 
+    # Multi-empresa
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        required=True,
+        default=lambda self: self.env.company,
+        index=True,
+    )
+    empresa_arroz_id = fields.Many2one(
+        'res.company',
+        string='Empresa del Arroz',
+        index=True,
+        tracking=True,
+        help='Empresa dueña del arroz. Se auto-detecta desde el tercero.',
+    )
+
+    es_semilla = fields.Boolean(
+        string='Es Semilla',
+        default=False,
+        help='Marcar si este viaje transporta semilla. Las posiciones de semilla no se pueden combinar en el tablero.',
+    )
+
     # Tercero (agricultor/cliente)
     tercero_id = fields.Many2one(
         'res.partner',
         string='Tercero (Agricultor/Cliente)',
         required=True,
-        index=True
+        index=True,
+        tracking=True,
     )
     nit_tercero = fields.Char(
         string='NIT/CC',
@@ -97,6 +127,7 @@ class SecadoraPesaje(models.Model):
     origen_id = fields.Many2one(
         'secadora.lugar',
         string='Origen',
+        required=True,
         help='Lugar de origen (finca, bodega, etc.)'
     )
     lote_finca = fields.Char(
@@ -106,6 +137,7 @@ class SecadoraPesaje(models.Model):
     destino_id = fields.Many2one(
         'secadora.lugar',
         string='Destino',
+        required=True,
         help='Lugar de destino (finca, bodega, etc.)'
     )
 
@@ -143,7 +175,7 @@ class SecadoraPesaje(models.Model):
     peso_actual = fields.Float(
         string='Peso Actual (Kg)',
         help='Peso en tiempo real desde la báscula',
-        digits=(12, 2),
+        digits=(12, 0),
         readonly=True
     )
     escuchando_bascula = fields.Boolean(
@@ -154,19 +186,21 @@ class SecadoraPesaje(models.Model):
     peso_bruto = fields.Float(
         string='Peso Lleno (Kg)',
         help='Primera pesada - Vehículo lleno',
-        digits=(12, 2)
+        digits=(12, 0),
+        tracking=True,
     )
     peso_tara = fields.Float(
         string='Peso Vacío (Kg)',
         help='Segunda pesada - Vehículo vacío',
-        digits=(12, 2)
+        digits=(12, 0),
+        tracking=True,
     )
     peso_neto = fields.Float(
         string='Peso Neto (Kg)',
         compute='_compute_peso_neto',
         store=True,
         readonly=True,
-        digits=(12, 2)
+        digits=(12, 0)
     )
 
     # Calidad
@@ -183,11 +217,59 @@ class SecadoraPesaje(models.Model):
         digits=(5, 2)
     )
 
+    # Campos relacionados para visibilidad en vista
+    os_modalidad_salida = fields.Selection(
+        related='orden_servicio_id.modalidad_salida',
+        string='Modalidad Salida OS',
+    )
+
+    # Líneas de despacho de bultos (pesajes de salida de servicio con modalidad bultos)
+    despacho_bultos_ids = fields.One2many(
+        'secadora.despacho.bultos',
+        'pesaje_id',
+        string='Bultos a Despachar',
+        help='Detalle de bultos a despachar en este pesaje de salida',
+    )
+
+    peso_total_bultos_despacho = fields.Float(
+        string='Peso Bultos (kg)',
+        compute='_compute_diferencia_bultos',
+        digits=(12, 2),
+    )
+    diferencia_bultos = fields.Float(
+        string='Diferencia Báscula vs Bultos (kg)',
+        compute='_compute_diferencia_bultos',
+        digits=(12, 2),
+    )
+    diferencia_bultos_pct = fields.Float(
+        string='Diferencia (%)',
+        compute='_compute_diferencia_bultos',
+        digits=(5, 2),
+    )
+    alerta_diferencia_bultos = fields.Boolean(
+        string='Alerta Diferencia',
+        compute='_compute_diferencia_bultos',
+    )
+
+    @api.depends('despacho_bultos_ids.peso_subtotal', 'peso_neto')
+    def _compute_diferencia_bultos(self):
+        for rec in self:
+            peso_bultos = sum(rec.despacho_bultos_ids.mapped('peso_subtotal'))
+            rec.peso_total_bultos_despacho = peso_bultos
+            if peso_bultos and rec.peso_neto:
+                rec.diferencia_bultos = rec.peso_neto - peso_bultos
+                rec.diferencia_bultos_pct = (rec.diferencia_bultos / peso_bultos) * 100
+                rec.alerta_diferencia_bultos = abs(rec.diferencia_bultos_pct) > 0.1
+            else:
+                rec.diferencia_bultos = 0
+                rec.diferencia_bultos_pct = 0
+                rec.alerta_diferencia_bultos = False
+
     # Remisión
     bultos = fields.Integer(string='Bultos')
     precio = fields.Float(
         string='Precio',
-        digits=(12, 2)
+        digits=(12, 0)
     )
     plazo = fields.Char(string='Plazo')
     observaciones = fields.Text(string='Observaciones', help='Notas internas adicionales del proceso de pesaje.')
@@ -205,6 +287,41 @@ class SecadoraPesaje(models.Model):
         if self.tipo_operacion_id and self.tipo_operacion_id.direccion_fija:
             # Compra/Venta tienen dirección automática
             self.direccion = self.tipo_operacion_id.direccion_fija
+
+    @api.onchange('direccion')
+    def _onchange_direccion_planta(self):
+        """Auto-asignar planta como origen (salida) o destino (entrada)."""
+        lugar_id = int(self.env['ir.config_parameter'].sudo().get_param(
+            'bascula.lugar_planta_id', '0'))
+        if not lugar_id:
+            # Fallback al parámetro de transporte si existe
+            lugar_id = int(self.env['ir.config_parameter'].sudo().get_param(
+                'secadora_transporte.lugar_planta_id', '0'))
+        if not lugar_id:
+            return
+        planta = self.env['secadora.lugar'].browse(lugar_id).exists()
+        if not planta:
+            return
+        if self.direccion == 'entrada':
+            self.destino_id = planta
+            if self.origen_id == planta:
+                self.origen_id = False
+        elif self.direccion == 'salida':
+            self.origen_id = planta
+            if self.destino_id == planta:
+                self.destino_id = False
+
+    @api.onchange('tercero_id')
+    def _onchange_tercero_empresa(self):
+        """Auto-detectar empresa del arroz desde el tercero"""
+        if self.tercero_id:
+            empresa = self.env['res.company'].search([
+                ('partner_id', '=', self.tercero_id.id)
+            ], limit=1)
+            if empresa:
+                self.empresa_arroz_id = empresa.id
+            else:
+                self.empresa_arroz_id = False
 
     @api.onchange('orden_servicio_id')
     def _onchange_orden_servicio(self):
@@ -291,6 +408,12 @@ class SecadoraPesaje(models.Model):
 
     def action_primera_pesada(self):
         for record in self:
+            # Lock row to prevent race condition on concurrent state transitions
+            self.env.cr.execute(
+                'SELECT id FROM secadora_pesaje WHERE id = %s FOR UPDATE NOWAIT',
+                [record.id]
+            )
+            record.invalidate_recordset(['state'])
             if record.state != 'borrador':
                 raise UserError('Solo se puede registrar la primera pesada en estado borrador.')
 
@@ -302,7 +425,8 @@ class SecadoraPesaje(models.Model):
             if peso_a_usar <= 0:
                 ultimo_pesaje = self.search([
                     ('peso_actual', '>', 0),
-                    ('state', 'in', ['borrador', 'en_transito'])
+                    ('state', 'in', ['borrador', 'en_transito']),
+                    ('company_id', 'in', self.env.user.company_ids.ids),
                 ], order='write_date desc', limit=1)
 
                 if ultimo_pesaje:
@@ -329,6 +453,12 @@ class SecadoraPesaje(models.Model):
 
     def action_segunda_pesada(self):
         for record in self:
+            # Lock row to prevent race condition on concurrent state transitions
+            self.env.cr.execute(
+                'SELECT id FROM secadora_pesaje WHERE id = %s FOR UPDATE NOWAIT',
+                [record.id]
+            )
+            record.invalidate_recordset(['state'])
             if record.state != 'en_transito':
                 raise UserError('Solo se puede registrar la segunda pesada en estado en tránsito.')
 
@@ -339,7 +469,8 @@ class SecadoraPesaje(models.Model):
             if peso_a_usar <= 0:
                 ultimo_pesaje = self.search([
                     ('peso_actual', '>', 0),
-                    ('state', 'in', ['borrador', 'en_transito'])
+                    ('state', 'in', ['borrador', 'en_transito']),
+                    ('company_id', 'in', self.env.user.company_ids.ids),
                 ], order='write_date desc', limit=1)
 
                 if ultimo_pesaje:
@@ -372,6 +503,10 @@ class SecadoraPesaje(models.Model):
                 'hora_salida': self._get_colombia_time(),
                 'state': 'completado'
             })
+
+            # Confirmar líneas de despacho de bultos
+            if record.despacho_bultos_ids:
+                record.despacho_bultos_ids.write({'confirmado': True})
 
     def action_cancelar(self):
         for record in self:
@@ -408,6 +543,11 @@ class SecadoraPesaje(models.Model):
             if not pesaje.exists():
                 return {'success': False, 'message': 'Pesaje no encontrado'}
 
+            # Nota: No se filtra por company_id aquí porque este método se
+            # llama desde el bridge externo (auth='none' + sudo). La API key
+            # ya provee la autenticación. Los métodos de usuario (action_primera_pesada,
+            # action_segunda_pesada) sí filtran por empresa del usuario.
+
             # Guardar también como peso global para formularios nuevos (sin guardar)
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso))
             self.env['ir.config_parameter'].sudo().set_param(
@@ -443,8 +583,11 @@ class SecadoraPesaje(models.Model):
             return {'success': False, 'message': 'API Key inválida'}
 
         # Buscar pesaje en borrador o en tránsito (más reciente)
+        # Nota: No se filtra por company_id aquí porque este método se
+        # llama desde el bridge externo (auth='none' + sudo). La API key
+        # ya provee la autenticación.
         pesaje = self.search([
-            ('state', 'in', ['borrador', 'en_transito'])
+            ('state', 'in', ['borrador', 'en_transito']),
         ], order='id desc', limit=1)
 
         if pesaje:

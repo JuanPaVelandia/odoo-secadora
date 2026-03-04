@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menú Liquidaciones bajo el menú raíz de báscula -->
+        <menuitem id="menu_liquidacion"
+                  name="Liquidaciones"
+                  parent="bascula.menu_bascula_root"
+                  sequence="30"/>
+
+        <menuitem id="menu_liquidacion_todas"
+                  name="Liquidaciones de Compra"
+                  parent="menu_liquidacion"
+                  action="action_secadora_liquidacion"
+                  sequence="10"/>
+
+        <!-- Submenú Configuración -->
+        <menuitem id="menu_liquidacion_config"
+                  name="Configuración"
+                  parent="menu_liquidacion"
+                  sequence="90"
+                  groups="group_liquidacion_admin"/>
+
+        <menuitem id="menu_precio_compra"
+                  name="Precios de Compra"
+                  parent="menu_liquidacion_config"
+                  action="action_precio_compra"
+                  sequence="10"/>
+
+        <menuitem id="menu_tipo_deduccion"
+                  name="Tipos de Deducción"
+                  parent="menu_liquidacion_config"
+                  action="action_tipo_deduccion"
+                  sequence="20"/>
+
+    </data>
+</odoo>

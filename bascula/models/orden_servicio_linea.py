@@ -15,11 +15,19 @@ class OrdenServicioLinea(models.Model):
         ondelete='cascade'
     )
 
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        related='orden_id.company_id',
+        store=True,
+        index=True,
+    )
+
     producto_id = fields.Many2one(
         'product.product',
         string='Servicio/Producto',
         required=True,
-        domain=[('type', '=', 'service')],
+        domain=[('type', '=', 'service'), ('active', '=', True)],
         help='Servicio adicional a cobrar (ej: Cargue, Descargue, Limpieza)'
     )
 

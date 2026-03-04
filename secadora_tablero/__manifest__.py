@@ -16,7 +16,7 @@
         - Historial completo de movimientos para auditoría
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
-    'depends': ['bascula', 'secadora_calidad', 'mail'],
+    'depends': ['bascula', 'secadora_bascula', 'secadora_calidad', 'mail'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -26,10 +26,20 @@
         'views/sitio_muestra_views.xml',
         'views/pesaje_views.xml',
         'wizard/dividir_posicion_wizard_views.xml',
+        'wizard/combinar_posicion_wizard_views.xml',
+        'wizard/despachar_posicion_wizard_views.xml',
         'views/menu_views.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'secadora_tablero/static/src/css/tablero_grid.css',
+            'secadora_tablero/static/src/xml/tablero_grid.xml',
+            'secadora_tablero/static/src/js/tablero_grid.js',
+        ],
+    },
     'installable': True,
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
+    'post_init_hook': '_post_init_es_comercial',
 }

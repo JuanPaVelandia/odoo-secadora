@@ -39,9 +39,9 @@
                         <notebook>
                             <page string="Vehículos Asociados">
                                 <field name="vehiculo_ids">
-                                    <list>
+                                    <list create="0">
                                         <field name="placa"/>
-                                        <field name="tipo_vehiculo"/>
+                                        <field name="tipo_vehiculo_id"/>
                                         <field name="transportadora_id"/>
                                     </list>
                                 </field>

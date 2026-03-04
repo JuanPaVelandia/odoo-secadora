@@ -13,6 +13,11 @@ class DescuentoCalidad(models.Model):
     name = fields.Char(string='Nombre', required=True)
     sequence = fields.Integer(string='Secuencia', default=10)
     active = fields.Boolean(string='Activo', default=True)
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        help='Dejar vacío para que aplique a todas las empresas',
+    )
 
     tipo_operacion_id = fields.Many2one(
         'secadora.tipo.operacion',
@@ -120,6 +125,8 @@ class DescuentoCalidad(models.Model):
             dict: {'tipo': 'factor'|'kg', 'valor': float, 'detalle': str}
         """
         self.ensure_one()
+        if self.parametro not in analisis._fields:
+            return {'tipo': 'factor', 'valor': 1.0, 'detalle': ''}
         valor = getattr(analisis, self.parametro, 0.0) or 0.0
         peso_neto = analisis.pesaje_id.peso_neto if analisis.pesaje_id else 0.0
         parametro_label = dict(self._fields['parametro'].selection).get(self.parametro, self.parametro)

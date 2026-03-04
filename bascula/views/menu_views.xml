@@ -45,6 +45,13 @@
                   action="action_orden_servicio"
                   sequence="20"/>
 
+        <!-- Menú: Bultos Empacados -->
+        <menuitem id="menu_bascula_bultos_empacados"
+                  name="Bultos Empacados"
+                  parent="menu_bascula_root"
+                  action="action_registro_bultos"
+                  sequence="25"/>
+
         <!-- Menú: Configuración -->
         <menuitem id="menu_bascula_configuracion"
                   name="Configuración"
@@ -57,6 +64,12 @@
                   parent="menu_bascula_configuracion"
                   action="action_secadora_vehiculo"
                   sequence="10"/>
+
+        <menuitem id="menu_bascula_tipo_vehiculo"
+                  name="Tipos de Vehículo"
+                  parent="menu_bascula_configuracion"
+                  action="action_tipo_vehiculo"
+                  sequence="11"/>
 
         <menuitem id="menu_bascula_conductores"
                   name="Conductores"

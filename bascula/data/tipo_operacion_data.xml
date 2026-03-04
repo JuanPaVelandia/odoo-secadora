@@ -17,6 +17,7 @@
             <field name="genera_factura" eval="True"/>
             <field name="tipo_factura">proveedor</field>
             <field name="es_servicio" eval="False"/>
+            <field name="es_compraventa" eval="True"/>
             <field name="requiere_precio" eval="True"/>
             <field name="descripcion">Compra de arroz a productores. El arroz entra al inventario de la secadora y se genera factura de proveedor.</field>
             <field name="color">3</field>
@@ -33,6 +34,7 @@
             <field name="genera_factura" eval="True"/>
             <field name="tipo_factura">cliente</field>
             <field name="es_servicio" eval="False"/>
+            <field name="es_compraventa" eval="True"/>
             <field name="requiere_precio" eval="True"/>
             <field name="descripcion">Venta de arroz propio. El arroz sale del inventario y se genera factura de cliente.</field>
             <field name="color">2</field>

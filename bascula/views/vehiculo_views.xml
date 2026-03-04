@@ -9,7 +9,7 @@
             <field name="arch" type="xml">
                 <list string="Vehículos">
                     <field name="placa"/>
-                    <field name="tipo_vehiculo"/>
+                    <field name="tipo_vehiculo_id"/>
                     <field name="capacidad_kg"/>
                     <field name="tara_promedio"/>
                     <field name="conductor_habitual_id"/>
@@ -28,7 +28,7 @@
                         <group>
                             <group>
                                 <field name="placa" placeholder="ABC123"/>
-                                <field name="tipo_vehiculo"/>
+                                <field name="tipo_vehiculo_id"/>
                                 <field name="capacidad_kg"/>
                             </group>
                             <group>
@@ -53,13 +53,13 @@
             <field name="arch" type="xml">
                 <search string="Buscar Vehículos">
                     <field name="placa"/>
-                    <field name="tipo_vehiculo"/>
+                    <field name="tipo_vehiculo_id"/>
                     <field name="conductor_habitual_id"/>
                     <field name="transportadora_id"/>
                     <filter string="Activos" name="active" domain="[('active', '=', True)]"/>
                     <filter string="Inactivos" name="inactive" domain="[('active', '=', False)]"/>
                     <group expand="0" string="Agrupar por">
-                        <filter string="Tipo de Vehículo" name="group_tipo" context="{'group_by': 'tipo_vehiculo'}"/>
+                        <filter string="Tipo de Vehículo" name="group_tipo" context="{'group_by': 'tipo_vehiculo_id'}"/>
                         <filter string="Transportadora" name="group_transportadora" context="{'group_by': 'transportadora_id'}"/>
                     </group>
                 </search>

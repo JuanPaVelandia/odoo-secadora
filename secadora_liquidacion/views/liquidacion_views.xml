@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form de Liquidación -->
+        <record id="view_secadora_liquidacion_form" model="ir.ui.view">
+            <field name="name">secadora.liquidacion.form</field>
+            <field name="model">secadora.liquidacion</field>
+            <field name="arch" type="xml">
+                <form string="Liquidación de Compra">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"/>
+                        <button name="action_borrador" string="Volver a Borrador" type="object"
+                                invisible="state not in ('confirmado',)"
+                                groups="secadora_liquidacion.group_liquidacion_admin"/>
+                        <button name="action_cancelar" string="Cancelar" type="object"
+                                invisible="state in ('facturado', 'cancelado')"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmado,facturado"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_ver_factura" type="object"
+                                    class="oe_stat_button" icon="fa-file-text-o"
+                                    invisible="not factura_id">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Ver</span>
+                                    <span class="o_stat_text">Factura</span>
+                                </div>
+                            </button>
+                            <button name="action_abrir_wizard_pesajes" type="object"
+                                    class="oe_stat_button" icon="fa-plus-circle"
+                                    invisible="state != 'borrador'">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Agregar</span>
+                                    <span class="o_stat_text">Pesajes</span>
+                                </div>
+                            </button>
+                            <button name="action_cargar_fletes" type="object"
+                                    class="oe_stat_button" icon="fa-truck"
+                                    invisible="state != 'borrador'">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Cargar</span>
+                                    <span class="o_stat_text">Fletes</span>
+                                </div>
+                            </button>
+                            <button name="action_aplicar_deducciones" type="object"
+                                    class="oe_stat_button" icon="fa-calculator"
+                                    invisible="state != 'borrador'">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Aplicar</span>
+                                    <span class="o_stat_text">Deducciones</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="tercero_id" readonly="state != 'borrador'"/>
+                                <field name="fecha" readonly="state != 'borrador'"/>
+                                <field name="usuario_id"/>
+                            </group>
+                            <group>
+                                <field name="fecha_desde" readonly="state != 'borrador'"/>
+                                <field name="fecha_hasta" readonly="state != 'borrador'"/>
+                                <field name="factura_id" readonly="state == 'cancelado'"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Pesajes" name="pesajes">
+                                <field name="linea_ids" readonly="state != 'borrador'">
+                                    <list editable="bottom">
+                                        <field name="pesaje_id"
+                                               domain="[('state', '=', 'completado'), ('direccion', '=', 'entrada'),
+                                                        ('tipo_operacion_id.codigo', '=', 'COMPRA'),
+                                                        ('liquidacion_id', '=', False),
+                                                        ('tercero_id', '=', parent.tercero_id)]"/>
+                                        <field name="fecha_pesaje"/>
+                                        <field name="variedad_id"/>
+                                        <field name="peso_neto"/>
+                                        <field name="peso_comercial"/>
+                                        <field name="humedad"/>
+                                        <field name="precio"/>
+                                        <field name="subtotal"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Deducciones" name="deducciones">
+                                <field name="deduccion_ids" readonly="state != 'borrador'">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="tipo"/>
+                                        <field name="descripcion"/>
+                                        <field name="monto"/>
+                                        <field name="flete_id" optional="hide"/>
+                                        <field name="tipo_deduccion_id" optional="hide"/>
+                                        <field name="notas" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <group>
+                            <field name="observaciones" placeholder="Observaciones..." readonly="state != 'borrador'"/>
+                        </group>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="cantidad_pesajes"/>
+                            <field name="total_peso_comercial"/>
+                            <field name="total_bruto"/>
+                            <field name="total_deducciones" style="color: #c00;"/>
+                            <field name="total_neto"
+                                   style="font-size: 1.4em; font-weight: bold; color: #00A09D;"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List de Liquidación -->
+        <record id="view_secadora_liquidacion_list" model="ir.ui.view">
+            <field name="name">secadora.liquidacion.list</field>
+            <field name="model">secadora.liquidacion</field>
+            <field name="arch" type="xml">
+                <list string="Liquidaciones de Compra"
+                      decoration-info="state == 'borrador'"
+                      decoration-success="state == 'confirmado'"
+                      decoration-bf="state == 'facturado'"
+                      decoration-muted="state == 'cancelado'">
+                    <field name="name"/>
+                    <field name="fecha"/>
+                    <field name="tercero_id"/>
+                    <field name="cantidad_pesajes"/>
+                    <field name="total_bruto"/>
+                    <field name="total_deducciones"/>
+                    <field name="total_neto"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'borrador'"
+                           decoration-success="state == 'confirmado'"
+                           decoration-warning="state == 'facturado'"
+                           decoration-danger="state == 'cancelado'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Search de Liquidación -->
+        <record id="view_secadora_liquidacion_search" model="ir.ui.view">
+            <field name="name">secadora.liquidacion.search</field>
+            <field name="model">secadora.liquidacion</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Liquidaciones">
+                    <field name="name"/>
+                    <field name="tercero_id"/>
+                    <separator/>
+                    <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
+                    <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
+                    <filter name="filter_facturado" string="Facturado" domain="[('state', '=', 'facturado')]"/>
+                    <separator/>
+                    <filter name="filter_este_mes" string="Este Mes"
+                            domain="[('fecha', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                     ('fecha', '&lt;', (context_today() + relativedelta(months=1, day=1)).strftime('%Y-%m-%d'))]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_tercero" string="Agricultor" context="{'group_by': 'tercero_id'}"/>
+                        <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                        <filter name="group_fecha" string="Fecha (Mes)" context="{'group_by': 'fecha:month'}"/>
+                        <filter name="group_company" string="Empresa" context="{'group_by': 'company_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción de ventana -->
+        <record id="action_secadora_liquidacion" model="ir.actions.act_window">
+            <field name="name">Liquidaciones de Compra</field>
+            <field name="res_model">secadora.liquidacion</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_secadora_liquidacion_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear una liquidación de compra
+                </p>
+                <p>
+                    Las liquidaciones consolidan pesajes de compra de arroz,
+                    aplican deducciones y generan el soporte para facturación.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

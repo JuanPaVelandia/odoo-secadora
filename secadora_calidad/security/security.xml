@@ -17,5 +17,26 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
+
+        <!-- ====== Reglas Multi-Empresa ====== -->
+
+        <!-- Análisis de Laboratorio: Multi-Company -->
+        <record id="analisis_lab_company_rule" model="ir.rule">
+            <field name="name">Análisis Lab: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_analisis_lab"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Descuento de Calidad: Multi-Company -->
+        <record id="descuento_calidad_company_rule" model="ir.rule">
+            <field name="name">Descuento Calidad: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_descuento_calidad"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
     </data>
 </odoo>

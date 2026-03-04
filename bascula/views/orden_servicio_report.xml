@@ -121,6 +121,10 @@
                             <!-- Pesajes de Salida -->
                             <div style="margin-bottom: 20px;">
                                 <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Salida</h4>
+                                <div t-if="o.modalidad_salida == 'bultos'" style="margin-bottom: 10px; padding: 8px; background-color: #fff3cd; border: 1px solid #ffc107; font-size: 11px;">
+                                    <strong>Nota:</strong> La modalidad de salida es <strong>Empaque en Bultos</strong>.
+                                    El peso de salida para la liquidación se toma del registro de bultos, no de estos pesajes.
+                                </div>
                                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                                     <thead>
                                         <tr style="background-color: #f0f0f0;">
@@ -156,10 +160,10 @@
                                     <thead>
                                         <tr style="background-color: #f0f0f0;">
                                             <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Fecha</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Producto</th>
                                             <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Cantidad</th>
                                             <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Prom.</th>
                                             <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Total</th>
-                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: center;">Prov.</th>
                                             <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Costo</th>
                                             <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Observación</th>
                                         </tr>
@@ -167,6 +171,7 @@
                                     <tbody>
                                         <tr t-foreach="o.registro_bultos_ids" t-as="bulto">
                                             <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="bulto.fecha"/></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="bulto.producto_id"/></td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
                                                 <span t-field="bulto.cantidad"/>
                                             </td>
@@ -175,10 +180,6 @@
                                             </td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
                                                 <span t-field="bulto.peso_total" t-options='{"widget": "float", "precision": 2}'/>
-                                            </td>
-                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
-                                                <span t-if="bulto.proveedor_empaque == 'secadora'">Sec.</span>
-                                                <span t-if="bulto.proveedor_empaque == 'cliente'">Cli.</span>
                                             </td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
                                                 $<span t-field="bulto.subtotal_empaque" t-options='{"widget": "float", "precision": 0}'/>
@@ -189,15 +190,13 @@
                                         </tr>
                                         <tr style="background-color: #f0f0f0; font-weight: bold;">
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTALES:</td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"></td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
                                                 <span t-field="o.total_bultos"/>
                                             </td>
                                             <td style="border: 1px solid #ddd; padding: 8px;"></td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
                                                 <span t-field="o.peso_total_bultos" t-options='{"widget": "float", "precision": 2}'/>
-                                            </td>
-                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">
-                                                <span t-field="o.total_empaques_secadora"/>/<span t-field="o.total_empaques_cliente"/>
                                             </td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
                                                 $<span t-field="o.subtotal_empaques" t-options='{"widget": "float", "precision": 0}'/>

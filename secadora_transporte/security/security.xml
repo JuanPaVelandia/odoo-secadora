@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Grupo: Usuario de Transporte -->
+        <record id="group_transporte_usuario" model="res.groups">
+            <field name="name">Usuario Transporte</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Transporte -->
+        <record id="group_transporte_admin" model="res.groups">
+            <field name="name">Administrador Transporte</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_transporte_usuario'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- ====== Reglas Multi-Empresa (Cross-Company) ====== -->
+
+        <!-- Flete: visible desde empresa que paga, empresa origen, o empresa destino -->
+        <record id="flete_company_rule" model="ir.rule">
+            <field name="name">Flete: Cross-Company</field>
+            <field name="model_id" ref="model_secadora_flete"/>
+            <field name="domain_force">
+                ['|', '|', '|',
+                    ('company_id', 'in', company_ids),
+                    ('empresa_origen_id', 'in', company_ids),
+                    ('empresa_destino_id', 'in', company_ids),
+                    ('company_id', '=', False)]
+            </field>
+        </record>
+
+    </data>
+</odoo>

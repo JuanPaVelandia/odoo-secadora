@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Agregar botones de Fletes al formulario de Pesaje -->
+        <record id="view_pesaje_form_inherit_transporte" model="ir.ui.view">
+            <field name="name">secadora.pesaje.form.inherit.transporte</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="inherit_id" ref="bascula.view_secadora_pesaje_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <!-- Botón para crear flete (solo visible completado y sin fletes) -->
+                    <button name="action_crear_flete" type="object"
+                            class="oe_stat_button" icon="fa-truck"
+                            invisible="flete_count &gt; 0 or state != 'completado'">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_text">Crear</span>
+                            <span class="o_stat_text">Flete</span>
+                        </div>
+                    </button>
+                    <!-- Botón para ver fletes (visible cuando hay fletes) -->
+                    <button name="action_ver_fletes" type="object"
+                            class="oe_stat_button" icon="fa-truck"
+                            invisible="flete_count == 0">
+                        <field name="flete_count" widget="statinfo" string="Fletes"/>
+                    </button>
+                </xpath>
+                <!-- Agregar campo generar_flete antes de observaciones -->
+                <xpath expr="//field[@name='observaciones']/.." position="before">
+                    <group string="Transporte">
+                        <field name="generar_flete"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

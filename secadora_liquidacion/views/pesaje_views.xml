@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Agregar liquidacion_id al formulario de Pesaje -->
+        <record id="view_pesaje_form_inherit_liquidacion" model="ir.ui.view">
+            <field name="name">secadora.pesaje.form.inherit.liquidacion</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="inherit_id" ref="bascula.view_secadora_pesaje_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='orden_servicio_id']" position="after">
+                    <field name="liquidacion_id" readonly="1"
+                           options="{'no_open': False}"
+                           invisible="not tipo_operacion_id or not tipo_operacion_id.es_compraventa"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

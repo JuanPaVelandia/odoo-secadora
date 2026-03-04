@@ -1,0 +1,318 @@
+.tablero-grid-container {
+    overflow: auto;
+    min-height: 400px;
+    height: calc(100vh - 50px);
+}
+
+.tablero-grid-table {
+    border-collapse: separate;
+    border-spacing: 8px;
+    width: 100%;
+}
+
+.tablero-grid-cell {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    min-width: 240px;
+    min-height: 180px;
+    width: 25%;
+    vertical-align: top;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.tablero-cell-empty {
+    background: transparent;
+    border-color: transparent;
+}
+
+.tablero-cell-drag-over {
+    border-color: #00A09D !important;
+}
+
+.tablero-cell-header {
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 0.9em;
+    cursor: grab;
+}
+
+.tablero-cell-header:active {
+    cursor: grabbing;
+}
+
+/* Barra de capacidad */
+.tablero-capacidad-bar {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    margin-bottom: 2px;
+    overflow: hidden;
+}
+
+.tablero-capacidad-fill {
+    height: 100%;
+    background: #00A09D;
+    border-radius: 2px;
+    transition: width 0.3s;
+}
+
+.tablero-capacidad-warn {
+    background: #f0ad4e;
+}
+
+.tablero-capacidad-over {
+    background: #dc3545;
+}
+
+.tablero-capacidad-text {
+    font-size: 0.75em;
+    color: #6c757d;
+    margin-bottom: 4px;
+}
+
+.tablero-capacidad-alert {
+    font-size: 0.8em;
+    color: #dc3545;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.tablero-cell-cards-wrapper {
+    position: relative;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Degradado inferior que indica "hay más tarjetas" */
+.tablero-cell-cards-wrapper.has-overflow::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: block;
+    height: 32px;
+    background: linear-gradient(transparent, #f8f9fa);
+    pointer-events: none;
+}
+
+.tablero-cell-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.tablero-card-count {
+    text-align: center;
+    font-size: 0.8em;
+    color: #6c757d;
+    padding-top: 4px;
+}
+
+.tablero-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #00A09D;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: grab;
+    transition: box-shadow 0.15s;
+}
+
+.tablero-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.tablero-card:active {
+    cursor: grabbing;
+}
+
+.tablero-card-unassigned {
+    border-left-color: #dc3545;
+    max-width: 220px;
+}
+
+.tablero-card-title {
+    font-weight: 700;
+    font-size: 1.05em;
+    margin-bottom: 3px;
+}
+
+.tablero-card-highlight {
+    font-weight: 600;
+    font-size: 0.95em;
+    color: #495057;
+    margin-bottom: 2px;
+}
+
+.tablero-card-variedad {
+    font-size: 0.8em;
+}
+
+.tablero-card-peso {
+    font-size: 1.15em;
+    font-weight: bold;
+    color: #00A09D;
+    margin: 2px 0;
+}
+
+.tablero-card-detail {
+    font-size: 0.8em;
+}
+
+.tablero-card-body-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.tablero-card-body-left {
+    flex: 1;
+    min-width: 0;
+}
+
+.tablero-card-calidad {
+    flex-shrink: 0;
+    text-align: right;
+    font-size: 0.78em;
+    color: #6c757d;
+    line-height: 1.6;
+    padding-top: 1px;
+}
+
+.tablero-card-calidad i {
+    color: #adb5bd;
+}
+
+.tablero-card-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.tablero-btn-dividir {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.tablero-btn-dividir:hover {
+    background: #e9ecef;
+    color: #00A09D;
+}
+
+/* Botón Combinar en el header de la celda */
+.tablero-btn-combinar {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.tablero-btn-combinar:hover {
+    background: #e9ecef;
+    color: #e67e22;
+}
+
+/* Botón Despachar en el header de la celda */
+.tablero-btn-despachar {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+
+.tablero-btn-despachar:hover {
+    background: #e9ecef;
+    color: #dc3545;
+}
+
+/* Sección de Vehículos en Tránsito */
+.tablero-transito-section {
+    background: #fff8f0;
+    border: 2px dashed #e67e22;
+    border-radius: 8px;
+    padding: 12px 16px;
+}
+
+.tablero-transito-title {
+    color: #e67e22;
+    margin-bottom: 8px;
+}
+
+.tablero-card-transito {
+    border: 2px dashed #e67e22;
+    border-left: 4px solid #e67e22;
+    background: rgba(230, 126, 34, 0.06);
+    cursor: grab;
+    max-width: 240px;
+}
+
+.tablero-card-transito:hover {
+    box-shadow: 0 2px 8px rgba(230, 126, 34, 0.2);
+}
+
+.tablero-card-transito:active {
+    cursor: grabbing;
+}
+
+.tablero-card-transito.tablero-dragging {
+    opacity: 0.3;
+}
+
+/* Lista de tránsito */
+.tablero-transito-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+/* Indicadores de inserción al arrastrar */
+.tablero-card-transito.tablero-drop-before {
+    border-left: 4px solid #d35400 !important;
+    box-shadow: -4px 0 0 0 #d35400;
+}
+
+.tablero-card-transito.tablero-drop-after {
+    border-right: 4px solid #d35400;
+    box-shadow: 4px 0 0 0 #d35400;
+}
+
+.tablero-transito-drag-over {
+    border-color: #d35400;
+    background: rgba(230, 126, 34, 0.12);
+}
+
+.tablero-transito-empty {
+    border-style: dashed;
+    min-height: 60px;
+}
+
+.tablero-peso-transito {
+    color: #e67e22 !important;
+}
+
+/* Tarjeta pre-asignada (en tránsito ubicada en celda) */
+.tablero-card-preasignado {
+    border: 2px dashed #e67e22;
+    border-left: 4px solid #e67e22;
+    background: rgba(230, 126, 34, 0.06);
+}

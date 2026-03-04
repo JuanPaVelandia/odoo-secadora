@@ -8,6 +8,20 @@ class RegistroBultos(models.Model):
     _name = 'secadora.registro.bultos'
     _description = 'Registro de Bultos Empacados'
     _order = 'fecha desc'
+    _rec_name = 'name'
+
+    name = fields.Char(
+        string='Descripción',
+        compute='_compute_name',
+        store=True,
+    )
+
+    @api.depends('cantidad', 'producto_id', 'producto_empaque_id', 'fecha')
+    def _compute_name(self):
+        for record in self:
+            producto = record.producto_id.name or ''
+            empaque = record.producto_empaque_id.name or ''
+            record.name = f"{record.cantidad} bultos {producto} - {empaque} - {record.fecha}"
 
     orden_id = fields.Many2one(
         'secadora.orden.servicio',
@@ -15,6 +29,29 @@ class RegistroBultos(models.Model):
         required=True,
         ondelete='cascade',
         index=True
+    )
+
+    cliente_id = fields.Many2one(
+        'res.partner',
+        string='Dueño / Agricultor',
+        related='orden_id.cliente_id',
+        store=True,
+        index=True,
+    )
+
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        related='orden_id.company_id',
+        store=True,
+        index=True,
+    )
+
+    producto_id = fields.Many2one(
+        'product.product',
+        string='Producto',
+        domain=[('categ_id.name', '=', 'Arroz')],
+        help='Producto de arroz empacado (ej: Arroz Paddy Seco, Rechazo)'
     )
 
     fecha = fields.Date(
@@ -90,6 +127,36 @@ class RegistroBultos(models.Model):
     #     help='Movimiento que consume empaques del inventario'
     # )
 
+    # ==================== DESPACHO ====================
+
+    despacho_ids = fields.One2many(
+        'secadora.despacho.bultos',
+        'registro_bultos_id',
+        string='Despachos',
+        help='Líneas de despacho asociadas a este registro',
+    )
+
+    cantidad_despachada = fields.Integer(
+        string='Despachados',
+        compute='_compute_despacho',
+        store=True,
+        help='Cantidad de bultos ya despachados',
+    )
+
+    cantidad_pendiente = fields.Integer(
+        string='Pendientes',
+        compute='_compute_despacho',
+        store=True,
+        help='Cantidad de bultos pendientes por despachar',
+    )
+
+    despachado = fields.Boolean(
+        string='Despachado',
+        compute='_compute_despacho',
+        store=True,
+        help='Indica si todos los bultos de este registro fueron despachados',
+    )
+
     observaciones = fields.Text(
         string='Observaciones'
     )
@@ -108,6 +175,15 @@ class RegistroBultos(models.Model):
     ], string='Estado', default='borrador')
 
     # ==================== COMPUTED FIELDS ====================
+
+    @api.depends('despacho_ids.cantidad', 'despacho_ids.confirmado', 'cantidad')
+    def _compute_despacho(self):
+        for record in self:
+            confirmados = record.despacho_ids.filtered('confirmado')
+            despachada = sum(confirmados.mapped('cantidad'))
+            record.cantidad_despachada = despachada
+            record.cantidad_pendiente = record.cantidad - despachada
+            record.despachado = despachada >= record.cantidad
 
     @api.depends('cantidad', 'peso_promedio')
     def _compute_peso_total(self):
@@ -131,6 +207,19 @@ class RegistroBultos(models.Model):
     def _onchange_producto_empaque_id(self):
         if self.producto_empaque_id:
             self.precio_unitario_empaque = self.producto_empaque_id.list_price
+
+    @api.onchange('producto_id')
+    def _onchange_producto_id(self):
+        if self.producto_id and 'paddy' in (self.producto_id.name or '').lower():
+            pesajes = self.orden_id.pesaje_entrada_ids
+            variedades = pesajes.mapped('variedad_id.name')
+            variedades_unicas = list(dict.fromkeys(v for v in variedades if v))
+            if variedades_unicas:
+                self.observaciones = ', '.join(variedades_unicas)
+            else:
+                self.observaciones = False
+        else:
+            self.observaciones = False
 
     # ==================== MÉTODOS ====================
 

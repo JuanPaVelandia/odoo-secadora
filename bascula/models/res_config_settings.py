@@ -13,6 +13,13 @@ class ResConfigSettings(models.TransientModel):
         help='Clave secreta para autenticación del bridge de báscula'
     )
 
+    lugar_planta_id = fields.Many2one(
+        'secadora.lugar',
+        string='Planta Principal',
+        config_parameter='bascula.lugar_planta_id',
+        help='Lugar que se auto-asigna como destino en entradas y como origen en salidas.',
+    )
+
     factor_conversion_verde_seco = fields.Float(
         string='Factor de Conversión Verde → Seco',
         config_parameter='bascula.factor_conversion_verde_seco',

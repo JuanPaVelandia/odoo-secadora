@@ -7,7 +7,7 @@
 - XMLIDs de ubicaciones de stock:
   - Virtual Locations parent: `stock.stock_location_locations_virtual` (NO `stock.stock_location_virtual`)
   - Physical Locations parent: `stock.stock_location_locations`
-  - Production: `stock.stock_location_production`
+  - Production: NO tiene xmlid en Odoo 18. Buscar por `('usage', '=', 'production')`
   - Suppliers: `stock.stock_location_suppliers`
   - Customers: `stock.stock_location_customers`
   - WH/Stock: `stock.stock_location_stock`

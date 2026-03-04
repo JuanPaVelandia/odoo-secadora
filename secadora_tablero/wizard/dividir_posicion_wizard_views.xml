@@ -13,11 +13,19 @@
                     </group>
                     <group>
                         <group>
-                            <field name="peso_mantener"/>
-                            <field name="peso_mover" readonly="1"/>
+                            <field name="peso_ingresado"/>
+                            <field name="modo" widget="radio"/>
                         </group>
                         <group>
                             <field name="sitio_destino_id"/>
+                        </group>
+                    </group>
+                    <group string="Resultado">
+                        <group>
+                            <field name="peso_queda" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="peso_se_mueve" readonly="1"/>
                         </group>
                     </group>
                     <footer>

@@ -26,6 +26,11 @@ class SecadoraLugar(models.Model):
     departamento = fields.Char(string='Departamento')
     contacto = fields.Char(string='Contacto')
     telefono = fields.Char(string='Teléfono')
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        help='Empresa propietaria del lugar (informativo, dejar vacío si es compartido)',
+    )
     active = fields.Boolean(
         string='Activo',
         default=True

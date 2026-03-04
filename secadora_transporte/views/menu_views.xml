@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menú: Transporte (dentro de Báscula) -->
+        <menuitem id="menu_transporte"
+                  name="Transporte"
+                  parent="bascula.menu_bascula_root"
+                  sequence="25"/>
+
+        <menuitem id="menu_transporte_fletes"
+                  name="Fletes"
+                  parent="menu_transporte"
+                  action="action_secadora_flete"
+                  sequence="10"/>
+
+        <menuitem id="menu_transporte_tarifas"
+                  name="Tarifas de Flete"
+                  parent="menu_transporte"
+                  action="action_secadora_tarifa_flete"
+                  sequence="20"
+                  groups="secadora_transporte.group_transporte_admin"/>
+
+    </data>
+</odoo>

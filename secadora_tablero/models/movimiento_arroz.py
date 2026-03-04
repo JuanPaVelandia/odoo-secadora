@@ -15,6 +15,13 @@ class MovimientoArroz(models.Model):
         ondelete='cascade',
         index=True,
     )
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        related='posicion_id.company_id',
+        store=True,
+        index=True,
+    )
     pesaje_id = fields.Many2one(
         'secadora.pesaje',
         string='Pesaje',
@@ -50,5 +57,10 @@ class MovimientoArroz(models.Model):
         ('movimiento', 'Movimiento'),
         ('division', 'División'),
         ('retiro', 'Retiro'),
-    ], string='Tipo', required=True)
+        ('combinacion', 'Combinación'),
+        ('despacho', 'Despacho'),
+    ], string='Tipo', required=True,
+       help='Tipo de movimiento: Creación (ingreso), Movimiento (cambio de sitio), '
+            'División (separación de posición), Retiro (salida de planta), '
+            'Combinación (unión de posiciones), Despacho (envío a cliente)')
     notas = fields.Text(string='Notas')

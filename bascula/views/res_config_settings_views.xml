@@ -31,6 +31,14 @@
                                 </div>
                             </setting>
                         </block>
+                        <block title="Planta">
+                            <setting help="Lugar que se auto-asigna como destino en entradas y como origen en salidas.">
+                                <label for="lugar_planta_id" string="Planta Principal"/>
+                                <div>
+                                    <field name="lugar_planta_id" class="oe_inline"/>
+                                </div>
+                            </setting>
+                        </block>
                         <block title="Transformación de Inventario">
                             <setting help="Factor para calcular cuánto Verde se consume al vender Seco en operaciones propias (compra/venta). Ejemplo: 1.18 significa que 8,500 kg Seco requirieron 10,030 kg Verde.">
                                 <label for="factor_conversion_verde_seco" string="Factor Conversión Verde → Seco"/>

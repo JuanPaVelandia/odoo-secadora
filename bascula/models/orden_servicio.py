@@ -20,6 +20,14 @@ class OrdenServicio(models.Model):
         help='Número de orden de servicio generado automáticamente'
     )
 
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa',
+        required=True,
+        default=lambda self: self.env.company,
+        index=True,
+    )
+
     cliente_id = fields.Many2one(
         'res.partner',
         string='Cliente',
@@ -79,7 +87,7 @@ class OrdenServicio(models.Model):
         'secadora.pesaje',
         'orden_servicio_id',
         string='Pesajes de Entrada',
-        domain=[('tipo_proceso', '=', 'entrada')],
+        domain=[('direccion', '=', 'entrada')],
         help='Pesajes de entrada del arroz (normalmente uno, pero puede haber varios viajes)'
     )
 
@@ -87,7 +95,7 @@ class OrdenServicio(models.Model):
         'secadora.pesaje',
         'orden_servicio_id',
         string='Pesajes de Salida',
-        domain=[('tipo_proceso', '=', 'salida')],
+        domain=[('direccion', '=', 'salida')],
         help='Pesajes de salida del arroz (puede haber múltiples)'
     )
 
@@ -163,6 +171,38 @@ class OrdenServicio(models.Model):
         store=True,
         digits='Product Price',
         help='Total a cobrar por empaques provistos por secadora'
+    )
+
+    # ==================== SEGUIMIENTO DESPACHO ====================
+
+    bultos_despachados = fields.Integer(
+        string='Bultos Despachados',
+        compute='_compute_despacho_bultos',
+        store=True,
+        help='Cantidad de bultos ya despachados al cliente'
+    )
+
+    peso_despachado = fields.Float(
+        string='Peso Despachado (kg)',
+        compute='_compute_despacho_bultos',
+        store=True,
+        digits=(12, 2),
+        help='Peso total de los bultos ya despachados'
+    )
+
+    bultos_pendientes = fields.Integer(
+        string='Bultos Pendientes',
+        compute='_compute_despacho_bultos',
+        store=True,
+        help='Cantidad de bultos pendientes por despachar'
+    )
+
+    peso_pendiente = fields.Float(
+        string='Peso Pendiente (kg)',
+        compute='_compute_despacho_bultos',
+        store=True,
+        digits=(12, 2),
+        help='Peso total de los bultos pendientes por despachar'
     )
 
     # ==================== PESO SALIDA BÁSCULA ====================
@@ -269,6 +309,7 @@ class OrdenServicio(models.Model):
         readonly=True,
         tracking=True,
         ondelete='set null',
+        check_company=True,
         help='Factura de cliente generada para esta orden'
     )
 
@@ -351,6 +392,26 @@ class OrdenServicio(models.Model):
             record.subtotal_empaques = subtotal_empaques
             if total_bultos != bultos_anterior:
                 record._recalcular_servicios('bultos')
+
+    @api.depends('registro_bultos_ids.cantidad_despachada',
+                 'registro_bultos_ids.cantidad_pendiente',
+                 'registro_bultos_ids.cantidad',
+                 'registro_bultos_ids.peso_promedio')
+    def _compute_despacho_bultos(self):
+        for record in self:
+            bultos_despachados = 0
+            peso_despachado = 0.0
+            bultos_pendientes = 0
+            peso_pendiente = 0.0
+            for reg in record.registro_bultos_ids:
+                bultos_despachados += reg.cantidad_despachada
+                peso_despachado += reg.cantidad_despachada * reg.peso_promedio
+                bultos_pendientes += reg.cantidad_pendiente
+                peso_pendiente += reg.cantidad_pendiente * reg.peso_promedio
+            record.bultos_despachados = bultos_despachados
+            record.peso_despachado = peso_despachado
+            record.bultos_pendientes = bultos_pendientes
+            record.peso_pendiente = peso_pendiente
 
     @api.depends('pesaje_salida_ids.peso_neto')
     def _compute_peso_salida_bascula(self):
@@ -525,11 +586,17 @@ class OrdenServicio(models.Model):
 
     def write(self, vals):
         """Detectar cambio de modalidad_salida para re-aplicar reglas"""
+        if 'modalidad_salida' in vals:
+            for record in self:
+                if record.state in ('facturado', 'cancelado'):
+                    raise UserError(
+                        'No se puede cambiar la modalidad de salida de una orden '
+                        'facturada o cancelada.'
+                    )
         res = super(OrdenServicio, self).write(vals)
         if 'modalidad_salida' in vals:
             for record in self:
-                if record.state not in ('cancelado', 'facturado'):
-                    record._reaplicar_reglas_servicios()
+                record._reaplicar_reglas_servicios()
         return res
 
     def aplicar_reglas_servicios(self):
@@ -678,6 +745,7 @@ class OrdenServicio(models.Model):
         factura = self.env['account.move'].create({
             'move_type': 'out_invoice',
             'partner_id': self.cliente_id.id,
+            'company_id': self.company_id.id,
             'invoice_date': fields.Date.today(),
             'invoice_origin': self.name,
             'invoice_line_ids': [(0, 0, line) for line in lines],

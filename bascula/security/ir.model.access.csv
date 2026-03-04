@@ -21,3 +21,7 @@ access_secadora_orden_servicio_linea_basculero,secadora.orden.servicio.linea.bas
 access_secadora_orden_servicio_linea_admin,secadora.orden.servicio.linea.admin,model_secadora_orden_servicio_linea,group_bascula_admin,1,1,1,1
 access_secadora_servicio_regla_basculero,secadora.servicio.regla.basculero,model_secadora_servicio_regla,group_basculero,1,0,0,0
 access_secadora_servicio_regla_admin,secadora.servicio.regla.admin,model_secadora_servicio_regla,group_bascula_admin,1,1,1,1
+access_secadora_despacho_bultos_basculero,secadora.despacho.bultos.basculero,model_secadora_despacho_bultos,group_basculero,1,1,1,0
+access_secadora_despacho_bultos_admin,secadora.despacho.bultos.admin,model_secadora_despacho_bultos,group_bascula_admin,1,1,1,1
+access_secadora_tipo_vehiculo_basculero,secadora.tipo.vehiculo.basculero,model_secadora_tipo_vehiculo,group_basculero,1,0,0,0
+access_secadora_tipo_vehiculo_admin,secadora.tipo.vehiculo.admin,model_secadora_tipo_vehiculo,group_bascula_admin,1,1,1,1

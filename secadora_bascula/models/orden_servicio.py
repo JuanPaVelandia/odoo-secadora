@@ -160,6 +160,10 @@ class OrdenServicioStock(models.Model):
         # Ubicaciones
         loc_secado = self.env.ref('secadora_bascula.stock_location_secado', raise_if_not_found=False)
         loc_production = self.env.ref('stock.stock_location_production', raise_if_not_found=False)
+        if not loc_production:
+            loc_production = self.env['stock.location'].search(
+                [('usage', '=', 'production'), ('company_id', '=', self.company_id.id)], limit=1
+            )
         loc_customers = self.env.ref('stock.stock_location_customers', raise_if_not_found=False)
         loc_merma = self.env.ref('secadora_bascula.stock_location_merma_secado', raise_if_not_found=False)
 
@@ -198,17 +202,27 @@ class OrdenServicioStock(models.Model):
         })
 
         # Move 3: Entrega Seco al cliente (Secado En Proceso → Clientes)
-        move_vals_list.append({
-            'name': f'Entrega Seco - {self.name}',
-            'product_id': producto_seco.id,
-            'product_uom_qty': peso_salida,
-            'product_uom': producto_seco.uom_id.id,
-            'location_id': loc_secado.id,
-            'location_dest_id': loc_customers.id,
-            'x_orden_servicio_id': self.id,
-            'x_tipo_movimiento_secadora': 'salida_servicio',
-            'restrict_partner_id': cliente_id,
-        })
+        # Descontar lo ya despachado via pickings SAL-SRV completados (tablero/pesaje)
+        peso_ya_despachado = 0.0
+        pickings_salida = self.picking_ids.filtered(
+            lambda p: p.picking_type_id.sequence_code == 'SAL-SRV' and p.state == 'done'
+        )
+        for pk in pickings_salida:
+            peso_ya_despachado += sum(pk.move_ids.mapped('quantity'))
+
+        peso_entrega = peso_salida - peso_ya_despachado
+        if peso_entrega > 0:
+            move_vals_list.append({
+                'name': f'Entrega Seco - {self.name}',
+                'product_id': producto_seco.id,
+                'product_uom_qty': peso_entrega,
+                'product_uom': producto_seco.uom_id.id,
+                'location_id': loc_secado.id,
+                'location_dest_id': loc_customers.id,
+                'x_orden_servicio_id': self.id,
+                'x_tipo_movimiento_secadora': 'salida_servicio',
+                'restrict_partner_id': cliente_id,
+            })
 
         # Move 4: Merma (Secado En Proceso → Merma Secado) - solo si positiva
         if merma > 0:
@@ -225,11 +239,35 @@ class OrdenServicioStock(models.Model):
             })
 
         for vals in move_vals_list:
+            loc_src = vals['location_id']
+            loc_dest = vals['location_dest_id']
+
+            # Crear picking interno para que el owner_id se propague a quants
+            picking_type_internal = self.env['stock.picking.type'].search([
+                ('code', '=', 'internal'),
+            ], limit=1)
+            if not picking_type_internal:
+                picking_type_internal = self.env['stock.picking.type'].search([], limit=1)
+
+            picking = self.env['stock.picking'].create({
+                'picking_type_id': picking_type_internal.id,
+                'partner_id': cliente_id,
+                'owner_id': cliente_id,
+                'origin': self.name,
+                'location_id': loc_src,
+                'location_dest_id': loc_dest,
+                'x_orden_servicio_id': self.id,
+            })
+
+            vals['picking_id'] = picking.id
             move = self.env['stock.move'].create(vals)
-            move._action_confirm()
-            move.quantity = move.product_uom_qty
-            move.picked = True
-            move._action_done()
+
+            picking.action_confirm()
+            for ml in picking.move_line_ids:
+                ml.owner_id = cliente_id
+            for mv in picking.move_ids:
+                mv.quantity = mv.product_uom_qty
+            picking.button_validate()
 
         self.merma_inventario_registrada = True
 
@@ -246,9 +284,27 @@ class OrdenServicioStock(models.Model):
             ('state', '=', 'done'),
         ])
 
+        cliente_id = self.cliente_id.id
+
+        picking_type_internal = self.env['stock.picking.type'].search([
+            ('code', '=', 'internal'),
+        ], limit=1)
+        if not picking_type_internal:
+            picking_type_internal = self.env['stock.picking.type'].search([], limit=1)
+
         for move in moves_a_revertir:
-            # Crear move reverso (intercambiar origen y destino)
-            reverse_vals = {
+            # Crear picking reverso con owner_id
+            picking = self.env['stock.picking'].create({
+                'picking_type_id': picking_type_internal.id,
+                'partner_id': cliente_id,
+                'owner_id': cliente_id,
+                'origin': f'Reversa: {self.name}',
+                'location_id': move.location_dest_id.id,
+                'location_dest_id': move.location_id.id,
+                'x_orden_servicio_id': self.id,
+            })
+
+            self.env['stock.move'].create({
                 'name': f'Reversa: {move.name}',
                 'product_id': move.product_id.id,
                 'product_uom_qty': move.quantity,
@@ -257,12 +313,15 @@ class OrdenServicioStock(models.Model):
                 'location_dest_id': move.location_id.id,
                 'x_orden_servicio_id': self.id,
                 'x_tipo_movimiento_secadora': move.x_tipo_movimiento_secadora,
-                'restrict_partner_id': move.restrict_partner_id.id if move.restrict_partner_id else False,
-            }
-            reverse_move = self.env['stock.move'].create(reverse_vals)
-            reverse_move._action_confirm()
-            reverse_move.quantity = reverse_move.product_uom_qty
-            reverse_move.picked = True
-            reverse_move._action_done()
+                'restrict_partner_id': cliente_id,
+                'picking_id': picking.id,
+            })
+
+            picking.action_confirm()
+            for ml in picking.move_line_ids:
+                ml.owner_id = cliente_id
+            for mv in picking.move_ids:
+                mv.quantity = mv.product_uom_qty
+            picking.button_validate()
 
         self.merma_inventario_registrada = False

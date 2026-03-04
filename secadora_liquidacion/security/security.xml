@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Grupo: Usuario de Liquidaciones -->
+        <record id="group_liquidacion_usuario" model="res.groups">
+            <field name="name">Usuario Liquidaciones</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Liquidaciones -->
+        <record id="group_liquidacion_admin" model="res.groups">
+            <field name="name">Administrador Liquidaciones</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_liquidacion_usuario'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- ====== Reglas Multi-Empresa ====== -->
+
+        <record id="liquidacion_company_rule" model="ir.rule">
+            <field name="name">Liquidación: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_liquidacion"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="liquidacion_linea_company_rule" model="ir.rule">
+            <field name="name">Línea Liquidación: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_liquidacion_linea"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="liquidacion_deduccion_company_rule" model="ir.rule">
+            <field name="name">Deducción Liquidación: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_liquidacion_deduccion"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="precio_compra_company_rule" model="ir.rule">
+            <field name="name">Precio Compra: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_precio_compra"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="tipo_deduccion_company_rule" model="ir.rule">
+            <field name="name">Tipo Deducción: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_tipo_deduccion"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        </record>
+
+    </data>
+</odoo>

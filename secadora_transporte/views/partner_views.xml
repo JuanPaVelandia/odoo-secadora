@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Agregar campo generar_flete_automatico a res.partner -->
+        <record id="view_partner_form_inherit_transporte" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.transporte</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Transporte">
+                        <group>
+                            <field name="generar_flete_automatico"/>
+                            <field name="flete_pago"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

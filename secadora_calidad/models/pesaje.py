@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import logging
 from odoo import models, fields, api
+
+_logger = logging.getLogger(__name__)
 
 
 class SecadoraPesajeCalidad(models.Model):
@@ -50,6 +53,33 @@ class SecadoraPesajeCalidad(models.Model):
                 record.humedad_analisis = 0.0
                 record.peso_comercial = 0.0
 
+    def action_segunda_pesada(self):
+        res = super().action_segunda_pesada()
+        for record in self:
+            if record.state != 'completado':
+                continue
+            if not record.direccion:
+                continue
+            if record.analisis_lab_ids:
+                continue
+            try:
+                self.env['secadora.analisis.lab'].create({
+                    'pesaje_id': record.id,
+                    'tercero_id': record.tercero_id.id if record.tercero_id else False,
+                    'variedad_id': record.variedad_id.id if record.variedad_id else False,
+                    'tipo_operacion_id': record.tipo_operacion_id.id if record.tipo_operacion_id else False,
+                    'orden_servicio_id': record.orden_servicio_id.id if record.orden_servicio_id else False,
+                    'company_id': record.company_id.id,
+                    'humedad': record.humedad,
+                    'impurezas': record.impurezas,
+                })
+            except Exception as e:
+                _logger.error(
+                    'Error creando análisis automático para pesaje %s: %s',
+                    record.name, str(e)
+                )
+        return res
+
     def action_crear_analisis(self):
         """Crear un análisis de laboratorio pre-llenado con datos del pesaje"""
         self.ensure_one()
@@ -59,6 +89,8 @@ class SecadoraPesajeCalidad(models.Model):
             'variedad_id': self.variedad_id.id if self.variedad_id else False,
             'tipo_operacion_id': self.tipo_operacion_id.id if self.tipo_operacion_id else False,
             'orden_servicio_id': self.orden_servicio_id.id if self.orden_servicio_id else False,
+            'humedad': self.humedad,
+            'impurezas': self.impurezas,
         }
         analisis = self.env['secadora.analisis.lab'].create(vals)
         return {

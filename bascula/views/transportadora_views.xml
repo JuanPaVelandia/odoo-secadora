@@ -42,7 +42,7 @@
                                 <field name="vehiculo_ids">
                                     <list>
                                         <field name="placa"/>
-                                        <field name="tipo_vehiculo"/>
+                                        <field name="tipo_vehiculo_id"/>
                                         <field name="conductor_habitual_id"/>
                                     </list>
                                 </field>

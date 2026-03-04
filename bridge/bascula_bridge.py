@@ -81,26 +81,36 @@ os.makedirs(os.path.dirname(LOG_FILE) or '.', exist_ok=True)
 
 # ===== FIN CONFIGURACIÓN =====
 
-# Configurar logging
+# Configurar logging (con encoding UTF-8 para Windows)
 logging.basicConfig(
     level=LOG_LEVEL,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_FILE),
+        logging.FileHandler(LOG_FILE, encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
+
+# Configurar encoding UTF-8 para stdout en Windows
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 logger = logging.getLogger(__name__)
 
 
 class BasculaBridge:
     """Bridge entre báscula Prometálicos y Odoo"""
 
+    # Reenviar peso cada N ciclos aunque no cambie (heartbeat)
+    HEARTBEAT_CICLOS = 6  # ~3 segundos con intervalo 0.5s
+
     def __init__(self):
         self.serial_conn = None
         self.pesaje_activo = None
         self.ultimo_peso = None
         self.ultimo_peso_global = None
+        self.ciclos_sin_envio = 0
+        self.ciclos_sin_envio_global = 0
         self.conectado = False
         self.api_key = API_KEY
         self.puerto_serial = PUERTO_SERIAL
@@ -209,32 +219,39 @@ class BasculaBridge:
             return False
 
     def leer_peso(self):
-        """Lee el peso actual de la báscula"""
+        """Lee el peso actual de la báscula (descarta datos viejos del buffer)"""
         try:
             if not self.serial_conn or not self.serial_conn.is_open:
                 return None
 
-            if self.serial_conn.in_waiting > 0:
-                # Leer línea del puerto serial
+            if self.serial_conn.in_waiting == 0:
+                return None
+
+            # Leer TODAS las líneas disponibles y quedarse con la última válida.
+            # Esto evita que el buffer se llene con datos viejos.
+            ultima_linea = None
+            while self.serial_conn.in_waiting > 0:
                 linea = self.serial_conn.readline().decode('ascii', errors='ignore').strip()
+                if linea:
+                    ultima_linea = linea
 
-                if not linea:
+            if not ultima_linea:
+                return None
+
+            # Prometálicos típicamente envía:
+            # "  12345.50 kg" o "  12345.50 Kg" o solo "12345.50"
+            # Extraer solo el número usando regex
+            match = re.search(r'([\d.]+)', ultima_linea)
+            if match:
+                peso_str = match.group(1)
+                peso = float(peso_str)
+
+                # Validar que el peso sea razonable (entre 0 y 100,000 kg)
+                if 0 <= peso <= 100000:
+                    return peso
+                else:
+                    logger.warning(f"Peso fuera de rango: {peso} kg")
                     return None
-
-                # Prometálicos típicamente envía:
-                # "  12345.50 kg" o "  12345.50 Kg" o solo "12345.50"
-                # Extraer solo el número usando regex
-                match = re.search(r'([\d.]+)', linea)
-                if match:
-                    peso_str = match.group(1)
-                    peso = float(peso_str)
-
-                    # Validar que el peso sea razonable (entre 0 y 100,000 kg)
-                    if 0 <= peso <= 100000:
-                        return peso
-                    else:
-                        logger.warning(f"Peso fuera de rango: {peso} kg")
-                        return None
 
         except ValueError as e:
             logger.debug(f"Error parseando peso: {e}")
@@ -247,7 +264,7 @@ class BasculaBridge:
         """Obtiene el ID del pesaje activo desde Odoo"""
         try:
             url = f"{ODOO_URL}/api/bascula/pesaje_activo"
-            payload = {"api_key": self.api_key}
+            payload = {"api_key": self.api_key, "db": ODOO_DB}
 
             response = requests.post(
                 url,
@@ -258,13 +275,15 @@ class BasculaBridge:
 
             if response.status_code == 200:
                 data = response.json()
-                if data.get('success'):
-                    pesaje_id = data.get('pesaje_id')
-                    placa = data.get('placa', '')
+                # Odoo JSON-RPC envuelve la respuesta en {'result': {...}}
+                result = data.get('result', data)
+                if result.get('success'):
+                    pesaje_id = result.get('pesaje_id')
+                    placa = result.get('placa', '')
                     logger.info(f"📋 Pesaje activo: ID {pesaje_id}, Placa: {placa}")
                     return pesaje_id
                 else:
-                    logger.debug(f"No hay pesajes activos: {data.get('message')}")
+                    logger.debug(f"No hay pesajes activos: {result.get('message')}")
                     return None
             else:
                 logger.error(f"❌ Error HTTP {response.status_code}: {response.text}")
@@ -287,7 +306,8 @@ class BasculaBridge:
             payload = {
                 "pesaje_id": pesaje_id,
                 "peso": peso,
-                "api_key": self.api_key
+                "api_key": self.api_key,
+                "db": ODOO_DB,
             }
 
             response = requests.post(
@@ -299,10 +319,12 @@ class BasculaBridge:
 
             if response.status_code == 200:
                 data = response.json()
-                if data.get('success'):
+                # Odoo JSON-RPC envuelve la respuesta en {'result': {...}}
+                result = data.get('result', data)
+                if result.get('success'):
                     return True
                 else:
-                    logger.error(f"❌ Error desde Odoo: {data.get('message')}")
+                    logger.error(f"❌ Error desde Odoo: {result.get('message')}")
                     return False
             else:
                 logger.error(f"❌ Error HTTP {response.status_code}")
@@ -318,7 +340,8 @@ class BasculaBridge:
             url = f"{ODOO_URL}/api/bascula/actualizar_peso_global"
             payload = {
                 "peso": peso,
-                "api_key": self.api_key
+                "api_key": self.api_key,
+                "db": ODOO_DB,
             }
 
             response = requests.post(
@@ -330,7 +353,9 @@ class BasculaBridge:
 
             if response.status_code == 200:
                 data = response.json()
-                return bool(data.get('success'))
+                # Odoo JSON-RPC envuelve la respuesta en {'result': {...}}
+                result = data.get('result', data)
+                return bool(result.get('success'))
 
             return False
         except Exception:
@@ -395,6 +420,9 @@ class BasculaBridge:
                 if contador_lecturas % 10 == 0:
                     nuevo_pesaje = self.obtener_pesaje_activo()
                     if nuevo_pesaje != self.pesaje_activo:
+                        # Resetear peso al cambiar de pesaje
+                        self.ultimo_peso = None
+                        self.ciclos_sin_envio = 0
                         self.pesaje_activo = nuevo_pesaje
                         if self.pesaje_activo:
                             logger.info(f"\n🎯 Nuevo pesaje activo: {self.pesaje_activo}")
@@ -402,18 +430,31 @@ class BasculaBridge:
                 # Leer peso de báscula
                 peso = self.leer_peso()
 
-                if peso is not None and peso != self.ultimo_peso_global:
-                    self.enviar_peso_global_odoo(peso)
-                    self.ultimo_peso_global = peso
+                # --- Peso global (para formularios nuevos sin guardar) ---
+                if peso is not None:
+                    self.ciclos_sin_envio_global += 1
+                    cambio_global = peso != self.ultimo_peso_global
+                    heartbeat_global = self.ciclos_sin_envio_global >= self.HEARTBEAT_CICLOS
 
+                    if cambio_global or heartbeat_global:
+                        self.enviar_peso_global_odoo(peso)
+                        self.ultimo_peso_global = peso
+                        self.ciclos_sin_envio_global = 0
+
+                # --- Peso a pesaje específico ---
                 if self.pesaje_activo and peso is not None:
-                    if peso is not None and peso != self.ultimo_peso:
-                        logger.info(f"⚖️  Peso leído: {peso:.2f} kg")
+                    self.ciclos_sin_envio += 1
+                    cambio_peso = peso != self.ultimo_peso
+                    heartbeat = self.ciclos_sin_envio >= self.HEARTBEAT_CICLOS
 
-                        # Enviar a Odoo
+                    if cambio_peso or heartbeat:
+                        if cambio_peso:
+                            logger.info(f"⚖️  Peso leído: {peso:.2f} kg")
+
                         if self.enviar_peso_odoo(self.pesaje_activo, peso):
                             logger.debug(f"✅ Peso enviado a Odoo")
                             self.ultimo_peso = peso
+                            self.ciclos_sin_envio = 0
 
                 contador_lecturas += 1
                 time.sleep(INTERVALO_LECTURA)
