@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="cron_reprocesar_facturas_email" model="ir.cron">
+            <field name="name">Reprocesar Facturas Email Pendientes</field>
+            <field name="model_id" ref="model_secadora_factura_email"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_reprocesar_pendientes()</field>
+            <field name="interval_number">15</field>
+            <field name="interval_type">minutes</field>
+            <field name="active">True</field>
+        </record>
+
+    </data>
+</odoo>

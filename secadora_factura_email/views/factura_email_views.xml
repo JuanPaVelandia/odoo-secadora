@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Form -->
+    <record id="view_secadora_factura_email_form" model="ir.ui.view">
+        <field name="name">secadora.factura.email.form</field>
+        <field name="model">secadora.factura.email</field>
+        <field name="arch" type="xml">
+            <form string="Factura desde Correo">
+                <header>
+                    <button name="action_reprocesar"
+                            string="Reprocesar"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state not in ('error', 'pendiente')"/>
+                    <button name="action_ver_factura"
+                            string="Ver Factura"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="not factura_id"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pendiente,procesado"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_ver_factura"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                invisible="not factura_id">
+                            <field name="factura_id" widget="statinfo" string="Factura"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Datos del Correo">
+                            <field name="fecha_recepcion"/>
+                            <field name="tipo_documento"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Datos de la Factura">
+                            <field name="numero_factura"/>
+                            <field name="cufe"/>
+                            <field name="fecha_emision"/>
+                            <field name="fecha_vencimiento"/>
+                            <field name="total_factura"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Emisor">
+                            <field name="emisor_nit"/>
+                            <field name="emisor_razon_social"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group string="Resultado">
+                            <field name="factura_id"/>
+                        </group>
+                    </group>
+                    <group string="Error" invisible="not error_msg">
+                        <field name="error_msg" nolabel="1" colspan="2"/>
+                    </group>
+                    <notebook>
+                        <page string="XML Crudo" invisible="not xml_content">
+                            <field name="xml_content" readonly="1"/>
+                        </page>
+                        <page string="PDF" invisible="not pdf_content">
+                            <field name="pdf_content" filename="pdf_filename" widget="binary"/>
+                            <field name="pdf_filename" invisible="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista List -->
+    <record id="view_secadora_factura_email_list" model="ir.ui.view">
+        <field name="name">secadora.factura.email.list</field>
+        <field name="model">secadora.factura.email</field>
+        <field name="arch" type="xml">
+            <list string="Facturas desde Correo"
+                  decoration-success="state == 'procesado'"
+                  decoration-danger="state == 'error'"
+                  decoration-warning="state == 'duplicado'"
+                  decoration-muted="state == 'pendiente'">
+                <field name="fecha_recepcion"/>
+                <field name="numero_factura"/>
+                <field name="emisor_razon_social"/>
+                <field name="emisor_nit" optional="hide"/>
+                <field name="tipo_documento" optional="hide"/>
+                <field name="total_factura" sum="Total"/>
+                <field name="fecha_emision" optional="show"/>
+                <field name="factura_id" optional="show"/>
+                <field name="partner_id" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'procesado'"
+                       decoration-danger="state == 'error'"
+                       decoration-warning="state == 'duplicado'"
+                       decoration-info="state == 'pendiente'"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_secadora_factura_email_search" model="ir.ui.view">
+        <field name="name">secadora.factura.email.search</field>
+        <field name="model">secadora.factura.email</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Facturas Email">
+                <field name="name"/>
+                <field name="numero_factura"/>
+                <field name="emisor_razon_social"/>
+                <field name="emisor_nit"/>
+                <field name="cufe"/>
+                <field name="partner_id"/>
+                <separator/>
+                <filter name="filter_pendiente" string="Pendientes"
+                        domain="[('state', '=', 'pendiente')]"/>
+                <filter name="filter_procesado" string="Procesadas"
+                        domain="[('state', '=', 'procesado')]"/>
+                <filter name="filter_error" string="Con Error"
+                        domain="[('state', '=', 'error')]"/>
+                <filter name="filter_duplicado" string="Duplicadas"
+                        domain="[('state', '=', 'duplicado')]"/>
+                <separator/>
+                <filter name="filter_hoy" string="Hoy"
+                        domain="[('fecha_recepcion', '&gt;=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_state" string="Estado"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_emisor" string="Emisor"
+                            context="{'group_by': 'emisor_razon_social'}"/>
+                    <filter name="group_fecha" string="Fecha Recepción"
+                            context="{'group_by': 'fecha_recepcion:day'}"/>
+                    <filter name="group_company" string="Compañía"
+                            context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_secadora_factura_email" model="ir.actions.act_window">
+        <field name="name">Facturas desde Correo</field>
+        <field name="res_model">secadora.factura.email</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_secadora_factura_email_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay facturas procesadas desde correo
+            </p>
+            <p>
+                Las facturas electrónicas recibidas por correo se procesan automáticamente aquí.
+                Configure un servidor de correo entrante apuntando al modelo "Factura desde Correo".
+            </p>
+        </field>
+    </record>
+
+</odoo>

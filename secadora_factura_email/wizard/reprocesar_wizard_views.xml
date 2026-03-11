@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Form del Wizard -->
+    <record id="view_reprocesar_factura_wizard_form" model="ir.ui.view">
+        <field name="name">secadora.reprocesar.factura.wizard.form</field>
+        <field name="model">secadora.reprocesar.factura.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Reprocesar Facturas">
+                <group>
+                    <field name="cantidad" readonly="1"/>
+                </group>
+                <field name="factura_email_ids" nolabel="1" readonly="1">
+                    <list>
+                        <field name="name"/>
+                        <field name="fecha_recepcion"/>
+                        <field name="emisor_razon_social"/>
+                        <field name="numero_factura"/>
+                        <field name="state" widget="badge"/>
+                        <field name="error_msg"/>
+                    </list>
+                </field>
+                <footer>
+                    <button name="action_reprocesar"
+                            string="Reprocesar"
+                            type="object"
+                            class="btn-primary"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del Wizard (binding para multi-select en lista) -->
+    <record id="action_reprocesar_factura_wizard" model="ir.actions.act_window">
+        <field name="name">Reprocesar Facturas</field>
+        <field name="res_model">secadora.reprocesar.factura.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="secadora_factura_email.model_secadora_factura_email"/>
+        <field name="binding_view_types">list</field>
+    </record>
+
+</odoo>

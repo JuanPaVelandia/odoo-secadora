@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Grupo: Usuario de Facturas Email -->
+        <record id="group_factura_email_usuario" model="res.groups">
+            <field name="name">Facturas Email: Usuario</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Facturas Email -->
+        <record id="group_factura_email_admin" model="res.groups">
+            <field name="name">Facturas Email: Administrador</field>
+            <field name="category_id" ref="bascula.module_category_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_factura_email_usuario'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Regla multi-compañía -->
+        <record id="rule_factura_email_company" model="ir.rule">
+            <field name="name">Factura Email: multi-company</field>
+            <field name="model_id" ref="model_secadora_factura_email"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+    </data>
+</odoo>
