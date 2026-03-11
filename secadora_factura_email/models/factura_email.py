@@ -100,6 +100,10 @@ class FacturaEmail(models.Model):
     pdf_content = fields.Binary(string='PDF Original', attachment=True)
     pdf_filename = fields.Char(string='Nombre PDF')
 
+    # Campo para carga manual de archivos (XML o ZIP)
+    archivo_manual = fields.Binary(string='Cargar Archivo (XML/ZIP)')
+    archivo_manual_nombre = fields.Char(string='Nombre Archivo')
+
     company_id = fields.Many2one(
         'res.company',
         string='Compañía',
@@ -505,6 +509,38 @@ class FacturaEmail(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    def action_procesar_archivo(self):
+        """Procesa un archivo XML o ZIP cargado manualmente."""
+        self.ensure_one()
+        if not self.archivo_manual:
+            raise UserError('Debe cargar un archivo XML o ZIP primero.')
+
+        raw_data = base64.b64decode(self.archivo_manual)
+        fname = (self.archivo_manual_nombre or '').lower()
+
+        xml_content = None
+        pdf_data = None
+        pdf_name = None
+
+        if fname.endswith('.zip'):
+            xml_content, pdf_data, pdf_name = self._extraer_zip(raw_data, None, None, None)
+        elif fname.endswith('.xml'):
+            xml_content = raw_data.decode('utf-8', errors='replace')
+
+        if not xml_content:
+            raise UserError('No se encontró XML válido en el archivo cargado.')
+
+        self.xml_content = xml_content
+        if pdf_data:
+            self.pdf_content = base64.b64encode(pdf_data)
+            self.pdf_filename = pdf_name
+
+        # Limpiar campo de carga
+        self.archivo_manual = False
+        self.archivo_manual_nombre = False
+
+        self._procesar_xml(xml_content, pdf_data, pdf_name)
 
     # -------------------------------------------------------------------------
     # Cron

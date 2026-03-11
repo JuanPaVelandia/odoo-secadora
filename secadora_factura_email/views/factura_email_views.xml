@@ -8,11 +8,16 @@
         <field name="arch" type="xml">
             <form string="Factura desde Correo">
                 <header>
+                    <button name="action_procesar_archivo"
+                            string="Procesar Archivo"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state == 'procesado' or not archivo_manual"/>
                     <button name="action_reprocesar"
                             string="Reprocesar"
                             type="object"
-                            class="btn-primary"
-                            invisible="state not in ('error', 'pendiente')"/>
+                            class="btn-secondary"
+                            invisible="state not in ('error', 'pendiente') or archivo_manual"/>
                     <button name="action_ver_factura"
                             string="Ver Factura"
                             type="object"
@@ -36,6 +41,10 @@
                             <field name="name" readonly="1"/>
                         </h1>
                     </div>
+                    <group string="Cargar Archivo" invisible="state == 'procesado'">
+                        <field name="archivo_manual" filename="archivo_manual_nombre"/>
+                        <field name="archivo_manual_nombre" invisible="1"/>
+                    </group>
                     <group>
                         <group string="Datos del Correo">
                             <field name="fecha_recepcion"/>
