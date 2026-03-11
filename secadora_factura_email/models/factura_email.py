@@ -246,9 +246,33 @@ class FacturaEmail(models.Model):
         except Exception as e:
             self.write({'state': 'error', 'error_msg': f'Error creando factura: {e}'})
 
+    def _extraer_documento_interno(self, root):
+        """Si el XML es un AttachedDocument DIAN, extrae el Invoice/CreditNote/DebitNote del CDATA."""
+        NS_AD = {'ad': 'urn:oasis:names:specification:ubl:schema:xsd:AttachedDocument-2'}
+        NS_AD.update(NS)
+
+        if 'AttachedDocument' not in root.tag:
+            return root
+
+        # El documento real está en cac:Attachment/cac:ExternalReference/cbc:Description (CDATA)
+        description = root.find('.//cac:Attachment//cac:ExternalReference//cbc:Description', NS_AD)
+        if description is not None and description.text:
+            inner_xml = description.text.strip()
+            try:
+                return etree.fromstring(inner_xml.encode('utf-8'))
+            except etree.XMLSyntaxError:
+                _logger.warning("No se pudo parsear el XML interno del AttachedDocument")
+
+        raise UserError(
+            'El XML es un AttachedDocument pero no se encontró la factura embebida dentro del CDATA.'
+        )
+
     def _parsear_xml_dian(self, xml_string):
         """Parsea un XML de factura electrónica colombiana UBL 2.1."""
         root = etree.fromstring(xml_string.encode('utf-8'))
+
+        # Si es AttachedDocument, extraer el Invoice/CreditNote/DebitNote del CDATA
+        root = self._extraer_documento_interno(root)
 
         # Determinar tipo de documento
         root_tag = root.tag
@@ -272,7 +296,7 @@ class FacturaEmail(models.Model):
             'numero_factura': self._xml_text(root, './/cbc:ID'),
             'cufe': self._xml_text(root, './/cbc:UUID'),
             'fecha_emision': self._xml_text(root, './/cbc:IssueDate'),
-            'fecha_vencimiento': self._xml_text(root, './/cbc:DueDate'),
+            'fecha_vencimiento': self._xml_text(root, './/cbc:DueDate') or self._xml_text(root, './/cac:PaymentMeans/cbc:PaymentDueDate'),
             'moneda': self._xml_text(root, './/cbc:DocumentCurrencyCode'),
             'notas': self._xml_text(root, './/cbc:Note'),
         }
