@@ -20,7 +20,7 @@
     'website': '',
     'depends': ['base', 'contacts', 'product', 'account', 'mail'],
     'data': [
-        # 'data/company_data.xml',  # Se crean via post_init_hook por compatibilidad con account
+        # 'data/company_data.xml',  # Crear compañías manualmente desde Ajustes > Compañías
         # 'data/sequence_data.xml',
         # 'data/sequences.xml',
         # 'data/variedad_arroz_data.xml',
