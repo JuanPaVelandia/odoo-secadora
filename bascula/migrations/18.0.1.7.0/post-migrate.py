@@ -50,9 +50,9 @@ def _set_not_null_defaults(cr, main_company_id):
 def _delete_existing_companies(cr, names):
     """
     Borrar compañías existentes por nombre y TODOS sus registros dependientes.
-    Busca todas las FK que apuntan a res_company y borra en cascada.
+    Usa SAVEPOINT para manejar errores de FK sin romper la transacción.
+    Hace múltiples pasadas para resolver dependencias anidadas.
     """
-    # Obtener IDs de las compañías a borrar
     cr.execute(
         "SELECT id FROM res_company WHERE name IN %s",
         (tuple(names),)
@@ -77,19 +77,25 @@ def _delete_existing_companies(cr, names):
     """)
     fk_tables = cr.fetchall()
 
-    # Borrar registros dependientes en todas las tablas con FK
-    for table_name, column_name in fk_tables:
-        try:
-            cr.execute(
-                'DELETE FROM "%s" WHERE "%s" IN %%s' % (table_name, column_name),
-                (tuple(company_ids),)
-            )
-            if cr.rowcount:
-                _logger.info("  Borrados %d registros de %s", cr.rowcount, table_name)
-        except Exception as e:
-            _logger.warning("  Error borrando de %s: %s", table_name, e)
+    # Hacer varias pasadas porque algunas tablas tienen FK entre sí
+    for pass_num in range(3):
+        for table_name, column_name in fk_tables:
+            cr.execute("SAVEPOINT delete_fk")
+            try:
+                cr.execute(
+                    'DELETE FROM "%s" WHERE "%s" IN %%s' % (table_name, column_name),
+                    (tuple(company_ids),)
+                )
+                cr.execute("RELEASE SAVEPOINT delete_fk")
+                if cr.rowcount:
+                    _logger.info("  [Pasada %d] Borrados %d registros de %s",
+                                 pass_num + 1, cr.rowcount, table_name)
+            except Exception as e:
+                cr.execute("ROLLBACK TO SAVEPOINT delete_fk")
+                if pass_num == 2:
+                    _logger.warning("  No se pudo borrar de %s: %s", table_name, e)
 
-    # Borrar los partners asociados
+    # Borrar partners asociados
     cr.execute(
         "SELECT partner_id FROM res_company WHERE id IN %s",
         (tuple(company_ids),)
@@ -97,13 +103,26 @@ def _delete_existing_companies(cr, names):
     partner_ids = [row[0] for row in cr.fetchall() if row[0]]
 
     # Borrar las compañías
-    cr.execute("DELETE FROM res_company WHERE id IN %s", (tuple(company_ids),))
-    _logger.info("  Compañías borradas.")
+    cr.execute("SAVEPOINT delete_companies")
+    try:
+        cr.execute("DELETE FROM res_company WHERE id IN %s", (tuple(company_ids),))
+        cr.execute("RELEASE SAVEPOINT delete_companies")
+        _logger.info("  Compañías borradas.")
+    except Exception as e:
+        cr.execute("ROLLBACK TO SAVEPOINT delete_companies")
+        _logger.error("  No se pudieron borrar las compañías: %s", e)
+        return
 
-    # Borrar los partners huérfanos
+    # Borrar partners huérfanos
     if partner_ids:
-        cr.execute("DELETE FROM res_partner WHERE id IN %s", (tuple(partner_ids),))
-        _logger.info("  Partners asociados borrados.")
+        cr.execute("SAVEPOINT delete_partners")
+        try:
+            cr.execute("DELETE FROM res_partner WHERE id IN %s", (tuple(partner_ids),))
+            cr.execute("RELEASE SAVEPOINT delete_partners")
+            _logger.info("  Partners asociados borrados.")
+        except Exception as e:
+            cr.execute("ROLLBACK TO SAVEPOINT delete_partners")
+            _logger.warning("  No se pudieron borrar partners: %s", e)
 
     # Borrar xmlids huérfanos
     cr.execute("""
@@ -141,7 +160,6 @@ def migrate(cr, version):
 
     created_ids = []
     for xmlid, name in companies:
-        # Crear via ORM
         _logger.info("Creando compañía: %s", name)
         company = Company.create({
             'name': name,
