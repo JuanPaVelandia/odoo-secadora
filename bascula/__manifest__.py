@@ -20,8 +20,7 @@
     'website': '',
     'depends': ['base', 'contacts', 'product', 'account', 'mail'],
     'data': [
-        # Data files comentados — crear registros manualmente en Hostinger
-        # 'data/company_data.xml',
+        'data/company_data.xml',
         # 'data/sequence_data.xml',
         # 'data/sequences.xml',
         # 'data/variedad_arroz_data.xml',
