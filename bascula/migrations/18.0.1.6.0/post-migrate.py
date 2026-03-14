@@ -47,16 +47,87 @@ def _set_not_null_defaults(cr, main_company_id):
             _logger.info("SET DEFAULT %s en %s", default_val, col_name)
 
 
+def _delete_existing_companies(cr, names):
+    """
+    Borrar compañías existentes por nombre y TODOS sus registros dependientes.
+    Busca todas las FK que apuntan a res_company y borra en cascada.
+    """
+    # Obtener IDs de las compañías a borrar
+    cr.execute(
+        "SELECT id FROM res_company WHERE name IN %s",
+        (tuple(names),)
+    )
+    company_ids = [row[0] for row in cr.fetchall()]
+    if not company_ids:
+        return
+
+    _logger.info("Borrando compañías existentes: %s (IDs: %s)", names, company_ids)
+
+    # Buscar TODAS las tablas con FK a res_company
+    cr.execute("""
+        SELECT DISTINCT tc.table_name, kcu.column_name
+        FROM information_schema.table_constraints tc
+        JOIN information_schema.key_column_usage kcu
+            ON tc.constraint_name = kcu.constraint_name
+        JOIN information_schema.constraint_column_usage ccu
+            ON tc.constraint_name = ccu.constraint_name
+        WHERE tc.constraint_type = 'FOREIGN KEY'
+          AND ccu.table_name = 'res_company'
+          AND ccu.column_name = 'id'
+    """)
+    fk_tables = cr.fetchall()
+
+    # Borrar registros dependientes en todas las tablas con FK
+    for table_name, column_name in fk_tables:
+        try:
+            cr.execute(
+                'DELETE FROM "%s" WHERE "%s" IN %%s' % (table_name, column_name),
+                (tuple(company_ids),)
+            )
+            if cr.rowcount:
+                _logger.info("  Borrados %d registros de %s", cr.rowcount, table_name)
+        except Exception as e:
+            _logger.warning("  Error borrando de %s: %s", table_name, e)
+
+    # Borrar los partners asociados
+    cr.execute(
+        "SELECT partner_id FROM res_company WHERE id IN %s",
+        (tuple(company_ids),)
+    )
+    partner_ids = [row[0] for row in cr.fetchall() if row[0]]
+
+    # Borrar las compañías
+    cr.execute("DELETE FROM res_company WHERE id IN %s", (tuple(company_ids),))
+    _logger.info("  Compañías borradas.")
+
+    # Borrar los partners huérfanos
+    if partner_ids:
+        cr.execute("DELETE FROM res_partner WHERE id IN %s", (tuple(partner_ids),))
+        _logger.info("  Partners asociados borrados.")
+
+    # Borrar xmlids huérfanos
+    cr.execute("""
+        DELETE FROM ir_model_data
+        WHERE model = 'res.company' AND res_id IN %s
+    """, (tuple(company_ids),))
+
+
 def migrate(cr, version):
     """Crear compañías hijas con defaults temporales en BD."""
+    company_names = [
+        'Jose Velandia',
+        'Juan Pablo Velandia',
+        'Felipe Tibocha',
+        'Luis Cubides',
+    ]
+
+    # Paso 1: Borrar compañías existentes y todas sus dependencias
+    _delete_existing_companies(cr, company_names)
+
     env = api.Environment(cr, SUPERUSER_ID, {})
     Company = env['res.company']
     IrModelData = env['ir.model.data']
     main_company = env.ref('base.main_company')
-
-    # Renombrar empresa principal
-    main_company.name = 'Secadora La Gran Colombia SAS'
-    main_company.partner_id.name = 'Secadora La Gran Colombia SAS'
 
     companies = [
         ('company_jose_velandia', 'Jose Velandia'),
@@ -70,33 +141,6 @@ def migrate(cr, version):
 
     created_ids = []
     for xmlid, name in companies:
-        # Verificar si ya existe el xmlid
-        existing = IrModelData.search([
-            ('module', '=', 'bascula'),
-            ('name', '=', xmlid),
-        ], limit=1)
-        if existing:
-            _logger.info("Compañía %s ya existe (id=%s), omitiendo.", name, existing.res_id)
-            created_ids.append(existing.res_id)
-            continue
-
-        # Buscar por nombre por si se creó manualmente
-        existing_company = Company.search([
-            ('name', '=', name),
-        ], limit=1)
-        if existing_company:
-            _logger.info("Compañía %s encontrada por nombre (id=%s), registrando xmlid.",
-                         name, existing_company.id)
-            IrModelData.create({
-                'module': 'bascula',
-                'name': xmlid,
-                'model': 'res.company',
-                'res_id': existing_company.id,
-                'noupdate': True,
-            })
-            created_ids.append(existing_company.id)
-            continue
-
         # Crear via ORM
         _logger.info("Creando compañía: %s", name)
         company = Company.create({
