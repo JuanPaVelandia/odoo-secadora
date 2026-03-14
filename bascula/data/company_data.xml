@@ -16,28 +16,24 @@
         <record id="company_jose_velandia" model="res.company">
             <field name="name">Jose Velandia</field>
             <field name="parent_id" ref="base.main_company"/>
-            <field name="currency_interval_unit">manually</field>
         </record>
 
         <!-- Juan Pablo Velandia -->
         <record id="company_juan_pablo_velandia" model="res.company">
             <field name="name">Juan Pablo Velandia</field>
             <field name="parent_id" ref="base.main_company"/>
-            <field name="currency_interval_unit">manually</field>
         </record>
 
         <!-- Felipe Tibocha -->
         <record id="company_felipe_tibocha" model="res.company">
             <field name="name">Felipe Tibocha</field>
             <field name="parent_id" ref="base.main_company"/>
-            <field name="currency_interval_unit">manually</field>
         </record>
 
         <!-- Luis Cubides -->
         <record id="company_luis_cubides" model="res.company">
             <field name="name">Luis Cubides</field>
             <field name="parent_id" ref="base.main_company"/>
-            <field name="currency_interval_unit">manually</field>
         </record>
 
         <!-- Dar acceso al admin a todas las empresas -->

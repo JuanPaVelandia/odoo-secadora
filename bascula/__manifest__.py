@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Báscula Secadora La Gran Colombia',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.1.0',
     'category': 'Operations',
     'summary': 'Módulo de pesaje para secadora de arroz',
     'description': """
@@ -20,7 +20,7 @@
     'website': '',
     'depends': ['base', 'contacts', 'product', 'account', 'mail'],
     'data': [
-        'data/company_data.xml',
+        # 'data/company_data.xml',  # Se crean via post_init_hook por compatibilidad con account
         # 'data/sequence_data.xml',
         # 'data/sequences.xml',
         # 'data/variedad_arroz_data.xml',
