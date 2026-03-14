@@ -80,16 +80,13 @@ def migrate(cr, version):
             created_ids.append(existing.res_id)
             continue
 
-        # Buscar por nombre (sin filtrar parent_id, por si se creó manualmente)
+        # Buscar por nombre por si se creó manualmente
         existing_company = Company.search([
             ('name', '=', name),
         ], limit=1)
         if existing_company:
             _logger.info("Compañía %s encontrada por nombre (id=%s), registrando xmlid.",
                          name, existing_company.id)
-            # Asegurar que tenga parent_id correcto
-            if not existing_company.parent_id:
-                existing_company.parent_id = main_company.id
             IrModelData.create({
                 'module': 'bascula',
                 'name': xmlid,
