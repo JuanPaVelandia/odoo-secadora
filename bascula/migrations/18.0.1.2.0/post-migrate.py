@@ -52,6 +52,12 @@ def migrate(cr, version):
             created_ids.append(existing_company.id)
             continue
 
+        # Poner default en la columna para evitar NOT NULL violation
+        cr.execute("""
+            ALTER TABLE res_company
+            ALTER COLUMN currency_interval_unit SET DEFAULT 'manually'
+        """)
+
         # Crear via ORM (llena todos los defaults de account, stock, etc.)
         _logger.info("Creando compañía: %s", name)
         company = Company.create({
