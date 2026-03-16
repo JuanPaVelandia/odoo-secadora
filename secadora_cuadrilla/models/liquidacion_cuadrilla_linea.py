@@ -26,7 +26,7 @@ class LiquidacionCuadrillaLinea(models.Model):
         'secadora.orden.servicio.linea',
         string='Línea de Servicio',
     )
-    fecha = fields.Date(
+    fecha = fields.Datetime(
         string='Fecha',
         related='orden_servicio_id.fecha_inicio',
         store=True,
