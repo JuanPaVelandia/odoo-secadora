@@ -16,6 +16,9 @@ class CargarServiciosWizard(models.TransientModel):
     fecha_hasta = fields.Date(string='Fecha Hasta')
     linea_ids = fields.Many2many(
         'secadora.orden.servicio.linea',
+        'cuadrilla_wizard_os_linea_rel',
+        'wizard_id',
+        'linea_id',
         string='Líneas de Servicio',
     )
 
