@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form de Liquidación Cuadrilla -->
+        <record id="view_cuadrilla_liquidacion_form" model="ir.ui.view">
+            <field name="name">secadora.cuadrilla.liquidacion.form</field>
+            <field name="model">secadora.cuadrilla.liquidacion</field>
+            <field name="arch" type="xml">
+                <form string="Liquidación de Cuadrilla">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"/>
+                        <button name="action_pagar" string="Marcar Pagado" type="object"
+                                class="oe_highlight" invisible="state != 'confirmado'"/>
+                        <button name="action_borrador" string="Volver a Borrador" type="object"
+                                invisible="state not in ('confirmado',)"
+                                groups="secadora_cuadrilla.group_cuadrilla_admin"/>
+                        <button name="action_cancelar" string="Cancelar" type="object"
+                                invisible="state in ('pagado', 'cancelado')"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmado,pagado"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_abrir_wizard_servicios" type="object"
+                                    class="oe_stat_button" icon="fa-plus-circle"
+                                    invisible="state != 'borrador'">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_text">Cargar</span>
+                                    <span class="o_stat_text">Servicios</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="fecha" readonly="state != 'borrador'"/>
+                                <field name="usuario_id"/>
+                            </group>
+                            <group>
+                                <field name="fecha_desde" readonly="state != 'borrador'"/>
+                                <field name="fecha_hasta" readonly="state != 'borrador'"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Servicios" name="servicios">
+                                <field name="linea_ids" readonly="state != 'borrador'">
+                                    <list>
+                                        <field name="orden_servicio_id"/>
+                                        <field name="orden_servicio_linea_id" optional="hide"/>
+                                        <field name="fecha"/>
+                                        <field name="cliente_id"/>
+                                        <field name="producto_id"/>
+                                        <field name="base_peso"/>
+                                        <field name="peso"/>
+                                        <field name="tarifa"/>
+                                        <field name="subtotal" sum="Total"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Deducciones" name="deducciones">
+                                <field name="deduccion_ids" readonly="state != 'borrador'">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="tipo"/>
+                                        <field name="descripcion"/>
+                                        <field name="monto" sum="Total"/>
+                                        <field name="notas" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <group>
+                            <field name="observaciones" placeholder="Observaciones..."
+                                   readonly="state != 'borrador'"/>
+                        </group>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="cantidad_lineas"/>
+                            <field name="total_servicios"/>
+                            <field name="total_deducciones" style="color: #c00;"/>
+                            <field name="total_neto"
+                                   style="font-size: 1.4em; font-weight: bold; color: #00A09D;"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista List de Liquidación Cuadrilla -->
+        <record id="view_cuadrilla_liquidacion_list" model="ir.ui.view">
+            <field name="name">secadora.cuadrilla.liquidacion.list</field>
+            <field name="model">secadora.cuadrilla.liquidacion</field>
+            <field name="arch" type="xml">
+                <list string="Liquidaciones de Cuadrilla"
+                      decoration-info="state == 'borrador'"
+                      decoration-success="state == 'confirmado'"
+                      decoration-bf="state == 'pagado'"
+                      decoration-muted="state == 'cancelado'">
+                    <field name="name"/>
+                    <field name="fecha"/>
+                    <field name="fecha_desde"/>
+                    <field name="fecha_hasta"/>
+                    <field name="cantidad_lineas"/>
+                    <field name="total_servicios"/>
+                    <field name="total_deducciones"/>
+                    <field name="total_neto"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'borrador'"
+                           decoration-success="state == 'confirmado'"
+                           decoration-warning="state == 'pagado'"
+                           decoration-danger="state == 'cancelado'"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Search de Liquidación Cuadrilla -->
+        <record id="view_cuadrilla_liquidacion_search" model="ir.ui.view">
+            <field name="name">secadora.cuadrilla.liquidacion.search</field>
+            <field name="model">secadora.cuadrilla.liquidacion</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Liquidaciones de Cuadrilla">
+                    <field name="name"/>
+                    <separator/>
+                    <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
+                    <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
+                    <filter name="filter_pagado" string="Pagado" domain="[('state', '=', 'pagado')]"/>
+                    <separator/>
+                    <filter name="filter_este_mes" string="Este Mes"
+                            domain="[('fecha', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                     ('fecha', '&lt;', (context_today() + relativedelta(months=1, day=1)).strftime('%Y-%m-%d'))]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                        <filter name="group_fecha" string="Fecha (Mes)" context="{'group_by': 'fecha:month'}"/>
+                        <filter name="group_company" string="Empresa" context="{'group_by': 'company_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción de ventana -->
+        <record id="action_cuadrilla_liquidacion" model="ir.actions.act_window">
+            <field name="name">Liquidaciones de Cuadrilla</field>
+            <field name="res_model">secadora.cuadrilla.liquidacion</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_cuadrilla_liquidacion_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear una liquidación de cuadrilla
+                </p>
+                <p>
+                    Las liquidaciones de cuadrilla consolidan los servicios realizados
+                    (cargue, descargue, empacada, etc.) y aplican tarifas por peso.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>
