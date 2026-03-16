@@ -167,9 +167,9 @@
                     <field name="name"/>
                     <field name="fecha"/>
                     <field name="tipo_operacion_id" widget="badge"/>
+                    <field name="placa_texto"/>
                     <field name="direccion" widget="badge"/>
                     <field name="tipo_proceso" column_invisible="1"/>
-                    <field name="placa_texto"/>
                     <field name="tercero_id"/>
                     <field name="empresa_arroz_id" optional="hide"/>
                     <field name="producto_id"/>
