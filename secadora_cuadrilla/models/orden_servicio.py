@@ -26,3 +26,16 @@ class OrdenServicio(models.Model):
                 ], limit=1)
                 if regla:
                     linea.es_cuadrilla = True
+
+    def _preparar_lineas_factura(self):
+        """Excluir servicios de cuadrilla de la factura de la OS.
+
+        La cuadrilla le factura directamente al cliente, la secadora
+        solo actúa como intermediario del pago.
+        """
+        lines = super()._preparar_lineas_factura()
+        # Filtrar: quitar líneas cuyo producto corresponda a servicios de cuadrilla
+        productos_cuadrilla = self.linea_servicio_ids.filtered('es_cuadrilla').mapped('producto_id').ids
+        if productos_cuadrilla:
+            lines = [l for l in lines if l.get('product_id') not in productos_cuadrilla]
+        return lines
