@@ -29,6 +29,7 @@ class CargarServiciosWizard(models.TransientModel):
             return
 
         domain = [
+            ('es_cuadrilla', '=', True),
             ('orden_id.state', 'in', ('en_proceso', 'listo_liquidar', 'liquidado', 'facturado')),
             ('orden_id.fecha_inicio', '>=', self.fecha_desde),
             ('orden_id.fecha_inicio', '<=', self.fecha_hasta),

@@ -20,6 +20,7 @@
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
+        'views/servicio_regla_views.xml',
         'views/cuadrilla_tarifa_views.xml',
         'views/liquidacion_cuadrilla_views.xml',
         'wizard/wizard_views.xml',
