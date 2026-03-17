@@ -318,21 +318,24 @@ class BasculaSimulador:
 
         try:
             while True:
-                # Obtener pesaje activo cada 5 actualizaciones
-                if contador_actualizaciones % 5 == 0:
+                # Obtener pesaje activo cada 2 actualizaciones (~2 seg)
+                if contador_actualizaciones % 2 == 0:
                     nuevo_pesaje = self.obtener_pesaje_activo()
                     if nuevo_pesaje != self.pesaje_activo:
+                        pesaje_anterior = self.pesaje_activo
                         self.pesaje_activo = nuevo_pesaje
                         if self.pesaje_activo:
                             logger.info(f"\n[NUEVO] Nuevo pesaje activo: {self.pesaje_activo}")
                             logger.info("[INICIANDO] Iniciando envio de pesos simulados...\n")
-                            # Resetear peso base para nuevo pesaje
-                            self.peso_base = None
+                            # Solo resetear peso base si NO había pesaje antes
+                            # (es decir, es un vehículo nuevo, no un guardado del mismo)
+                            if pesaje_anterior is None:
+                                self.peso_base = None
 
                 # Generar y enviar peso
                 peso = self.generar_peso()
 
-                if peso is not None and peso != self.ultimo_peso_global:
+                if peso is not None:
                     self.enviar_peso_global_odoo(peso)
                     self.ultimo_peso_global = peso
 
@@ -383,6 +386,7 @@ class BasculaSimulador:
         print("=" * 70)
         print()
         print("Escribe el peso en kg y presiona Enter para enviarlo.")
+        print("El peso se envia a TODOS los pesajes activos automaticamente.")
         print("Escribe 'q' para salir.")
         print()
 
@@ -391,48 +395,36 @@ class BasculaSimulador:
 
         try:
             while True:
-                # Buscar pesaje activo
-                pesaje_id = self.obtener_pesaje_activo()
-                if not pesaje_id:
-                    input("[ESPERANDO] No hay pesaje activo. Crea uno en Odoo y presiona Enter...")
+                entrada = input("Peso (kg): ").strip()
+
+                if entrada.lower() == 'q':
+                    print("\nHasta luego!")
+                    return
+
+                if entrada == '':
                     continue
 
-                print(f"\n[PESAJE ACTIVO] ID: {pesaje_id}")
-                print("-" * 40)
+                try:
+                    peso = float(entrada.replace(',', ''))
+                except ValueError:
+                    print("[ERROR] Escribe un numero valido. Ej: 15000")
+                    continue
 
-                while True:
-                    entrada = input("Peso (kg): ").strip()
+                if peso < 0 or peso > 100000:
+                    print("[ERROR] Peso fuera de rango (0 - 100,000 kg)")
+                    continue
 
-                    if entrada.lower() == 'q':
-                        print("\nHasta luego!")
-                        return
+                # Siempre enviar peso global (cubre formularios nuevos Y pesajes guardados)
+                if self.enviar_peso_global_odoo(peso):
+                    print(f"[OK] {peso:,.2f} kg enviado (global + todos los pesajes activos)")
+                else:
+                    print("[ERROR] No se pudo enviar el peso global")
 
-                    if entrada == '':
-                        # Refrescar pesaje activo
-                        nuevo = self.obtener_pesaje_activo()
-                        if nuevo != pesaje_id:
-                            pesaje_id = nuevo
-                            if pesaje_id:
-                                print(f"\n[PESAJE ACTIVO] ID: {pesaje_id}")
-                            else:
-                                print("[INFO] Ya no hay pesaje activo.")
-                                break
-                        continue
-
-                    try:
-                        peso = float(entrada.replace(',', ''))
-                    except ValueError:
-                        print("[ERROR] Escribe un numero valido. Ej: 15000")
-                        continue
-
-                    if peso < 0 or peso > 100000:
-                        print("[ERROR] Peso fuera de rango (0 - 100,000 kg)")
-                        continue
-
-                    if self.enviar_peso_odoo(pesaje_id, peso):
-                        print(f"[OK] {peso:,.2f} kg enviado a Odoo")
-                    else:
-                        print("[ERROR] No se pudo enviar el peso")
+                # Ademas enviar al pesaje activo especifico
+                pesaje_id = self.obtener_pesaje_activo()
+                if pesaje_id:
+                    self.enviar_peso_odoo(pesaje_id, peso)
+                    print(f"     -> Pesaje activo: ID {pesaje_id}")
 
         except KeyboardInterrupt:
             print("\n\n[DETENIDO] Simulador detenido.")

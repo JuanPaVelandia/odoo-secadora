@@ -279,7 +279,17 @@ class SecadoraPesaje(models.Model):
         for vals in vals_list:
             if vals.get('name', 'Nuevo') == 'Nuevo':
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.pesaje') or 'Nuevo'
+            # No dejar que el formulario pise peso_actual con 0
+            # (el simulador/bridge lo actualiza via API)
+            vals.pop('peso_actual', None)
         return super().create(vals_list)
+
+    def write(self, vals):
+        # No dejar que el formulario pise peso_actual con 0
+        # (el simulador/bridge lo actualiza via API)
+        if 'peso_actual' in vals and not vals['peso_actual']:
+            vals.pop('peso_actual')
+        return super().write(vals)
 
     @api.onchange('tipo_operacion_id')
     def _onchange_tipo_operacion_direccion(self):
@@ -548,15 +558,20 @@ class SecadoraPesaje(models.Model):
             # ya provee la autenticación. Los métodos de usuario (action_primera_pesada,
             # action_segunda_pesada) sí filtran por empresa del usuario.
 
-            # Guardar también como peso global para formularios nuevos (sin guardar)
+            # Guardar como peso global para formularios nuevos (sin guardar)
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso))
             self.env['ir.config_parameter'].sudo().set_param(
                 'bascula.last_weight_timestamp',
                 fields.Datetime.now().isoformat()
             )
 
-            # Actualizar peso actual
-            pesaje.sudo().write({'peso_actual': peso, 'escuchando_bascula': True})
+            # Actualizar peso en TODOS los pesajes activos (borrador/en_transito)
+            # para que el peso se vea en todas las pestañas/formularios abiertos
+            pesajes_activos = self.sudo().search([
+                ('state', 'in', ['borrador', 'en_transito']),
+            ])
+            if pesajes_activos:
+                pesajes_activos.write({'peso_actual': peso, 'escuchando_bascula': True})
 
             return {
                 'success': True,
@@ -619,6 +634,14 @@ class SecadoraPesaje(models.Model):
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso_val))
             timestamp = fields.Datetime.now().isoformat()
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight_timestamp', timestamp)
+
+            # También actualizar todos los pesajes activos para que no pierdan el peso
+            pesajes_activos = self.sudo().search([
+                ('state', 'in', ['borrador', 'en_transito']),
+            ])
+            if pesajes_activos:
+                pesajes_activos.write({'peso_actual': peso_val, 'escuchando_bascula': True})
+
             return {
                 'success': True,
                 'peso_actual': peso_val,

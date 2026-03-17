@@ -13,6 +13,8 @@ class PesoActualField extends Component {
         });
 
         onMounted(() => {
+            // Leer peso inmediatamente al montar (no esperar 2 seg)
+            this.updatePeso();
             this.startPolling();
         });
 
@@ -36,77 +38,43 @@ class PesoActualField extends Component {
 
     async updatePeso() {
         const record = this.props.record;
-
-        console.log("[PESO WIDGET] Iniciando actualización...");
-        console.log("[PESO WIDGET] Record:", record);
-        console.log("[PESO WIDGET] ResId:", record?.resId);
-
         const state = record?.data?.state;
 
-        // Si está completado o cancelado, detener polling
         if (state === "completado" || state === "cancelado") {
-            console.log("[PESO WIDGET] Pesaje completado/cancelado, deteniendo polling");
             this.stopPolling();
             return;
         }
 
         try {
+            // Siempre leer el peso global (es la fuente de verdad de la báscula)
+            const globalResult = await this.orm.call(
+                "secadora.pesaje",
+                "obtener_peso_actual_global_ui",
+                []
+            );
+
             let nuevoPeso = 0.0;
 
-            if (!record || !record.resId) {
-                // NO HAY resId (registro nuevo no guardado)
-                // Usar endpoint global que devuelve el último peso disponible
-                console.log("[PESO WIDGET] Sin resId, usando peso_actual_global...");
-
-                const result = await this.orm.call(
-                    "secadora.pesaje",
-                    "obtener_peso_actual_global_ui",
-                    []
-                );
-
-                if (result && result.success) {
-                    nuevoPeso = result.peso_actual || 0.0;
-                    console.log("[PESO WIDGET] Peso global obtenido:", nuevoPeso);
-                } else {
-                    console.log("[PESO WIDGET] No hay peso global disponible");
-                    nuevoPeso = 0.0;
-                }
-
-            } else {
-                // SÍ HAY resId (registro guardado)
-                // Leer el peso específico de este pesaje
-                console.log("[PESO WIDGET] Con resId, leyendo peso específico...");
-
+            if (globalResult && globalResult.success && globalResult.peso_actual > 0.01) {
+                nuevoPeso = globalResult.peso_actual;
+            } else if (record && record.resId) {
+                // Fallback: leer del registro si no hay peso global
                 const result = await this.orm.call(
                     "secadora.pesaje",
                     "read",
-                    [[record.resId], ["peso_actual", "escuchando_bascula"]],
+                    [[record.resId], ["peso_actual"]],
                     { context: { bin_size: false } }
                 );
-
-                console.log("[PESO WIDGET] Resultado ORM:", result);
-
                 if (result && result.length > 0) {
                     nuevoPeso = result[0].peso_actual || 0.0;
-                    record.data.escuchando_bascula = result[0].escuchando_bascula;
                 }
             }
 
-            console.log("[PESO WIDGET] Peso actual:", nuevoPeso);
-            console.log("[PESO WIDGET] Peso en state:", this.state.peso);
-
-            // Actualizar UI si cambió
+            // Solo actualizar el state del widget, NUNCA tocar record.data
+            // para evitar que Odoo envíe peso_actual en el save/create
             if (Math.abs(this.state.peso - nuevoPeso) > 0.01) {
-                console.log("[PESO WIDGET] ¡Peso cambió! Actualizando UI...");
                 this.state.peso = nuevoPeso;
                 this.state.timestamp = new Date().toLocaleTimeString("es-CO");
-
-                // Actualizar el campo en el record (si existe)
-                if (record && record.data) {
-                    record.data.peso_actual = nuevoPeso;
-                }
-            } else {
-                console.log("[PESO WIDGET] Peso no cambió significativamente");
             }
 
         } catch (error) {
