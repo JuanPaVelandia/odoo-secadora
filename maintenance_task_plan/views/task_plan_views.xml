@@ -106,7 +106,7 @@
                 <field name="category_id"/>
                 <field name="responsible_user_id"/>
                 <filter name="filter_has_overdue" string="Has Overdue"
-                        domain="[('overdue_count', '>', 0)]"/>
+                        domain="[('task_line_ids.state', '=', 'overdue')]"/>
                 <separator/>
                 <group expand="1" string="Group By">
                     <filter name="group_counter_type" string="Counter Type"
