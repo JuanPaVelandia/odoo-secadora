@@ -28,8 +28,8 @@
                 />
             </xpath>
 
-            <!-- Sección de equipos a nivel de factura (antes de las líneas) -->
-            <xpath expr="//page[@name='other_tab']" position="after">
+            <!-- Pestaña de equipos a nivel de factura -->
+            <xpath expr="//notebook" position="inside">
                 <page string="Mantenimiento"
                       name="maintenance_tab"
                       invisible="move_type != 'in_invoice'"
