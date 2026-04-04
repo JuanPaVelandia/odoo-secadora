@@ -16,36 +16,28 @@
                 <field name="counter_unit"/>
                 <field name="progress_percentage"/>
                 <templates>
-                    <t t-name="kanban-card">
-                        <div class="oe_kanban_content">
-                            <div class="o_kanban_record_top mb-0">
-                                <div class="o_kanban_record_headings">
-                                    <strong class="o_kanban_record_title">
-                                        <field name="equipment_id"/>
-                                    </strong>
-                                </div>
-                            </div>
-                            <div class="text-muted">
-                                <field name="plan_id"/>
-                            </div>
-                            <div class="mt-1">
-                                Actual: <field name="current_counter_reading"/>
-                                <field name="counter_unit"/>
-                            </div>
-                            <div>
-                                Próxima: <field name="next_counter_reading"/>
-                                <field name="counter_unit"/>
-                            </div>
-                            <div class="mt-1">
-                                <strong>
-                                    Restante: <field name="remaining"/>
-                                    <field name="counter_unit"/>
-                                </strong>
-                            </div>
-                            <div class="mt-1">
-                                <field name="progress_percentage" widget="progressbar"/>
-                            </div>
+                    <t t-name="card">
+                        <strong>
+                            <field name="equipment_id"/>
+                        </strong>
+                        <div class="text-muted">
+                            <field name="plan_id"/>
                         </div>
+                        <div class="mt-1">
+                            Actual: <field name="current_counter_reading"/>
+                            <field name="counter_unit"/>
+                        </div>
+                        <div>
+                            Próxima: <field name="next_counter_reading"/>
+                            <field name="counter_unit"/>
+                        </div>
+                        <div class="mt-1">
+                            <strong>
+                                Restante: <field name="remaining"/>
+                                <field name="counter_unit"/>
+                            </strong>
+                        </div>
+                        <field name="progress_percentage" widget="progressbar"/>
                     </t>
                 </templates>
             </kanban>
