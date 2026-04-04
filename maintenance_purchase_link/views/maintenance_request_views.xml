@@ -7,19 +7,25 @@
         <field name="model">maintenance.request</field>
         <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@name='button_box']" position="inside">
-                <button name="action_view_invoice_costs"
-                        type="object"
-                        class="oe_stat_button"
-                        icon="fa-money"
-                        groups="maintenance.group_equipment_manager">
-                    <div class="o_field_widget o_stat_info">
-                        <span class="o_stat_value">
-                            <field name="total_cost" widget="monetary"/>
-                        </span>
-                        <span class="o_stat_text">Costos</span>
-                    </div>
-                </button>
+            <!--
+                La vista nativa de maintenance.request en Odoo 18 no tiene button_box.
+                Lo creamos al inicio del sheet, antes del primer div existente.
+            -->
+            <xpath expr="//sheet/div[1]" position="before">
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_view_invoice_costs"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            groups="maintenance.group_equipment_manager">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="total_cost" widget="monetary"/>
+                            </span>
+                            <span class="o_stat_text">Costos</span>
+                        </div>
+                    </button>
+                </div>
             </xpath>
         </field>
     </record>
