@@ -44,6 +44,8 @@
                 <field name="maintenance_request_ids" string="Orden de trabajo"/>
                 <filter name="filter_posted" string="Publicadas"
                         domain="[('parent_state', '=', 'posted')]"/>
+                <filter name="filter_has_analytic" string="Con analítica"
+                        domain="[('analytic_distribution', '!=', False)]"/>
                 <filter name="filter_unassigned" string="Sin equipo asignado"
                         domain="[('maintenance_equipment_ids', '=', False)]"/>
                 <separator/>
@@ -69,10 +71,10 @@
         <field name="domain">[
             ('move_type', '=', 'in_invoice'),
             ('display_type', '=', 'product'),
-            ('is_maintenance_line', '=', True),
         ]</field>
         <field name="context">{
             'search_default_filter_posted': 1,
+            'search_default_filter_has_analytic': 1,
         }</field>
         <field name="search_view_id" ref="view_maintenance_cost_line_search"/>
     </record>
