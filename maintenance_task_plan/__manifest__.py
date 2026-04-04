@@ -1,6 +1,6 @@
 {
     'name': 'Maintenance Task Plans',
-    'version': '17.0.1.0.0',
+    'version': '18.0.1.0.0',
     'category': 'Maintenance',
     'summary': 'Counter-based maintenance task plans with automatic work order generation',
     'description': """
@@ -16,6 +16,7 @@
     ],
     'data': [
         'security/ir.model.access.csv',
+        'data/sequence_data.xml',
         'data/counter_type_data.xml',
         'data/cron_data.xml',
         'views/counter_type_views.xml',

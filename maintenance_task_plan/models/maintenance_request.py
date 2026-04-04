@@ -5,6 +5,12 @@ from odoo.exceptions import ValidationError
 class MaintenanceRequest(models.Model):
     _inherit = 'maintenance.request'
 
+    sequence_number = fields.Char(
+        string='Work Order #',
+        readonly=True,
+        copy=False,
+        default='New',
+    )
     task_plan_id = fields.Many2one(
         'maintenance.task.plan',
         string='Task Plan',
@@ -24,6 +30,15 @@ class MaintenanceRequest(models.Model):
         related='task_plan_id.counter_type_id.unit',
         string='Counter Unit',
     )
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('sequence_number', 'New') == 'New':
+                vals['sequence_number'] = self.env['ir.sequence'].next_by_code(
+                    'maintenance.request'
+                ) or 'New'
+        return super().create(vals_list)
 
     def write(self, vals):
         res = super().write(vals)

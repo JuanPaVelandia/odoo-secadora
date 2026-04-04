@@ -50,7 +50,7 @@
                         </page>
                         <page string="Tracking" name="tracking_page">
                             <field name="task_line_ids" nolabel="1">
-                                <tree editable="bottom"
+                                <list editable="bottom"
                                       decoration-danger="state == 'overdue'"
                                       decoration-warning="state == 'warning'"
                                       decoration-success="state == 'ok'"
@@ -66,7 +66,7 @@
                                            decoration-warning="state == 'warning'"
                                            decoration-success="state == 'ok'"/>
                                     <field name="last_request_id" readonly="1"/>
-                                </tree>
+                                </list>
                             </field>
                         </page>
                         <page string="Instructions" name="instructions_page">
@@ -83,7 +83,7 @@
         <field name="name">maintenance.task.plan.list</field>
         <field name="model">maintenance.task.plan</field>
         <field name="arch" type="xml">
-            <tree string="Task Plans"
+            <list string="Task Plans"
                   decoration-danger="overdue_count > 0">
                 <field name="name"/>
                 <field name="counter_type_id"/>
@@ -92,7 +92,7 @@
                 <field name="equipment_count"/>
                 <field name="overdue_count"/>
                 <field name="responsible_user_id" widget="many2one_avatar_user"/>
-            </tree>
+            </list>
         </field>
     </record>
 

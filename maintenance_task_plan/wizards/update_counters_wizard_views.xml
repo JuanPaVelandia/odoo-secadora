@@ -10,11 +10,11 @@
                     <field name="counter_type_id"/>
                 </group>
                 <field name="line_ids" nolabel="1">
-                    <tree editable="bottom">
+                    <list editable="bottom">
                         <field name="equipment_id" readonly="1"/>
                         <field name="current_reading" readonly="1"/>
                         <field name="new_reading"/>
-                    </tree>
+                    </list>
                 </field>
                 <footer>
                     <button string="Update" type="object" name="action_update"

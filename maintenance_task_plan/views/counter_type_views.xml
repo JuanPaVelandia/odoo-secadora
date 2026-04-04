@@ -5,10 +5,10 @@
         <field name="name">maintenance.counter.type.list</field>
         <field name="model">maintenance.counter.type</field>
         <field name="arch" type="xml">
-            <tree string="Counter Types">
+            <list string="Counter Types">
                 <field name="name"/>
                 <field name="unit"/>
-            </tree>
+            </list>
         </field>
     </record>
 
