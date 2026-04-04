@@ -3,71 +3,71 @@ from odoo import api, fields, models, _
 
 class MaintenanceTaskPlanLine(models.Model):
     _name = 'maintenance.task.plan.line'
-    _description = 'Task Plan Tracking Line'
+    _description = 'Línea de seguimiento del plan'
     _order = 'state desc, remaining'
     _rec_name = 'display_name'
 
     plan_id = fields.Many2one(
         'maintenance.task.plan',
-        string='Task Plan',
+        string='Plan de tareas',
         required=True,
         ondelete='cascade',
     )
     equipment_id = fields.Many2one(
         'maintenance.equipment',
-        string='Equipment',
+        string='Equipo',
         required=True,
     )
     counter_type_id = fields.Many2one(
         related='plan_id.counter_type_id',
         store=True,
-        string='Counter Type',
+        string='Tipo de contador',
     )
     counter_unit = fields.Char(
         related='plan_id.counter_type_id.unit',
-        string='Unit',
+        string='Unidad',
     )
     interval = fields.Float(
         related='plan_id.interval',
-        string='Interval',
+        string='Intervalo',
     )
     last_counter_reading = fields.Float(
-        string='Last Reading',
+        string='Última lectura',
     )
     next_counter_reading = fields.Float(
-        string='Next Reading',
+        string='Próxima lectura',
         compute='_compute_next_counter_reading',
         store=True,
     )
     current_counter_reading = fields.Float(
-        string='Current Reading',
+        string='Lectura actual',
     )
     remaining = fields.Float(
-        string='Remaining',
+        string='Restante',
         compute='_compute_remaining',
         store=True,
     )
     progress_percentage = fields.Float(
-        string='Progress (%)',
+        string='Progreso (%)',
         compute='_compute_remaining',
         store=True,
     )
     state = fields.Selection(
         selection=[
-            ('ok', 'OK'),
-            ('warning', 'Upcoming'),
-            ('overdue', 'Overdue'),
+            ('ok', 'Al día'),
+            ('warning', 'Próximo'),
+            ('overdue', 'Vencido'),
         ],
-        string='State',
+        string='Estado',
         compute='_compute_remaining',
         store=True,
     )
     last_request_id = fields.Many2one(
         'maintenance.request',
-        string='Last Work Order',
+        string='Última OT',
     )
     request_count = fields.Integer(
-        string='Work Order Count',
+        string='Cantidad de OTs',
         compute='_compute_request_count',
     )
     company_id = fields.Many2one(
@@ -111,14 +111,14 @@ class MaintenanceTaskPlanLine(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _('Work Orders'),
+            'name': _('Órdenes de trabajo'),
             'res_model': 'maintenance.request',
             'view_mode': 'list,form',
             'domain': [('task_plan_line_id', '=', self.id)],
         }
 
     def _generate_requests(self):
-        """Generate work orders for lines that have reached their threshold."""
+        """Generar OTs para líneas que alcanzaron el umbral."""
         Request = self.env['maintenance.request']
         created = self.env['maintenance.request']
 
@@ -126,7 +126,7 @@ class MaintenanceTaskPlanLine(models.Model):
             if line.current_counter_reading < line.next_counter_reading:
                 continue
 
-            # Check if there is already an open request for this line
+            # Verificar si ya existe una OT abierta para esta línea
             open_request = Request.search([
                 ('task_plan_line_id', '=', line.id),
                 ('stage_id.done', '=', False),
@@ -150,7 +150,7 @@ class MaintenanceTaskPlanLine(models.Model):
 
     @api.model
     def _cron_generate_task_plan_requests(self):
-        """Cron job: generate work orders for all overdue lines."""
+        """Cron: generar OTs para todas las líneas vencidas."""
         lines = self.search([
             ('state', '=', 'overdue'),
             ('plan_id.active', '=', True),

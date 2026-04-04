@@ -5,7 +5,7 @@
         <field name="name">maintenance.counter.type.list</field>
         <field name="model">maintenance.counter.type</field>
         <field name="arch" type="xml">
-            <list string="Counter Types">
+            <list string="Tipos de Contador">
                 <field name="name"/>
                 <field name="unit"/>
             </list>
@@ -16,12 +16,12 @@
         <field name="name">maintenance.counter.type.form</field>
         <field name="model">maintenance.counter.type</field>
         <field name="arch" type="xml">
-            <form string="Counter Type">
+            <form string="Tipo de Contador">
                 <sheet>
                     <group>
                         <group>
-                            <field name="name" placeholder="e.g. Hour Meter"/>
-                            <field name="unit" placeholder="e.g. Hours"/>
+                            <field name="name" placeholder="Ej: Horómetro"/>
+                            <field name="unit" placeholder="Ej: Horas"/>
                         </group>
                         <group>
                             <field name="active"/>
@@ -33,7 +33,7 @@
     </record>
 
     <record id="action_counter_type" model="ir.actions.act_window">
-        <field name="name">Counter Types</field>
+        <field name="name">Tipos de Contador</field>
         <field name="res_model">maintenance.counter.type</field>
         <field name="view_mode">list,form</field>
     </record>

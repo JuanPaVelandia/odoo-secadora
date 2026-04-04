@@ -3,15 +3,15 @@ from odoo import fields, models
 
 class MaintenanceCounterType(models.Model):
     _name = 'maintenance.counter.type'
-    _description = 'Counter Type'
+    _description = 'Tipo de Contador'
     _order = 'name'
 
     name = fields.Char(
-        string='Name',
+        string='Nombre',
         required=True,
     )
     unit = fields.Char(
-        string='Unit of Measure',
+        string='Unidad de medida',
         required=True,
     )
     active = fields.Boolean(

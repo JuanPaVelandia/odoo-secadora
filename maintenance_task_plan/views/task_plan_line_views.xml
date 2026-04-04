@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Kanban view for counter tracking -->
+    <!-- Vista kanban de seguimiento de contadores -->
     <record id="view_task_plan_line_kanban" model="ir.ui.view">
         <field name="name">maintenance.task.plan.line.kanban</field>
         <field name="model">maintenance.task.plan.line</field>
@@ -29,16 +29,16 @@
                                 <field name="plan_id"/>
                             </div>
                             <div class="mt-1">
-                                Current: <field name="current_counter_reading"/>
+                                Actual: <field name="current_counter_reading"/>
                                 <field name="counter_unit"/>
                             </div>
                             <div>
-                                Next: <field name="next_counter_reading"/>
+                                Próxima: <field name="next_counter_reading"/>
                                 <field name="counter_unit"/>
                             </div>
                             <div class="mt-1">
                                 <strong>
-                                    Remaining: <field name="remaining"/>
+                                    Restante: <field name="remaining"/>
                                     <field name="counter_unit"/>
                                 </strong>
                             </div>
@@ -52,12 +52,12 @@
         </field>
     </record>
 
-    <!-- List view -->
+    <!-- Vista lista -->
     <record id="view_task_plan_line_list" model="ir.ui.view">
         <field name="name">maintenance.task.plan.line.list</field>
         <field name="model">maintenance.task.plan.line</field>
         <field name="arch" type="xml">
-            <list string="Counter Tracking"
+            <list string="Seguimiento de Contadores"
                   decoration-danger="state == 'overdue'"
                   decoration-warning="state == 'warning'"
                   decoration-success="state == 'ok'">
@@ -77,12 +77,12 @@
         </field>
     </record>
 
-    <!-- Form view -->
+    <!-- Vista formulario -->
     <record id="view_task_plan_line_form" model="ir.ui.view">
         <field name="name">maintenance.task.plan.line.form</field>
         <field name="model">maintenance.task.plan.line</field>
         <field name="arch" type="xml">
-            <form string="Counter Tracking Line">
+            <form string="Línea de seguimiento">
                 <sheet>
                     <group>
                         <group>
@@ -99,7 +99,7 @@
                             <field name="progress_percentage" widget="progressbar"/>
                         </group>
                     </group>
-                    <group string="Counter Readings">
+                    <group string="Lecturas del contador">
                         <group>
                             <field name="last_counter_reading"/>
                             <field name="current_counter_reading"/>
@@ -109,7 +109,7 @@
                             <field name="remaining"/>
                         </group>
                     </group>
-                    <group string="Work Orders">
+                    <group string="Órdenes de trabajo">
                         <field name="last_request_id"/>
                         <field name="request_count"/>
                     </group>
@@ -118,30 +118,30 @@
         </field>
     </record>
 
-    <!-- Search view -->
+    <!-- Vista búsqueda -->
     <record id="view_task_plan_line_search" model="ir.ui.view">
         <field name="name">maintenance.task.plan.line.search</field>
         <field name="model">maintenance.task.plan.line</field>
         <field name="arch" type="xml">
-            <search string="Search Counter Tracking">
+            <search string="Buscar seguimiento de contadores">
                 <field name="equipment_id"/>
                 <field name="plan_id"/>
                 <field name="counter_type_id"/>
-                <filter name="filter_overdue" string="Overdue"
+                <filter name="filter_overdue" string="Vencido"
                         domain="[('state', '=', 'overdue')]"/>
-                <filter name="filter_warning" string="Upcoming"
+                <filter name="filter_warning" string="Próximo"
                         domain="[('state', '=', 'warning')]"/>
-                <filter name="filter_ok" string="OK"
+                <filter name="filter_ok" string="Al día"
                         domain="[('state', '=', 'ok')]"/>
                 <separator/>
-                <group expand="1" string="Group By">
-                    <filter name="group_state" string="State"
+                <group expand="1" string="Agrupar por">
+                    <filter name="group_state" string="Estado"
                             context="{'group_by': 'state'}"/>
-                    <filter name="group_equipment" string="Equipment"
+                    <filter name="group_equipment" string="Equipo"
                             context="{'group_by': 'equipment_id'}"/>
                     <filter name="group_plan" string="Plan"
                             context="{'group_by': 'plan_id'}"/>
-                    <filter name="group_counter_type" string="Counter Type"
+                    <filter name="group_counter_type" string="Tipo de contador"
                             context="{'group_by': 'counter_type_id'}"/>
                 </group>
             </search>
@@ -149,7 +149,7 @@
     </record>
 
     <record id="action_task_plan_line" model="ir.actions.act_window">
-        <field name="name">Counter Tracking</field>
+        <field name="name">Seguimiento de Contadores</field>
         <field name="res_model">maintenance.task.plan.line</field>
         <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_task_plan_line_search"/>

@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Parent menu: Task Plans -->
+    <!-- Menú padre: Planes de Tareas -->
     <menuitem
         id="menu_task_plan_root"
-        name="Task Plans"
+        name="Planes de Tareas"
         parent="maintenance.menu_maintenance_title"
         sequence="30"
     />
 
-    <!-- Submenu: Task Plans -->
+    <!-- Submenú: Planes de Tareas -->
     <menuitem
         id="menu_task_plan"
-        name="Task Plans"
+        name="Planes de Tareas"
         parent="menu_task_plan_root"
         action="action_task_plan"
         sequence="10"
     />
 
-    <!-- Submenu: Counter Tracking -->
+    <!-- Submenú: Seguimiento de Contadores -->
     <menuitem
         id="menu_task_plan_line"
-        name="Counter Tracking"
+        name="Seguimiento de Contadores"
         parent="menu_task_plan_root"
         action="action_task_plan_line"
         sequence="20"
     />
 
-    <!-- Submenu: Update Counters -->
+    <!-- Submenú: Actualizar Contadores -->
     <menuitem
         id="menu_update_counters"
-        name="Update Counters"
+        name="Actualizar Contadores"
         parent="menu_task_plan_root"
         action="action_update_counters_wizard"
         sequence="30"
     />
 
-    <!-- Configuration: Counter Types -->
+    <!-- Configuración: Tipos de Contador -->
     <menuitem
         id="menu_counter_type"
-        name="Counter Types"
+        name="Tipos de Contador"
         parent="maintenance.menu_maintenance_configuration"
         action="action_counter_type"
         sequence="20"

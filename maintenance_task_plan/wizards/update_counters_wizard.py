@@ -3,17 +3,17 @@ from odoo import api, fields, models, _
 
 class UpdateCountersWizard(models.TransientModel):
     _name = 'maintenance.update.counters.wizard'
-    _description = 'Update Counters Wizard'
+    _description = 'Wizard Actualizar Contadores'
 
     counter_type_id = fields.Many2one(
         'maintenance.counter.type',
-        string='Counter Type',
+        string='Tipo de contador',
         required=True,
     )
     line_ids = fields.One2many(
         'maintenance.update.counters.wizard.line',
         'wizard_id',
-        string='Readings',
+        string='Lecturas',
     )
 
     @api.onchange('counter_type_id')
@@ -27,7 +27,6 @@ class UpdateCountersWizard(models.TransientModel):
             ('plan_id.active', '=', True),
         ])
 
-        # Group by equipment to avoid duplicates
         equipment_map = {}
         for pl in plan_lines:
             if pl.equipment_id.id not in equipment_map:
@@ -68,8 +67,8 @@ class UpdateCountersWizard(models.TransientModel):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('Counters Updated'),
-                'message': _('%d tracking line(s) updated.', updated),
+                'title': _('Contadores actualizados'),
+                'message': _('%d línea(s) de seguimiento actualizada(s).', updated),
                 'type': 'success',
                 'sticky': False,
                 'next': {'type': 'ir.actions.act_window_close'},
@@ -79,7 +78,7 @@ class UpdateCountersWizard(models.TransientModel):
 
 class UpdateCountersWizardLine(models.TransientModel):
     _name = 'maintenance.update.counters.wizard.line'
-    _description = 'Update Counters Wizard Line'
+    _description = 'Línea del wizard actualizar contadores'
 
     wizard_id = fields.Many2one(
         'maintenance.update.counters.wizard',
@@ -89,13 +88,13 @@ class UpdateCountersWizardLine(models.TransientModel):
     )
     equipment_id = fields.Many2one(
         'maintenance.equipment',
-        string='Equipment',
+        string='Equipo',
         readonly=True,
     )
     current_reading = fields.Float(
-        string='Current Reading',
+        string='Lectura actual',
         readonly=True,
     )
     new_reading = fields.Float(
-        string='New Reading',
+        string='Nueva lectura',
     )

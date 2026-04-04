@@ -7,10 +7,10 @@ class MaintenanceEquipment(models.Model):
     task_plan_line_ids = fields.One2many(
         'maintenance.task.plan.line',
         'equipment_id',
-        string='Task Plan Lines',
+        string='Líneas de plan de tareas',
     )
     task_plan_count = fields.Integer(
-        string='Task Plans',
+        string='Planes de mant.',
         compute='_compute_task_plan_count',
     )
 
@@ -23,7 +23,7 @@ class MaintenanceEquipment(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': 'Maintenance Plans',
+            'name': 'Planes de mantenimiento',
             'res_model': 'maintenance.task.plan.line',
             'view_mode': 'list,form',
             'domain': [('equipment_id', '=', self.id)],

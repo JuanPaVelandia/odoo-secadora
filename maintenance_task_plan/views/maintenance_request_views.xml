@@ -6,22 +6,22 @@
         <field name="model">maintenance.request</field>
         <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
         <field name="arch" type="xml">
-            <!-- Add sequence number at the top -->
+            <!-- Mostrar consecutivo OT -->
             <xpath expr="//div[@name='button_box']" position="after">
-                <div class="oe_title" invisible="sequence_number == 'New'">
+                <div class="oe_title" invisible="sequence_number == 'Nuevo'">
                     <h2>
                         <field name="sequence_number" readonly="1"/>
                     </h2>
                 </div>
             </xpath>
 
-            <!-- Add task plan fields in the form -->
+            <!-- Campos del plan de tareas -->
             <xpath expr="//field[@name='category_id']" position="after">
                 <field name="task_plan_id" readonly="1"/>
                 <field name="task_plan_line_id" invisible="1"/>
             </xpath>
 
-            <!-- Add counter reading field, visible only for plan-generated requests -->
+            <!-- Lectura del contador al cerrar, visible solo para OTs de plan -->
             <xpath expr="//field[@name='schedule_date']" position="after">
                 <label for="counter_reading_at_close"
                        invisible="not task_plan_id"/>

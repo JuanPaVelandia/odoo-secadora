@@ -4,64 +4,64 @@ from odoo.exceptions import UserError
 
 class MaintenanceTaskPlan(models.Model):
     _name = 'maintenance.task.plan'
-    _description = 'Maintenance Task Plan'
+    _description = 'Plan de Tareas de Mantenimiento'
     _order = 'name'
 
     name = fields.Char(
-        string='Name',
+        string='Nombre',
         required=True,
     )
     description = fields.Text(
-        string='Description',
+        string='Descripción / Instrucciones',
     )
     counter_type_id = fields.Many2one(
         'maintenance.counter.type',
-        string='Counter Type',
+        string='Tipo de contador',
         required=True,
     )
     counter_unit = fields.Char(
         related='counter_type_id.unit',
-        string='Counter Unit',
+        string='Unidad',
     )
     interval = fields.Float(
-        string='Interval',
+        string='Intervalo',
         required=True,
     )
     category_id = fields.Many2one(
         'maintenance.equipment.category',
-        string='Equipment Category',
+        string='Categoría de equipo',
     )
     equipment_ids = fields.Many2many(
         'maintenance.equipment',
         'maintenance_task_plan_equipment_rel',
         'plan_id',
         'equipment_id',
-        string='Equipment',
+        string='Equipos',
     )
     task_line_ids = fields.One2many(
         'maintenance.task.plan.line',
         'plan_id',
-        string='Tracking Lines',
+        string='Líneas de seguimiento',
     )
     active = fields.Boolean(
         default=True,
     )
     responsible_user_id = fields.Many2one(
         'res.users',
-        string='Responsible',
+        string='Responsable',
     )
     company_id = fields.Many2one(
         'res.company',
-        string='Company',
+        string='Compañía',
         default=lambda self: self.env.company,
     )
     equipment_count = fields.Integer(
         compute='_compute_equipment_count',
-        string='Equipment Count',
+        string='Cantidad de equipos',
     )
     overdue_count = fields.Integer(
         compute='_compute_overdue_count',
-        string='Overdue Count',
+        string='Vencidas',
     )
 
     @api.depends('equipment_ids')
@@ -78,19 +78,17 @@ class MaintenanceTaskPlan(models.Model):
 
     @api.onchange('equipment_ids')
     def _onchange_equipment_ids(self):
-        """Create/remove tracking lines when equipment changes."""
+        """Crear/eliminar líneas de seguimiento al cambiar equipos."""
         existing_equipments = self.task_line_ids.mapped('equipment_id')
         new_equipments = self.equipment_ids - existing_equipments
         removed_equipments = existing_equipments - self.equipment_ids
 
-        # Remove lines for removed equipment
         lines_to_remove = self.task_line_ids.filtered(
             lambda l: l.equipment_id in removed_equipments
         )
         for line in lines_to_remove:
             self.task_line_ids -= line
 
-        # Add lines for new equipment
         for eq in new_equipments:
             self.task_line_ids += self.task_line_ids.new({
                 'plan_id': self.id,
@@ -106,18 +104,16 @@ class MaintenanceTaskPlan(models.Model):
         return res
 
     def _sync_task_lines(self):
-        """Synchronize task lines with equipment list."""
+        """Sincronizar líneas de seguimiento con lista de equipos."""
         for plan in self:
             existing_equipments = plan.task_line_ids.mapped('equipment_id')
             new_equipments = plan.equipment_ids - existing_equipments
             removed_equipments = existing_equipments - plan.equipment_ids
 
-            # Remove lines for removed equipment
             plan.task_line_ids.filtered(
                 lambda l: l.equipment_id in removed_equipments
             ).unlink()
 
-            # Add lines for new equipment
             vals_list = []
             for eq in new_equipments:
                 vals_list.append({
@@ -130,7 +126,7 @@ class MaintenanceTaskPlan(models.Model):
                 self.env['maintenance.task.plan.line'].create(vals_list)
 
     def action_generate_requests(self):
-        """Manual button to generate work orders now."""
+        """Botón manual para generar OTs ahora."""
         self.ensure_one()
         created = self.task_line_ids._generate_requests()
         if created:
@@ -138,8 +134,8 @@ class MaintenanceTaskPlan(models.Model):
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('Work Orders Generated'),
-                    'message': _('%d work order(s) created.', len(created)),
+                    'title': _('OTs generadas'),
+                    'message': _('%d orden(es) de trabajo creada(s).', len(created)),
                     'type': 'success',
                     'sticky': False,
                 },
@@ -148,8 +144,8 @@ class MaintenanceTaskPlan(models.Model):
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
-                'title': _('No Work Orders'),
-                'message': _('No equipment has reached its counter threshold.'),
+                'title': _('Sin OTs'),
+                'message': _('Ningún equipo ha alcanzado el umbral del contador.'),
                 'type': 'warning',
                 'sticky': False,
             },

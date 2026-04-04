@@ -3,17 +3,17 @@
     <data noupdate="1">
 
         <record id="counter_type_hour_meter" model="maintenance.counter.type">
-            <field name="name">Hour Meter</field>
-            <field name="unit">Hours</field>
+            <field name="name">Horómetro</field>
+            <field name="unit">Horas</field>
         </record>
 
         <record id="counter_type_odometer" model="maintenance.counter.type">
-            <field name="name">Odometer</field>
+            <field name="name">Odómetro</field>
             <field name="unit">Km</field>
         </record>
 
         <record id="counter_type_tachometer" model="maintenance.counter.type">
-            <field name="name">Tachometer</field>
+            <field name="name">Tacómetro</field>
             <field name="unit">RPM</field>
         </record>
 

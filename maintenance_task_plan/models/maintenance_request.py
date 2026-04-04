@@ -6,38 +6,38 @@ class MaintenanceRequest(models.Model):
     _inherit = 'maintenance.request'
 
     sequence_number = fields.Char(
-        string='Work Order #',
+        string='Nro. OT',
         readonly=True,
         copy=False,
-        default='New',
+        default='Nuevo',
     )
     task_plan_id = fields.Many2one(
         'maintenance.task.plan',
-        string='Task Plan',
+        string='Plan de tareas',
     )
     task_plan_line_id = fields.Many2one(
         'maintenance.task.plan.line',
-        string='Task Plan Line',
+        string='Línea del plan',
     )
     counter_type_id = fields.Many2one(
         related='task_plan_id.counter_type_id',
-        string='Counter Type',
+        string='Tipo de contador',
     )
     counter_reading_at_close = fields.Float(
-        string='Counter Reading at Close',
+        string='Lectura del contador al cerrar',
     )
     counter_unit = fields.Char(
         related='task_plan_id.counter_type_id.unit',
-        string='Counter Unit',
+        string='Unidad',
     )
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('sequence_number', 'New') == 'New':
+            if vals.get('sequence_number', 'Nuevo') == 'Nuevo':
                 vals['sequence_number'] = self.env['ir.sequence'].next_by_code(
                     'maintenance.request'
-                ) or 'New'
+                ) or 'Nuevo'
         return super().create(vals_list)
 
     def write(self, vals):
@@ -47,7 +47,7 @@ class MaintenanceRequest(models.Model):
         return res
 
     def _check_close_task_plan(self):
-        """When a request is closed (stage done=True), update the task plan line."""
+        """Al cerrar la OT (stage done=True), actualizar la línea del plan."""
         for request in self:
             if not request.task_plan_line_id:
                 continue
@@ -56,8 +56,8 @@ class MaintenanceRequest(models.Model):
 
             if not request.counter_reading_at_close:
                 raise ValidationError(_(
-                    'You must enter the counter reading at close '
-                    'before completing work order "%(name)s".',
+                    'Debe ingresar la lectura del contador al cerrar '
+                    'antes de completar la OT "%(name)s".',
                     name=request.name,
                 ))
 

@@ -1,13 +1,13 @@
 {
-    'name': 'Maintenance Task Plans',
+    'name': 'Planes de Tareas de Mantenimiento',
     'version': '18.0.1.0.0',
     'category': 'Maintenance',
-    'summary': 'Counter-based maintenance task plans with automatic work order generation',
+    'summary': 'Planes de mantenimiento basados en contadores con generación automática de OTs',
     'description': """
-        Extends the Maintenance module with counter-based task plans.
-        Allows defining periodic maintenance tasks triggered by equipment
-        usage counters (hour meters, odometers, tachometers, etc.).
-        Automatically generates work orders when counters reach thresholds.
+        Extiende el módulo de Mantenimiento con planes de tareas basados en contadores.
+        Permite definir tareas de mantenimiento periódicas disparadas por contadores
+        de uso (horómetros, odómetros, tacómetros, etc.).
+        Genera automáticamente órdenes de trabajo cuando los contadores alcanzan los umbrales.
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
     'license': 'LGPL-3',

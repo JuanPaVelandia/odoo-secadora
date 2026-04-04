@@ -5,13 +5,13 @@
         <field name="name">maintenance.task.plan.form</field>
         <field name="model">maintenance.task.plan</field>
         <field name="arch" type="xml">
-            <form string="Task Plan">
+            <form string="Plan de Tareas">
                 <header>
                     <button name="action_generate_requests"
                             type="object"
-                            string="Generate Work Orders"
+                            string="Generar OTs"
                             class="oe_highlight"
-                            confirm="This will generate work orders for all equipment that has reached the counter threshold. Continue?"/>
+                            confirm="Esto generará órdenes de trabajo para todos los equipos que hayan alcanzado el umbral del contador. ¿Continuar?"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -20,12 +20,12 @@
                                 type="object"
                                 name="action_generate_requests"
                                 invisible="overdue_count == 0">
-                            <field name="overdue_count" string="Overdue" widget="statinfo"/>
+                            <field name="overdue_count" string="Vencidas" widget="statinfo"/>
                         </button>
                     </div>
                     <div class="oe_title">
                         <h1>
-                            <field name="name" placeholder="Plan name..."/>
+                            <field name="name" placeholder="Nombre del plan..."/>
                         </h1>
                     </div>
                     <group>
@@ -45,10 +45,10 @@
                         </group>
                     </group>
                     <notebook>
-                        <page string="Equipment" name="equipment_page">
+                        <page string="Equipos" name="equipment_page">
                             <field name="equipment_ids" widget="many2many_tags"/>
                         </page>
-                        <page string="Tracking" name="tracking_page">
+                        <page string="Seguimiento" name="tracking_page">
                             <field name="task_line_ids" nolabel="1">
                                 <list editable="bottom"
                                       decoration-danger="state == 'overdue'"
@@ -69,9 +69,9 @@
                                 </list>
                             </field>
                         </page>
-                        <page string="Instructions" name="instructions_page">
+                        <page string="Instrucciones" name="instructions_page">
                             <field name="description"
-                                   placeholder="Detailed procedure, instructions, required tools, safety notes..."/>
+                                   placeholder="Procedimiento detallado, herramientas necesarias, notas de seguridad..."/>
                         </page>
                     </notebook>
                 </sheet>
@@ -83,7 +83,7 @@
         <field name="name">maintenance.task.plan.list</field>
         <field name="model">maintenance.task.plan</field>
         <field name="arch" type="xml">
-            <list string="Task Plans"
+            <list string="Planes de Tareas"
                   decoration-danger="overdue_count > 0">
                 <field name="name"/>
                 <field name="counter_type_id"/>
@@ -100,20 +100,20 @@
         <field name="name">maintenance.task.plan.search</field>
         <field name="model">maintenance.task.plan</field>
         <field name="arch" type="xml">
-            <search string="Search Task Plans">
+            <search string="Buscar planes de tareas">
                 <field name="name"/>
                 <field name="counter_type_id"/>
                 <field name="category_id"/>
                 <field name="responsible_user_id"/>
-                <filter name="filter_has_overdue" string="Has Overdue"
+                <filter name="filter_has_overdue" string="Con vencidas"
                         domain="[('task_line_ids.state', '=', 'overdue')]"/>
                 <separator/>
-                <group expand="1" string="Group By">
-                    <filter name="group_counter_type" string="Counter Type"
+                <group expand="1" string="Agrupar por">
+                    <filter name="group_counter_type" string="Tipo de contador"
                             context="{'group_by': 'counter_type_id'}"/>
-                    <filter name="group_category" string="Category"
+                    <filter name="group_category" string="Categoría"
                             context="{'group_by': 'category_id'}"/>
-                    <filter name="group_responsible" string="Responsible"
+                    <filter name="group_responsible" string="Responsable"
                             context="{'group_by': 'responsible_user_id'}"/>
                 </group>
             </search>
@@ -121,7 +121,7 @@
     </record>
 
     <record id="action_task_plan" model="ir.actions.act_window">
-        <field name="name">Task Plans</field>
+        <field name="name">Planes de Tareas</field>
         <field name="res_model">maintenance.task.plan</field>
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="view_task_plan_search"/>

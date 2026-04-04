@@ -3,7 +3,7 @@
     <data noupdate="1">
 
         <record id="seq_maintenance_request" model="ir.sequence">
-            <field name="name">Maintenance Work Order Sequence</field>
+            <field name="name">Secuencia de Órdenes de Trabajo</field>
             <field name="code">maintenance.request</field>
             <field name="prefix">OT-</field>
             <field name="padding">4</field>

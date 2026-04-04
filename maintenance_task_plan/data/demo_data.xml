@@ -2,36 +2,36 @@
 <odoo>
     <data noupdate="1">
 
-        <!-- Demo Equipment Categories -->
+        <!-- Categorías demo -->
         <record id="demo_category_tractors" model="maintenance.equipment.category">
-            <field name="name">Tractors</field>
+            <field name="name">Tractores</field>
         </record>
 
         <record id="demo_category_generators" model="maintenance.equipment.category">
-            <field name="name">Generators</field>
+            <field name="name">Generadores</field>
         </record>
 
-        <!-- Demo Equipment -->
+        <!-- Equipos demo -->
         <record id="equipment_tractor_01" model="maintenance.equipment">
             <field name="name">Tractor John Deere 6120M</field>
             <field name="category_id" ref="demo_category_tractors"/>
         </record>
 
         <record id="equipment_generator_01" model="maintenance.equipment">
-            <field name="name">Generator CAT DE220</field>
+            <field name="name">Generador CAT DE220</field>
             <field name="category_id" ref="demo_category_generators"/>
         </record>
 
-        <!-- Demo Task Plans -->
+        <!-- Planes de tareas demo -->
         <record id="task_plan_oil_change" model="maintenance.task.plan">
-            <field name="name">Oil Change - Tractors</field>
-            <field name="description">Procedure:
-1. Warm up engine for 5 minutes
-2. Drain old oil
-3. Replace oil filter
-4. Fill with new oil (SAE 15W-40)
-5. Check oil level
-6. Run engine, recheck for leaks</field>
+            <field name="name">Cambio de aceite - Tractores</field>
+            <field name="description">Procedimiento:
+1. Calentar el motor por 5 minutos
+2. Drenar el aceite usado
+3. Reemplazar el filtro de aceite
+4. Llenar con aceite nuevo (SAE 15W-40)
+5. Verificar nivel de aceite
+6. Encender motor, revisar fugas</field>
             <field name="counter_type_id" ref="counter_type_hour_meter"/>
             <field name="interval">200</field>
             <field name="category_id" ref="demo_category_tractors"/>
@@ -39,15 +39,15 @@
         </record>
 
         <record id="task_plan_filter_change" model="maintenance.task.plan">
-            <field name="name">Air Filter Change - Generators</field>
-            <field name="description">Procedure:
-1. Turn off generator and wait to cool
-2. Remove air filter housing cover
-3. Remove old filter element
-4. Clean housing interior
-5. Install new filter element
-6. Secure housing cover
-7. Test start</field>
+            <field name="name">Cambio filtro de aire - Generadores</field>
+            <field name="description">Procedimiento:
+1. Apagar generador y esperar a que enfríe
+2. Retirar tapa del filtro de aire
+3. Retirar filtro viejo
+4. Limpiar interior de la carcasa
+5. Instalar filtro nuevo
+6. Asegurar tapa
+7. Encendido de prueba</field>
             <field name="counter_type_id" ref="counter_type_hour_meter"/>
             <field name="interval">500</field>
             <field name="category_id" ref="demo_category_generators"/>

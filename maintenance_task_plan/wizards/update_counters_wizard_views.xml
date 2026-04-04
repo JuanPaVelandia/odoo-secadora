@@ -5,7 +5,7 @@
         <field name="name">maintenance.update.counters.wizard.form</field>
         <field name="model">maintenance.update.counters.wizard</field>
         <field name="arch" type="xml">
-            <form string="Update Counters">
+            <form string="Actualizar Contadores">
                 <group>
                     <field name="counter_type_id"/>
                 </group>
@@ -17,16 +17,16 @@
                     </list>
                 </field>
                 <footer>
-                    <button string="Update" type="object" name="action_update"
+                    <button string="Actualizar" type="object" name="action_update"
                             class="btn-primary"/>
-                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
                 </footer>
             </form>
         </field>
     </record>
 
     <record id="action_update_counters_wizard" model="ir.actions.act_window">
-        <field name="name">Update Counters</field>
+        <field name="name">Actualizar Contadores</field>
         <field name="res_model">maintenance.update.counters.wizard</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
