@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_request_form_inherit_task_plan" model="ir.ui.view">
+        <field name="name">maintenance.request.form.inherit.task.plan</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Add task plan fields in the form -->
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="task_plan_id" readonly="1"/>
+                <field name="task_plan_line_id" invisible="1"/>
+            </xpath>
+
+            <!-- Add counter reading field, visible only for plan-generated requests -->
+            <xpath expr="//field[@name='schedule_date']" position="after">
+                <label for="counter_reading_at_close"
+                       invisible="not task_plan_id"/>
+                <div class="o_row" invisible="not task_plan_id">
+                    <field name="counter_reading_at_close"/>
+                    <field name="counter_unit" class="oe_inline"/>
+                </div>
+                <field name="counter_type_id" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

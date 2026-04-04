@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Demo Equipment Categories -->
+        <record id="demo_category_tractors" model="maintenance.equipment.category">
+            <field name="name">Tractors</field>
+        </record>
+
+        <record id="demo_category_generators" model="maintenance.equipment.category">
+            <field name="name">Generators</field>
+        </record>
+
+        <!-- Demo Equipment -->
+        <record id="equipment_tractor_01" model="maintenance.equipment">
+            <field name="name">Tractor John Deere 6120M</field>
+            <field name="category_id" ref="demo_category_tractors"/>
+        </record>
+
+        <record id="equipment_generator_01" model="maintenance.equipment">
+            <field name="name">Generator CAT DE220</field>
+            <field name="category_id" ref="demo_category_generators"/>
+        </record>
+
+        <!-- Demo Task Plans -->
+        <record id="task_plan_oil_change" model="maintenance.task.plan">
+            <field name="name">Oil Change - Tractors</field>
+            <field name="description">Procedure:
+1. Warm up engine for 5 minutes
+2. Drain old oil
+3. Replace oil filter
+4. Fill with new oil (SAE 15W-40)
+5. Check oil level
+6. Run engine, recheck for leaks</field>
+            <field name="counter_type_id" ref="counter_type_hour_meter"/>
+            <field name="interval">200</field>
+            <field name="category_id" ref="demo_category_tractors"/>
+            <field name="equipment_ids" eval="[(4, ref('equipment_tractor_01'))]"/>
+        </record>
+
+        <record id="task_plan_filter_change" model="maintenance.task.plan">
+            <field name="name">Air Filter Change - Generators</field>
+            <field name="description">Procedure:
+1. Turn off generator and wait to cool
+2. Remove air filter housing cover
+3. Remove old filter element
+4. Clean housing interior
+5. Install new filter element
+6. Secure housing cover
+7. Test start</field>
+            <field name="counter_type_id" ref="counter_type_hour_meter"/>
+            <field name="interval">500</field>
+            <field name="category_id" ref="demo_category_generators"/>
+            <field name="equipment_ids" eval="[(4, ref('equipment_generator_01'))]"/>
+        </record>
+
+    </data>
+</odoo>

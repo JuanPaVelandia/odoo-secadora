@@ -1,0 +1,317 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * maintenance_task_plan
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-04 00:00+0000\n"
+"PO-Revision-Date: 2026-04-04 00:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. module: maintenance_task_plan
+#: model:ir.model,name:maintenance_task_plan.model_maintenance_counter_type
+msgid "Counter Type"
+msgstr "Tipo de Contador"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_counter_type__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_counter_type__unit
+msgid "Unit of Measure"
+msgstr "Unidad de Medida"
+
+#. module: maintenance_task_plan
+#: model:ir.model,name:maintenance_task_plan.model_maintenance_task_plan
+msgid "Maintenance Task Plan"
+msgstr "Plan de Tareas de Mantenimiento"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__description
+msgid "Description"
+msgstr "Descripción"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__counter_type_id
+msgid "Counter Type"
+msgstr "Tipo de Contador"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__counter_unit
+msgid "Counter Unit"
+msgstr "Unidad del Contador"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__interval
+msgid "Interval"
+msgstr "Intervalo"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__category_id
+msgid "Equipment Category"
+msgstr "Categoría de Equipo"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__equipment_ids
+msgid "Equipment"
+msgstr "Equipos"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__task_line_ids
+msgid "Tracking Lines"
+msgstr "Líneas de Seguimiento"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__responsible_user_id
+msgid "Responsible"
+msgstr "Responsable"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__equipment_count
+msgid "Equipment Count"
+msgstr "Cantidad de Equipos"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__overdue_count
+msgid "Overdue Count"
+msgstr "Cantidad Vencidas"
+
+#. module: maintenance_task_plan
+#: model:ir.model,name:maintenance_task_plan.model_maintenance_task_plan_line
+msgid "Task Plan Tracking Line"
+msgstr "Línea de Seguimiento del Plan"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__plan_id
+msgid "Task Plan"
+msgstr "Plan de Tareas"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__last_counter_reading
+msgid "Last Reading"
+msgstr "Última Lectura"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__next_counter_reading
+msgid "Next Reading"
+msgstr "Próxima Lectura"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__current_counter_reading
+msgid "Current Reading"
+msgstr "Lectura Actual"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__remaining
+msgid "Remaining"
+msgstr "Restante"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__progress_percentage
+msgid "Progress (%)"
+msgstr "Progreso (%)"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields.selection,name:maintenance_task_plan.field_maintenance_task_plan_line__state__ok
+msgid "OK"
+msgstr "Al día"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields.selection,name:maintenance_task_plan.field_maintenance_task_plan_line__state__warning
+msgid "Upcoming"
+msgstr "Próximo"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields.selection,name:maintenance_task_plan.field_maintenance_task_plan_line__state__overdue
+msgid "Overdue"
+msgstr "Vencido"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__last_request_id
+msgid "Last Work Order"
+msgstr "Última Orden de Trabajo"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan_line__request_count
+msgid "Work Order Count"
+msgstr "Cantidad de OTs"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_request__task_plan_id
+msgid "Task Plan"
+msgstr "Plan de Tareas"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_request__task_plan_line_id
+msgid "Task Plan Line"
+msgstr "Línea del Plan"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_request__counter_reading_at_close
+msgid "Counter Reading at Close"
+msgstr "Lectura del Contador al Cerrar"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_request__counter_unit
+msgid "Counter Unit"
+msgstr "Unidad del Contador"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_equipment__task_plan_line_ids
+msgid "Task Plan Lines"
+msgstr "Líneas de Plan de Tareas"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_equipment__task_plan_count
+msgid "Task Plans"
+msgstr "Planes de Mantenimiento"
+
+#. module: maintenance_task_plan
+#: code:addons/maintenance_task_plan/models/task_plan.py
+msgid "Work Orders Generated"
+msgstr "Órdenes de Trabajo Generadas"
+
+#. module: maintenance_task_plan
+#: code:addons/maintenance_task_plan/models/task_plan.py
+msgid "%d work order(s) created."
+msgstr "%d orden(es) de trabajo creada(s)."
+
+#. module: maintenance_task_plan
+#: code:addons/maintenance_task_plan/models/task_plan.py
+msgid "No Work Orders"
+msgstr "Sin Órdenes de Trabajo"
+
+#. module: maintenance_task_plan
+#: code:addons/maintenance_task_plan/models/task_plan.py
+msgid "No equipment has reached its counter threshold."
+msgstr "Ningún equipo ha alcanzado el umbral del contador."
+
+#. module: maintenance_task_plan
+#: code:addons/maintenance_task_plan/models/maintenance_request.py
+msgid "You must enter the counter reading at close before completing work order \"%(name)s\"."
+msgstr "Debe ingresar la lectura del contador al cerrar antes de completar la orden de trabajo \"%(name)s\"."
+
+#. module: maintenance_task_plan
+#: code:addons/maintenance_task_plan/wizards/update_counters_wizard.py
+msgid "Counters Updated"
+msgstr "Contadores Actualizados"
+
+#. module: maintenance_task_plan
+#: code:addons/maintenance_task_plan/wizards/update_counters_wizard.py
+msgid "%d tracking line(s) updated."
+msgstr "%d línea(s) de seguimiento actualizada(s)."
+
+#. module: maintenance_task_plan
+#: model:ir.actions.act_window,name:maintenance_task_plan.action_counter_type
+msgid "Counter Types"
+msgstr "Tipos de Contador"
+
+#. module: maintenance_task_plan
+#: model:ir.actions.act_window,name:maintenance_task_plan.action_task_plan
+msgid "Task Plans"
+msgstr "Planes de Tareas"
+
+#. module: maintenance_task_plan
+#: model:ir.actions.act_window,name:maintenance_task_plan.action_task_plan_line
+msgid "Counter Tracking"
+msgstr "Seguimiento de Contadores"
+
+#. module: maintenance_task_plan
+#: model:ir.actions.act_window,name:maintenance_task_plan.action_update_counters_wizard
+msgid "Update Counters"
+msgstr "Actualizar Contadores"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.menu,name:maintenance_task_plan.menu_task_plan_root
+msgid "Task Plans"
+msgstr "Planes de Tareas"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.menu,name:maintenance_task_plan.menu_task_plan_line
+msgid "Counter Tracking"
+msgstr "Seguimiento de Contadores"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.menu,name:maintenance_task_plan.menu_update_counters
+msgid "Update Counters"
+msgstr "Actualizar Contadores"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.menu,name:maintenance_task_plan.menu_counter_type
+msgid "Counter Types"
+msgstr "Tipos de Contador"
+
+#. module: maintenance_task_plan
+#: view:maintenance.task.plan:0
+msgid "Generate Work Orders"
+msgstr "Generar Órdenes de Trabajo"
+
+#. module: maintenance_task_plan
+#: model:ir.cron,name:maintenance_task_plan.ir_cron_generate_task_plan_requests
+msgid "Maintenance: Generate Task Plan Work Orders"
+msgstr "Mantenimiento: Generar OTs de Planes de Tareas"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.view,arch_db:maintenance_task_plan.view_task_plan_form
+msgid "Instructions"
+msgstr "Instrucciones"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.view,arch_db:maintenance_task_plan.view_task_plan_form
+msgid "Tracking"
+msgstr "Seguimiento"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.view,arch_db:maintenance_task_plan.view_update_counters_wizard_form
+msgid "Update"
+msgstr "Actualizar"
+
+#. module: maintenance_task_plan
+#: model:ir.ui.view,arch_db:maintenance_task_plan.view_update_counters_wizard_form
+msgid "Cancel"
+msgstr "Cancelar"
+
+#. module: maintenance_task_plan
+#: model:maintenance.counter.type,name:maintenance_task_plan.counter_type_hour_meter
+msgid "Hour Meter"
+msgstr "Horómetro"
+
+#. module: maintenance_task_plan
+#: model:maintenance.counter.type,name:maintenance_task_plan.counter_type_odometer
+msgid "Odometer"
+msgstr "Odómetro"
+
+#. module: maintenance_task_plan
+#: model:maintenance.counter.type,name:maintenance_task_plan.counter_type_tachometer
+msgid "Tachometer"
+msgstr "Tacómetro"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields.selection,name:maintenance_task_plan.field_maintenance_task_plan_line__state
+msgid "State"
+msgstr "Estado"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_counter_type__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: maintenance_task_plan
+#: model:ir.model.fields,field_description:maintenance_task_plan.field_maintenance_task_plan__active
+msgid "Active"
+msgstr "Activo"

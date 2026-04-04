@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Parent menu: Task Plans -->
+    <menuitem
+        id="menu_task_plan_root"
+        name="Task Plans"
+        parent="maintenance.menu_maintenance_title"
+        sequence="30"
+    />
+
+    <!-- Submenu: Task Plans -->
+    <menuitem
+        id="menu_task_plan"
+        name="Task Plans"
+        parent="menu_task_plan_root"
+        action="action_task_plan"
+        sequence="10"
+    />
+
+    <!-- Submenu: Counter Tracking -->
+    <menuitem
+        id="menu_task_plan_line"
+        name="Counter Tracking"
+        parent="menu_task_plan_root"
+        action="action_task_plan_line"
+        sequence="20"
+    />
+
+    <!-- Submenu: Update Counters -->
+    <menuitem
+        id="menu_update_counters"
+        name="Update Counters"
+        parent="menu_task_plan_root"
+        action="action_update_counters_wizard"
+        sequence="30"
+    />
+
+    <!-- Configuration: Counter Types -->
+    <menuitem
+        id="menu_counter_type"
+        name="Counter Types"
+        parent="maintenance.menu_maintenance_configuration"
+        action="action_counter_type"
+        sequence="20"
+    />
+
+</odoo>

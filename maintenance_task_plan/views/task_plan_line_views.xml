@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Kanban view for counter tracking -->
+    <record id="view_task_plan_line_kanban" model="ir.ui.view">
+        <field name="name">maintenance.task.plan.line.kanban</field>
+        <field name="model">maintenance.task.plan.line</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_small_column">
+                <field name="state"/>
+                <field name="equipment_id"/>
+                <field name="plan_id"/>
+                <field name="current_counter_reading"/>
+                <field name="next_counter_reading"/>
+                <field name="remaining"/>
+                <field name="counter_unit"/>
+                <field name="progress_percentage"/>
+                <templates>
+                    <t t-name="kanban-card">
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top mb-0">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="equipment_id"/>
+                                    </strong>
+                                </div>
+                            </div>
+                            <div class="text-muted">
+                                <field name="plan_id"/>
+                            </div>
+                            <div class="mt-1">
+                                Current: <field name="current_counter_reading"/>
+                                <field name="counter_unit"/>
+                            </div>
+                            <div>
+                                Next: <field name="next_counter_reading"/>
+                                <field name="counter_unit"/>
+                            </div>
+                            <div class="mt-1">
+                                <strong>
+                                    Remaining: <field name="remaining"/>
+                                    <field name="counter_unit"/>
+                                </strong>
+                            </div>
+                            <div class="mt-1">
+                                <field name="progress_percentage" widget="progressbar"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- List view -->
+    <record id="view_task_plan_line_list" model="ir.ui.view">
+        <field name="name">maintenance.task.plan.line.list</field>
+        <field name="model">maintenance.task.plan.line</field>
+        <field name="arch" type="xml">
+            <tree string="Counter Tracking"
+                  decoration-danger="state == 'overdue'"
+                  decoration-warning="state == 'warning'"
+                  decoration-success="state == 'ok'">
+                <field name="equipment_id"/>
+                <field name="plan_id"/>
+                <field name="counter_type_id"/>
+                <field name="last_counter_reading"/>
+                <field name="next_counter_reading"/>
+                <field name="current_counter_reading"/>
+                <field name="remaining"/>
+                <field name="state" widget="badge"
+                       decoration-danger="state == 'overdue'"
+                       decoration-warning="state == 'warning'"
+                       decoration-success="state == 'ok'"/>
+                <field name="last_request_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="view_task_plan_line_form" model="ir.ui.view">
+        <field name="name">maintenance.task.plan.line.form</field>
+        <field name="model">maintenance.task.plan.line</field>
+        <field name="arch" type="xml">
+            <form string="Counter Tracking Line">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="plan_id"/>
+                            <field name="equipment_id"/>
+                            <field name="counter_type_id"/>
+                            <field name="counter_unit" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="state" widget="badge"
+                                   decoration-danger="state == 'overdue'"
+                                   decoration-warning="state == 'warning'"
+                                   decoration-success="state == 'ok'"/>
+                            <field name="progress_percentage" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <group string="Counter Readings">
+                        <group>
+                            <field name="last_counter_reading"/>
+                            <field name="current_counter_reading"/>
+                        </group>
+                        <group>
+                            <field name="next_counter_reading"/>
+                            <field name="remaining"/>
+                        </group>
+                    </group>
+                    <group string="Work Orders">
+                        <field name="last_request_id"/>
+                        <field name="request_count"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search view -->
+    <record id="view_task_plan_line_search" model="ir.ui.view">
+        <field name="name">maintenance.task.plan.line.search</field>
+        <field name="model">maintenance.task.plan.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Counter Tracking">
+                <field name="equipment_id"/>
+                <field name="plan_id"/>
+                <field name="counter_type_id"/>
+                <filter name="filter_overdue" string="Overdue"
+                        domain="[('state', '=', 'overdue')]"/>
+                <filter name="filter_warning" string="Upcoming"
+                        domain="[('state', '=', 'warning')]"/>
+                <filter name="filter_ok" string="OK"
+                        domain="[('state', '=', 'ok')]"/>
+                <separator/>
+                <group expand="1" string="Group By">
+                    <filter name="group_state" string="State"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_equipment" string="Equipment"
+                            context="{'group_by': 'equipment_id'}"/>
+                    <filter name="group_plan" string="Plan"
+                            context="{'group_by': 'plan_id'}"/>
+                    <filter name="group_counter_type" string="Counter Type"
+                            context="{'group_by': 'counter_type_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_task_plan_line" model="ir.actions.act_window">
+        <field name="name">Counter Tracking</field>
+        <field name="res_model">maintenance.task.plan.line</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="view_task_plan_line_search"/>
+        <field name="context">{'search_default_group_state': 1}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_task_plan_form" model="ir.ui.view">
+        <field name="name">maintenance.task.plan.form</field>
+        <field name="model">maintenance.task.plan</field>
+        <field name="arch" type="xml">
+            <form string="Task Plan">
+                <header>
+                    <button name="action_generate_requests"
+                            type="object"
+                            string="Generate Work Orders"
+                            class="oe_highlight"
+                            confirm="This will generate work orders for all equipment that has reached the counter threshold. Continue?"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button"
+                                icon="fa-wrench"
+                                type="object"
+                                name="action_generate_requests"
+                                invisible="overdue_count == 0">
+                            <field name="overdue_count" string="Overdue" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Plan name..."/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="counter_type_id"/>
+                            <label for="interval"/>
+                            <div class="o_row">
+                                <field name="interval"/>
+                                <field name="counter_unit" class="oe_inline"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="responsible_user_id"/>
+                            <field name="category_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Equipment" name="equipment_page">
+                            <field name="equipment_ids" widget="many2many_tags"/>
+                        </page>
+                        <page string="Tracking" name="tracking_page">
+                            <field name="task_line_ids" nolabel="1">
+                                <tree editable="bottom"
+                                      decoration-danger="state == 'overdue'"
+                                      decoration-warning="state == 'warning'"
+                                      decoration-success="state == 'ok'"
+                                      create="0" delete="0">
+                                    <field name="equipment_id" readonly="1"/>
+                                    <field name="last_counter_reading"/>
+                                    <field name="next_counter_reading" readonly="1"/>
+                                    <field name="current_counter_reading"/>
+                                    <field name="remaining" readonly="1"/>
+                                    <field name="progress_percentage" widget="progressbar"/>
+                                    <field name="state" widget="badge"
+                                           decoration-danger="state == 'overdue'"
+                                           decoration-warning="state == 'warning'"
+                                           decoration-success="state == 'ok'"/>
+                                    <field name="last_request_id" readonly="1"/>
+                                </tree>
+                            </field>
+                        </page>
+                        <page string="Instructions" name="instructions_page">
+                            <field name="description"
+                                   placeholder="Detailed procedure, instructions, required tools, safety notes..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_task_plan_list" model="ir.ui.view">
+        <field name="name">maintenance.task.plan.list</field>
+        <field name="model">maintenance.task.plan</field>
+        <field name="arch" type="xml">
+            <tree string="Task Plans"
+                  decoration-danger="overdue_count > 0">
+                <field name="name"/>
+                <field name="counter_type_id"/>
+                <field name="interval"/>
+                <field name="counter_unit"/>
+                <field name="equipment_count"/>
+                <field name="overdue_count"/>
+                <field name="responsible_user_id" widget="many2one_avatar_user"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_task_plan_search" model="ir.ui.view">
+        <field name="name">maintenance.task.plan.search</field>
+        <field name="model">maintenance.task.plan</field>
+        <field name="arch" type="xml">
+            <search string="Search Task Plans">
+                <field name="name"/>
+                <field name="counter_type_id"/>
+                <field name="category_id"/>
+                <field name="responsible_user_id"/>
+                <filter name="filter_has_overdue" string="Has Overdue"
+                        domain="[('overdue_count', '>', 0)]"/>
+                <separator/>
+                <group expand="1" string="Group By">
+                    <filter name="group_counter_type" string="Counter Type"
+                            context="{'group_by': 'counter_type_id'}"/>
+                    <filter name="group_category" string="Category"
+                            context="{'group_by': 'category_id'}"/>
+                    <filter name="group_responsible" string="Responsible"
+                            context="{'group_by': 'responsible_user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_task_plan" model="ir.actions.act_window">
+        <field name="name">Task Plans</field>
+        <field name="res_model">maintenance.task.plan</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="view_task_plan_search"/>
+    </record>
+
+</odoo>

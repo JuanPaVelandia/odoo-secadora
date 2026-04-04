@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="counter_type_hour_meter" model="maintenance.counter.type">
+            <field name="name">Hour Meter</field>
+            <field name="unit">Hours</field>
+        </record>
+
+        <record id="counter_type_odometer" model="maintenance.counter.type">
+            <field name="name">Odometer</field>
+            <field name="unit">Km</field>
+        </record>
+
+        <record id="counter_type_tachometer" model="maintenance.counter.type">
+            <field name="name">Tachometer</field>
+            <field name="unit">RPM</field>
+        </record>
+
+    </data>
+</odoo>
