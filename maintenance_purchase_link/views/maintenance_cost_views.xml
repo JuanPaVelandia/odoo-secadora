@@ -1,6 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ============================================================ -->
+    <!--  Vistas de maintenance.equipment.cost.line (modelo intermedio) -->
+    <!-- ============================================================ -->
+
+    <!-- Vista lista -->
+    <record id="view_equipment_cost_line_list" model="ir.ui.view">
+        <field name="name">maintenance.equipment.cost.line.list</field>
+        <field name="model">maintenance.equipment.cost.line</field>
+        <field name="arch" type="xml">
+            <list string="Costos por equipo" multi_edit="1">
+                <field name="date" readonly="1"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="move_id" readonly="1"/>
+                <field name="move_line_id" string="Línea" readonly="1"/>
+                <field name="equipment_id"/>
+                <field name="percentage"/>
+                <field name="amount" sum="Total"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista formulario -->
+    <record id="view_equipment_cost_line_form" model="ir.ui.view">
+        <field name="name">maintenance.equipment.cost.line.form</field>
+        <field name="model">maintenance.equipment.cost.line</field>
+        <field name="arch" type="xml">
+            <form string="Línea de costo por equipo">
+                <sheet>
+                    <group>
+                        <group string="Datos de factura">
+                            <field name="date" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                            <field name="move_id" readonly="1"/>
+                            <field name="move_line_id" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Asignación">
+                            <field name="equipment_id"/>
+                            <field name="percentage"/>
+                            <field name="amount" readonly="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista búsqueda -->
+    <record id="view_equipment_cost_line_search" model="ir.ui.view">
+        <field name="name">maintenance.equipment.cost.line.search</field>
+        <field name="model">maintenance.equipment.cost.line</field>
+        <field name="arch" type="xml">
+            <search string="Buscar costos de equipo">
+                <field name="equipment_id"/>
+                <field name="partner_id"/>
+                <field name="move_id"/>
+                <separator/>
+                <group expand="1" string="Agrupar por">
+                    <filter name="group_equipment" string="Equipo"
+                            context="{'group_by': 'equipment_id'}"/>
+                    <filter name="group_partner" string="Proveedor"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_month" string="Mes"
+                            context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista pivot -->
+    <record id="view_equipment_cost_line_pivot" model="ir.ui.view">
+        <field name="name">maintenance.equipment.cost.line.pivot</field>
+        <field name="model">maintenance.equipment.cost.line</field>
+        <field name="arch" type="xml">
+            <pivot string="Costos de Mantenimiento">
+                <field name="equipment_id" type="row"/>
+                <field name="date" type="col" interval="month"/>
+                <field name="amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Acción para el nuevo modelo intermedio -->
+    <record id="action_equipment_cost_lines" model="ir.actions.act_window">
+        <field name="name">Costos por equipo</field>
+        <field name="res_model">maintenance.equipment.cost.line</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="search_view_id" ref="view_equipment_cost_line_search"/>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--  Vistas legacy de account.move.line (facturas de mantenimiento) -->
+    <!-- ============================================================ -->
+
     <!-- Vista lista: Facturas de Mantenimiento (líneas de factura) -->
     <record id="view_maintenance_cost_line_list" model="ir.ui.view">
         <field name="name">account.move.line.maintenance.cost.list</field>
@@ -15,6 +110,7 @@
                     name="maintenance_equipment_ids"
                     widget="many2many_tags"
                     string="Equipo(s)"
+                    readonly="1"
                     groups="maintenance.group_equipment_manager"
                 />
                 <field
@@ -79,13 +175,21 @@
                             <field name="price_subtotal" readonly="1"/>
                         </group>
                         <group string="Asignación de mantenimiento">
-                            <field name="maintenance_equipment_ids"
-                                   widget="many2many_tags"
-                                   groups="maintenance.group_equipment_manager"/>
                             <field name="maintenance_request_ids"
                                    widget="many2many_tags"
                                    groups="maintenance.group_equipment_manager"/>
                         </group>
+                    </group>
+                    <group string="Equipos asignados">
+                        <field name="equipment_cost_line_ids" nolabel="1"
+                               groups="maintenance.group_equipment_manager">
+                            <list editable="bottom">
+                                <field name="equipment_id"/>
+                                <field name="percentage"/>
+                                <field name="amount" readonly="1"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
                     </group>
                 </sheet>
             </form>
@@ -96,7 +200,7 @@
     <record id="action_maintenance_cost_lines" model="ir.actions.act_window">
         <field name="name">Facturas de Mantenimiento</field>
         <field name="res_model">account.move.line</field>
-        <field name="view_mode">list,form,pivot</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[
             ('move_type', '=', 'in_invoice'),
             ('display_type', '=', 'product'),

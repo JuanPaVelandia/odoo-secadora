@@ -10,6 +10,16 @@
         groups="maintenance.group_equipment_manager"
     />
 
+    <!-- Submenú: Costos por equipo (modelo intermedio) -->
+    <menuitem
+        id="menu_equipment_cost_lines"
+        name="Costos por equipo"
+        parent="menu_maintenance_costs_root"
+        action="action_equipment_cost_lines"
+        sequence="5"
+        groups="maintenance.group_equipment_manager"
+    />
+
     <!-- Submenú: Facturas de mantenimiento -->
     <menuitem
         id="menu_maintenance_cost_lines"
@@ -17,6 +27,16 @@
         parent="menu_maintenance_costs_root"
         action="action_maintenance_cost_lines"
         sequence="10"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <!-- Submenú: Lecturas de horómetro -->
+    <menuitem
+        id="menu_horometro_readings"
+        name="Lecturas de horómetro"
+        parent="maintenance.menu_maintenance_title"
+        action="action_horometro_readings"
+        sequence="45"
         groups="maintenance.group_equipment_manager"
     />
 

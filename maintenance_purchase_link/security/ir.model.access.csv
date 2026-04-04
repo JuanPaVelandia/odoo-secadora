@@ -1,3 +1,9 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_aml_equipment_rel_manager,account.move.line.equipment.rel.manager,account.model_account_move_line,maintenance.group_equipment_manager,1,1,1,0
 access_aml_request_rel_manager,account.move.line.request.rel.manager,account.model_account_move_line,maintenance.group_equipment_manager,1,1,0,0
+access_equipment_cost_line_manager,maintenance.equipment.cost.line.manager,model_maintenance_equipment_cost_line,maintenance.group_equipment_manager,1,1,1,1
+access_equipment_cost_line_user,maintenance.equipment.cost.line.user,model_maintenance_equipment_cost_line,base.group_user,1,0,0,0
+access_invoice_equipment_manager,maintenance.invoice.equipment.manager,model_maintenance_invoice_equipment,maintenance.group_equipment_manager,1,1,1,1
+access_invoice_equipment_user,maintenance.invoice.equipment.user,model_maintenance_invoice_equipment,base.group_user,1,0,0,0
+access_horometro_reading_manager,maintenance.horometro.reading.manager,model_maintenance_horometro_reading,maintenance.group_equipment_manager,1,1,1,1
+access_horometro_reading_user,maintenance.horometro.reading.user,model_maintenance_horometro_reading,base.group_user,1,0,0,0

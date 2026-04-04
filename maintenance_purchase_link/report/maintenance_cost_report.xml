@@ -1,25 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Vista pivot de costos de mantenimiento -->
-    <record id="view_maintenance_cost_pivot" model="ir.ui.view">
-        <field name="name">account.move.line.maintenance.cost.pivot</field>
-        <field name="model">account.move.line</field>
-        <field name="arch" type="xml">
-            <pivot string="Costos de Mantenimiento">
-                <field name="maintenance_equipment_ids" type="row"/>
-                <field name="date" type="col" interval="month"/>
-                <field name="price_subtotal" type="measure"/>
-            </pivot>
-        </field>
-    </record>
-
-    <!-- Vincular vista pivot a la acción -->
-    <record id="action_maintenance_cost_lines_view_pivot" model="ir.actions.act_window.view">
-        <field name="sequence">2</field>
+    <!-- Vista pivot vinculada a la acción de costos por equipo -->
+    <record id="action_equipment_cost_lines_view_pivot" model="ir.actions.act_window.view">
+        <field name="sequence">3</field>
         <field name="view_mode">pivot</field>
-        <field name="view_id" ref="view_maintenance_cost_pivot"/>
-        <field name="act_window_id" ref="action_maintenance_cost_lines"/>
+        <field name="view_id" ref="view_equipment_cost_line_pivot"/>
+        <field name="act_window_id" ref="action_equipment_cost_lines"/>
     </record>
 
 </odoo>

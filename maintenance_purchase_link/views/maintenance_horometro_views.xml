@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista lista de lecturas de horómetro -->
+    <record id="view_horometro_reading_list" model="ir.ui.view">
+        <field name="name">maintenance.horometro.reading.list</field>
+        <field name="model">maintenance.horometro.reading</field>
+        <field name="arch" type="xml">
+            <list string="Lecturas de horómetro">
+                <field name="date"/>
+                <field name="equipment_id"/>
+                <field name="value"/>
+                <field name="user_id"/>
+                <field name="triggered_request_id" optional="show"/>
+                <field name="notes" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista formulario -->
+    <record id="view_horometro_reading_form" model="ir.ui.view">
+        <field name="name">maintenance.horometro.reading.form</field>
+        <field name="model">maintenance.horometro.reading</field>
+        <field name="arch" type="xml">
+            <form string="Lectura de horómetro">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="equipment_id"/>
+                            <field name="date"/>
+                            <field name="value"/>
+                        </group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="triggered_request_id" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Observaciones..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista búsqueda -->
+    <record id="view_horometro_reading_search" model="ir.ui.view">
+        <field name="name">maintenance.horometro.reading.search</field>
+        <field name="model">maintenance.horometro.reading</field>
+        <field name="arch" type="xml">
+            <search string="Buscar lecturas de horómetro">
+                <field name="equipment_id"/>
+                <field name="user_id"/>
+                <filter name="filter_triggered" string="Con OT generada"
+                        domain="[('triggered_request_id', '!=', False)]"/>
+                <separator/>
+                <group expand="1" string="Agrupar por">
+                    <filter name="group_equipment" string="Equipo"
+                            context="{'group_by': 'equipment_id'}"/>
+                    <filter name="group_month" string="Mes"
+                            context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción -->
+    <record id="action_horometro_readings" model="ir.actions.act_window">
+        <field name="name">Lecturas de horómetro</field>
+        <field name="res_model">maintenance.horometro.reading</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_horometro_reading_search"/>
+    </record>
+
+</odoo>

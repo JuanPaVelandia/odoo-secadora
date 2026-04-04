@@ -7,13 +7,14 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
-            <!-- Agregar campos de mantenimiento en las líneas de factura de proveedor -->
+            <!-- Equipos (tags readonly) en las líneas de factura de proveedor -->
             <xpath expr="//field[@name='invoice_line_ids']//list//field[@name='analytic_distribution']" position="after">
                 <field
                     name="maintenance_equipment_ids"
                     widget="many2many_tags"
                     string="Equipos mant."
                     optional="hide"
+                    readonly="1"
                     column_invisible="parent.move_type != 'in_invoice'"
                     groups="maintenance.group_equipment_manager"
                 />
@@ -25,6 +26,27 @@
                     column_invisible="parent.move_type != 'in_invoice'"
                     groups="maintenance.group_equipment_manager"
                 />
+            </xpath>
+
+            <!-- Sección de equipos a nivel de factura (antes de las líneas) -->
+            <xpath expr="//page[@name='other_tab']" position="after">
+                <page string="Mantenimiento"
+                      name="maintenance_tab"
+                      invisible="move_type != 'in_invoice'"
+                      groups="maintenance.group_equipment_manager">
+                    <group string="Equipos asignados a la factura">
+                        <field name="maintenance_equipment_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="equipment_id"/>
+                                <field name="percentage"/>
+                            </list>
+                        </field>
+                    </group>
+                    <div class="text-muted">
+                        Al guardar, los equipos y porcentajes se propagan automáticamente
+                        a todas las líneas de producto de esta factura.
+                    </div>
+                </page>
             </xpath>
         </field>
     </record>
