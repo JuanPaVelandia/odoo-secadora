@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menú padre: Costos (bajo Mantenimiento) -->
+    <menuitem
+        id="menu_maintenance_costs_root"
+        name="Costos"
+        parent="maintenance.menu_maintenance_title"
+        sequence="40"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <!-- Submenú: Facturas de mantenimiento -->
+    <menuitem
+        id="menu_maintenance_cost_lines"
+        name="Facturas de mantenimiento"
+        parent="menu_maintenance_costs_root"
+        action="action_maintenance_cost_lines"
+        sequence="10"
+        groups="maintenance.group_equipment_manager"
+    />
+
+</odoo>
