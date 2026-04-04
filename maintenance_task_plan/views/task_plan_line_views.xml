@@ -151,7 +151,7 @@
     <record id="action_task_plan_line" model="ir.actions.act_window">
         <field name="name">Counter Tracking</field>
         <field name="res_model">maintenance.task.plan.line</field>
-        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_mode">kanban,list,form</field>
         <field name="search_view_id" ref="view_task_plan_line_search"/>
         <field name="context">{'search_default_group_state': 1}</field>
     </record>
