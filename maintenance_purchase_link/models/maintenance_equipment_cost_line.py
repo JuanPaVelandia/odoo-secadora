@@ -58,10 +58,33 @@ class MaintenanceEquipmentCostLine(models.Model):
         related='move_line_id.name',
         string='Descripción',
     )
+    quantity = fields.Float(
+        related='move_line_id.quantity',
+        string='Cantidad',
+    )
     request_id = fields.Many2one(
         'maintenance.request',
         string='Orden de trabajo',
     )
+    attachment_ids = fields.Many2many(
+        'ir.attachment',
+        compute='_compute_attachment_ids',
+        string='Adjuntos',
+    )
+    attachment_count = fields.Integer(
+        compute='_compute_attachment_ids',
+        string='Nro. adjuntos',
+    )
+
+    def _compute_attachment_ids(self):
+        Attachment = self.env['ir.attachment']
+        for rec in self:
+            attachments = Attachment.search([
+                ('res_model', '=', 'account.move'),
+                ('res_id', '=', rec.move_id.id),
+            ])
+            rec.attachment_ids = attachments
+            rec.attachment_count = len(attachments)
 
     _sql_constraints = [
         (
@@ -94,6 +117,19 @@ class MaintenanceEquipmentCostLine(models.Model):
                     line=rec.move_line_id.name or rec.move_line_id.move_name,
                     total=total,
                 ))
+
+    def action_view_attachments(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Adjuntos de factura',
+            'res_model': 'ir.attachment',
+            'view_mode': 'list,form',
+            'domain': [
+                ('res_model', '=', 'account.move'),
+                ('res_id', '=', self.move_id.id),
+            ],
+        }
 
     @api.depends('move_line_id.price_subtotal', 'percentage')
     def _compute_amount(self):
