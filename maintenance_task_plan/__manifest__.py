@@ -13,6 +13,7 @@
     'license': 'LGPL-3',
     'depends': [
         'maintenance',
+        'maintenance_purchase_link',
     ],
     'data': [
         'security/ir.model.access.csv',
