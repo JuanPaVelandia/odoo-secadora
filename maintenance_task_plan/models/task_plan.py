@@ -76,26 +76,11 @@ class MaintenanceTaskPlan(models.Model):
                 plan.task_line_ids.filtered(lambda l: l.state == 'overdue')
             )
 
-    @api.onchange('equipment_ids')
-    def _onchange_equipment_ids(self):
-        """Crear/eliminar líneas de seguimiento al cambiar equipos."""
-        existing_equipments = self.task_line_ids.mapped('equipment_id')
-        new_equipments = self.equipment_ids - existing_equipments
-        removed_equipments = existing_equipments - self.equipment_ids
-
-        lines_to_remove = self.task_line_ids.filtered(
-            lambda l: l.equipment_id in removed_equipments
-        )
-        for line in lines_to_remove:
-            self.task_line_ids -= line
-
-        for eq in new_equipments:
-            self.task_line_ids += self.task_line_ids.new({
-                'plan_id': self.id,
-                'equipment_id': eq.id,
-                'last_counter_reading': 0.0,
-                'current_counter_reading': 0.0,
-            })
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sync_task_lines()
+        return records
 
     def write(self, vals):
         res = super().write(vals)
@@ -105,6 +90,7 @@ class MaintenanceTaskPlan(models.Model):
 
     def _sync_task_lines(self):
         """Sincronizar líneas de seguimiento con lista de equipos."""
+        PlanLine = self.env['maintenance.task.plan.line']
         for plan in self:
             existing_equipments = plan.task_line_ids.mapped('equipment_id')
             new_equipments = plan.equipment_ids - existing_equipments
@@ -123,7 +109,7 @@ class MaintenanceTaskPlan(models.Model):
                     'current_counter_reading': 0.0,
                 })
             if vals_list:
-                self.env['maintenance.task.plan.line'].create(vals_list)
+                PlanLine.create(vals_list)
 
     def action_generate_requests(self):
         """Botón manual para generar OTs ahora."""
