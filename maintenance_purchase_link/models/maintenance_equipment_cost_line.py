@@ -49,6 +49,24 @@ class MaintenanceEquipmentCostLine(models.Model):
     currency_id = fields.Many2one(
         related='move_line_id.currency_id',
     )
+    product_id = fields.Many2one(
+        related='move_line_id.product_id',
+        store=True,
+        string='Recurso',
+    )
+    product_description = fields.Char(
+        related='move_line_id.name',
+        string='Descripción',
+    )
+    request_id = fields.Many2one(
+        'maintenance.request',
+        string='Orden de trabajo',
+    )
+    task_plan_id = fields.Many2one(
+        related='request_id.task_plan_id',
+        store=True,
+        string='Tarea',
+    )
 
     _sql_constraints = [
         (
