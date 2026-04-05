@@ -20,13 +20,13 @@ class AccountMove(models.Model):
             if not product_lines:
                 continue
 
-            # Eliminar asignaciones anteriores de las líneas de esta factura
+            # Eliminar asignaciones anteriores
             existing = CostLine.search([
                 ('move_line_id', 'in', product_lines.ids),
             ])
             existing.with_context(skip_invoice_sync=True).unlink()
 
-            # Crear nuevas asignaciones desde la plantilla de factura
+            # Crear nuevas asignaciones
             vals_list = []
             for eq_line in move.maintenance_equipment_line_ids:
                 for ml in product_lines:
@@ -44,13 +44,12 @@ class AccountMove(models.Model):
     def _sync_equipment_from_cost_lines(self):
         """Sincronizar pestaña Mantenimiento desde cost lines (sentido inverso)."""
         InvoiceEquipment = self.env['maintenance.invoice.equipment']
-        for move in self.with_context(skip_propagate=True):
-            # Obtener resumen de equipos desde cost lines
+        for move in self:
             cost_lines = self.env['maintenance.equipment.cost.line'].search([
                 ('move_id', '=', move.id),
             ])
 
-            # Agrupar por equipo: tomar el porcentaje y OT del primer cost line
+            # Agrupar por equipo
             equipment_map = {}
             for cl in cost_lines:
                 if cl.equipment_id.id not in equipment_map:
@@ -60,8 +59,10 @@ class AccountMove(models.Model):
                         'request_id': cl.request_id.id if cl.request_id else False,
                     }
 
-            # Eliminar y recrear las líneas de la pestaña (sin disparar propagación)
-            move.maintenance_equipment_line_ids.unlink()
+            # Actualizar directamente sin pasar por write de account.move
+            existing = InvoiceEquipment.search([('move_id', '=', move.id)])
+            existing.with_context(skip_propagate=True).unlink()
+
             vals_list = []
             for data in equipment_map.values():
                 vals_list.append({
@@ -71,7 +72,7 @@ class AccountMove(models.Model):
                     'request_id': data['request_id'],
                 })
             if vals_list:
-                InvoiceEquipment.create(vals_list)
+                InvoiceEquipment.with_context(skip_propagate=True).create(vals_list)
 
     def write(self, vals):
         res = super().write(vals)
