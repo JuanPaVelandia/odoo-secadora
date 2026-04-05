@@ -21,6 +21,10 @@ class MaintenanceInvoiceEquipment(models.Model):
         string='Porcentaje (%)',
         default=100.0,
     )
+    request_id = fields.Many2one(
+        'maintenance.request',
+        string='Orden de trabajo',
+    )
 
     _sql_constraints = [
         (

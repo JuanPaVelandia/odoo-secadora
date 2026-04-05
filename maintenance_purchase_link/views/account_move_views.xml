@@ -38,6 +38,7 @@
                         <field name="maintenance_equipment_line_ids" nolabel="1">
                             <list editable="bottom">
                                 <field name="equipment_id"/>
+                                <field name="request_id"/>
                                 <field name="percentage"/>
                             </list>
                         </field>

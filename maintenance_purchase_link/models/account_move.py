@@ -30,11 +30,15 @@ class AccountMove(models.Model):
             vals_list = []
             for eq_line in move.maintenance_equipment_line_ids:
                 for ml in product_lines:
-                    vals_list.append({
+                    vals = {
                         'move_line_id': ml.id,
                         'equipment_id': eq_line.equipment_id.id,
                         'percentage': eq_line.percentage,
-                    })
+                    }
+                    # Tomar OT de la asignación a nivel de factura
+                    if eq_line.request_id:
+                        vals['request_id'] = eq_line.request_id.id
+                    vals_list.append(vals)
             if vals_list:
                 CostLine.create(vals_list)
 
