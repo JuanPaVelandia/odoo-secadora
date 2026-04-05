@@ -69,7 +69,7 @@ class MaintenanceRequest(models.Model):
 
     @api.constrains('stage_id', 'counter_reading_at_close')
     def _check_counter_at_close_required(self):
-        """Validar que se llene la lectura antes de cerrar."""
+        """Validar que se llene la lectura antes de cerrar y que no sea menor a la última."""
         for request in self:
             if not request.task_plan_line_id:
                 continue
@@ -80,4 +80,14 @@ class MaintenanceRequest(models.Model):
                     'Debe ingresar la lectura del contador al cerrar '
                     'antes de completar la OT "%(name)s".',
                     name=request.name,
+                ))
+            last = request.task_plan_line_id.last_counter_reading
+            if request.counter_reading_at_close < last:
+                unit = request.counter_unit or ''
+                raise ValidationError(_(
+                    'La lectura del contador (%(nueva).0f %(unidad)s) no puede ser menor '
+                    'a la última lectura registrada (%(ultima).0f %(unidad)s).',
+                    nueva=request.counter_reading_at_close,
+                    ultima=last,
+                    unidad=unit,
                 ))
