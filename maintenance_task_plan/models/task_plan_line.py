@@ -134,14 +134,27 @@ class MaintenanceTaskPlanLine(models.Model):
             if open_request:
                 continue
 
+            unit = line.counter_unit or ''
+            estimated = line.next_counter_reading
+            note = (
+                f"Estimado del cambio: {estimated:,.0f} {unit}\n"
+                f"Última lectura: {line.last_counter_reading:,.0f} {unit} + "
+                f"Intervalo: {line.interval:,.0f} {unit}"
+            )
+            description = line.plan_id.description or ''
+            if description:
+                description = f"{description}\n\n{note}"
+            else:
+                description = note
+
             request = Request.create({
-                'name': f"{line.plan_id.name} - {line.equipment_id.name}",
+                'name': line.plan_id.name,
                 'equipment_id': line.equipment_id.id,
                 'task_plan_id': line.plan_id.id,
                 'task_plan_line_id': line.id,
                 'user_id': line.plan_id.responsible_user_id.id or False,
                 'category_id': line.plan_id.category_id.id or False,
-                'description': line.plan_id.description or '',
+                'description': description,
             })
             line.last_request_id = request.id
             created |= request
