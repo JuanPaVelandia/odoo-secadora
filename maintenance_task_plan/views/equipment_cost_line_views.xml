@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Agregar campo tarea en la lista de costos por equipo -->
+    <record id="view_equipment_cost_line_list_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.cost.line.list.inherit.task.plan</field>
+        <field name="model">maintenance.equipment.cost.line</field>
+        <field name="inherit_id" ref="maintenance_purchase_link.view_equipment_cost_line_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='request_id']" position="after">
+                <field name="task_plan_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Agregar campo tarea en el formulario de costos por equipo -->
+    <record id="view_equipment_cost_line_form_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.cost.line.form.inherit.task.plan</field>
+        <field name="model">maintenance.equipment.cost.line</field>
+        <field name="inherit_id" ref="maintenance_purchase_link.view_equipment_cost_line_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='request_id']" position="after">
+                <field name="task_plan_id" readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Agregar campo tarea en la búsqueda de costos por equipo -->
+    <record id="view_equipment_cost_line_search_inherit" model="ir.ui.view">
+        <field name="name">maintenance.equipment.cost.line.search.inherit.task.plan</field>
+        <field name="model">maintenance.equipment.cost.line</field>
+        <field name="inherit_id" ref="maintenance_purchase_link.view_equipment_cost_line_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='request_id']" position="after">
+                <field name="task_plan_id"/>
+            </xpath>
+            <xpath expr="//filter[@name='group_request']" position="after">
+                <filter name="group_task_plan" string="Tarea"
+                        context="{'group_by': 'task_plan_id'}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

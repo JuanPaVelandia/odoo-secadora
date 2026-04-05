@@ -25,6 +25,7 @@
         'views/task_plan_line_views.xml',
         'views/maintenance_request_views.xml',
         'views/maintenance_equipment_views.xml',
+        'views/equipment_cost_line_views.xml',
         'wizards/update_counters_wizard_views.xml',
         'views/menu_views.xml',
     ],
