@@ -14,8 +14,8 @@
                 <field name="date" readonly="1"/>
                 <field name="equipment_id"/>
                 <field name="request_id" optional="show"/>
-                <field name="product_id" readonly="1"/>
-                <field name="product_description" optional="hide"/>
+                <field name="product_description" string="Recurso" readonly="1"/>
+                <field name="product_id" readonly="1" optional="hide"/>
                 <field name="partner_id" readonly="1" optional="show"/>
                 <field name="move_id" readonly="1" optional="hide"/>
                 <field name="percentage"/>
