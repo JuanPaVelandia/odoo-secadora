@@ -66,6 +66,16 @@ class MaintenanceRequest(models.Model):
                     'current_counter_reading': request.counter_reading_at_close,
                     'last_request_id': request.id,
                 })
+                # Registrar lectura en el historial de horómetro
+                self.env['maintenance.horometro.reading'].with_context(
+                    skip_task_plan_update=True,
+                ).create({
+                    'equipment_id': request.equipment_id.id,
+                    'date': fields.Date.context_today(request),
+                    'value': request.counter_reading_at_close,
+                    'user_id': self.env.user.id,
+                    'notes': _('Lectura al cerrar OT: %(ot)s', ot=request.sequence_number or request.name),
+                })
 
     @api.constrains('stage_id', 'counter_reading_at_close')
     def _check_counter_at_close_required(self):

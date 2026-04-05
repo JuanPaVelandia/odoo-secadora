@@ -7,7 +7,8 @@ class MaintenanceHorometroReading(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        records._update_task_plan_lines()
+        if not self.env.context.get('skip_task_plan_update'):
+            records._update_task_plan_lines()
         return records
 
     def _update_task_plan_lines(self):
