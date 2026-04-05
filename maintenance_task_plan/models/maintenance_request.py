@@ -42,7 +42,7 @@ class MaintenanceRequest(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if 'stage_id' in vals:
+        if 'stage_id' in vals or 'counter_reading_at_close' in vals:
             self._check_close_task_plan()
         return res
 
@@ -53,17 +53,31 @@ class MaintenanceRequest(models.Model):
                 continue
             if not request.stage_id.done:
                 continue
+            if not request.counter_reading_at_close:
+                # No lanzar error aquí — puede que aún no hayan llenado la lectura.
+                # Se validará cuando intenten guardar con la etapa done.
+                continue
 
+            line = request.task_plan_line_id
+            # Solo actualizar si la lectura es mayor a la última registrada
+            if request.counter_reading_at_close > line.last_counter_reading:
+                line.write({
+                    'last_counter_reading': request.counter_reading_at_close,
+                    'current_counter_reading': request.counter_reading_at_close,
+                    'last_request_id': request.id,
+                })
+
+    @api.constrains('stage_id', 'counter_reading_at_close')
+    def _check_counter_at_close_required(self):
+        """Validar que se llene la lectura antes de cerrar."""
+        for request in self:
+            if not request.task_plan_line_id:
+                continue
+            if not request.stage_id.done:
+                continue
             if not request.counter_reading_at_close:
                 raise ValidationError(_(
                     'Debe ingresar la lectura del contador al cerrar '
                     'antes de completar la OT "%(name)s".',
                     name=request.name,
                 ))
-
-            line = request.task_plan_line_id
-            line.write({
-                'last_counter_reading': request.counter_reading_at_close,
-                'current_counter_reading': request.counter_reading_at_close,
-                'last_request_id': request.id,
-            })
