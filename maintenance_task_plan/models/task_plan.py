@@ -102,11 +102,13 @@ class MaintenanceTaskPlan(models.Model):
 
             vals_list = []
             for eq in new_equipments:
+                # Inicializar con la lectura actual del horómetro del equipo
+                current = eq.horometro_current if hasattr(eq, 'horometro_current') else 0.0
                 vals_list.append({
                     'plan_id': plan.id,
                     'equipment_id': eq.id,
-                    'last_counter_reading': 0.0,
-                    'current_counter_reading': 0.0,
+                    'last_counter_reading': current,
+                    'current_counter_reading': current,
                 })
             if vals_list:
                 PlanLine.create(vals_list)
