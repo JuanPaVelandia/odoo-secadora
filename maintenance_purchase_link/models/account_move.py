@@ -44,7 +44,7 @@ class AccountMove(models.Model):
     def _sync_equipment_from_cost_lines(self):
         """Sincronizar pestaña Mantenimiento desde cost lines (sentido inverso)."""
         InvoiceEquipment = self.env['maintenance.invoice.equipment']
-        for move in self:
+        for move in self.with_context(skip_propagate=True):
             # Obtener resumen de equipos desde cost lines
             cost_lines = self.env['maintenance.equipment.cost.line'].search([
                 ('move_id', '=', move.id),
@@ -60,7 +60,7 @@ class AccountMove(models.Model):
                         'request_id': cl.request_id.id if cl.request_id else False,
                     }
 
-            # Eliminar y recrear las líneas de la pestaña
+            # Eliminar y recrear las líneas de la pestaña (sin disparar propagación)
             move.maintenance_equipment_line_ids.unlink()
             vals_list = []
             for data in equipment_map.values():
@@ -75,6 +75,7 @@ class AccountMove(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if 'maintenance_equipment_line_ids' in vals:
+        if 'maintenance_equipment_line_ids' in vals and \
+                not self.env.context.get('skip_propagate'):
             self._propagate_equipment_to_lines()
         return res
