@@ -10,7 +10,6 @@ class AssignInvoiceWizard(models.TransientModel):
         'account.move',
         string='Factura',
         required=True,
-        domain=[('move_type', '=', 'in_invoice'), ('state', '=', 'posted')],
     )
     move_partner_id = fields.Many2one(
         related='move_id.partner_id',
@@ -24,7 +23,7 @@ class AssignInvoiceWizard(models.TransientModel):
         related='move_id.currency_id',
     )
     line_count = fields.Integer(
-        string='Líneas de producto',
+        string='Líneas pendientes',
         compute='_compute_line_count',
     )
     line_ids = fields.One2many(
@@ -40,7 +39,6 @@ class AssignInvoiceWizard(models.TransientModel):
     @api.model
     def default_get(self, fields_list):
         res = super().default_get(fields_list)
-        # Si viene desde una OT, pre-llenar una línea con equipo y OT
         ctx = self.env.context
         if ctx.get('default_request_id') or ctx.get('default_equipment_id'):
             line_vals = {'percentage': 100.0}
@@ -51,13 +49,35 @@ class AssignInvoiceWizard(models.TransientModel):
             res['line_ids'] = [(0, 0, line_vals)]
         return res
 
+    @api.onchange('move_id')
+    def _onchange_move_id(self):
+        """Filtrar solo facturas con cost lines sin equipo asignado."""
+        if self.move_id:
+            # Verificar que la factura tenga líneas sin equipo
+            pending = self.env['maintenance.equipment.cost.line'].search_count([
+                ('move_id', '=', self.move_id.id),
+                ('equipment_id', '=', False),
+            ])
+            if not pending:
+                # Verificar si tiene cost lines con equipo (ya asignada)
+                assigned = self.env['maintenance.equipment.cost.line'].search_count([
+                    ('move_id', '=', self.move_id.id),
+                    ('equipment_id', '!=', False),
+                ])
+                if assigned:
+                    return {'warning': {
+                        'title': _('Factura ya asignada'),
+                        'message': _('Esta factura ya tiene todos los equipos asignados.'),
+                    }}
+
     @api.depends('move_id')
     def _compute_line_count(self):
         for wiz in self:
             if wiz.move_id:
-                wiz.line_count = len(wiz.move_id.invoice_line_ids.filtered(
-                    lambda l: l.display_type == 'product'
-                ))
+                wiz.line_count = self.env['maintenance.equipment.cost.line'].search_count([
+                    ('move_id', '=', wiz.move_id.id),
+                    ('equipment_id', '=', False),
+                ])
             else:
                 wiz.line_count = 0
 
@@ -81,42 +101,72 @@ class AssignInvoiceWizard(models.TransientModel):
                 total,
             ))
 
-        product_lines = self.move_id.invoice_line_ids.filtered(
-            lambda l: l.display_type == 'product'
-        )
-        if not product_lines:
-            raise ValidationError(_('La factura no tiene líneas de producto.'))
-
-        # Eliminar cost lines existentes de esta factura
-        existing = CostLine.search([
-            ('move_line_id', 'in', product_lines.ids),
+        # Buscar cost lines sin equipo de esta factura
+        pending_lines = CostLine.search([
+            ('move_id', '=', self.move_id.id),
+            ('equipment_id', '=', False),
         ])
-        if existing:
-            existing.unlink()
 
-        # Crear cost lines para cada equipo × línea de producto
-        vals_list = []
-        for wiz_line in self.line_ids:
-            for ml in product_lines:
-                vals_list.append({
-                    'move_line_id': ml.id,
+        if not pending_lines:
+            # Si no hay pendientes, buscar líneas de producto de la factura
+            product_lines = self.move_id.invoice_line_ids.filtered(
+                lambda l: l.display_type == 'product'
+            )
+            if not product_lines:
+                raise ValidationError(_('La factura no tiene líneas de producto.'))
+
+            # Crear cost lines nuevas
+            vals_list = []
+            for wiz_line in self.line_ids:
+                for ml in product_lines:
+                    vals_list.append({
+                        'move_line_id': ml.id,
+                        'equipment_id': wiz_line.equipment_id.id,
+                        'percentage': wiz_line.percentage,
+                        'request_id': wiz_line.request_id.id if wiz_line.request_id else False,
+                    })
+            CostLine.create(vals_list)
+            created = len(vals_list)
+        else:
+            # Asignar equipo/OT a cost lines pendientes
+            if len(self.line_ids) == 1:
+                # Un solo equipo: asignar a todas las pendientes
+                wiz_line = self.line_ids[0]
+                pending_lines.write({
                     'equipment_id': wiz_line.equipment_id.id,
                     'percentage': wiz_line.percentage,
                     'request_id': wiz_line.request_id.id if wiz_line.request_id else False,
                 })
-        CostLine.create(vals_list)
+                created = len(pending_lines)
+            else:
+                # Múltiples equipos: duplicar cada pending line por equipo
+                for pl in pending_lines:
+                    first = True
+                    for wiz_line in self.line_ids:
+                        if first:
+                            # Actualizar la línea existente con el primer equipo
+                            pl.write({
+                                'equipment_id': wiz_line.equipment_id.id,
+                                'percentage': wiz_line.percentage,
+                                'request_id': wiz_line.request_id.id if wiz_line.request_id else False,
+                            })
+                            first = False
+                        else:
+                            # Crear copia para los demás equipos
+                            CostLine.create({
+                                'move_line_id': pl.move_line_id.id,
+                                'equipment_id': wiz_line.equipment_id.id,
+                                'percentage': wiz_line.percentage,
+                                'request_id': wiz_line.request_id.id if wiz_line.request_id else False,
+                            })
+                created = len(pending_lines) * len(self.line_ids)
 
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
             'params': {
                 'title': _('Factura asignada'),
-                'message': _(
-                    '%(lines)d línea(s) × %(equipos)d equipo(s) = %(total)d asignaciones creadas.',
-                    lines=len(product_lines),
-                    equipos=len(self.line_ids),
-                    total=len(vals_list),
-                ),
+                'message': _('%(count)d asignación(es) creada(s).', count=created),
                 'type': 'success',
                 'sticky': False,
                 'next': {'type': 'ir.actions.act_window_close'},

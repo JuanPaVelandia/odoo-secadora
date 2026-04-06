@@ -11,7 +11,7 @@
                         <field name="move_id"/>
                         <field name="move_partner_id" readonly="1"/>
                         <field name="move_amount" readonly="1"/>
-                        <field name="line_count" readonly="1" string="Líneas"/>
+                        <field name="line_count" readonly="1" string="Líneas pendientes"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
                     <group string="Resumen">
@@ -20,7 +20,7 @@
                                decoration-success="total_percentage == 100"/>
                     </group>
                 </group>
-                <group string="Distribución por equipos">
+                <group string="Distribución por equipos (debe sumar 100%)">
                     <field name="line_ids" nolabel="1">
                         <list editable="bottom">
                             <field name="equipment_id"/>
