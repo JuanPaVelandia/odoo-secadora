@@ -86,31 +86,6 @@ class MaintenanceEquipmentCostLine(models.Model):
             rec.attachment_ids = attachments
             rec.attachment_count = len(attachments)
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        if not self.env.context.get('skip_invoice_sync'):
-            records._sync_invoice_equipment()
-        return records
-
-    def write(self, vals):
-        res = super().write(vals)
-        if not self.env.context.get('skip_invoice_sync') and \
-                any(f in vals for f in ('equipment_id', 'percentage', 'request_id', 'move_line_id')):
-            self._sync_invoice_equipment()
-        return res
-
-    def unlink(self):
-        moves = self.mapped('move_id')
-        res = super().unlink()
-        if not self.env.context.get('skip_invoice_sync'):
-            moves._sync_equipment_from_cost_lines()
-        return res
-
-    def _sync_invoice_equipment(self):
-        """Sincronizar pestaña Mantenimiento de la factura desde cost lines."""
-        moves = self.mapped('move_id')
-        moves._sync_equipment_from_cost_lines()
 
     _sql_constraints = [
         (

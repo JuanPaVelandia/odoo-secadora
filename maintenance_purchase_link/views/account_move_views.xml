@@ -43,9 +43,14 @@
                             </list>
                         </field>
                     </group>
+                    <button name="action_sync_from_cost_lines"
+                            type="object"
+                            string="↻ Sincronizar desde mantenimiento"
+                            class="btn-link"
+                            groups="maintenance.group_equipment_manager"/>
                     <div class="text-muted">
-                        Al guardar, los equipos y porcentajes se propagan automáticamente
-                        a todas las líneas de producto de esta factura.
+                        Al guardar, los equipos y porcentajes se propagan a las líneas.
+                        Si asoció equipos/OTs desde mantenimiento, use el botón de sincronizar.
                     </div>
                 </page>
             </xpath>

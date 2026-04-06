@@ -1,4 +1,4 @@
-from odoo import api, fields, models, Command
+from odoo import api, fields, models
 
 
 class AccountMove(models.Model):
@@ -20,13 +20,11 @@ class AccountMove(models.Model):
             if not product_lines:
                 continue
 
-            # Eliminar asignaciones anteriores
             existing = CostLine.search([
                 ('move_line_id', 'in', product_lines.ids),
             ])
             existing.with_context(skip_invoice_sync=True).unlink()
 
-            # Crear nuevas asignaciones
             vals_list = []
             for eq_line in move.maintenance_equipment_line_ids:
                 for ml in product_lines:
@@ -41,15 +39,14 @@ class AccountMove(models.Model):
             if vals_list:
                 CostLine.with_context(skip_invoice_sync=True).create(vals_list)
 
-    def _sync_equipment_from_cost_lines(self):
-        """Sincronizar pestaña Mantenimiento desde cost lines (sentido inverso)."""
+    def action_sync_from_cost_lines(self):
+        """Botón manual para sincronizar pestaña desde cost lines."""
         InvoiceEquipment = self.env['maintenance.invoice.equipment']
         for move in self:
             cost_lines = self.env['maintenance.equipment.cost.line'].search([
                 ('move_id', '=', move.id),
             ])
 
-            # Agrupar por equipo
             equipment_map = {}
             for cl in cost_lines:
                 if cl.equipment_id.id not in equipment_map:
@@ -59,24 +56,29 @@ class AccountMove(models.Model):
                         'request_id': cl.request_id.id if cl.request_id else False,
                     }
 
-            # Actualizar directamente sin pasar por write de account.move
-            existing = InvoiceEquipment.search([('move_id', '=', move.id)])
-            existing.with_context(skip_propagate=True).unlink()
+            # Borrar directamente por SQL para no disparar writes del ORM
+            existing_ids = InvoiceEquipment.search([('move_id', '=', move.id)]).ids
+            if existing_ids:
+                self.env.cr.execute(
+                    "DELETE FROM maintenance_invoice_equipment WHERE id IN %s",
+                    (tuple(existing_ids),)
+                )
+                InvoiceEquipment.invalidate_model()
 
-            vals_list = []
             for data in equipment_map.values():
-                vals_list.append({
-                    'move_id': move.id,
-                    'equipment_id': data['equipment_id'],
-                    'percentage': data['percentage'],
-                    'request_id': data['request_id'],
-                })
-            if vals_list:
-                InvoiceEquipment.with_context(skip_propagate=True).create(vals_list)
+                self.env.cr.execute(
+                    """INSERT INTO maintenance_invoice_equipment
+                       (move_id, equipment_id, percentage, request_id,
+                        create_uid, create_date, write_uid, write_date)
+                       VALUES (%s, %s, %s, %s, %s, NOW(), %s, NOW())""",
+                    (move.id, data['equipment_id'], data['percentage'],
+                     data['request_id'] or None,
+                     self.env.uid, self.env.uid)
+                )
+            InvoiceEquipment.invalidate_model()
 
     def write(self, vals):
         res = super().write(vals)
-        if 'maintenance_equipment_line_ids' in vals and \
-                not self.env.context.get('skip_propagate'):
+        if 'maintenance_equipment_line_ids' in vals:
             self._propagate_equipment_to_lines()
         return res
