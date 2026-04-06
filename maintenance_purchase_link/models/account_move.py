@@ -21,35 +21,39 @@ class AccountMove(models.Model):
 
             product_line_ids = product_lines.ids
 
-            # Leer asignaciones directamente de BD para evitar cache
+            # Leer asignaciones de BD
             self.env.cr.execute("""
-                SELECT equipment_id, percentage, request_id
+                SELECT equipment_id, percentage
                 FROM maintenance_invoice_equipment
                 WHERE move_id = %s
             """, (move.id,))
             eq_rows = self.env.cr.fetchall()
 
             if not eq_rows:
+                # Borrar cost lines si no hay equipos asignados
+                self.env.cr.execute("""
+                    DELETE FROM maintenance_equipment_cost_line
+                    WHERE move_line_id IN %s
+                """, (tuple(product_line_ids),))
+                self.env['maintenance.equipment.cost.line'].invalidate_model()
                 continue
 
-            # Borrar cost lines existentes de esta factura
+            # Borrar cost lines existentes
             self.env.cr.execute("""
                 DELETE FROM maintenance_equipment_cost_line
                 WHERE move_line_id IN %s
             """, (tuple(product_line_ids),))
 
             # Crear nuevas cost lines
-            for eq_id, percentage, request_id in eq_rows:
+            for eq_id, percentage in eq_rows:
                 for ml_id in product_line_ids:
                     self.env.cr.execute("""
                         INSERT INTO maintenance_equipment_cost_line
-                            (move_line_id, equipment_id, percentage, request_id,
+                            (move_line_id, equipment_id, percentage,
                              create_uid, create_date, write_uid, write_date)
-                        VALUES (%s, %s, %s, %s, %s, NOW(), %s, NOW())
-                    """, (ml_id, eq_id, percentage, request_id,
-                          self.env.uid, self.env.uid))
+                        VALUES (%s, %s, %s, %s, NOW(), %s, NOW())
+                    """, (ml_id, eq_id, percentage, self.env.uid, self.env.uid))
 
-            # Invalidar cache para que el ORM vea los cambios
             self.env['maintenance.equipment.cost.line'].invalidate_model()
 
     def action_view_cost_lines(self):
