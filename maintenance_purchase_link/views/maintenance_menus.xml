@@ -20,15 +20,6 @@
         groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Facturas de mantenimiento (legacy, vista de account.move.line) -->
-    <menuitem
-        id="menu_maintenance_cost_lines"
-        name="Líneas de factura"
-        parent="menu_maintenance_costs_root"
-        action="action_maintenance_cost_lines"
-        sequence="10"
-        groups="maintenance.group_equipment_manager"
-    />
 
     <!-- Submenú: Lecturas de horómetro -->
     <menuitem
