@@ -27,6 +27,7 @@
         'views/maintenance_request_views.xml',
         'views/maintenance_cost_views.xml',
         'views/maintenance_horometro_views.xml',
+        'wizards/assign_invoice_wizard_views.xml',
         'views/maintenance_menus.xml',
         'report/maintenance_cost_report.xml',
     ],

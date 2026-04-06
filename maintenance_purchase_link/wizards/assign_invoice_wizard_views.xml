@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_assign_invoice_wizard_form" model="ir.ui.view">
+        <field name="name">maintenance.assign.invoice.wizard.form</field>
+        <field name="model">maintenance.assign.invoice.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Asignar factura a equipo">
+                <group>
+                    <group string="Factura">
+                        <field name="move_id"/>
+                        <field name="move_partner_id" readonly="1"/>
+                        <field name="move_amount" readonly="1"/>
+                        <field name="line_count" readonly="1"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                    <group string="Asignación">
+                        <field name="equipment_id"/>
+                        <field name="request_id"/>
+                        <field name="percentage"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Asignar todas las líneas"
+                            type="object"
+                            name="action_assign"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_assign_invoice_wizard" model="ir.actions.act_window">
+        <field name="name">Asignar factura</field>
+        <field name="res_model">maintenance.assign.invoice.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

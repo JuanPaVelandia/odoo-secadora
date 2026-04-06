@@ -7,3 +7,4 @@ access_invoice_equipment_manager,maintenance.invoice.equipment.manager,model_mai
 access_invoice_equipment_user,maintenance.invoice.equipment.user,model_maintenance_invoice_equipment,base.group_user,1,0,0,0
 access_horometro_reading_manager,maintenance.horometro.reading.manager,model_maintenance_horometro_reading,maintenance.group_equipment_manager,1,1,1,1
 access_horometro_reading_user,maintenance.horometro.reading.user,model_maintenance_horometro_reading,base.group_user,1,0,0,0
+access_assign_invoice_wizard_manager,maintenance.assign.invoice.wizard.manager,model_maintenance_assign_invoice_wizard,maintenance.group_equipment_manager,1,1,1,1
