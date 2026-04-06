@@ -11,29 +11,51 @@ class MaintenanceRequest(models.Model):
         'move_line_id',
         string='Líneas de factura',
     )
-    total_cost = fields.Float(
+    cost_line_ids = fields.One2many(
+        'maintenance.equipment.cost.line',
+        'request_id',
+        string='Costos asignados',
+    )
+    cost_total = fields.Monetary(
         string='Costo total',
-        compute='_compute_total_cost',
-        store=True,
+        compute='_compute_cost_total',
+        currency_field='cost_currency_id',
     )
-    invoice_line_count = fields.Integer(
-        string='Nro. líneas de factura',
-        compute='_compute_total_cost',
-        store=True,
+    cost_count = fields.Integer(
+        string='Nro. costos',
+        compute='_compute_cost_total',
+    )
+    cost_currency_id = fields.Many2one(
+        'res.currency',
+        default=lambda self: self.env.company.currency_id,
     )
 
-    @api.depends('invoice_line_ids', 'invoice_line_ids.price_subtotal')
-    def _compute_total_cost(self):
+    @api.depends('cost_line_ids.amount')
+    def _compute_cost_total(self):
         for request in self:
-            lines = request.invoice_line_ids
-            request.total_cost = sum(lines.mapped('price_subtotal'))
-            request.invoice_line_count = len(lines)
+            request.cost_total = sum(request.cost_line_ids.mapped('amount'))
+            request.cost_count = len(request.cost_line_ids)
 
-    def action_view_invoice_costs(self):
+    def action_view_costs(self):
         self.ensure_one()
-        action = self.env['ir.actions.actions']._for_xml_id(
-            'maintenance_purchase_link.action_maintenance_cost_lines'
-        )
-        action['domain'] = [('id', 'in', self.invoice_line_ids.ids)]
-        action['context'] = dict(self.env.context, default_maintenance_request_ids=[(4, self.id)])
-        return action
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Costos de la OT',
+            'res_model': 'maintenance.equipment.cost.line',
+            'view_mode': 'list,form',
+            'domain': [('request_id', '=', self.id)],
+        }
+
+    def action_assign_invoice(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Asignar factura',
+            'res_model': 'maintenance.assign.invoice.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {
+                'default_request_id': self.id,
+                'default_equipment_id': self.equipment_id.id if self.equipment_id else False,
+            },
+        }

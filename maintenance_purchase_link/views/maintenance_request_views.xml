@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Smart button de costos en el formulario de solicitud de mantenimiento -->
     <record id="view_request_form_inherit_costs" model="ir.ui.view">
         <field name="name">maintenance.request.form.inherit.costs</field>
         <field name="model">maintenance.request</field>
@@ -13,17 +12,24 @@
             -->
             <xpath expr="//sheet/div[1]" position="before">
                 <div class="oe_button_box" name="button_box">
-                    <button name="action_view_invoice_costs"
+                    <button name="action_view_costs"
                             type="object"
                             class="oe_stat_button"
                             icon="fa-money"
                             groups="maintenance.group_equipment_manager">
                         <div class="o_field_widget o_stat_info">
                             <span class="o_stat_value">
-                                <field name="total_cost" widget="monetary"/>
+                                <field name="cost_total" widget="monetary"/>
                             </span>
                             <span class="o_stat_text">Costos</span>
                         </div>
+                    </button>
+                    <button name="action_assign_invoice"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-file-text-o"
+                            groups="maintenance.group_equipment_manager">
+                        <span class="o_stat_text">Asignar factura</span>
                     </button>
                 </div>
             </xpath>

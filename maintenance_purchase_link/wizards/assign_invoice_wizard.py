@@ -37,6 +37,20 @@ class AssignInvoiceWizard(models.TransientModel):
         compute='_compute_total_percentage',
     )
 
+    @api.model
+    def default_get(self, fields_list):
+        res = super().default_get(fields_list)
+        # Si viene desde una OT, pre-llenar una línea con equipo y OT
+        ctx = self.env.context
+        if ctx.get('default_request_id') or ctx.get('default_equipment_id'):
+            line_vals = {'percentage': 100.0}
+            if ctx.get('default_equipment_id'):
+                line_vals['equipment_id'] = ctx['default_equipment_id']
+            if ctx.get('default_request_id'):
+                line_vals['request_id'] = ctx['default_request_id']
+            res['line_ids'] = [(0, 0, line_vals)]
+        return res
+
     @api.depends('move_id')
     def _compute_line_count(self):
         for wiz in self:
