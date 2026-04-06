@@ -83,6 +83,22 @@ class MaintenanceEquipment(models.Model):
         action['context'] = dict(self.env.context, default_equipment_id=self.id)
         return action
 
+    def action_debug_cost_lines(self):
+        """Diagnóstico temporal: muestra datos reales de la BD."""
+        self.ensure_one()
+        self.env.cr.execute("""
+            SELECT id, move_line_id, equipment_id, percentage, request_id
+            FROM maintenance_equipment_cost_line
+            WHERE equipment_id = %s
+        """, (self.id,))
+        rows = self.env.cr.fetchall()
+        msg = "Cost lines en BD:\n"
+        for row in rows:
+            msg += f"ID={row[0]} move_line={row[1]} equip={row[2]} pct={row[3]} request_id={row[4]}\n"
+        if not rows:
+            msg += "(ninguna)"
+        raise models.ValidationError(msg)
+
     def action_view_horometro_readings(self):
         self.ensure_one()
         return {
