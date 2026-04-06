@@ -12,6 +12,7 @@ class AccountMove(models.Model):
 
     def _propagate_equipment_to_lines(self):
         """Propagar equipos asignados a nivel de factura a todas las líneas producto."""
+        CostLine = self.env['maintenance.equipment.cost.line']
         for move in self:
             product_lines = move.invoice_line_ids.filtered(
                 lambda l: l.display_type == 'product'
@@ -19,9 +20,7 @@ class AccountMove(models.Model):
             if not product_lines:
                 continue
 
-            product_line_ids = product_lines.ids
-
-            # Leer asignaciones de BD
+            # Leer asignaciones de BD (evitar cache)
             self.env.cr.execute("""
                 SELECT equipment_id, percentage
                 FROM maintenance_invoice_equipment
@@ -29,32 +28,23 @@ class AccountMove(models.Model):
             """, (move.id,))
             eq_rows = self.env.cr.fetchall()
 
-            if not eq_rows:
-                # Borrar cost lines si no hay equipos asignados
-                self.env.cr.execute("""
-                    DELETE FROM maintenance_equipment_cost_line
-                    WHERE move_line_id IN %s
-                """, (tuple(product_line_ids),))
-                self.env['maintenance.equipment.cost.line'].invalidate_model()
-                continue
+            # Borrar cost lines existentes via ORM
+            existing = CostLine.search([
+                ('move_line_id', 'in', product_lines.ids),
+            ])
+            existing.unlink()
 
-            # Borrar cost lines existentes
-            self.env.cr.execute("""
-                DELETE FROM maintenance_equipment_cost_line
-                WHERE move_line_id IN %s
-            """, (tuple(product_line_ids),))
-
-            # Crear nuevas cost lines
+            # Crear nuevas cost lines via ORM (para que computed fields funcionen)
+            vals_list = []
             for eq_id, percentage in eq_rows:
-                for ml_id in product_line_ids:
-                    self.env.cr.execute("""
-                        INSERT INTO maintenance_equipment_cost_line
-                            (move_line_id, equipment_id, percentage,
-                             create_uid, create_date, write_uid, write_date)
-                        VALUES (%s, %s, %s, %s, NOW(), %s, NOW())
-                    """, (ml_id, eq_id, percentage, self.env.uid, self.env.uid))
-
-            self.env['maintenance.equipment.cost.line'].invalidate_model()
+                for ml in product_lines:
+                    vals_list.append({
+                        'move_line_id': ml.id,
+                        'equipment_id': eq_id,
+                        'percentage': percentage,
+                    })
+            if vals_list:
+                CostLine.create(vals_list)
 
     def action_view_cost_lines(self):
         self.ensure_one()
