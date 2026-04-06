@@ -16,8 +16,7 @@ class MaintenanceEquipmentCostLine(models.Model):
     equipment_id = fields.Many2one(
         'maintenance.equipment',
         string='Equipo',
-        required=True,
-        ondelete='cascade',
+        ondelete='set null',
     )
     percentage = fields.Float(
         string='Porcentaje (%)',
