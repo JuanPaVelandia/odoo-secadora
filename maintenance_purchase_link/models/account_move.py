@@ -1,4 +1,7 @@
+import logging
 from odoo import api, fields, models
+
+_logger = logging.getLogger(__name__)
 
 
 class AccountMove(models.Model):
@@ -25,9 +28,19 @@ class AccountMove(models.Model):
             if not product_lines:
                 continue
 
-            # Obtener asignaciones deseadas desde la plantilla
+            # Leer las asignaciones ya guardadas en BD (post-super().write)
+            eq_lines = self.env['maintenance.invoice.equipment'].search([
+                ('move_id', '=', move.id),
+            ])
+
+            _logger.info(
+                "MAINT PROPAGATE move=%s eq_lines=%s",
+                move.id,
+                [(el.equipment_id.name, el.request_id.name, el.percentage) for el in eq_lines],
+            )
+
             desired = {}
-            for eq_line in move.maintenance_equipment_line_ids:
+            for eq_line in eq_lines:
                 desired[eq_line.equipment_id.id] = {
                     'percentage': eq_line.percentage,
                     'request_id': eq_line.request_id.id if eq_line.request_id else False,
@@ -37,18 +50,16 @@ class AccountMove(models.Model):
             existing = CostLine.search([
                 ('move_line_id', 'in', product_lines.ids),
             ])
-
-            # Equipos existentes en cost lines
             existing_equipment_ids = set(existing.mapped('equipment_id').ids)
             desired_equipment_ids = set(desired.keys())
 
-            # Eliminar cost lines de equipos que ya no están en la plantilla
+            # Eliminar equipos que ya no están
             to_remove = existing.filtered(
                 lambda cl: cl.equipment_id.id not in desired_equipment_ids
             )
             to_remove.unlink()
 
-            # Actualizar cost lines existentes (porcentaje y OT)
+            # Actualizar existentes
             for cl in existing.filtered(lambda c: c.equipment_id.id in desired_equipment_ids):
                 data = desired[cl.equipment_id.id]
                 update_vals = {}
@@ -57,9 +68,10 @@ class AccountMove(models.Model):
                 if (cl.request_id.id or False) != data['request_id']:
                     update_vals['request_id'] = data['request_id']
                 if update_vals:
+                    _logger.info("MAINT UPDATE cl=%s vals=%s", cl.id, update_vals)
                     cl.write(update_vals)
 
-            # Crear cost lines para equipos nuevos
+            # Crear nuevos
             new_equipment_ids = desired_equipment_ids - existing_equipment_ids
             vals_list = []
             for eq_id in new_equipment_ids:
@@ -72,6 +84,7 @@ class AccountMove(models.Model):
                         'request_id': data['request_id'],
                     })
             if vals_list:
+                _logger.info("MAINT CREATE vals=%s", vals_list)
                 CostLine.create(vals_list)
 
     def action_view_cost_lines(self):
@@ -85,9 +98,8 @@ class AccountMove(models.Model):
         }
 
     def write(self, vals):
-        # Quitar maintenance_cost_line_ids del write para evitar que
-        # el ORM sobreescriba cost lines con datos viejos del formulario
         vals.pop('maintenance_cost_line_ids', None)
+        _logger.info("MAINT MOVE WRITE keys=%s", list(vals.keys()))
         res = super().write(vals)
         if 'maintenance_equipment_line_ids' in vals:
             self._propagate_equipment_to_lines()
