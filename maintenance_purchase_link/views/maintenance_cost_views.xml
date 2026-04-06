@@ -10,7 +10,7 @@
         <field name="name">maintenance.equipment.cost.line.list</field>
         <field name="model">maintenance.equipment.cost.line</field>
         <field name="arch" type="xml">
-            <list string="Costos de mantenimiento">
+            <list string="Costos de mantenimiento" create="0" delete="0">
                 <field name="date" readonly="1"/>
                 <field name="equipment_id"/>
                 <field name="request_id"/>
@@ -32,7 +32,7 @@
         <field name="name">maintenance.equipment.cost.line.form</field>
         <field name="model">maintenance.equipment.cost.line</field>
         <field name="arch" type="xml">
-            <form string="Línea de costo por equipo">
+            <form string="Línea de costo por equipo" create="0" delete="0">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_attachments"
