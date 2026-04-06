@@ -10,20 +10,20 @@
         groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Costos por equipo (modelo intermedio) -->
+    <!-- Submenú: Costos de mantenimiento (modelo unificado) -->
     <menuitem
         id="menu_equipment_cost_lines"
-        name="Costos por equipo"
+        name="Costos de mantenimiento"
         parent="menu_maintenance_costs_root"
         action="action_equipment_cost_lines"
         sequence="5"
         groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Facturas de mantenimiento -->
+    <!-- Submenú: Facturas de mantenimiento (legacy, vista de account.move.line) -->
     <menuitem
         id="menu_maintenance_cost_lines"
-        name="Facturas de mantenimiento"
+        name="Líneas de factura"
         parent="menu_maintenance_costs_root"
         action="action_maintenance_cost_lines"
         sequence="10"
