@@ -25,22 +25,52 @@ class AccountMove(models.Model):
             if not product_lines:
                 continue
 
+            # Obtener asignaciones deseadas desde la plantilla
+            desired = {}
+            for eq_line in move.maintenance_equipment_line_ids:
+                desired[eq_line.equipment_id.id] = {
+                    'percentage': eq_line.percentage,
+                    'request_id': eq_line.request_id.id if eq_line.request_id else False,
+                }
+
+            # Obtener cost lines existentes
             existing = CostLine.search([
                 ('move_line_id', 'in', product_lines.ids),
             ])
-            existing.unlink()
 
+            # Equipos existentes en cost lines
+            existing_equipment_ids = set(existing.mapped('equipment_id').ids)
+            desired_equipment_ids = set(desired.keys())
+
+            # Eliminar cost lines de equipos que ya no están en la plantilla
+            to_remove = existing.filtered(
+                lambda cl: cl.equipment_id.id not in desired_equipment_ids
+            )
+            to_remove.unlink()
+
+            # Actualizar cost lines existentes (porcentaje y OT)
+            for cl in existing.filtered(lambda c: c.equipment_id.id in desired_equipment_ids):
+                data = desired[cl.equipment_id.id]
+                update_vals = {}
+                if cl.percentage != data['percentage']:
+                    update_vals['percentage'] = data['percentage']
+                if (cl.request_id.id or False) != data['request_id']:
+                    update_vals['request_id'] = data['request_id']
+                if update_vals:
+                    cl.write(update_vals)
+
+            # Crear cost lines para equipos nuevos
+            new_equipment_ids = desired_equipment_ids - existing_equipment_ids
             vals_list = []
-            for eq_line in move.maintenance_equipment_line_ids:
+            for eq_id in new_equipment_ids:
+                data = desired[eq_id]
                 for ml in product_lines:
-                    vals = {
+                    vals_list.append({
                         'move_line_id': ml.id,
-                        'equipment_id': eq_line.equipment_id.id,
-                        'percentage': eq_line.percentage,
-                    }
-                    if eq_line.request_id:
-                        vals['request_id'] = eq_line.request_id.id
-                    vals_list.append(vals)
+                        'equipment_id': eq_id,
+                        'percentage': data['percentage'],
+                        'request_id': data['request_id'],
+                    })
             if vals_list:
                 CostLine.create(vals_list)
 
