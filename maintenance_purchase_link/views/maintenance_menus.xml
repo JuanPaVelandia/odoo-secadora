@@ -20,6 +20,16 @@
         groups="maintenance.group_equipment_manager"
     />
 
+    <!-- Submenú: Asignar factura -->
+    <menuitem
+        id="menu_assign_invoice"
+        name="Asignar factura"
+        parent="menu_maintenance_costs_root"
+        action="action_assign_invoice_wizard"
+        sequence="10"
+        groups="maintenance.group_equipment_manager"
+    />
+
 
     <!-- Submenú: Lecturas de horómetro -->
     <menuitem

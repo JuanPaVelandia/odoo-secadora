@@ -11,12 +11,6 @@
         <field name="model">maintenance.equipment.cost.line</field>
         <field name="arch" type="xml">
             <list string="Costos de mantenimiento" editable="top">
-                <header>
-                    <button name="%(action_assign_invoice_wizard)d"
-                            type="action"
-                            string="Asignar factura"
-                            class="btn-primary"/>
-                </header>
                 <field name="date" readonly="1"/>
                 <field name="equipment_id"/>
                 <field name="request_id"/>
