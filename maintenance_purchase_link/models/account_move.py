@@ -74,7 +74,20 @@ class AccountMove(models.Model):
             if vals_list:
                 CostLine.create(vals_list)
 
+    def action_view_cost_lines(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Costos asignados',
+            'res_model': 'maintenance.equipment.cost.line',
+            'view_mode': 'list,form',
+            'domain': [('move_id', '=', self.id)],
+        }
+
     def write(self, vals):
+        # Quitar maintenance_cost_line_ids del write para evitar que
+        # el ORM sobreescriba cost lines con datos viejos del formulario
+        vals.pop('maintenance_cost_line_ids', None)
         res = super().write(vals)
         if 'maintenance_equipment_line_ids' in vals:
             self._propagate_equipment_to_lines()
