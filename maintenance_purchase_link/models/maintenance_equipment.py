@@ -76,14 +76,12 @@ class MaintenanceEquipment(models.Model):
 
     def action_view_maintenance_costs(self):
         self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Costos de mantenimiento',
-            'res_model': 'maintenance.equipment.cost.line',
-            'view_mode': 'list,form',
-            'domain': [('equipment_id', '=', self.id)],
-            'context': dict(self.env.context, default_equipment_id=self.id),
-        }
+        action = self.env['ir.actions.actions']._for_xml_id(
+            'maintenance_purchase_link.action_equipment_cost_lines'
+        )
+        action['domain'] = [('equipment_id', '=', self.id)]
+        action['context'] = dict(self.env.context, default_equipment_id=self.id)
+        return action
 
     def action_view_horometro_readings(self):
         self.ensure_one()
