@@ -5,23 +5,32 @@
         <field name="name">maintenance.assign.invoice.wizard.form</field>
         <field name="model">maintenance.assign.invoice.wizard</field>
         <field name="arch" type="xml">
-            <form string="Asignar factura a equipo">
+            <form string="Asignar factura a equipos">
                 <group>
                     <group string="Factura">
                         <field name="move_id"/>
                         <field name="move_partner_id" readonly="1"/>
                         <field name="move_amount" readonly="1"/>
-                        <field name="line_count" readonly="1"/>
+                        <field name="line_count" readonly="1" string="Líneas"/>
                         <field name="currency_id" invisible="1"/>
                     </group>
-                    <group string="Asignación">
-                        <field name="equipment_id"/>
-                        <field name="request_id"/>
-                        <field name="percentage"/>
+                    <group string="Resumen">
+                        <field name="total_percentage" readonly="1"
+                               decoration-danger="total_percentage != 100"
+                               decoration-success="total_percentage == 100"/>
                     </group>
                 </group>
+                <group string="Distribución por equipos">
+                    <field name="line_ids" nolabel="1">
+                        <list editable="bottom">
+                            <field name="equipment_id"/>
+                            <field name="request_id"/>
+                            <field name="percentage"/>
+                        </list>
+                    </field>
+                </group>
                 <footer>
-                    <button string="Asignar todas las líneas"
+                    <button string="Asignar factura completa"
                             type="object"
                             name="action_assign"
                             class="btn-primary"/>
