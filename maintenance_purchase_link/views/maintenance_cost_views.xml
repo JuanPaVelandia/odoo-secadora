@@ -10,7 +10,7 @@
         <field name="name">maintenance.equipment.cost.line.list</field>
         <field name="model">maintenance.equipment.cost.line</field>
         <field name="arch" type="xml">
-            <list string="Costos de mantenimiento" editable="top">
+            <list string="Costos de mantenimiento">
                 <field name="date" readonly="1"/>
                 <field name="equipment_id"/>
                 <field name="request_id"/>
