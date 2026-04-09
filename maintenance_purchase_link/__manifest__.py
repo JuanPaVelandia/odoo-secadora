@@ -16,6 +16,7 @@
         'purchase',
         'analytic',
         'bascula',
+        'custom_webviewlink',
     ],
     'data': [
         'security/maintenance_security.xml',

@@ -65,6 +65,11 @@ class MaintenanceEquipmentCostLine(models.Model):
         'maintenance.request',
         string='Orden de trabajo',
     )
+    x_webviewlink = fields.Char(
+        related='move_id.x_webviewlink',
+        string='Enlace documento Drive',
+        readonly=True,
+    )
     attachment_ids = fields.Many2many(
         'ir.attachment',
         compute='_compute_attachment_ids',

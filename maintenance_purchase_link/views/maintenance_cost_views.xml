@@ -21,6 +21,7 @@
                 <field name="move_id" readonly="1" optional="hide"/>
                 <field name="percentage"/>
                 <field name="amount" sum="Total"/>
+                <field name="x_webviewlink" widget="url" string="Enlace Drive" optional="show"/>
                 <field name="attachment_count" string="Adjuntos" readonly="1"/>
                 <field name="currency_id" column_invisible="1"/>
             </list>
@@ -51,6 +52,7 @@
                             <field name="product_id" readonly="1"/>
                             <field name="product_description" readonly="1"/>
                             <field name="quantity" readonly="1"/>
+                            <field name="x_webviewlink" widget="url"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
                         <group string="Asignación">
