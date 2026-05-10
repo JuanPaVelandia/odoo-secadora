@@ -5,7 +5,7 @@
         <record id="seq_secadora_cuadrilla_liquidacion" model="ir.sequence">
             <field name="name">Secadora Liquidación Cuadrilla</field>
             <field name="code">secadora.cuadrilla.liquidacion</field>
-            <field name="prefix">CUA-</field>
+            <field name="prefix">CUAD-</field>
             <field name="padding">5</field>
         </record>
 

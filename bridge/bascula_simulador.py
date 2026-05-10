@@ -152,7 +152,7 @@ class BasculaSimulador:
         """Obtiene el ID del pesaje activo desde Odoo"""
         try:
             url = f"{ODOO_URL}/api/bascula/pesaje_activo"
-            payload = {"api_key": self.api_key}
+            payload = {"api_key": self.api_key, "db": ODOO_DB}
 
             logger.debug(f"[DEBUG] Consultando: {url}")
             logger.debug(f"[DEBUG] Payload: {payload}")
@@ -206,7 +206,8 @@ class BasculaSimulador:
             payload = {
                 "pesaje_id": pesaje_id,
                 "peso": peso,
-                "api_key": self.api_key
+                "api_key": self.api_key,
+                "db": ODOO_DB,
             }
 
             response = requests.post(
@@ -241,7 +242,8 @@ class BasculaSimulador:
             url = f"{ODOO_URL}/api/bascula/actualizar_peso_global"
             payload = {
                 "peso": peso,
-                "api_key": self.api_key
+                "api_key": self.api_key,
+                "db": ODOO_DB,
             }
 
             response = requests.post(
