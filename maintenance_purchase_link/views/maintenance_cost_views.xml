@@ -53,6 +53,8 @@
                             <field name="product_description" readonly="1"/>
                             <field name="quantity" readonly="1"/>
                             <field name="x_webviewlink" widget="url"/>
+                            <field name="x_whatsapp_comprobante_link" widget="url"/>
+                            <field name="x_whatsapp_mensaje"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
                         <group string="Asignación">

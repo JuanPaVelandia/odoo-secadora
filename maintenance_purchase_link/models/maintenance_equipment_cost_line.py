@@ -70,6 +70,16 @@ class MaintenanceEquipmentCostLine(models.Model):
         string='Enlace documento Drive',
         readonly=True,
     )
+    x_whatsapp_comprobante_link = fields.Char(
+        related='move_id.x_whatsapp_comprobante_link',
+        string='Enlace comprobante Whatsapp',
+        readonly=True,
+    )
+    x_whatsapp_mensaje = fields.Char(
+        related='move_id.x_whatsapp_mensaje',
+        string='Mensaje de Whatsapp',
+        readonly=True,
+    )
     attachment_ids = fields.Many2many(
         'ir.attachment',
         compute='_compute_attachment_ids',

@@ -1,6 +1,6 @@
 {
     'name': 'Mantenimiento - Enlace con Facturas de Compra',
-    'version': '18.0.2.0.0',
+    'version': '18.0.3.0.0',
     'category': 'Maintenance',
     'summary': 'Asocia líneas de factura de compra a equipos y órdenes de mantenimiento',
     'description': """
