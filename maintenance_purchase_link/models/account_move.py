@@ -11,27 +11,27 @@ class AccountMove(models.Model):
     )
 
     def _post(self, soft=True):
-        """Al publicar factura, crear cost lines para líneas con analítica de Mantenimiento."""
+        """Al publicar factura, crear cost lines para líneas con Unidad de negocio = Maquinaria."""
         posted = super()._post(soft=soft)
         posted._auto_create_maintenance_cost_lines()
         return posted
 
     def _auto_create_maintenance_cost_lines(self):
-        """Crear cost lines automáticamente para líneas con analítica de Mantenimiento."""
+        """Crear cost lines automáticamente para líneas con Unidad de negocio = Maquinaria."""
         CostLine = self.env['maintenance.equipment.cost.line']
-        maint_account = self.env.ref(
-            'maintenance_purchase_link.analytic_account_mantenimiento',
-            raise_if_not_found=False,
-        )
-        if not maint_account:
+        maquinaria_account = self.env['account.analytic.account'].search([
+            ('name', '=', 'Maquinaria'),
+            ('plan_id.name', '=', 'Unidad de negocio'),
+        ], limit=1)
+        if not maquinaria_account:
             return
 
-        maint_key = str(maint_account.id)
+        maquinaria_key = str(maquinaria_account.id)
 
         for move in self.filtered(lambda m: m.move_type == 'in_invoice'):
             for ml in move.invoice_line_ids.filtered(lambda l: l.display_type == 'product'):
                 distribution = ml.analytic_distribution or {}
-                if maint_key not in distribution:
+                if maquinaria_key not in distribution:
                     continue
 
                 # Solo crear si no existe ya una cost line para esta línea

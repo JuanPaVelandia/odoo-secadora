@@ -9,10 +9,23 @@ class TestMaintenanceCost(TransactionCase):
         super().setUpClass()
         cls.env = cls.env(context=dict(cls.env.context, tracking_disable=True))
 
-        # Plan y cuenta analítica de Mantenimiento
-        cls.maint_account = cls.env.ref(
-            'maintenance_purchase_link.analytic_account_mantenimiento'
-        )
+        # Plan y cuenta analítica "Unidad de negocio" / "Maquinaria"
+        plan = cls.env['account.analytic.plan'].search([
+            ('name', '=', 'Unidad de negocio'),
+        ], limit=1)
+        if not plan:
+            plan = cls.env['account.analytic.plan'].create({
+                'name': 'Unidad de negocio',
+            })
+        cls.maint_account = cls.env['account.analytic.account'].search([
+            ('name', '=', 'Maquinaria'),
+            ('plan_id', '=', plan.id),
+        ], limit=1)
+        if not cls.maint_account:
+            cls.maint_account = cls.env['account.analytic.account'].create({
+                'name': 'Maquinaria',
+                'plan_id': plan.id,
+            })
 
         # Partner proveedor
         cls.partner = cls.env['res.partner'].create({

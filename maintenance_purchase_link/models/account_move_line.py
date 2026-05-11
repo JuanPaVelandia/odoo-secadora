@@ -55,20 +55,20 @@ class AccountMoveLine(models.Model):
 
     @api.constrains('equipment_cost_line_ids', 'maintenance_request_ids', 'analytic_distribution')
     def _check_maintenance_analytic(self):
-        """No permitir asociar equipo/OT si la línea no tiene analítica de Mantenimiento."""
-        maint_account = self.env.ref(
-            'maintenance_purchase_link.analytic_account_mantenimiento',
-            raise_if_not_found=False,
-        )
-        if not maint_account:
+        """No permitir asociar equipo/OT si la línea no tiene Unidad de negocio = Maquinaria."""
+        maquinaria_account = self.env['account.analytic.account'].search([
+            ('name', '=', 'Maquinaria'),
+            ('plan_id.name', '=', 'Unidad de negocio'),
+        ], limit=1)
+        if not maquinaria_account:
             return
-        maint_key = str(maint_account.id)
+        maquinaria_key = str(maquinaria_account.id)
         for line in self:
             if not line.equipment_cost_line_ids and not line.maintenance_request_ids:
                 continue
             distribution = line.analytic_distribution or {}
-            if maint_key not in distribution:
+            if maquinaria_key not in distribution:
                 raise ValidationError(_(
                     'Solo puede asociar equipos u órdenes de trabajo a líneas '
-                    'con distribución analítica de "Mantenimiento".'
+                    'con Unidad de negocio = "Maquinaria".'
                 ))
