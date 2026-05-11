@@ -136,7 +136,7 @@ class MaintenanceEquipmentCostLine(models.Model):
             ],
         }
 
-    @api.depends('move_line_id.price_subtotal', 'percentage')
+    @api.depends('move_line_id.price_total', 'percentage')
     def _compute_amount(self):
         for rec in self:
-            rec.amount = rec.move_line_id.price_subtotal * rec.percentage / 100.0
+            rec.amount = rec.move_line_id.price_total * rec.percentage / 100.0
