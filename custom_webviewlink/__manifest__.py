@@ -1,7 +1,7 @@
 {
     'name': 'Enlace Documento Drive',
-    'version': '18.0.1.0.0',
-    'summary': 'Campo URL enlace a Google Drive en facturas',
+    'version': '18.0.2.0.0',
+    'summary': 'Enlaces externos en facturas: Drive y comprobante/mensaje de WhatsApp',
     'category': 'Accounting',
     'author': 'Secadora La Gran Colombia',
     'depends': ['account'],

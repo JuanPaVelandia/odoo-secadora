@@ -7,6 +7,12 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='ref']" position="after">
                 <field name="x_webviewlink" widget="url" placeholder="https://drive.google.com/..."/>
+                <field name="x_whatsapp_comprobante_link"
+                       widget="url"
+                       placeholder="https://drive.google.com/..."
+                       invisible="move_type != 'in_invoice'"/>
+                <field name="x_whatsapp_mensaje"
+                       invisible="move_type != 'in_invoice'"/>
             </xpath>
         </field>
     </record>
