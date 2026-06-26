@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.DashboardTabs">
+        <div class="lavish_hr_payroll_dashboard_tabs">
+            <!-- Header -->
+            <div class="dashboard-header mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-0">Dashboard de Nómina</h2>
+                        <p class="text-muted mb-0">Panel de control y gestión</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <select class="form-select" style="width: 200px;">
+                            <option value="">Período Actual</option>
+                        </select>
+                        <button class="btn btn-light" t-on-click="() => this.loadDashboardData()">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="dashboard-tabs-navigation mb-4">
+                <ul class="nav nav-tabs nav-tabs-custom">
+                    <li class="nav-item" t-foreach="tabs" t-as="tab" t-key="tab.id">
+                        <a class="nav-link position-relative"
+                           t-att-class="{'active': state.activeTab === tab.id}"
+                           t-on-click="() => this.onTabChange(tab.id)"
+                           href="#">
+                            <i class="fa me-2" t-att-class="tab.icon"/>
+                            <span><t t-esc="tab.name"/></span>
+
+                            <!-- Badge de alertas -->
+                            <span t-if="getTabBadge(tab)"
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill"
+                                  t-att-class="'bg-' + tab.color"
+                                  style="font-size: 0.7rem;">
+                                <t t-esc="getTabBadge(tab)"/>
+                                <span class="visually-hidden">alertas</span>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Loading State -->
+            <div t-if="state.loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-3 text-muted">Cargando dashboard...</p>
+            </div>
+
+            <!-- Tab Content -->
+            <div t-else="" class="tab-content">
+
+                <!-- Tab: Resumen -->
+                <div t-if="state.activeTab === 'resumen'" class="tab-pane-content fade-in">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <div class="card kpi-card border-primary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted text-uppercase small">Total Empleados</h6>
+                                            <h3 class="text-primary mb-0">
+                                                <t t-esc="state.kpis.total_employees || 0"/>
+                                            </h3>
+                                        </div>
+                                        <div class="icon-box bg-primary-subtle text-primary">
+                                            <i class="fa fa-users fa-2x"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card kpi-card border-success">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted text-uppercase small">Total Devengado</h6>
+                                            <h3 class="text-success mb-0">
+                                                <t t-esc="state.kpis.total_devengado_formatted || '$0'"/>
+                                            </h3>
+                                        </div>
+                                        <div class="icon-box bg-success-subtle text-success">
+                                            <i class="fa fa-money fa-2x"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card kpi-card border-warning">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted text-uppercase small">Horas Extras</h6>
+                                            <h3 class="text-warning mb-0">
+                                                <t t-esc="state.kpis.overtime_hours || 0"/>h
+                                            </h3>
+                                        </div>
+                                        <div class="icon-box bg-warning-subtle text-warning">
+                                            <i class="fa fa-clock fa-2x"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="card kpi-card border-danger cursor-pointer"
+                                 t-on-click="() => this.handleAction('view_alerts')">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="text-muted text-uppercase small">Alertas Activas</h6>
+                                            <h3 class="text-danger mb-0">
+                                                <t t-esc="state.alerts.count || 0"/>
+                                            </h3>
+                                            <small class="text-muted">Click para ver</small>
+                                        </div>
+                                        <div class="icon-box bg-danger-subtle text-danger">
+                                            <i class="fa fa-exclamation-triangle fa-2x"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Nómina -->
+                <div t-if="state.activeTab === 'nomina'" class="tab-pane-content fade-in">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0">
+                                        <i class="fa fa-list-alt me-2"/>
+                                        Lista de Nóminas
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <!-- Aquí irá el componente PayslipList con js_class -->
+                                    <p class="text-muted">Vista de nóminas con acciones masivas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Personal -->
+                <div t-if="state.activeTab === 'personal'" class="tab-pane-content fade-in">
+                    <p class="text-muted">Gestión de personal...</p>
+                </div>
+
+                <!-- Tab: Indicadores -->
+                <div t-if="state.activeTab === 'indicadores'" class="tab-pane-content fade-in">
+                    <p class="text-muted">Indicadores y métricas...</p>
+                </div>
+
+                <!-- Tab: Alertas -->
+                <div t-if="state.activeTab === 'alertas'" class="tab-pane-content fade-in">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="alert alert-danger d-flex align-items-center" role="alert">
+                                <i class="fa fa-exclamation-circle fa-2x me-3"/>
+                                <div>
+                                    <h5 class="alert-heading mb-1">
+                                        <t t-esc="state.alerts.count"/> Alerta(s) Detectada(s)
+                                    </h5>
+                                    <p class="mb-0">Revisa los detalles a continuación</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de alertas -->
+                        <div class="col-md-6" t-foreach="state.alerts.items || []" t-as="alert" t-key="alert.id">
+                            <div class="card border-start border-danger border-3">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-2">
+                                                <i class="fa fa-warning text-danger me-2"/>
+                                                <t t-esc="alert.title"/>
+                                            </h6>
+                                            <p class="text-muted small mb-2"><t t-esc="alert.description"/></p>
+                                            <span class="badge bg-danger"><t t-esc="alert.severity"/></span>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary">
+                                            <i class="fa fa-eye"/> Ver
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+
+</templates>

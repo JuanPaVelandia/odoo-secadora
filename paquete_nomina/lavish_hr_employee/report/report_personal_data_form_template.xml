@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_personal_data_form_document">
+        <t t-call="web.html_container">
+            <t t-foreach="inside_foreach_docs or docs" t-as="o">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: 'Helvetica', Arial, sans-serif;">
+
+                        <!-- Encabezado con logo y foto -->
+                        <table style="width: 100%; margin-bottom: 20px;">
+                            <tr>
+                                <td style="width: 25%; vertical-align: middle;">
+                                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)"
+                                         style="max-height: 80px; max-width: 150px;" alt="Logo"/>
+                                </td>
+                                <td style="width: 50%; text-align: center; vertical-align: middle;">
+                                    <div style="background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); padding: 15px; border-radius: 8px;">
+                                        <h2 style="color: white; margin: 0; font-size: 18px; letter-spacing: 1px;">
+                                            FORMULARIO DATOS PERSONALES
+                                        </h2>
+                                    </div>
+                                </td>
+                                <td style="width: 25%; text-align: right; vertical-align: middle;">
+                                    <img t-if="o.image_1920" t-att-src="image_data_uri(o.image_1920)"
+                                         style="max-height: 100px; border-radius: 8px; border: 2px solid #3498db;"/>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Datos basicos del empleado -->
+                        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #3498db;">
+                                <strong style="color: #2c3e50; font-size: 13px;">INFORMACION BASICA</strong>
+                            </div>
+                            <table style="width: 100%; font-size: 12px;">
+                                <tr>
+                                    <td style="width: 25%; padding: 5px; background: #f8f9fa;">
+                                        <strong>Tipo Documento:</strong>
+                                    </td>
+                                    <td style="width: 25%; padding: 5px;">
+                                        <span t-field="o.work_contact_id.l10n_latam_identification_type_id.dian_code"/>
+                                    </td>
+                                    <td style="width: 25%; padding: 5px; background: #f8f9fa;">
+                                        <strong>Documento:</strong>
+                                    </td>
+                                    <td style="width: 25%; padding: 5px;">
+                                        <span t-field="o.identification_id"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Empleado:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.name"/>
+                                    </td>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Compania:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.company_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Cargo:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.job_id.name"/>
+                                    </td>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Departamento:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.department_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Edad:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-out="o.get_age_for_date(o.birthday)"/>
+                                    </td>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Correo Personal:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.personal_email"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Genero:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.gender"/>
+                                    </td>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Estado Civil:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.marital"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Celular:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.work_contact_id.mobile"/>
+                                    </td>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Fecha de ingreso:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.get_info_contract().date_start"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Ciudad:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.work_contact_id.city_id"/>
+                                    </td>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Direccion:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.work_contact_id.street"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Tel. Emergencia:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-field="o.emergency_phone"/>
+                                    </td>
+                                    <td style="padding: 5px; background: #f8f9fa;">
+                                        <strong>Contacto Emergencia:</strong>
+                                    </td>
+                                    <td style="padding: 5px;">
+                                        <span t-out="o.emergency_contact"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Entidades de seguridad social -->
+                        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #27ae60;">
+                                <strong style="color: #2c3e50; font-size: 13px;">ENTIDADES DE SEGURIDAD SOCIAL</strong>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                <thead>
+                                    <tr style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">
+                                        <th style="padding: 8px; color: white; text-align: left; width: 40%;">TIPO</th>
+                                        <th style="padding: 8px; color: white; text-align: left; width: 60%;">ENTIDAD</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.social_security_entities" t-as="l" style="border-bottom: 1px solid #e0e0e0;">
+                                        <td style="padding: 8px;">
+                                            <span t-field="l.contrib_id"/>
+                                        </td>
+                                        <td style="padding: 8px;">
+                                            <span t-out="l.partner_id.partner_id.name"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Formacion academica -->
+                        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #9b59b6;">
+                                <strong style="color: #2c3e50; font-size: 13px;">FORMACION ACADEMICA</strong>
+                            </div>
+                            <div style="margin-bottom: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; font-size: 12px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 33%;">
+                                            <strong>Nivel:</strong><br/>
+                                            <span t-field="o.certificate"/>
+                                        </td>
+                                        <td style="width: 34%;">
+                                            <strong>Institucion:</strong><br/>
+                                            <span t-out="o.study_school"/>
+                                        </td>
+                                        <td style="width: 33%;">
+                                            <strong>Campo de Estudio:</strong><br/>
+                                            <span t-out="o.study_field"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                <thead>
+                                    <tr style="background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);">
+                                        <th style="padding: 8px; color: white; text-align: left; width: 30%;">NOMBRE</th>
+                                        <th style="padding: 8px; color: white; text-align: center; width: 15%;">FECHA INICIO</th>
+                                        <th style="padding: 8px; color: white; text-align: center; width: 15%;">FECHA FIN</th>
+                                        <th style="padding: 8px; color: white; text-align: left; width: 40%;">DESCRIPCION</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.resume_line_ids" t-as="e">
+                                        <t t-if="e.line_type_id.type_resume == 'academic'">
+                                            <tr style="border-bottom: 1px solid #e0e0e0;">
+                                                <td style="padding: 6px;"><span t-field="e.name"/></td>
+                                                <td style="padding: 6px; text-align: center;"><span t-out="e.date_start"/></td>
+                                                <td style="padding: 6px; text-align: center;"><span t-out="e.date_end"/></td>
+                                                <td style="padding: 6px;"><span t-out="e.description"/></td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Grupo familiar -->
+                        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #e67e22;">
+                                <strong style="color: #2c3e50; font-size: 13px;">GRUPO FAMILIAR</strong>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                <thead>
+                                    <tr style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">
+                                        <th style="padding: 8px; color: white; text-align: left; width: 40%;">NOMBRE</th>
+                                        <th style="padding: 8px; color: white; text-align: center; width: 25%;">PARENTESCO</th>
+                                        <th style="padding: 8px; color: white; text-align: center; width: 15%;">EDAD</th>
+                                        <th style="padding: 8px; color: white; text-align: center; width: 20%;">GENERO</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.dependents_information" t-as="d" style="border-bottom: 1px solid #e0e0e0;">
+                                        <td style="padding: 6px;"><span t-field="d.name"/></td>
+                                        <td style="padding: 6px; text-align: center;"><span t-out="d.dependents_type"/></td>
+                                        <td style="padding: 6px; text-align: center;"><span t-out="o.get_age_for_date(d.date_birthday)"/></td>
+                                        <td style="padding: 6px; text-align: center;"><span t-out="d.genero"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Experiencia laboral -->
+                        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #3498db;">
+                                <strong style="color: #2c3e50; font-size: 13px;">EXPERIENCIA LABORAL</strong>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                <thead>
+                                    <tr style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);">
+                                        <th style="padding: 8px; color: white; text-align: left; width: 30%;">EMPRESA</th>
+                                        <th style="padding: 8px; color: white; text-align: center; width: 15%;">FECHA INICIO</th>
+                                        <th style="padding: 8px; color: white; text-align: center; width: 15%;">FECHA FIN</th>
+                                        <th style="padding: 8px; color: white; text-align: left; width: 40%;">DESCRIPCION</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.resume_line_ids" t-as="r">
+                                        <t t-if="r.line_type_id.type_resume == 'labor'">
+                                            <tr style="border-bottom: 1px solid #e0e0e0;">
+                                                <td style="padding: 6px;"><span t-field="r.name"/></td>
+                                                <td style="padding: 6px; text-align: center;"><span t-out="r.date_start"/></td>
+                                                <td style="padding: 6px; text-align: center;"><span t-out="r.date_end"/></td>
+                                                <td style="padding: 6px;"><span t-out="r.description"/></td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Entrevista -->
+                        <t t-set="has_interview" t-value="any(e.line_type_id.name == 'Entrevista' for e in o.resume_line_ids)"/>
+                        <t t-if="has_interview">
+                            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                                <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #1abc9c;">
+                                    <strong style="color: #2c3e50; font-size: 13px;">ENTREVISTA</strong>
+                                </div>
+                                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                    <thead>
+                                        <tr style="background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);">
+                                            <th style="padding: 8px; color: white; text-align: left; width: 30%;">NOMBRE</th>
+                                            <th style="padding: 8px; color: white; text-align: left; width: 70%;">DESCRIPCION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.resume_line_ids" t-as="e">
+                                            <t t-if="e.line_type_id.name == 'Entrevista'">
+                                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                                    <td style="padding: 6px;"><span t-field="e.name"/></td>
+                                                    <td style="padding: 6px;"><span t-out="e.description"/></td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- Habilidades -->
+                        <t t-if="o.employee_skill_ids">
+                            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                                <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #34495e;">
+                                    <strong style="color: #2c3e50; font-size: 13px;">ASPECTOS PERSONALES / HABILIDADES</strong>
+                                </div>
+                                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                    <thead>
+                                        <tr style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);">
+                                            <th style="padding: 8px; color: white; text-align: left; width: 33%;">TIPO</th>
+                                            <th style="padding: 8px; color: white; text-align: center; width: 34%;">NIVEL</th>
+                                            <th style="padding: 8px; color: white; text-align: left; width: 33%;">HABILIDAD</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.employee_skill_ids" t-as="s" style="border-bottom: 1px solid #e0e0e0;">
+                                            <td style="padding: 6px;"><span t-field="s.skill_type_id"/></td>
+                                            <td style="padding: 6px; text-align: center;"><span t-out="s.skill_level_id.name"/></td>
+                                            <td style="padding: 6px;"><span t-out="s.skill_id.name"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- Observaciones -->
+                        <t t-if="o.ed_observation">
+                            <div style="margin-bottom: 20px; padding: 15px; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ffc107;">
+                                <strong style="color: #f57c00;">Observaciones:</strong>
+                                <p style="margin: 10px 0 0 0; font-size: 12px;">
+                                    <span t-field="o.ed_observation"/>
+                                </p>
+                            </div>
+                        </t>
+
+                        <!-- Pie de pagina -->
+                        <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 9px; color: #999; text-align: center;">
+                            Documento generado automaticamente -
+                            <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_personal_data_form_template">
+        <t t-foreach="docs" t-as="o">
+            <t t-set="inside_foreach_docs" t-value="o"/>
+            <t t-call="lavish_hr_employee.report_personal_data_form_document"/>
+        </t>
+    </template>
+
+</odoo>

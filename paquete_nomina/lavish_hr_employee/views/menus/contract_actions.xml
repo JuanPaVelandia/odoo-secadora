@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- CONTRACT ACTIONS AND MENUS -->
+
+        <record id="ir_seq_hr_contract" model="ir.sequence">
+                    <field name="name">RRHH Contratos Empleados</field>
+                    <field name="code">hr.contract.seq</field>
+                    <field name="prefix">CTO/</field>
+                    <field name="padding">6</field>
+                    <field name="number_increment">1</field>
+                    <field name="use_date_range">True</field>
+                    <field name="number_next_actual">1</field>
+                    <field name="implementation">standard</field>
+                </record>
+
+        <record id="lavish_menu_action_contract_concepts" model="ir.actions.act_window">
+                    <field name="name">Devengos y Deducciones por Contrato</field>
+                    <field name="res_model">hr.contract.concepts</field>
+                    <field name="view_mode">list,form,search</field>
+                    <field name="context">{'search_default_active_concepts': 1}</field>
+                    <field name="help" type="html">
+                        <p class="o_view_nocontent_smiling_face">
+                            Crear un nuevo concepto de nómina
+                        </p>
+                        <p>
+                            Gestione los devengos y deducciones asociados a los contratos.
+                        </p>
+                    </field>
+                </record>
+
+    </data>
+</odoo>

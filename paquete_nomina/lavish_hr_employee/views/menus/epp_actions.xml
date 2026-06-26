@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- EPP ACTIONS AND MENUS -->
+
+        <!-- Menu raíz EPP/Dotación -->
+        <menuitem id="menu_hr_epp_dotacion_root"
+                  name="EPP y Dotación"
+                  parent="hr_payroll.menu_hr_payroll_employees"
+                  sequence="60"/>
+
+        <record id="action_hr_epp_request_all" model="ir.actions.act_window">
+                <field name="name">Todas las Solicitudes</field>
+                <field name="res_model">hr.epp.request</field>
+                <field name="view_mode">kanban,list,form</field>
+                <field name="context">{}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay solicitudes registradas
+                    </p>
+                    <p>
+                        Haz clic en "Crear" para registrar una nueva solicitud de EPP o Dotación.
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_epp_request_pending" model="ir.actions.act_window">
+                <field name="name">Solicitudes Pendientes</field>
+                <field name="res_model">hr.epp.request</field>
+                <field name="view_mode">kanban,list,form</field>
+                <field name="domain">[('state', 'in', ['draft', 'requested', 'approved'])]</field>
+                <field name="context">{'search_default_filter_draft': 1, 'search_default_filter_requested': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay solicitudes pendientes
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_epp_request_epp" model="ir.actions.act_window">
+                <field name="name">Elementos de Protección Personal</field>
+                <field name="res_model">hr.epp.request</field>
+                <field name="view_mode">kanban,list,form</field>
+                <field name="domain">[('type', '=', 'epp')]</field>
+                <field name="context">{'default_type': 'epp', 'search_default_filter_epp': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay solicitudes de EPP
+                    </p>
+                    <p>
+                        Los EPP incluyen: cascos, guantes, gafas, mascarillas, botas, etc.
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_epp_request_dotacion" model="ir.actions.act_window">
+                <field name="name">Dotación de Uniformes</field>
+                <field name="res_model">hr.epp.request</field>
+                <field name="view_mode">kanban,list,form</field>
+                <field name="domain">[('type', '=', 'dotacion')]</field>
+                <field name="context">{'default_type': 'dotacion', 'search_default_filter_dotacion': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay solicitudes de Dotación
+                    </p>
+                    <p>
+                        La dotación incluye: camisas, pantalones, zapatos, etc.
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_epp_request_delivered" model="ir.actions.act_window">
+                <field name="name">Entregas Realizadas</field>
+                <field name="res_model">hr.epp.request</field>
+                <field name="view_mode">list,kanban,form</field>
+                <field name="domain">[('state', '=', 'delivered')]</field>
+                <field name="context">{'search_default_filter_delivered': 1, 'search_default_group_employee': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay entregas registradas
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_medical_certificate_all" model="ir.actions.act_window">
+                <field name="name">Certificados Médicos</field>
+                <field name="res_model">hr.medical.certificate</field>
+                <field name="view_mode">list,form,calendar</field>
+                <field name="context">{}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay certificados médicos
+                    </p>
+                    <p>
+                        Registra exámenes médicos ocupacionales, certificados de aptitud, trabajo en alturas, etc.
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_medical_certificate_valid" model="ir.actions.act_window">
+                <field name="name">Certificados Vigentes</field>
+                <field name="res_model">hr.medical.certificate</field>
+                <field name="view_mode">list,form,calendar</field>
+                <field name="domain">[('state', 'in', ['valid', 'expiring'])]</field>
+                <field name="context">{'search_default_group_employee': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay certificados vigentes
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_medical_certificate_expiring" model="ir.actions.act_window">
+                <field name="name">Certificados Por Vencer</field>
+                <field name="res_model">hr.medical.certificate</field>
+                <field name="view_mode">list,form,calendar</field>
+                <field name="domain">[('state', 'in', ['expiring', 'expired'])]</field>
+                <field name="context">{'search_default_group_employee': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay certificados por vencer
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_medical_certificate_scheduled" model="ir.actions.act_window">
+                <field name="name">Exámenes Programados</field>
+                <field name="res_model">hr.medical.certificate</field>
+                <field name="view_mode">calendar,list,form</field>
+                <field name="domain">[('state', 'in', ['scheduled', 'in_process'])]</field>
+                <field name="context">{}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay exámenes programados
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_epp_configuration" model="ir.actions.act_window">
+                <field name="name">Kits EPP/Dotación</field>
+                <field name="res_model">hr.epp.configuration</field>
+                <field name="view_mode">list,form</field>
+                <field name="context">{'default_active': True}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay kits configurados
+                    </p>
+                    <p>
+                        Define los kits estándar de EPP y Dotación con los items que se entregarán automáticamente.
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_medical_provider" model="ir.actions.act_window">
+                <field name="name">Proveedores de Salud</field>
+                <field name="res_model">hr.medical.provider</field>
+                <field name="view_mode">list,form</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay proveedores registrados
+                    </p>
+                    <p>
+                        Registra clínicas, laboratorios y centros médicos para exámenes ocupacionales.
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_medical_service" model="ir.actions.act_window">
+                <field name="name">Servicios Médicos</field>
+                <field name="res_model">hr.medical.service</field>
+                <field name="view_mode">list,form</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay servicios configurados
+                    </p>
+                    <p>
+                        Define los servicios médicos disponibles (exámenes de sangre, rayos X, audiometrías, etc.)
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_medical_template" model="ir.actions.act_window">
+                <field name="name">Plantillas de Exámenes</field>
+                <field name="res_model">hr.medical.template</field>
+                <field name="view_mode">list,form</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay plantillas configuradas
+                    </p>
+                    <p>
+                        Crea plantillas de exámenes médicos predefinidas con servicios incluidos.
+                    </p>
+                </field>
+            </record>
+
+        <menuitem id="menu_hr_sst_root"
+                      name="Seguridad y Salud"
+                      parent="hr.menu_hr_root"
+                      sequence="40"
+                      groups="hr.group_hr_user"/>
+
+        <menuitem id="menu_hr_epp_dotacion"
+                      name="EPP y Dotación"
+                      parent="menu_hr_sst_root"
+                      sequence="10"/>
+
+        <menuitem id="menu_hr_epp_request_all"
+                      name="Todas las Solicitudes"
+                      parent="menu_hr_epp_dotacion"
+                      action="action_hr_epp_request_all"
+                      sequence="10"/>
+
+        <menuitem id="menu_hr_epp_request_pending"
+                      name="Pendientes"
+                      parent="menu_hr_epp_dotacion"
+                      action="action_hr_epp_request_pending"
+                      sequence="20"/>
+
+        <menuitem id="menu_hr_epp_request_epp"
+                      name="EPP"
+                      parent="menu_hr_epp_dotacion"
+                      action="action_hr_epp_request_epp"
+                      sequence="30"/>
+
+        <menuitem id="menu_hr_epp_request_dotacion"
+                      name="Dotación"
+                      parent="menu_hr_epp_dotacion"
+                      action="action_hr_epp_request_dotacion"
+                      sequence="40"/>
+
+        <menuitem id="menu_hr_epp_request_delivered"
+                      name="Entregas"
+                      parent="menu_hr_epp_dotacion"
+                      action="action_hr_epp_request_delivered"
+                      sequence="50"/>
+
+        <menuitem id="menu_hr_medical"
+                      name="Salud Ocupacional"
+                      parent="menu_hr_sst_root"
+                      sequence="20"/>
+
+        <menuitem id="menu_hr_medical_certificate_all"
+                      name="Certificados Médicos"
+                      parent="menu_hr_medical"
+                      action="action_hr_medical_certificate_all"
+                      sequence="10"/>
+
+        <menuitem id="menu_hr_medical_certificate_valid"
+                      name="Vigentes"
+                      parent="menu_hr_medical"
+                      action="action_hr_medical_certificate_valid"
+                      sequence="20"/>
+
+        <menuitem id="menu_hr_medical_certificate_expiring"
+                      name="Por Vencer"
+                      parent="menu_hr_medical"
+                      action="action_hr_medical_certificate_expiring"
+                      sequence="30"/>
+
+        <menuitem id="menu_hr_medical_certificate_scheduled"
+                      name="Exámenes Programados"
+                      parent="menu_hr_medical"
+                      action="action_hr_medical_certificate_scheduled"
+                      sequence="40"/>
+
+        <menuitem id="menu_hr_sst_config"
+                      name="Configuración SST"
+                      parent="menu_hr_sst_root"
+                      sequence="90"
+                      groups="hr.group_hr_manager"/>
+
+        <menuitem id="menu_hr_epp_configuration"
+                      name="Kits EPP/Dotación"
+                      parent="menu_hr_sst_config"
+                      action="action_hr_epp_configuration"
+                      sequence="10"/>
+
+        <menuitem id="menu_hr_medical_provider"
+                      name="Proveedores Médicos"
+                      parent="menu_hr_sst_config"
+                      action="action_hr_medical_provider"
+                      sequence="20"/>
+
+        <menuitem id="menu_hr_medical_service"
+                      name="Servicios Médicos"
+                      parent="menu_hr_sst_config"
+                      action="action_hr_medical_service"
+                      sequence="30"/>
+
+        <menuitem id="menu_hr_medical_template"
+                      name="Plantillas de Exámenes"
+                      parent="menu_hr_sst_config"
+                      action="action_hr_medical_template"
+                      sequence="40"/>
+
+        <record id="action_hr_epp_item_type" model="ir.actions.act_window">
+                <field name="name">Tipos de Item EPP/Dotación</field>
+                <field name="res_model">hr.epp.item.type</field>
+                <field name="view_mode">list,form</field>
+                <field name="context">{'search_default_filter_types': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay tipos de item configurados
+                    </p>
+                    <p>
+                        Define los tipos y subtipos de items para EPP y Dotación (cascos, guantes, camisas, etc.)
+                    </p>
+                </field>
+            </record>
+
+        <menuitem id="menu_hr_epp_item_type"
+                      name="Tipos de Item"
+                      parent="menu_hr_sst_config"
+                      action="action_hr_epp_item_type"
+                      sequence="5"
+                      groups="hr.group_hr_manager"/>
+
+        <record id="action_hr_epp_size" model="ir.actions.act_window">
+                <field name="name">Tallas EPP/Dotación</field>
+                <field name="res_model">hr.epp.size</field>
+                <field name="view_mode">list,form</field>
+                <field name="context">{'search_default_group_size_type': 1}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        No hay tallas configuradas
+                    </p>
+                    <p>
+                        Define las tallas disponibles para ropa, calzado, guantes y cascos.
+                    </p>
+                </field>
+            </record>
+
+        <menuitem id="menu_hr_epp_size"
+                      name="Tallas"
+                      parent="menu_hr_sst_config"
+                      action="action_hr_epp_size"
+                      sequence="6"
+                      groups="hr.group_hr_manager"/>
+
+        <record id="action_hr_epp_configuration_templates" model="ir.actions.act_window">
+                <field name="name">Plantillas EPP/Dotación/Exámenes</field>
+                <field name="res_model">hr.epp.configuration</field>
+                <field name="view_mode">list,form</field>
+                <field name="domain">[('is_template', '=', True)]</field>
+                <field name="context">{'default_is_template': True}</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        Crea tu primera plantilla
+                    </p>
+                    <p>
+                        Las plantillas permiten crear configuraciones reutilizables para EPP, Dotación y Exámenes Médicos.
+                    </p>
+                </field>
+            </record>
+
+        <record id="action_hr_epp_provider_agreement" model="ir.actions.act_window">
+                <field name="name">Acuerdos con Proveedores</field>
+                <field name="res_model">hr.epp.provider.agreement</field>
+                <field name="view_mode">list,form</field>
+                <field name="help" type="html">
+                    <p class="o_view_nocontent_smiling_face">
+                        Crea tu primer acuerdo con proveedor
+                    </p>
+                    <p>
+                        Los acuerdos permiten definir precios, plazos y condiciones comerciales con proveedores de EPP y Dotación.
+                    </p>
+                </field>
+            </record>
+
+        <menuitem id="menu_hr_epp_configuration_templates"
+                      name="Plantillas"
+                      parent="lavish_hr_employee.menu_hr_epp_dotacion_root"
+                      action="action_hr_epp_configuration_templates"
+                      sequence="5"/>
+
+        <menuitem id="menu_hr_epp_provider_agreement"
+                      name="Acuerdos con Proveedores"
+                      parent="lavish_hr_employee.menu_hr_epp_dotacion_root"
+                      action="action_hr_epp_provider_agreement"
+                      sequence="15"/>
+
+        <record id="action_wizard_epp_quick_create" model="ir.actions.act_window">
+                <field name="name">Creación Rápida EPP/Dotación/Examen</field>
+                <field name="res_model">wizard.epp.quick.create</field>
+                <field name="view_mode">form</field>
+                <field name="target">new</field>
+                <field name="binding_model_id" ref="hr.model_hr_employee"/>
+                <field name="binding_view_types">form</field>
+            </record>
+
+        <record id="action_wizard_epp_quick_create_from_config" model="ir.actions.act_window">
+                <field name="name">Crear desde Plantilla</field>
+                <field name="res_model">wizard.epp.quick.create</field>
+                <field name="view_mode">form</field>
+                <field name="target">new</field>
+                <field name="binding_model_id" ref="lavish_hr_employee.model_hr_epp_configuration"/>
+                <field name="binding_view_types">form</field>
+            </record>
+
+    
+        <!-- EPP BATCH ACTIONS AND MENUS -->
+
+        <record id="action_hr_epp_batch" model="ir.actions.act_window">
+                                            <field name="name">Lotes de Entregas</field>
+                                            <field name="res_model">hr.epp.batch</field>
+                                            <field name="view_mode">kanban,list,form</field>
+                                            <field name="domain">[]</field>
+                                            <field name="context">{}</field>
+                                            <field name="help" type="html">
+                                            <p class="o_view_nocontent_smiling_face"> Crear lote de entregas masivas </p>
+                                            <p> Los lotes permiten gestionar entregas de EPP/Dotación o exámenes médicos a múltiples empleados simultáneamente. </p>
+                                            </field>
+                                            </record>
+
+        <record id="action_hr_epp_batch_epp" model="ir.actions.act_window">
+                                            <field name="name">Lotes de EPP</field>
+                                            <field name="res_model">hr.epp.batch</field>
+                                            <field name="view_mode">kanban,list,form</field>
+                                            <field name="domain">[('batch_type', '=', 'epp')]</field>
+                                            <field name="context">{'default_batch_type': 'epp'}</field>
+                                            </record>
+
+        <record id="action_hr_epp_batch_dotacion" model="ir.actions.act_window">
+                                            <field name="name">Lotes de Dotación</field>
+                                            <field name="res_model">hr.epp.batch</field>
+                                            <field name="view_mode">kanban,list,form</field>
+                                            <field name="domain">[('batch_type', '=', 'dotacion')]</field>
+                                            <field name="context">{'default_batch_type': 'dotacion'}</field>
+                                            </record>
+
+        <record id="action_hr_epp_batch_medical" model="ir.actions.act_window">
+                                            <field name="name">Lotes de Exámenes Médicos</field>
+                                            <field name="res_model">hr.epp.batch</field>
+                                            <field name="view_mode">kanban,list,form</field>
+                                            <field name="domain">[('batch_type', '=', 'medical_exam')]</field>
+                                            <field name="context">{'default_batch_type': 'medical_exam'}</field>
+                                            </record>
+
+        <menuitem id="menu_hr_epp_batch_root" name="Lotes de Entregas" parent="lavish_hr_employee.menu_hr_epp_dotacion" sequence="5"/>
+
+        <menuitem id="menu_hr_epp_batch_epp" name="Lotes EPP" action="action_hr_epp_batch_epp" parent="menu_hr_epp_batch_root" sequence="10"/>
+
+        <menuitem id="menu_hr_epp_batch_dotacion" name="Lotes Dotación" action="action_hr_epp_batch_dotacion" parent="menu_hr_epp_batch_root" sequence="20"/>
+
+        <menuitem id="menu_hr_epp_batch_medical" name="Lotes Exámenes Médicos" action="action_hr_epp_batch_medical" parent="menu_hr_epp_batch_root" sequence="30"/>
+
+</data>
+</odoo>

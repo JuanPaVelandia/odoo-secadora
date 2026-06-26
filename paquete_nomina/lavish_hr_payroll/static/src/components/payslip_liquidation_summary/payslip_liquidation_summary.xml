@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLiquidationSummary">
+        <div class="payslip-liquidation-summary">
+            <!-- Loading State -->
+            <t t-if="state.isLoading">
+                <div class="d-flex justify-content-center align-items-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <span class="ms-3 text-muted">Cargando resumen de liquidacion...</span>
+                </div>
+            </t>
+
+            <!-- Content -->
+            <t t-elif="hasLines">
+                <!-- Header con KPIs -->
+                <div class="liquidation-header mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="m-0">
+                            <i class="fa fa-file-text-o me-2"/> Resumen de Liquidacion
+                        </h5>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    t-att-class="{'active': state.viewMode === 'cards'}"
+                                    t-on-click="toggleViewMode">
+                                <i class="fa fa-th-large"/>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    t-att-class="{'active': state.viewMode === 'table'}"
+                                    t-on-click="toggleViewMode">
+                                <i class="fa fa-list"/>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-outline-secondary"
+                                    t-att-class="{'active': state.showZeroLines}"
+                                    t-on-click="toggleShowZero"
+                                    title="Mostrar lineas en cero">
+                                <i class="fa fa-eye"/>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="row g-3">
+                        <t t-foreach="kpiData" t-as="kpi" t-key="kpi.label">
+                            <div t-att-class="kpi.isMain ? 'col-md-6' : 'col-md-2'">
+                                <div class="kpi-card p-3 rounded shadow-sm"
+                                     t-att-style="'background: ' + kpi.bgColor + '; border-left: 4px solid ' + kpi.color">
+                                    <div class="d-flex align-items-center">
+                                        <div class="kpi-icon me-3" t-att-style="'color: ' + kpi.color">
+                                            <i t-att-class="'fa ' + kpi.icon + ' fa-2x'"/>
+                                        </div>
+                                        <div class="kpi-content flex-grow-1">
+                                            <div class="kpi-label text-muted small" t-esc="kpi.label"/>
+                                            <div t-att-class="kpi.isMain ? 'kpi-value h3 mb-0 fw-bold' : 'kpi-value h5 mb-0 fw-bold'"
+                                                 t-att-style="'color: ' + kpi.color"
+                                                 t-esc="formatCurrency(kpi.value)"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Vista en Cards -->
+                <t t-if="state.viewMode === 'cards'">
+                    <div class="liquidation-groups">
+                        <t t-foreach="groupEntries" t-as="entry" t-key="entry[0]">
+                            <t t-set="groupKey" t-value="entry[0]"/>
+                            <t t-set="group" t-value="entry[1]"/>
+
+                            <div class="category-group mb-3">
+                                <!-- Group Header -->
+                                <div class="category-header d-flex align-items-center justify-content-between p-2 rounded cursor-pointer"
+                                     t-att-style="'background: ' + group.gradient + '; border-left: 4px solid ' + group.borderColor"
+                                     t-on-click="() => this.toggleGroup(groupKey)">
+                                    <div class="d-flex align-items-center">
+                                        <i t-att-class="'fa ' + group.icon + ' me-2'" t-att-style="'color: ' + group.color"/>
+                                        <strong t-esc="group.name"/>
+                                        <span class="badge bg-secondary ms-2" t-esc="group.lines.length"/>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <span class="fw-bold me-3" t-att-style="'color: ' + group.color" t-esc="formatCurrency(group.subtotal)"/>
+                                        <i t-att-class="state.expandedGroups[groupKey] ? 'fa fa-chevron-up' : 'fa fa-chevron-down'"/>
+                                    </div>
+                                </div>
+
+                                <!-- Group Lines -->
+                                <t t-if="state.expandedGroups[groupKey]">
+                                    <div class="category-lines mt-2">
+                                        <t t-if="group.isTotal">
+                                            <!-- Total cards - formato grande -->
+                                            <t t-foreach="group.lines" t-as="line" t-key="line.id">
+                                                <div class="total-line-card p-3 mb-2 rounded shadow-sm text-center"
+                                                     t-att-style="'background: ' + group.gradient + '; border: 2px solid ' + group.borderColor">
+                                                    <div class="fw-bold h4 mb-0" t-att-style="'color: ' + group.color" t-esc="formatCurrency(line.total)"/>
+                                                    <div class="text-muted small" t-esc="line.name"/>
+                                                </div>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <!-- Line cards normales -->
+                                            <div class="row g-2">
+                                                <t t-foreach="group.lines" t-as="line" t-key="line.id">
+                                                    <div class="col-md-6 col-lg-4">
+                                                        <div class="line-card p-2 border rounded bg-white shadow-sm">
+                                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                                <span class="badge text-bg-secondary small" t-esc="line.code"/>
+                                                                <span class="fw-bold" t-att-style="'color: ' + group.color" t-esc="formatCurrency(line.total)"/>
+                                                            </div>
+                                                            <div class="line-name small text-truncate" t-att-title="line.name" t-esc="line.name"/>
+                                                            <t t-if="line.quantity !== 1 or line.rate !== 100">
+                                                                <div class="line-details mt-1 text-muted" style="font-size: 0.75em;">
+                                                                    <t t-if="line.quantity !== 1">
+                                                                        <span class="me-2">
+                                                                            <i class="fa fa-calculator"/> <t t-esc="formatNumber(line.quantity)"/>
+                                                                        </span>
+                                                                    </t>
+                                                                    <t t-if="line.rate !== 100">
+                                                                        <span class="me-2">
+                                                                            <i class="fa fa-percent"/> <t t-esc="formatNumber(line.rate)"/>%
+                                                                        </span>
+                                                                    </t>
+                                                                    <t t-if="line.amount">
+                                                                        <span>
+                                                                            Base: <t t-esc="formatCurrency(line.amount)"/>
+                                                                        </span>
+                                                                    </t>
+                                                                </div>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Vista en Tabla -->
+                <t t-else="">
+                    <div class="liquidation-table">
+                        <t t-foreach="groupEntries" t-as="entry" t-key="entry[0]">
+                            <t t-set="groupKey" t-value="entry[0]"/>
+                            <t t-set="group" t-value="entry[1]"/>
+
+                            <div class="table-group mb-4">
+                                <!-- Group Header -->
+                                <div class="table-group-header p-2 rounded-top d-flex align-items-center justify-content-between"
+                                     t-att-style="'background: ' + group.gradient + '; border-left: 4px solid ' + group.borderColor">
+                                    <div class="d-flex align-items-center">
+                                        <i t-att-class="'fa ' + group.icon + ' me-2'" t-att-style="'color: ' + group.color"/>
+                                        <strong t-esc="group.name"/>
+                                    </div>
+                                    <span class="fw-bold" t-att-style="'color: ' + group.color" t-esc="formatCurrency(group.subtotal)"/>
+                                </div>
+
+                                <!-- Table -->
+                                <table class="table table-sm table-striped table-hover mb-0 border">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 100px;">Codigo</th>
+                                            <th>Concepto</th>
+                                            <th class="text-end" style="width: 80px;">Cant.</th>
+                                            <th class="text-end" style="width: 80px;">Tasa %</th>
+                                            <th class="text-end" style="width: 120px;">Base</th>
+                                            <th class="text-end" style="width: 130px;">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="group.lines" t-as="line" t-key="line.id">
+                                            <tr t-att-class="group.isTotal ? 'fw-bold' : ''">
+                                                <td>
+                                                    <span class="badge text-bg-secondary" t-esc="line.code"/>
+                                                </td>
+                                                <td t-esc="line.name"/>
+                                                <td class="text-end">
+                                                    <t t-if="line.quantity !== 1" t-esc="formatNumber(line.quantity)"/>
+                                                </td>
+                                                <td class="text-end">
+                                                    <t t-if="line.rate !== 100">
+                                                        <t t-esc="formatNumber(line.rate)"/>%
+                                                    </t>
+                                                </td>
+                                                <td class="text-end" t-esc="formatCurrency(line.amount)"/>
+                                                <td class="text-end fw-bold" t-att-style="'color: ' + group.color" t-esc="formatCurrency(line.total)"/>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+
+            <!-- Empty State -->
+            <t t-else="">
+                <div class="text-center py-5 text-muted">
+                    <i class="fa fa-inbox fa-3x mb-3"/>
+                    <p>No hay lineas de nomina para mostrar.</p>
+                    <p class="small">Las lineas se mostraran una vez que se calcule la nomina.</p>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

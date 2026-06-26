@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineProvision">
+        <div class="pld-widget-section pld-provision-view pld-multipaso-view">
+            <!-- Header con tipo y base legal -->
+            <div class="pld-section-header pld-section-header-steps">
+                <div class="pld-header-left">
+                    <i t-att-class="'fa ' + props.ruleConfig.icon" t-att-style="'color: ' + props.ruleConfig.color + ';'"/>
+                    <span class="pld-header-title-dark"><t t-esc="data.tipoProvision || 'PROVISIÓN'"/></span>
+                    <span class="pld-badge pld-badge-metodo"><t t-esc="data.metodoLabel"/></span>
+                    <span t-if="data.esLiquidacion" class="pld-badge pld-badge-warning">LIQUIDACIÓN</span>
+                </div>
+                <div class="pld-header-right">
+                    <span class="pld-badge pld-badge-steps">4 pasos</span>
+                </div>
+            </div>
+
+            <div class="pld-section-content">
+                <!-- Base Legal y Explicación -->
+                <div class="pld-prov-intro">
+                    <div class="pld-prov-legal">
+                        <i class="fa fa-balance-scale"/>
+                        <a t-if="props.getLeyUrl(data.baseLegal)" t-att-href="props.getLeyUrl(data.baseLegal)" target="_blank" class="pld-legal-link" t-on-click.stop="">
+                            <t t-esc="data.baseLegal"/> <i class="fa fa-external-link"/>
+                        </a>
+                        <span t-else=""><t t-esc="data.baseLegal"/></span>
+                    </div>
+                    <t t-if="data.explicacion">
+                        <div class="pld-paso-explicacion">
+                            <i class="fa fa-info-circle"/> <t t-esc="data.explicacion"/>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Timeline Visual -->
+                <div class="pld-timeline">
+                    <div t-att-class="'pld-timeline-step ' + (isStepExpanded(1) ? 'pld-timeline-expanded' : '')"
+                         t-on-click="() => this.scrollToStep(1)">
+                        <div class="pld-timeline-number" style="background: #3B82F6;">1</div>
+                        <div class="pld-timeline-label">Base</div>
+                    </div>
+                    <div class="pld-timeline-connector"/>
+                    <div t-att-class="'pld-timeline-step ' + (isStepExpanded(2) ? 'pld-timeline-expanded' : '')"
+                         t-on-click="() => this.scrollToStep(2)">
+                        <div class="pld-timeline-number" style="background: #8B5CF6;">2</div>
+                        <div class="pld-timeline-label">Días</div>
+                    </div>
+                    <div class="pld-timeline-connector"/>
+                    <div t-att-class="'pld-timeline-step ' + (isStepExpanded(3) ? 'pld-timeline-expanded' : '')"
+                         t-on-click="() => this.scrollToStep(3)">
+                        <div class="pld-timeline-number" style="background: #F97316;">3</div>
+                        <div class="pld-timeline-label">Fórmula</div>
+                    </div>
+                    <div class="pld-timeline-connector"/>
+                    <div t-att-class="'pld-timeline-step pld-timeline-final ' + (isStepExpanded(4) ? 'pld-timeline-expanded' : '')"
+                         t-on-click="() => this.scrollToStep(4)">
+                        <div class="pld-timeline-number" style="background: #22C55E;"><i class="fa fa-check"/></div>
+                        <div class="pld-timeline-label">Resultado</div>
+                    </div>
+                </div>
+
+                <!-- Pasos Expandibles -->
+                <div class="pld-pasos-detalle">
+
+                    <!-- PASO 1: Composición de la Base -->
+                    <t t-call="lavish_hr_payroll.PayslipLineProvision.Step1"/>
+
+                    <!-- PASO 2: Días del Período -->
+                    <t t-call="lavish_hr_payroll.PayslipLineProvision.Step2"/>
+
+                    <!-- PASO 3: Fórmula de Cálculo -->
+                    <t t-call="lavish_hr_payroll.PayslipLineProvision.Step3"/>
+
+                    <!-- PASO 4: Resultado Final -->
+                    <t t-call="lavish_hr_payroll.PayslipLineProvision.Step4"/>
+                </div>
+
+                <!-- Indicadores -->
+                <t t-if="hasIndicadores">
+                    <div class="pld-prov-indicadores">
+                        <t t-foreach="data.indicadores" t-as="ind" t-key="ind_index">
+                            <div class="pld-prov-indicador" t-att-class="'pld-ind-' + ind.color">
+                                <i t-att-class="ind.icono"/><span><t t-esc="ind.texto"/></span>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Warnings -->
+                <t t-if="hasWarnings">
+                    <div class="pld-prov-warnings">
+                        <t t-foreach="data.warnings" t-as="warn" t-key="warn_index">
+                            <div class="pld-prov-warning"><i class="fa fa-exclamation-triangle"/> <t t-esc="warn"/></div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <!-- Sub-templates para cada paso -->
+
+    <!-- PASO 1: Composición de la Base -->
+    <t t-name="lavish_hr_payroll.PayslipLineProvision.Step1">
+        <div class="pld-paso-row">
+            <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleStep(1)">
+                <div class="pld-paso-left">
+                    <span class="pld-paso-number-small" style="background: #3B82F6;">1</span>
+                    <div class="pld-paso-info">
+                        <div class="pld-paso-titulo">Composición de la Base</div>
+                        <div class="pld-paso-legal-small">
+                            <i class="fa fa-money"/> Salario + Variables + Auxilio
+                        </div>
+                    </div>
+                </div>
+                <div class="pld-paso-right">
+                    <span class="pld-paso-valor"><t t-esc="props.formatCurrency(data.baseTotal)"/></span>
+                    <i t-att-class="'fa fa-chevron-' + (isStepExpanded(1) ? 'up' : 'down')"/>
+                </div>
+            </div>
+            <t t-if="isStepExpanded(1)">
+                <div class="pld-paso-detalle">
+                    <table class="pld-paso-tabla">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Concepto</th>
+                                <th class="text-center">Días</th>
+                                <th class="text-right">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="pld-badge-tipo-sm">SAL</span></td>
+                                <td>Salario Base Ajustado (componente)</td>
+                                <td class="text-center"><t t-esc="data.salarioDias || data.diasPagados || data.diasComputables || 30"/></td>
+                                <td class="text-right"><t t-esc="props.formatCurrency(data.salarioBase)"/></td>
+                            </tr>
+                            <t t-if="data.variableTotal > 0">
+                                <tr>
+                                    <td><span class="pld-badge-tipo-sm pld-tipo-var">VAR</span></td>
+                                    <td>Total Variables (novedades marcadas en base)</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-right pld-valor-suma">+ <t t-esc="props.formatCurrency(data.variableTotal)"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="data.aplicaAuxilio and data.auxilioTransporte > 0">
+                                <tr>
+                                    <td><span class="pld-badge-tipo-sm pld-tipo-aux">AUX</span></td>
+                                    <td>Auxilio de Transporte</td>
+                                    <td class="text-center"><t t-esc="data.auxilioDias || data.diasPagados || data.diasComputables || 30"/></td>
+                                    <td class="text-right pld-valor-suma">+ <t t-esc="props.formatCurrency(data.auxilioTransporte)"/></td>
+                                </tr>
+                            </t>
+                            <t t-elif="!data.aplicaAuxilio">
+                                <tr class="pld-row-disabled">
+                                    <td><span class="pld-badge-tipo-sm pld-tipo-aux-na">AUX</span></td>
+                                    <td>
+                                        <span class="text-muted">Auxilio de Transporte</span>
+                                        <span class="pld-nota-no-aplica">
+                                            <i class="fa fa-info-circle"/> No aplica
+                                            <t t-if="data.configAuxilio and data.configAuxilio.razon_no_aplica">
+                                                - <t t-esc="data.configAuxilio.razon_no_aplica"/>
+                                            </t>
+                                        </span>
+                                    </td>
+                                    <td class="text-center text-muted">-</td>
+                                    <td class="text-right text-muted">$ 0</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="pld-tabla-total">
+                                <td colspan="3"><strong>BASE TOTAL PARA PROVISIÓN</strong></td>
+                                <td class="text-right"><strong><t t-esc="props.formatCurrency(data.baseTotal)"/></strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <t t-if="data.salarioAjuste &gt; 0">
+                        <div class="pld-paso-explicacion" style="margin-top: 8px;">
+                            <i class="fa fa-info-circle"/>
+                            El período puede mostrarse en 30 días, pero el valor SAL corresponde al componente ajustado para evitar doble conteo con VAR.
+                            Referencia salarial mensual: <t t-esc="props.formatCurrency(data.salarioMensualReferencia)"/>.
+                        </div>
+                    </t>
+
+                    <!-- Detalle de conceptos variables -->
+                    <t t-if="hasConceptos">
+                        <div class="pld-subtabla-container">
+                            <div class="pld-subtabla-header">
+                                <i class="fa fa-list-ul"/> Detalle de Conceptos Variables
+                                <span class="pld-conceptos-count">(<t t-esc="data.conceptosIncluidos.length"/> conceptos)</span>
+                            </div>
+                            <table class="pld-paso-tabla pld-tabla-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Cat.</th>
+                                        <th>Código</th>
+                                        <th>Concepto</th>
+                                        <th class="text-center">Días</th>
+                                        <th class="text-right">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="data.conceptosIncluidos" t-as="concepto" t-key="concepto_index">
+                                        <tr t-att-class="concepto_index % 2 === 1 ? 'pld-row-alt' : ''">
+                                            <td><span class="pld-badge-cat-sm"><t t-esc="(concepto.categoria || 'VAR').substring(0, 3)"/></span></td>
+                                            <td class="pld-codigo"><t t-esc="concepto.codigo"/></td>
+                                            <td><t t-esc="concepto.nombre"/></td>
+                                            <td class="text-center pld-dias-formula"><t t-esc="concepto.dias_formula || '-'"/></td>
+                                            <td class="text-right"><t t-esc="props.formatCurrency(concepto.valor)"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="pld-tabla-total">
+                                        <td colspan="4"><strong>TOTAL VARIABLES</strong></td>
+                                        <td class="text-right"><strong><t t-esc="props.formatCurrency(data.variableTotal)"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <!-- PASO 2: Días del Período -->
+    <t t-name="lavish_hr_payroll.PayslipLineProvision.Step2">
+        <div class="pld-paso-row">
+            <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleStep(2)">
+                <div class="pld-paso-left">
+                    <span class="pld-paso-number-small" style="background: #8B5CF6;">2</span>
+                    <div class="pld-paso-info">
+                        <div class="pld-paso-titulo">Días del Período</div>
+                        <div class="pld-paso-legal-small">
+                            <i class="fa fa-calendar"/> Días pagados - Ausencias
+                        </div>
+                    </div>
+                </div>
+                <div class="pld-paso-right">
+                    <span class="pld-paso-valor"><t t-esc="data.diasComputables"/> días</span>
+                    <i t-att-class="'fa fa-chevron-' + (isStepExpanded(2) ? 'up' : 'down')"/>
+                </div>
+            </div>
+            <t t-if="isStepExpanded(2)">
+                <div class="pld-paso-detalle">
+                    <table class="pld-paso-tabla">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th class="text-right">Días</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="fa fa-calendar-check-o pld-icon-ok"/> Días del Período</td>
+                                <td class="text-right"><t t-esc="data.diasPeriodo || data.diasPagados"/></td>
+                            </tr>
+                            <tr>
+                                <td><i class="fa fa-check pld-icon-ok"/> Días Pagados</td>
+                                <td class="text-right"><t t-esc="data.diasPagados"/></td>
+                            </tr>
+                            <t t-if="data.diasAusenciasPagadas > 0">
+                                <tr>
+                                    <td><i class="fa fa-bed pld-icon-warn"/> Ausencias Pagadas (Incapacidad, Licencia)</td>
+                                    <td class="text-right"><t t-esc="data.diasAusenciasPagadas"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="data.diasAusenciasNoPagadas > 0">
+                                <tr class="pld-row-resta">
+                                    <td><i class="fa fa-minus-circle pld-icon-resta"/> Ausencias No Pagadas (Suspensión)</td>
+                                    <td class="text-right pld-valor-resta">- <t t-esc="data.diasAusenciasNoPagadas"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="pld-tabla-total">
+                                <td><strong>DÍAS COMPUTABLES</strong></td>
+                                <td class="text-right"><strong><t t-esc="data.diasComputables"/></strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <!-- PASO 3: Fórmula de Cálculo -->
+    <t t-name="lavish_hr_payroll.PayslipLineProvision.Step3">
+        <div class="pld-paso-row">
+            <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleStep(3)">
+                <div class="pld-paso-left">
+                    <span class="pld-paso-number-small" style="background: #F97316;">3</span>
+                    <div class="pld-paso-info">
+                        <div class="pld-paso-titulo">Fórmula de Cálculo</div>
+                        <div class="pld-paso-legal-small">
+                            <i class="fa fa-calculator"/> Base × Días ÷ <t t-esc="data.periodoBase"/> × <t t-esc="data.tasa"/>%
+                        </div>
+                    </div>
+                </div>
+                <div class="pld-paso-right">
+                    <span class="pld-paso-valor"><t t-esc="props.formatCurrency(data.provisionCalculada)"/></span>
+                    <i t-att-class="'fa fa-chevron-' + (isStepExpanded(3) ? 'up' : 'down')"/>
+                </div>
+            </div>
+            <t t-if="isStepExpanded(3)">
+                <div class="pld-paso-detalle">
+                    <div class="pld-prov-formula">
+                        <div class="pld-prov-formula-content">
+                            <span class="pld-prov-formula-item">
+                                <span class="pld-prov-formula-label">Base</span>
+                                <span class="pld-prov-formula-value"><t t-esc="props.formatCurrency(data.baseTotal)"/></span>
+                            </span>
+                            <span class="pld-prov-formula-op">×</span>
+                            <span class="pld-prov-formula-item">
+                                <span class="pld-prov-formula-label">Días</span>
+                                <span class="pld-prov-formula-value"><t t-esc="data.diasComputables"/></span>
+                            </span>
+                            <span class="pld-prov-formula-op">÷</span>
+                            <span class="pld-prov-formula-item">
+                                <span class="pld-prov-formula-label">Período</span>
+                                <span class="pld-prov-formula-value"><t t-esc="data.periodoBase"/></span>
+                            </span>
+                            <t t-if="data.tasa > 1">
+                                <span class="pld-prov-formula-op">×</span>
+                                <span class="pld-prov-formula-item">
+                                    <span class="pld-prov-formula-label">Tasa</span>
+                                    <span class="pld-prov-formula-value"><t t-esc="data.tasa"/>%</span>
+                                </span>
+                            </t>
+                            <span class="pld-prov-formula-op">=</span>
+                            <span class="pld-prov-formula-item pld-prov-formula-result">
+                                <span class="pld-prov-formula-label">Provisión</span>
+                                <span class="pld-prov-formula-value"><t t-esc="props.formatCurrency(data.provisionCalculada)"/></span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <t t-if="hasFormulaPasos">
+                        <div class="pld-subtabla-container">
+                            <div class="pld-subtabla-header">
+                                <i class="fa fa-list-ol"/> Detalle Paso a Paso
+                            </div>
+                            <table class="pld-paso-tabla pld-tabla-sm">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Operación</th>
+                                        <th class="text-right">Resultado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="data.formulaPasos" t-as="paso" t-key="paso_index">
+                                        <tr>
+                                            <td><span class="pld-paso-num-mini"><t t-esc="paso.paso"/></span></td>
+                                            <td><t t-esc="paso.concepto || paso.formula_texto"/></td>
+                                            <td class="text-right"><t t-esc="props.formatValue(paso.resultado, paso.formato || 'currency')"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <!-- PASO 4: Resultado Final -->
+    <t t-name="lavish_hr_payroll.PayslipLineProvision.Step4">
+        <div class="pld-paso-row pld-paso-final">
+            <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleStep(4)">
+                <div class="pld-paso-left">
+                    <span class="pld-paso-number-small" style="background: #22C55E;"><i class="fa fa-check"/></span>
+                        <div class="pld-paso-info">
+                            <div class="pld-paso-titulo">Resultado Final</div>
+                            <div class="pld-paso-legal-small">
+                                <i class="fa fa-check-circle"/> Cálculo del período actual
+                            </div>
+                        </div>
+                    </div>
+                <div class="pld-paso-right">
+                    <span class="pld-paso-valor pld-valor-final"><t t-esc="props.formatCurrency(data.provisionCalculada)"/></span>
+                    <i t-att-class="'fa fa-chevron-' + (isStepExpanded(4) ? 'up' : 'down')"/>
+                </div>
+            </div>
+            <t t-if="isStepExpanded(4)">
+                <div class="pld-paso-detalle">
+                    <table class="pld-paso-tabla">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th class="text-right">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="fa fa-plus pld-icon-ok"/> Provisión Calculada del Período</td>
+                                <td class="text-right"><t t-esc="props.formatCurrency(data.provisionCalculada)"/></td>
+                            </tr>
+                            <t t-if="data.provisionAcumulada > 0">
+                                <tr>
+                                    <td><i class="fa fa-calendar-check-o"/> Ya Provisionado en Vigencia/Rango</td>
+                                    <td class="text-right"><t t-esc="props.formatCurrency(data.provisionAcumulada)"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="pld-tabla-total pld-tabla-total-final">
+                                <td><strong><i class="fa fa-database"/> VALOR DEL PERÍODO</strong></td>
+                                <td class="text-right"><strong><t t-esc="props.formatCurrency(data.provisionCalculada)"/></strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    <!-- Comparativa con período anterior -->
+                    <t t-if="showComparativa">
+                        <div class="pld-subtabla-container pld-comparativa-box">
+                            <div class="pld-subtabla-header">
+                                <i class="fa fa-exchange"/> Comparativa con Período Anterior
+                            </div>
+                            <div class="pld-comparativa-grid">
+                                <div class="pld-comp-item">
+                                    <span class="pld-comp-label">Anterior</span>
+                                    <span class="pld-comp-value"><t t-esc="props.formatCurrency(data.valorAnterior)"/></span>
+                                </div>
+                                <span class="pld-comp-arrow"><i class="fa fa-arrow-right"/></span>
+                                <div class="pld-comp-item">
+                                    <span class="pld-comp-label">Actual</span>
+                                    <span class="pld-comp-value"><t t-esc="props.formatCurrency(data.provisionCalculada)"/></span>
+                                </div>
+                                <div t-att-class="'pld-comp-diff ' + (data.diferenciaPeriodoAnterior >= 0 ? 'pld-diff-positive' : 'pld-diff-negative')">
+                                    <i t-att-class="data.diferenciaPeriodoAnterior >= 0 ? 'fa fa-arrow-up' : 'fa fa-arrow-down'"/>
+                                    <t t-esc="data.diferenciaPeriodoAnterior >= 0 ? '+' : ''"/><t t-esc="props.formatCurrency(data.diferenciaPeriodoAnterior)"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+
+                    <!-- Fechas del período -->
+                    <t t-if="showFechas">
+                        <div class="pld-prov-fechas-inline">
+                            <span t-if="data.fechaInicio"><i class="fa fa-calendar"/> Desde: <strong><t t-esc="data.fechaInicio"/></strong></span>
+                            <span t-if="data.fechaCorte"><i class="fa fa-calendar-check-o"/> Hasta: <strong><t t-esc="data.fechaCorte"/></strong></span>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

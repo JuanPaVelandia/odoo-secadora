@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- =================================================================
+             PARAMETRIZACIONES COTIZANTES - PILA Colombia 2025
+             Define que aportes liquida cada combinacion tipo + subtipo
+             Resolucion 000467 de 2025
+
+             NOTA: TODA ESTA DATA YA EXISTE EN PRODUCCION - COMENTADA
+
+             Mapeo de XML IDs:
+             - Tipo 01 (Dependiente) = hr_tipo_cotizante_0111
+             - Tipo 02 (Domestico) = hr_tipo_cotizante_0115
+             - Tipo 03 (Independiente) = hr_tipo_cotizante_0116
+             - Tipo 12 (Aprendiz lectiva) = hr_tipo_cotizante_0113
+             - Tipo 19 (Aprendiz productiva) = hr_tipo_cotizante_0114
+             - Tipo 20 (Estudiante) = hr_tipo_cotizante_0121
+             - Tipo 21 (Estudiante posgrado) = hr_tipo_cotizante_0122
+             - Tipo 22 (Agremiado) = hr_tipo_cotizante_0123
+             - Tipo 51 (Tiempo parcial) = hr_tipo_cotizante_0125
+             - Tipo 31 (Cooperado) = hr_tipo_cotizante_31 (nuevo)
+
+             - Subtipo 00 = hr_subtipo_cotizante_0116
+             - Subtipo 01 = hr_subtipo_cotizante_0110
+             - Subtipo 02 = hr_subtipo_cotizante_0111
+             - Subtipo 03 = hr_subtipo_cotizante_0112
+             - Subtipo 04 = hr_subtipo_cotizante_0113
+             - Subtipo 05 = hr_subtipo_cotizante_0114
+             - Subtipo 06 = hr_subtipo_cotizante_0115
+             - Subtipo 07 = hr_subtipo_cotizante_07 (nuevo)
+             ================================================================= -->
+
+        <!-- ============================================================
+             TODA LA DATA DE PARAMETRIZACIONES YA EXISTE EN PRODUCCION
+             ============================================================ -->
+
+        <!--
+        <record model="hr.parameterization.of.contributors" id="param_01_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0111"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="True"/>
+            <field name="liquidate_employee_pension" eval="True"/>
+            <field name="liquidates_solidarity_fund" eval="True"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_01_01">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0111"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0110"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_01_03">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0111"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0112"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_01_04">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0111"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0113"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_01_05">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0111"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0114"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_01_06">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0111"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0115"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_01_07">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0111"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_07"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_02_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0115"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="True"/>
+            <field name="liquidate_employee_pension" eval="True"/>
+            <field name="liquidates_solidarity_fund" eval="True"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_02_01">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0115"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0110"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_03_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0116"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="True"/>
+            <field name="liquidate_employee_pension" eval="True"/>
+            <field name="liquidates_solidarity_fund" eval="True"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="False"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="False"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_03_02">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0116"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0111"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="False"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="False"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_12_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0113"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="False"/>
+            <field name="liquidated_eps_employee" eval="False"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="False"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="False"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_19_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0114"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="False"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="False"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="False"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_20_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0121"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="False"/>
+            <field name="liquidated_eps_employee" eval="False"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="False"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="False"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_21_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0122"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="False"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="False"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="False"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_22_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0123"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="True"/>
+            <field name="liquidate_employee_pension" eval="True"/>
+            <field name="liquidates_solidarity_fund" eval="True"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="False"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="False"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_31_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_31"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="True"/>
+            <field name="liquidate_employee_pension" eval="True"/>
+            <field name="liquidates_solidarity_fund" eval="True"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="False"/>
+            <field name="liquidated_icbf" eval="False"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_51_00">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0125"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0116"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="True"/>
+            <field name="liquidate_employee_pension" eval="True"/>
+            <field name="liquidates_solidarity_fund" eval="True"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+
+        <record model="hr.parameterization.of.contributors" id="param_51_01">
+            <field name="type_of_contributor" ref="hr_tipo_cotizante_0125"/>
+            <field name="contributor_subtype" ref="hr_subtipo_cotizante_0110"/>
+            <field name="liquidates_eps_company" eval="True"/>
+            <field name="liquidated_eps_employee" eval="True"/>
+            <field name="liquidated_company_pension" eval="False"/>
+            <field name="liquidate_employee_pension" eval="False"/>
+            <field name="liquidates_solidarity_fund" eval="False"/>
+            <field name="liquidated_arl" eval="True"/>
+            <field name="liquidated_compensation_fund" eval="True"/>
+            <field name="liquidated_sena" eval="True"/>
+            <field name="liquidated_icbf" eval="True"/>
+            <field name="liquidated_aux_transport" eval="True"/>
+        </record>
+        -->
+
+    </data>
+</odoo>

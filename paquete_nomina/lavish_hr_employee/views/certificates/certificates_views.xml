@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- CERTIFICATES VIEWS -->
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_labor_certificate_history">
+            <field name="name">hr.labor.certificate.history.tree</field>
+            <field name="model">hr.labor.certificate.history</field>
+            <field name="arch" type="xml">
+                <list decoration-info="state == 'draft'" decoration-success="state == 'generated'" decoration-primary="state == 'sent'" multi_edit="1">
+                    <header>
+                        <button name="action_generate_batch" type="object" string="Generar PDFs"/>
+                        <button name="action_print_batch" type="object" string="Imprimir"/>
+                        <button name="action_send_batch" type="object" string="Enviar por Correo"/>
+                    </header>
+                    <field name="sequence"/>
+                    <field name="employee_id"/>
+                    <field name="contract_id"/>
+                    <field name="date_generation"/>
+                    <field name="info_to"/>
+                    <field name="partner_id" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'generated'" decoration-primary="state == 'sent'"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hr_labor_certificate_history" model="ir.ui.view">
+            <field name="name">hr.labor.certificate.history.form</field>
+            <field name="model">hr.labor.certificate.history</field>
+            <field name="arch" type="xml">
+                <form string="Certificado Laboral">
+                    <header>
+                        <button name="generate_report" type="object" string="Generar PDF" class="oe_highlight" icon="fa-file-pdf-o" invisible="state != 'draft'"/>
+                        <button name="action_regenerate" type="object" string="Regenerar PDF" icon="fa-refresh" invisible="state == 'draft'" confirm="¿Está seguro de regenerar el certificado? Se perderá el PDF actual."/>
+                        <button name="action_print_pdf" type="object" string="Imprimir" icon="fa-print" invisible="not pdf"/>
+                        <button name="action_send_by_email" type="object" string="Enviar por Correo" class="oe_highlight" icon="fa-envelope" invisible="state != 'generated'"/>
+                        <button name="action_set_draft" type="object" string="Volver a Borrador" invisible="state == 'draft'" groups="hr.group_hr_manager"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,generated,sent"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_print_pdf" type="object" class="oe_stat_button" icon="fa-file-pdf-o" invisible="not pdf">
+                                <span class="o_stat_text">Ver PDF</span>
+                            </button>
+                        </div>
+
+                        <widget name="web_ribbon" title="Enviado" bg_color="bg-primary" invisible="state != 'sent'"/>
+
+                        <div class="oe_title">
+                            <h1>
+                                <field name="sequence" readonly="1"/>
+                            </h1>
+                        </div>
+
+                        <group>
+                            <group string="Información del Contrato">
+                                <field name="contract_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                                <field name="employee_id" readonly="1"/>
+                                <field name="company_id" readonly="1" groups="base.group_multi_company"/>
+                            </group>
+                            <group string="Información del Certificado">
+                                <field name="date_generation" readonly="state != 'draft'"/>
+                                <field name="info_to" readonly="state == 'sent'" placeholder="Ej: A quien interese"/>
+                                <field name="partner_id" readonly="state == 'sent'" placeholder="Seleccione un tercero (opcional)" options="{'no_create': True}"/>
+                            </group>
+                        </group>
+
+                        <group string="Archivo PDF" invisible="not pdf">
+                            <group>
+                                <field name="pdf_name" invisible="1"/>
+                                <field name="pdf" filename="pdf_name" readonly="1"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hr_labor_certificate_history_search" model="ir.ui.view">
+            <field name="name">hr.labor.certificate.history.search</field>
+            <field name="model">hr.labor.certificate.history</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Certificados">
+                    <field name="sequence"/>
+                    <field name="employee_id"/>
+                    <field name="contract_id"/>
+                    <field name="info_to"/>
+                    <field name="partner_id"/>
+                    <separator/>
+                    <filter name="filter_draft" string="Borradores" domain="[('state', '=', 'draft')]"/>
+                    <filter name="filter_generated" string="Generados" domain="[('state', '=', 'generated')]"/>
+                    <filter name="filter_sent" string="Enviados" domain="[('state', '=', 'sent')]"/>
+                    <separator/>
+                    <filter name="filter_this_month" string="Este mes" domain="[('date_generation', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                             ('date_generation', '&lt;=', (context_today() + relativedelta(day=31)).strftime('%Y-%m-%d'))]"/>
+                    <filter name="filter_this_year" string="Este año" domain="[('date_generation', '&gt;=', (context_today() - relativedelta(month=1, day=1)).strftime('%Y-%m-%d')),
+                                             ('date_generation', '&lt;=', (context_today() + relativedelta(month=12, day=31)).strftime('%Y-%m-%d'))]"/>
+                    <separator/>
+                        <filter name="group_employee" string="Empleado" context="{'group_by': 'employee_id'}"/>
+                        <filter name="group_company" string="Compañía" context="{'group_by': 'company_id'}"/>
+                        <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                        <filter name="group_date" string="Fecha de generación" context="{'group_by': 'date_generation:month'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_labor_certificate_template">
+            <field name="name">tree labor certificate template</field>
+            <field name="model">hr.labor.certificate.template</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="company_id"/>
+                    <field name="certificate_style" widget="badge" decoration-info="certificate_style == 'classic'" decoration-success="certificate_style == 'modern'" decoration-warning="certificate_style == 'formal'" decoration-danger="certificate_style == 'elegant'" decoration-primary="certificate_style == 'corporate'"/>
+                    <field name="type_header_footer"/>
+                    <field name="show_average_overtime"/>
+                    <field name="show_variable_salary"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.form_labor_certificate_template">
+            <field name="name">form labor certificate template</field>
+            <field name="model">hr.labor.certificate.template</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="company_id" required="1" placeholder="Seleccione compañía"/>
+                            </h1>
+                        </div>
+
+                        <!-- Selector de Estilo del Certificado -->
+                        <group string="Estilo Visual del Certificado">
+                            <group>
+                                <field name="certificate_style" widget="radio" options="{'horizontal': true}"/>
+                            </group>
+                            <group>
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Estilos disponibles:</strong>
+                                    <ul class="mb-0">
+                                        <li>
+                                            <strong>Clásico:</strong> Diseño tradicional con colores azul/verde</li>
+                                        <li>
+                                            <strong>Moderno:</strong> Estilo contemporáneo con gradientes púrpura</li>
+                                        <li>
+                                            <strong>Formal:</strong> Ejecutivo con tonos dorado/negro</li>
+                                        <li>
+                                            <strong>Minimalista:</strong> Diseño limpio en blanco y negro</li>
+                                        <li>
+                                            <strong>Elegante:</strong> Sofisticado con colores vinotinto</li>
+                                        <li>
+                                            <strong>Corporativo:</strong> Profesional con azul institucional</li>
+                                    </ul>
+                                </div>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <!-- Pestaña: Encabezado y Pie de Página -->
+                            <page string="Encabezado / Pie de Página" name="header_footer">
+                                <group>
+                                    <group string="Tipo de diseño">
+                                        <field name="type_header_footer" widget="radio"/>
+                                    </group>
+                                    <group>
+                                        <p class="text-muted" colspan="2" role="alert">
+                                                    Al utilizar un encabezado y pie de página personalizado,
+                                                    se deben adjuntar las imágenes correspondientes.
+                                        </p>
+                                    </group>
+                                </group>
+
+                                <group invisible="type_header_footer != 'custom'" string="Imágenes personalizadas">
+                                    <group>
+                                        <label for="img_header_file" string="Imagen de Encabezado"/>
+                                        <field name="img_header_filename" invisible="1"/>
+                                        <field name="img_header_file" filename="img_header_filename" widget="image" class="oe_avatar"/>
+                                    </group>
+                                    <group>
+                                        <label for="img_footer_file" string="Imagen de Pie de Página"/>
+                                        <field name="img_footer_filename" invisible="1"/>
+                                        <field name="img_footer_file" filename="img_footer_filename" widget="image" class="oe_avatar"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <!-- Pestaña: Bloques de Contenido -->
+                            <page string="Bloques de Contenido" name="content_blocks">
+                                <group>
+                                    <group string="Identificación del Empleado" name="block_identification">
+                                        <field name="show_gender_treatment"/>
+                                        <field name="show_identification"/>
+                                        <field name="show_document_type"/>
+                                    </group>
+                                    <group string="Información Laboral" name="block_labor">
+                                        <field name="show_contract_dates"/>
+                                        <field name="show_contract_type"/>
+                                        <field name="show_job_position"/>
+                                        <field name="show_department"/>
+                                    </group>
+                                </group>
+
+                                <group>
+                                    <group string="Información Salarial" name="block_salary">
+                                        <field name="show_base_salary"/>
+                                        <field name="show_salary_in_words"/>
+                                        <field name="salary_display_mode" invisible="not show_base_salary"/>
+                                    </group>
+                                    <group string="Promedios / Variables" name="block_averages">
+                                        <field name="show_average_overtime"/>
+                                        <field name="show_variable_salary"/>
+                                        <field name="variable_salary_mode" invisible="not show_variable_salary"/>
+                                    </group>
+                                </group>
+
+                                <group>
+                                    <group string="Párrafo de Expedición" name="block_expedition">
+                                        <field name="show_requestor"/>
+                                        <field name="show_city_date"/>
+                                    </group>
+                                    <group string="Firma" name="block_signature">
+                                        <field name="show_signature"/>
+                                        <field name="show_signature_name"/>
+                                        <field name="show_signature_position"/>
+                                    </group>
+                                </group>
+
+                                <group>
+                                    <group string="Notas y Pie" name="block_notes">
+                                        <field name="show_notes"/>
+                                        <field name="show_certificate_number"/>
+                                    </group>
+                                </group>
+
+                                <group string="Texto de Cierre Personalizado" name="custom_closing">
+                                    <field name="custom_closing_text" nolabel="1" colspan="2" placeholder="Texto adicional opcional antes de la firma..."/>
+                                </group>
+
+                                <group string="Notas del Certificado" name="notes_section" invisible="not show_notes">
+                                    <field name="notes" nolabel="1" colspan="2" placeholder="Notas que aparecerán al final del certificado..."/>
+                                </group>
+                            </page>
+
+                            <!-- Pestaña: Reglas Salariales -->
+                            <page string="Reglas Salariales" name="salary_rules">
+                                <group>
+                                    <p class="alert alert-info" colspan="2" role="alert">
+                                                Configure las reglas salariales que desea incluir en el certificado.
+                                                Puede seleccionar si tomar el valor del último mes, el promedio de los últimos 3 meses,
+                                                o el valor configurado en el contrato.
+                                    </p>
+                                </group>
+
+                                <field name="certificate_template_detail_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="rule_salary_id"/>
+                                        <field name="label_custom" optional="hide"/>
+                                        <field name="calculation_mode"/>
+                                        <field name="custom_months" optional="hide" invisible="calculation_mode != 'custom_range'"/>
+                                        <field name="date_range_start" optional="hide" invisible="calculation_mode != 'custom_range'"/>
+                                        <field name="date_range_end" optional="hide" invisible="calculation_mode != 'custom_range'"/>
+                                        <field name="payment_frequency"/>
+                                        <field name="include_in_average"/>
+                                        <field name="show_individually"/>
+                                        <!-- Campos legacy ocultos -->
+                                        <field name="last_month" column_invisible="1"/>
+                                        <field name="average_last_months" column_invisible="1"/>
+                                        <field name="value_contract" column_invisible="1"/>
+                                    </list>
+                                </field>
+
+                                <group>
+                                    <p class="text-muted" colspan="2">
+                                        <strong>Incluir en promedio:</strong> El valor de esta regla se sumará al total del salario variable.<br/>
+                                    <strong>Mostrar individualmente:</strong> Esta regla aparecerá como línea separada en el certificado.
+                                </p>
+                            </group>
+                        </page>
+
+                        <!-- Pestaña: Contenido Personalizado (Avanzado) -->
+                        <page string="Contenido Avanzado" name="advanced_content">
+                            <group string="Variables Disponibles (Placeholders)">
+                                <field name="available_placeholders" readonly="1" nolabel="1" colspan="2"/>
+                            </group>
+
+                            <group string="Campos Adicionales (Técnico)">
+                                <field name="model_fields" widget="many2many_tags" placeholder="Seleccione campos adicionales..."/>
+                                <field name="txt_model_fields" readonly="1" invisible="not model_fields"/>
+                            </group>
+
+                            <group string="Contenido HTML Personalizado">
+                                <field name="body_labor_certificate" nolabel="1" colspan="2" placeholder="HTML personalizado que se agregará al certificado..."/>
+                            </group>
+                        </page>
+                    </notebook>
+
+                    <!-- Campo oculto para compatibilidad -->
+                    <field name="show_total_rules" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_certificate_income_header_tree" model="ir.ui.view">
+        <field name="name">hr.certificate.income.header.tree</field>
+        <field name="model">hr.certificate.income.header</field>
+        <field name="arch" type="xml">
+            <list string="Hr Certificate Income Header" create="true" edit="true" delete="true">
+                <field name="display_name" optional="show"/>
+                <field name="create_date" optional="hide"/>
+                <field name="write_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_certificate_income_header_form" model="ir.ui.view">
+        <field name="name">hr.certificate.income.header.form</field>
+        <field name="model">hr.certificate.income.header</field>
+        <field name="arch" type="xml">
+            <form string="Hr Certificate Income Header">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" placeholder="Nombre"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Información General">
+                            <!-- Agregar campos específicos del modelo aquí -->
+                        </group>
+                        <group string="Información Adicional">
+                            <field name="create_uid" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                            <field name="write_uid" readonly="1"/>
+                            <field name="write_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Detalles">
+                            <group>
+                                <!-- Agregar más campos aquí -->
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_certificate_income_header_search" model="ir.ui.view">
+        <field name="name">hr.certificate.income.header.search</field>
+        <field name="model">hr.certificate.income.header</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Hr Certificate Income Header">
+                <field name="display_name"/>
+                <separator/>
+                <filter string="Creados Hoy" name="created_today" domain="[('create_date', '>=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <filter string="Modificados Hoy" name="modified_today" domain="[('write_date', '>=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                    <filter string="Usuario Creación" name="group_create_uid" context="{'group_by': 'create_uid'}"/>
+                    <filter string="Fecha Creación" name="group_create_date" context="{'group_by': 'create_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_hr_conf_certificate_income_tree" model="ir.ui.view">
+        <field name="name">hr.conf.certificate.income.tree</field>
+        <field name="model">hr.conf.certificate.income</field>
+        <field name="arch" type="xml">
+            <list string="Hr Conf Certificate Income" create="true" edit="true" delete="true">
+                <field name="display_name" optional="show"/>
+                <field name="create_date" optional="hide"/>
+                <field name="write_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_conf_certificate_income_form" model="ir.ui.view">
+        <field name="name">hr.conf.certificate.income.form</field>
+        <field name="model">hr.conf.certificate.income</field>
+        <field name="arch" type="xml">
+            <form string="Hr Conf Certificate Income">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="display_name" placeholder="Nombre"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Información General">
+                            <!-- Agregar campos específicos del modelo aquí -->
+                        </group>
+                        <group string="Información Adicional">
+                            <field name="create_uid" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                            <field name="write_uid" readonly="1"/>
+                            <field name="write_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Detalles">
+                            <group>
+                                <!-- Agregar más campos aquí -->
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_conf_certificate_income_search" model="ir.ui.view">
+        <field name="name">hr.conf.certificate.income.search</field>
+        <field name="model">hr.conf.certificate.income</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Hr Conf Certificate Income">
+                <field name="display_name"/>
+                <separator/>
+                <filter string="Creados Hoy" name="created_today" domain="[('create_date', '>=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <filter string="Modificados Hoy" name="modified_today" domain="[('write_date', '>=', (context_today()).strftime('%Y-%m-%d'))]"/>
+                <separator/>
+                    <filter string="Usuario Creación" name="group_create_uid" context="{'group_by': 'create_uid'}"/>
+                    <filter string="Fecha Creación" name="group_create_date" context="{'group_by': 'create_date:month'}"/>
+            </search>
+        </field>
+    </record>
+
+</data>
+</odoo>

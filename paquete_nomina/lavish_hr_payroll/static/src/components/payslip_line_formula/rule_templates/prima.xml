@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TEMPLATE: PRIMA DE SERVICIOS
+         Base Legal: Art. 306 C.S.T.
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <t t-name="lavish_hr_payroll.RuleTemplate.Prima">
+        <div class="prima-widget" style="font-family: Inter, Arial, sans-serif;">
+
+            <!-- HEADER -->
+            <div style="background: linear-gradient(135deg, #10B981 0%, #047857 100%); color: white; padding: 16px; border-radius: 12px 12px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fa fa-gift fa-lg" style="margin-right: 10px;"></i>
+                        <span style="font-size: 18px; font-weight: 700;">PRIMA DE SERVICIOS</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 24px; font-weight: 700;">
+                            <t t-esc="widget.formatValue(data.prima, 'currency')"/>
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.9;">Art. 306 C.S.T.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO -->
+            <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-top: none; border-radius: 0 0 12px 12px;">
+
+                <!-- PASO 1: BASE DE LIQUIDACIÓN -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #DCFCE7; padding: 10px 16px; cursor: pointer;"
+                         t-on-click="() => widget.toggleSection('base')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #22C55E; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">1</span>
+                                <span style="font-weight: 600; color: #15803D;">BASE DE LIQUIDACIÓN</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span style="font-weight: 600; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.total, 'currency')"/>
+                                </span>
+                                <i t-att-class="'fa ' + (widget.state.expandedSections.base ? 'fa-chevron-up' : 'fa-chevron-down')" style="color: #15803D;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-if="widget.state.expandedSections.base" style="padding: 12px 16px; background: #F0FDF4;">
+                        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px dashed #86EFAC;">
+                                <td style="padding: 6px 0; color: #374151;">Salario Básico</td>
+                                <td style="padding: 6px 0; text-align: right; font-family: monospace; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.salario, 'currency')"/>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px dashed #86EFAC;">
+                                <td style="padding: 6px 0; color: #374151;">
+                                    Auxilio de Transporte
+                                    <span style="font-size: 9px; color: #6B7280; display: block;">Art. 7 Ley 1/1963</span>
+                                </td>
+                                <td style="padding: 6px 0; text-align: right; font-family: monospace; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.auxilio, 'currency')"/>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px dashed #86EFAC;">
+                                <td style="padding: 6px 0; color: #374151;">Promedio Variable (Comisiones, HE, etc.)</td>
+                                <td style="padding: 6px 0; text-align: right; font-family: monospace; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.variable, 'currency')"/>
+                                </td>
+                            </tr>
+                            <tr style="background: #DCFCE7; font-weight: 600;">
+                                <td style="padding: 8px 0; color: #15803D;">BASE TOTAL</td>
+                                <td style="padding: 8px 0; text-align: right; font-family: monospace; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.total, 'currency')"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PASO 2: DÍAS CAUSADOS -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #DBEAFE; padding: 10px 16px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">2</span>
+                                <span style="font-weight: 600; color: #1D4ED8;">DÍAS CAUSADOS</span>
+                                <span style="font-size: 10px; color: #6B7280; margin-left: 8px;">Semestre trabajado</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span style="background: #3B82F6; color: white; padding: 4px 16px; border-radius: 20px; font-weight: 600; font-size: 14px;">
+                                    <t t-esc="data.dias_causados"/> días
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 3: CÁLCULO -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #FEF3C7; padding: 10px 16px; cursor: pointer;"
+                         t-on-click="() => widget.toggleSection('calculo')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #F59E0B; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">3</span>
+                                <span style="font-weight: 600; color: #B45309;">CÁLCULO</span>
+                            </div>
+                            <i t-att-class="'fa ' + (widget.state.expandedSections.calculo ? 'fa-chevron-up' : 'fa-chevron-down')" style="color: #B45309;"></i>
+                        </div>
+                    </div>
+                    <div t-if="widget.state.expandedSections.calculo" style="padding: 16px; background: #FFFBEB;">
+                        <!-- Fórmula visual -->
+                        <div style="background: white; border: 2px solid #FCD34D; border-radius: 10px; padding: 16px; text-align: center;">
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 8px;">FÓRMULA</div>
+                            <div style="font-size: 18px; font-family: monospace; color: #374151;">
+                                Prima = <span style="color: #15803D;">Base</span> × <span style="color: #3B82F6;">Días</span> ÷ <span style="color: #F59E0B;">360</span>
+                            </div>
+                            <div style="margin-top: 12px; font-size: 14px; font-family: monospace; color: #374151;">
+                                Prima = <span style="color: #15803D;"><t t-esc="widget.formatValue(data.base.total, 'currency')"/></span> ×
+                                <span style="color: #3B82F6;"><t t-esc="data.dias_causados"/></span> ÷
+                                <span style="color: #F59E0B;">360</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESULTADO -->
+                <div style="background: linear-gradient(135deg, #10B981 0%, #047857 100%); color: white; padding: 16px; border-radius: 0 0 12px 12px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa fa-check-circle fa-lg" style="margin-right: 10px;"></i>
+                            <span style="font-size: 16px; font-weight: 700;">PRIMA A PAGAR</span>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; font-family: monospace;">
+                            <t t-esc="widget.formatValue(data.prima, 'currency')"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TEMPLATE: CESANTÍAS
+         Base Legal: Art. 249 C.S.T.
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <t t-name="lavish_hr_payroll.RuleTemplate.Cesantias">
+        <div class="cesantias-widget" style="font-family: Inter, Arial, sans-serif;">
+
+            <!-- HEADER -->
+            <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 16px; border-radius: 12px 12px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fa fa-university fa-lg" style="margin-right: 10px;"></i>
+                        <span style="font-size: 18px; font-weight: 700;">CESANTÍAS</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 24px; font-weight: 700;">
+                            <t t-esc="widget.formatValue(data.cesantias, 'currency')"/>
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.9;">Art. 249 C.S.T.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO -->
+            <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-top: none; border-radius: 0 0 12px 12px;">
+
+                <!-- PASO 1: BASE -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #DCFCE7; padding: 10px 16px; cursor: pointer;"
+                         t-on-click="() => widget.toggleSection('base')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #22C55E; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">1</span>
+                                <span style="font-weight: 600; color: #15803D;">BASE DE LIQUIDACIÓN</span>
+                                <span style="font-size: 10px; color: #6B7280; margin-left: 8px;">Art. 253 C.S.T.</span>
+                            </div>
+                            <span style="font-weight: 600; color: #15803D;">
+                                <t t-esc="widget.formatValue(data.base.total, 'currency')"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div t-if="widget.state.expandedSections.base" style="padding: 12px 16px; background: #F0FDF4;">
+                        <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                            <tr style="border-bottom: 1px dashed #86EFAC;">
+                                <td style="padding: 6px 0;">Salario</td>
+                                <td style="text-align: right; font-family: monospace; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.salario, 'currency')"/>
+                                </td>
+                            </tr>
+                            <tr style="border-bottom: 1px dashed #86EFAC;">
+                                <td style="padding: 6px 0;">Auxilio de Transporte</td>
+                                <td style="text-align: right; font-family: monospace; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.auxilio, 'currency')"/>
+                                </td>
+                            </tr>
+                            <tr style="background: #DCFCE7; font-weight: 600;">
+                                <td style="padding: 8px 0; color: #15803D;">BASE TOTAL</td>
+                                <td style="text-align: right; font-family: monospace; color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.base.total, 'currency')"/>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PASO 2: DÍAS -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #DBEAFE; padding: 10px 16px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">2</span>
+                                <span style="font-weight: 600; color: #1D4ED8;">DÍAS CAUSADOS</span>
+                            </div>
+                            <span style="background: #3B82F6; color: white; padding: 4px 16px; border-radius: 20px; font-weight: 600;">
+                                <t t-esc="data.dias_causados"/> días
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FÓRMULA -->
+                <div style="padding: 16px; background: #FFFBEB; border-bottom: 1px solid #E5E7EB;">
+                    <div style="background: white; border: 2px solid #FCD34D; border-radius: 10px; padding: 12px; text-align: center;">
+                        <div style="font-size: 16px; font-family: monospace; color: #374151;">
+                            Cesantías = Base × Días ÷ 360
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESULTADO -->
+                <div style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 16px; border-radius: 0 0 12px 12px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa fa-check-circle fa-lg" style="margin-right: 10px;"></i>
+                            <span style="font-size: 16px; font-weight: 700;">CESANTÍAS</span>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; font-family: monospace;">
+                            <t t-esc="widget.formatValue(data.cesantias, 'currency')"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TEMPLATE: INTERESES SOBRE CESANTÍAS
+         Base Legal: Ley 52/1975
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <t t-name="lavish_hr_payroll.RuleTemplate.IntCesantias">
+        <div class="int-cesantias-widget" style="font-family: Inter, Arial, sans-serif;">
+
+            <!-- HEADER -->
+            <div style="background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: white; padding: 16px; border-radius: 12px 12px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fa fa-line-chart fa-lg" style="margin-right: 10px;"></i>
+                        <span style="font-size: 18px; font-weight: 700;">INTERESES SOBRE CESANTÍAS</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 24px; font-weight: 700;">
+                            <t t-esc="widget.formatValue(data.intereses, 'currency')"/>
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.9;">Ley 52/1975</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO -->
+            <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-top: none; border-radius: 0 0 12px 12px;">
+
+                <!-- CESANTÍAS ACUMULADAS -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #FEF3C7; padding: 10px 16px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #F59E0B; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">1</span>
+                                <span style="font-weight: 600; color: #B45309;">CESANTÍAS ACUMULADAS</span>
+                            </div>
+                            <span style="font-weight: 600; color: #B45309;">
+                                <t t-esc="widget.formatValue(data.cesantias_acumuladas, 'currency')"/>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DÍAS -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #DBEAFE; padding: 10px 16px;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">2</span>
+                                <span style="font-weight: 600; color: #1D4ED8;">DÍAS CAUSADOS</span>
+                            </div>
+                            <span style="background: #3B82F6; color: white; padding: 4px 16px; border-radius: 20px; font-weight: 600;">
+                                <t t-esc="data.dias_causados"/> días
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FÓRMULA -->
+                <div style="padding: 16px; background: #FFF7ED; border-bottom: 1px solid #E5E7EB;">
+                    <div style="background: white; border: 2px solid #FDBA74; border-radius: 10px; padding: 12px; text-align: center;">
+                        <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">FÓRMULA - Art. 1 Ley 52/1975</div>
+                        <div style="font-size: 16px; font-family: monospace; color: #374151;">
+                            Intereses = Cesantías × <span style="color: #F97316;">12%</span> × Días ÷ 360
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESULTADO -->
+                <div style="background: linear-gradient(135deg, #F97316 0%, #EA580C 100%); color: white; padding: 16px; border-radius: 0 0 12px 12px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa fa-check-circle fa-lg" style="margin-right: 10px;"></i>
+                            <span style="font-size: 16px; font-weight: 700;">INTERESES A PAGAR</span>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; font-family: monospace;">
+                            <t t-esc="widget.formatValue(data.intereses, 'currency')"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+
+</templates>

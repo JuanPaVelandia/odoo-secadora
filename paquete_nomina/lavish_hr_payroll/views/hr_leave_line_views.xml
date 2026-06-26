@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Lista de Líneas de Ausencia -->
+        <record id="view_hr_leave_line_list" model="ir.ui.view">
+            <field name="name">hr.leave.line.list</field>
+            <field name="model">hr.leave.line</field>
+            <field name="arch" type="xml">
+                <list string="Líneas de Ausencia"
+                      decoration-warning="is_holiday"
+                      decoration-muted="is_unused">
+                    <field name="leave_id"/>
+                    <field name="date"/>
+                    <field name="day"/>
+                    <field name="is_holiday" widget="boolean_toggle"/>
+                    <field name="holiday_name" optional="show"/>
+                    <field name="days_work"/>
+                    <field name="days_holiday"/>
+                    <field name="return_date"/>
+                    <field name="state" widget="badge"/>
+                    <field name="payslip_id"/>
+                    <field name="is_unused" column_invisible="1"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Formulario de Líneas de Ausencia -->
+        <record id="view_hr_leave_line_form" model="ir.ui.view">
+            <field name="name">hr.leave.line.form</field>
+            <field name="model">hr.leave.line</field>
+            <field name="arch" type="xml">
+                <form string="Línea de Ausencia">
+                    <header>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,validated,paid"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group string="Información General">
+                                <field name="leave_id"/>
+                                <field name="contract_id"/>
+                                <field name="payslip_id"/>
+                                <field name="date"/>
+                                <field name="day"/>
+                            </group>
+                            <group string="Clasificación">
+                                <field name="is_holiday" widget="boolean_toggle"/>
+                                <field name="holiday_name" invisible="not is_holiday"/>
+                                <field name="return_date"/>
+                                <field name="days_work"/>
+                                <field name="days_holiday"/>
+                                <field name="days_31"/>
+                                <field name="days_holiday_31"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Cálculos">
+                                <field name="days_payslip"/>
+                                <field name="hours"/>
+                                <field name="days_assigned"/>
+                                <field name="hours_assigned"/>
+                                <field name="amount" widget="monetary"/>
+                            </group>
+                            <group string="Día Virtual" invisible="not is_virtual_day">
+                                <field name="is_virtual_day"/>
+                                <field name="virtual_day_number" invisible="not is_virtual_day"/>
+                            </group>
+                        </group>
+                        <group string="No Utilizado" invisible="not is_unused">
+                            <field name="is_unused"/>
+                            <field name="unused_reason_id" invisible="not is_unused"/>
+                            <field name="unused_detail" invisible="not is_unused"/>
+                            <field name="unused_date" invisible="not is_unused"/>
+                            <field name="will_be_used_later" invisible="not is_unused"/>
+                            <field name="future_use_date" invisible="not will_be_used_later"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Vista de Búsqueda -->
+        <record id="view_hr_leave_line_search" model="ir.ui.view">
+            <field name="name">hr.leave.line.search</field>
+            <field name="model">hr.leave.line</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Líneas de Ausencia">
+                    <field name="leave_id"/>
+                    <field name="date"/>
+                    <field name="payslip_id"/>
+                    <field name="contract_id"/>
+                    <separator/>
+                    <filter string="Festivos" name="filter_holidays" domain="[('is_holiday','=',True)]"/>
+                    <filter string="Días Laborales" name="filter_workdays" domain="[('days_work','>',0)]"/>
+                    <filter string="No Utilizados" name="filter_unused" domain="[('is_unused','=',True)]"/>
+                    <filter string="Días Virtuales" name="filter_virtual" domain="[('is_virtual_day','=',True)]"/>
+                    <separator/>
+                    <filter string="Estado: Borrador" name="filter_draft" domain="[('state','=','draft')]"/>
+                    <filter string="Estado: Validado" name="filter_validated" domain="[('state','=','validated')]"/>
+                    <filter string="Estado: Pagado" name="filter_paid" domain="[('state','=','paid')]"/>
+                    <separator/>
+                    <group name="group_by">
+                        <filter string="Ausencia" name="group_leave" context="{'group_by':'leave_id'}"/>
+                        <filter string="Día de la Semana" name="group_day" context="{'group_by':'day'}"/>
+                        <filter string="Es Festivo" name="group_holiday" context="{'group_by':'is_holiday'}"/>
+                        <filter string="Nómina" name="group_payslip" context="{'group_by':'payslip_id'}"/>
+                        <filter string="Fecha" name="group_date" context="{'group_by':'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción para abrir Líneas de Ausencia -->
+        <record id="action_hr_leave_line" model="ir.actions.act_window">
+            <field name="name">Líneas de Ausencia</field>
+            <field name="res_model">hr.leave.line</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_hr_leave_line_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay líneas de ausencia registradas
+                </p>
+                <p>
+                    Las líneas de ausencia se generan automáticamente cuando se crea y valida una ausencia.
+                    Cada línea representa un día de la ausencia con su clasificación (laboral, festivo, etc.).
+                </p>
+            </field>
+        </record>
+
+        <!-- Menú (opcional, si quieres acceso directo) -->
+        <!--
+        <menuitem id="menu_hr_leave_line"
+                  name="Líneas de Ausencia"
+                  parent="hr_holidays.menu_hr_holidays_approvals"
+                  action="action_hr_leave_line"
+                  sequence="15"/>
+        -->
+    </data>
+</odoo>

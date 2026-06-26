@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Estilos CSS para la carta de retiro de cesantías -->
+    <template id="severance_letter_styles">
+        <style>
+            /* Variables por estilo */
+            .style-classic {
+                --primary-color: #2c3e50;
+                --secondary-color: #3498db;
+                --accent-color: #27ae60;
+                --text-color: #2c3e50;
+                --border-color: #3498db;
+                --bg-light: #f8f9fa;
+                --header-bg: linear-gradient(135deg, #3498db, #2c3e50);
+            }
+            .style-modern {
+                --primary-color: #6c5ce7;
+                --secondary-color: #a29bfe;
+                --accent-color: #00b894;
+                --text-color: #2d3436;
+                --border-color: #6c5ce7;
+                --bg-light: #f5f3ff;
+                --header-bg: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            }
+            .style-formal {
+                --primary-color: #1a1a2e;
+                --secondary-color: #b8860b;
+                --accent-color: #daa520;
+                --text-color: #1a1a2e;
+                --border-color: #b8860b;
+                --bg-light: #fffef5;
+                --header-bg: linear-gradient(135deg, #1a1a2e, #2d2d44);
+            }
+            .style-minimal {
+                --primary-color: #333333;
+                --secondary-color: #666666;
+                --accent-color: #999999;
+                --text-color: #333333;
+                --border-color: #cccccc;
+                --bg-light: #fafafa;
+                --header-bg: #333333;
+            }
+            .style-corporate {
+                --primary-color: #003366;
+                --secondary-color: #0066cc;
+                --accent-color: #ff6600;
+                --text-color: #003366;
+                --border-color: #0066cc;
+                --bg-light: #f0f5fa;
+                --header-bg: linear-gradient(135deg, #003366, #0066cc);
+            }
+
+            /* Contenedor principal */
+            .severance-letter {
+                font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+                color: var(--text-color);
+                line-height: 1.6;
+            }
+
+            /* Encabezado decorativo */
+            .letter-header-decoration {
+                height: 8px;
+                background: var(--header-bg);
+                border-radius: 4px 4px 0 0;
+                margin-bottom: 20px;
+            }
+
+            /* Fecha y lugar */
+            .letter-date {
+                text-align: right;
+                color: var(--secondary-color);
+                font-size: 14px;
+                margin-bottom: 30px;
+            }
+
+            /* Destinatario */
+            .letter-recipient {
+                margin-bottom: 25px;
+            }
+            .letter-recipient .label {
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+            .letter-recipient .value {
+                color: var(--text-color);
+            }
+
+            /* Referencia */
+            .letter-reference {
+                background: var(--bg-light);
+                padding: 12px 20px;
+                border-left: 4px solid var(--accent-color);
+                margin: 25px 0;
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+            /* Cuerpo de la carta */
+            .letter-body {
+                text-align: justify;
+                margin: 25px 0;
+                font-size: 14px;
+            }
+            .letter-body p {
+                margin-bottom: 15px;
+            }
+
+            /* Información destacada */
+            .info-box {
+                background: var(--bg-light);
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+                padding: 20px;
+                margin: 20px 0;
+            }
+            .info-row {
+                display: flex;
+                padding: 8px 0;
+                border-bottom: 1px dashed var(--border-color);
+            }
+            .info-row:last-child {
+                border-bottom: none;
+            }
+            .info-label {
+                font-weight: 600;
+                color: var(--primary-color);
+                width: 200px;
+                flex-shrink: 0;
+            }
+            .info-value {
+                color: var(--text-color);
+            }
+
+            /* Resaltado de texto */
+            .highlight {
+                color: var(--primary-color);
+                font-weight: 600;
+            }
+            .highlight-accent {
+                color: var(--accent-color);
+                font-weight: 600;
+            }
+
+            /* Firma */
+            .letter-signature {
+                margin-top: 50px;
+            }
+            .signature-line {
+                border-top: 2px solid var(--primary-color);
+                width: 250px;
+                margin-top: 60px;
+                padding-top: 10px;
+            }
+            .signature-name {
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+            .signature-position {
+                font-size: 12px;
+                color: var(--secondary-color);
+            }
+            .signature-image {
+                max-height: 80px;
+                max-width: 200px;
+            }
+
+            /* Pie de página decorativo */
+            .letter-footer-decoration {
+                height: 4px;
+                background: var(--header-bg);
+                border-radius: 0 0 4px 4px;
+                margin-top: 40px;
+            }
+
+            /* Estilos específicos por tema */
+
+            /* Formal - bordes dorados */
+            .style-formal .letter-reference {
+                border-left-color: var(--secondary-color);
+                background: linear-gradient(90deg, #fffef5, #fff);
+            }
+            .style-formal .info-box {
+                border: 2px solid var(--secondary-color);
+            }
+
+            /* Minimal - líneas simples */
+            .style-minimal .letter-header-decoration {
+                height: 2px;
+                background: var(--primary-color);
+            }
+            .style-minimal .letter-footer-decoration {
+                height: 2px;
+            }
+            .style-minimal .letter-reference {
+                background: none;
+                border-left: 2px solid var(--primary-color);
+            }
+            .style-minimal .info-box {
+                border: 1px solid #e0e0e0;
+                border-radius: 0;
+            }
+
+            /* Corporate - profesional */
+            .style-corporate .letter-reference {
+                border-left-color: var(--accent-color);
+            }
+        </style>
+    </template>
+
+    <template id="report_retirement_severance_pay_document">
+        <t t-call="web.html_container">
+            <t t-foreach="inside_foreach_docs or docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-set="company" t-value="o.contract_id.employee_id.company_id"/>
+                    <t t-set="style_class" t-value="'style-' + (o.document_style or 'classic')"/>
+
+                    <!-- Incluir estilos -->
+                    <t t-call="lavish_hr_employee.severance_letter_styles"/>
+
+                    <div t-attf-class="severance-letter #{style_class}">
+                        <!-- Decoración superior -->
+                        <div class="letter-header-decoration"/>
+
+                        <!-- RETIRO POR TERMINACIÓN -->
+                        <t t-if="o.withdrawal_type == 'termination'">
+                            <!-- Fecha -->
+                            <div class="letter-date">
+                                <span t-out="company.partner_id.city_id.name"/>,
+                                <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d de %B del %Y')"/>
+                            </div>
+
+                            <!-- Destinatario -->
+                            <div class="letter-recipient">
+                                <p class="label">Señores</p>
+                                <p class="value"><strong t-field="o.directed_to"/></p>
+                                <p class="value" t-field="o.directed_to.partner_id.city_id"/>
+                            </div>
+
+                            <!-- Referencia -->
+                            <div class="letter-reference">
+                                Ref. Autorización de retiro de cesantías por terminación de contrato
+                            </div>
+
+                            <!-- Cuerpo -->
+                            <div class="letter-body">
+                                <p>
+                                    Por medio de la presente, la compañía
+                                    <span class="highlight" t-field="o.contract_id.employee_id.company_id.partner_id.name"/>
+                                    identificada con NIT:
+                                    <span class="highlight" t-field="o.contract_id.employee_id.company_id.partner_id.vat"/>,
+                                    comunica que el(la) señor(a)
+                                    <span class="highlight" t-field="o.contract_id.employee_id.name"/>,
+                                    identificado(a) con
+                                    <span t-field="o.contract_id.employee_id.work_contact_id.l10n_latam_identification_type_id.dian_code"/> N°
+                                    <span class="highlight" t-out="str('{:20,.0f}'.format(int(o.contract_id.employee_id.identification_id))).replace(',','.')"/>,
+                                    estuvo vinculado(a) como
+                                    <span class="highlight" t-field="o.contract_id.job_id.name"/>,
+                                    hasta el día
+                                    <span class="highlight-accent" t-field="o.contract_id.retirement_date"/>.
+                                </p>
+                                <p>
+                                    Lo anterior se informa con el fin de hacer entrega del total de las cesantías
+                                    consignadas al fondo, por concepto de:
+                                    <span class="highlight-accent" t-field="o.withdrawal_concept_total"/>.
+                                </p>
+                            </div>
+
+                            <!-- Firma -->
+                            <div class="letter-signature">
+                                <p>Cordialmente,</p>
+                                <t t-set="autorizado" t-value="o.contract_id.get_signature_certification()"/>
+                                <t t-if="autorizado.get('firma')">
+                                    <img class="signature-image" t-att-src="image_data_uri(autorizado.get('firma'))"/>
+                                </t>
+                                <div class="signature-line">
+                                    <t t-if="autorizado.get('nombre')">
+                                        <p class="signature-name" t-out="autorizado.get('nombre')"/>
+                                    </t>
+                                    <t t-if="autorizado.get('cargo')">
+                                        <p class="signature-position" t-out="autorizado.get('cargo')"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- RETIRO PARCIAL -->
+                        <t t-else="">
+                            <!-- Fecha -->
+                            <div class="letter-date">
+                                <span t-out="company.partner_id.city_id.name"/>,
+                                <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d de %B del %Y')"/>
+                            </div>
+
+                            <!-- Destinatario -->
+                            <div class="letter-recipient">
+                                <p class="label">Señores</p>
+                                <p class="value"><strong t-field="o.directed_to"/></p>
+                                <p class="value" t-field="o.directed_to.partner_id.city_id"/>
+                            </div>
+
+                            <!-- Referencia -->
+                            <div class="letter-reference">
+                                Ref. Autorización para retiro parcial de cesantías
+                            </div>
+
+                            <!-- Cuerpo -->
+                            <div class="letter-body">
+                                <p>
+                                    Según lo dispuesto en el artículo 21 de la ley 1429 de 2010 (que modificó el
+                                    Art. 256 del código sustantivo del trabajo) y la aclaración contenida en la
+                                    carta circular 011 del 07 de febrero de 2011 del Ministerio de Protección Social,
+                                    nos permitimos informarles que hemos autorizado el retiro de las cesantías por
+                                    <span class="highlight-accent" t-field="o.withdrawal_concept_partial"/>,
+                                    del funcionario señalado más adelante, en las siguientes condiciones:
+                                </p>
+                            </div>
+
+                            <!-- Información del empleado -->
+                            <div class="info-box">
+                                <div class="info-row">
+                                    <span class="info-label">NOMBRE DEL FUNCIONARIO:</span>
+                                    <span class="info-value" t-field="o.contract_id.employee_id.name"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">IDENTIFICACIÓN:</span>
+                                    <span class="info-value" t-out="str('{:20,.0f}'.format(int(o.contract_id.employee_id.identification_id))).replace(',','.')"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">VALOR DEL RETIRO:</span>
+                                    <span class="info-value" t-field="o.withdrawal_value" t-options="{'widget': 'monetary', 'precision': 0, 'display_currency': o.contract_id.company_id.currency_id}"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">CONCEPTO DEL RETIRO:</span>
+                                    <span class="info-value" t-field="o.withdrawal_concept_partial"/>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">PARA SER GIRADO A:</span>
+                                    <span class="info-value" t-field="o.contract_id.employee_id.name"/>
+                                </div>
+                            </div>
+
+                            <!-- Firma -->
+                            <div class="letter-signature">
+                                <p>Cordialmente,</p>
+                                <t t-set="autorizado" t-value="o.contract_id.get_signature_certification()"/>
+                                <t t-if="autorizado.get('firma')">
+                                    <img class="signature-image" t-att-src="image_data_uri(autorizado.get('firma'))"/>
+                                </t>
+                                <div class="signature-line">
+                                    <t t-if="autorizado.get('nombre')">
+                                        <p class="signature-name" t-out="autorizado.get('nombre')"/>
+                                    </t>
+                                    <t t-if="autorizado.get('cargo')">
+                                        <p class="signature-position" t-out="autorizado.get('cargo')"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Decoración inferior -->
+                        <div class="letter-footer-decoration"/>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_retirement_severance_pay">
+        <t t-foreach="docs" t-as="o">
+            <t t-set="inside_foreach_docs" t-value="o"/>
+            <t t-call="lavish_hr_employee.report_retirement_severance_pay_document"/>
+        </t>
+    </template>
+</odoo>

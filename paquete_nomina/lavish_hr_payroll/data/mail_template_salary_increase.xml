@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<record id="mail_template_salary_increase" model="mail.template">
+        <field name="name">Aumento Salarial: Notificacion al Empleado</field>
+        <field name="model_id" ref="lavish_hr_payroll.model_hr_salary_increase_line"/>
+        <field name="email_from">{{ (object.increase_id.company_id.email or user.email_formatted) }}</field>
+        <field name="email_to">{{ object.employee_id.work_email }}</field>
+        <field name="subject">Notificacion de Aumento Salarial - {{ object.increase_id.company_id.name }}</field>
+        <field name="body_html">
+<![CDATA[
+<div style="margin: 0px; padding: 0px; font-family: Arial, Helvetica, sans-serif;">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f5f5f5; padding: 20px;">
+        <tr>
+            <td align="center">
+                <table border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 8px 8px 0 0;">
+                            <h1 style="color: #ffffff; margin: 0; font-size: 24px; text-align: center;">
+                                <span style="font-size: 32px;">&#128200;</span> Aumento Salarial
+                            </h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 30px;">
+                            <p style="font-size: 16px; color: #333333; margin-bottom: 20px;">
+                                Estimado/a <strong>{{ object.employee_id.name }}</strong>,
+                            </p>
+
+                            <p style="font-size: 14px; color: #666666; line-height: 1.6;">
+                                Nos complace informarle que, a partir del
+                                <strong>{{ format_date(object.increase_id.effective_date, date_format='d MMMM yyyy', lang_code=object.employee_id.lang or 'es_CO') }}</strong>,
+                                su salario ha sido ajustado de acuerdo con las politicas de la empresa.
+                            </p>
+
+                            <!-- Salary Comparison Box -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 25px 0; background-color: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                                <tr>
+                                    <td style="padding: 20px; text-align: center; border-right: 1px solid #e9ecef;">
+                                        <p style="color: #6c757d; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Salario Anterior</p>
+                                        <p style="color: #495057; font-size: 22px; font-weight: bold; margin: 0;">
+                                            $ {{ '{:,.0f}'.format(object.current_wage) }}
+                                        </p>
+                                    </td>
+                                    <td style="padding: 20px; text-align: center; background-color: #e8f5e9;">
+                                        <p style="color: #2e7d32; font-size: 12px; margin: 0 0 5px 0; text-transform: uppercase;">Nuevo Salario</p>
+                                        <p style="color: #1b5e20; font-size: 26px; font-weight: bold; margin: 0;">
+                                            $ {{ '{:,.0f}'.format(object.new_wage) }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Increase Details -->
+                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 20px 0;">
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <span style="display: inline-block; background-color: #28a745; color: #ffffff; padding: 10px 25px; border-radius: 25px; font-size: 16px; font-weight: bold;">
+                                            +$ {{ '{:,.0f}'.format(object.increase_amount) }}
+                                            <span style="font-size: 12px; opacity: 0.8;">({{ '{:.1f}'.format(object.increase_pct) }}%)</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="font-size: 14px; color: #666666; line-height: 1.6; margin-top: 25px;">
+                                Este ajuste refleja nuestro compromiso con su crecimiento profesional y el reconocimiento
+                                a su valiosa contribucion a la empresa.
+                            </p>
+
+                            <p style="font-size: 14px; color: #666666; line-height: 1.6;">
+                                Si tiene alguna pregunta sobre este cambio, no dude en contactar al departamento de
+                                Recursos Humanos.
+                            </p>
+
+                            <p style="font-size: 14px; color: #333333; margin-top: 25px;">
+                                Atentamente,<br/>
+                                <strong>{{ object.increase_id.company_id.name }}</strong><br/>
+                                <span style="color: #666666;">Departamento de Recursos Humanos</span>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8f9fa; padding: 20px; border-radius: 0 0 8px 8px; text-align: center;">
+                            <p style="color: #6c757d; font-size: 12px; margin: 0;">
+                                Este es un mensaje automatico generado por el sistema de nomina.
+                            </p>
+                            <p style="color: #6c757d; font-size: 11px; margin: 10px 0 0 0;">
+                                {{ object.increase_id.company_id.name }} -
+                                {{ object.increase_id.company_id.street or '' }}
+                                {{ object.increase_id.company_id.city or '' }}
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+]]>
+        </field>
+        <field name="lang">{{ object.employee_id.lang or 'es_CO' }}</field>
+        <field name="auto_delete">False</field>
+</record>
+
+</odoo>

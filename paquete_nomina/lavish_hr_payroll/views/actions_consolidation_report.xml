@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Form del Wizard -->
+        <record id="view_hr_consolidation_report_wizard_form" model="ir.ui.view">
+            <field name="name">hr.consolidation.report.wizard.form</field>
+            <field name="model">hr.consolidation.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Reporte de Consolidación Anual">
+                    <group>
+                        <group string="Parámetros del Reporte">
+                            <field name="year"/>
+                            <field name="company_id"/>
+                        </group>
+                        <group string="Filtros (opcional)">
+                            <field name="department_ids" widget="many2many_tags"/>
+                            <field name="employee_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group string="Conceptos a Incluir">
+                        <group>
+                            <field name="include_vacaciones"/>
+                            <field name="include_cesantias"/>
+                            <field name="include_intereses"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_generate_report"
+                                string="Generar Excel"
+                                type="object"
+                                class="btn-primary"
+                                icon="fa-file-excel-o"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción del Wizard -->
+        <record id="action_hr_consolidation_report_wizard" model="ir.actions.act_window">
+            <field name="name">Reporte Consolidación Excel</field>
+            <field name="res_model">hr.consolidation.report.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_hr_consolidation_report_wizard_form"/>
+        </record>
+
+        <!-- Menú del Reporte -->
+        <menuitem name="Reporte Consolidación Excel"
+                  id="menu_hr_consolidation_report"
+                  parent="hr_payroll.menu_hr_payroll_report"
+                  action="action_hr_consolidation_report_wizard"
+                  sequence="30"/>
+
+    </data>
+</odoo>

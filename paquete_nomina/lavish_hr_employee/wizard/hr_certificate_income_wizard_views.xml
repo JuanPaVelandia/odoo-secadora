@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Form del Wizard -->
+    <record id="view_hr_certificate_income_wizard_form" model="ir.ui.view">
+        <field name="name">hr.certificate.income.wizard.form</field>
+        <field name="model">hr.certificate.income.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generar Certificados de Ingresos y Retenciones">
+                <header>
+                    <button name="action_generate_certificates"
+                            type="object"
+                            string="Generar Certificados"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            confirm="¿Está seguro de generar los certificados?"/>
+                    <button name="action_view_certificates"
+                            type="object"
+                            string="Ver Certificados Generados"
+                            class="btn-primary"
+                            invisible="state != 'done'"/>
+                    <button name="action_reset"
+                            type="object"
+                            string="Reiniciar"
+                            class="btn-secondary"
+                            invisible="state == 'draft'"/>
+                    <button string="Cancelar"
+                            class="btn-secondary"
+                            special="cancel"
+                            invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,processing,done"/>
+                </header>
+                <sheet>
+                    <!-- Alerta de Error -->
+                    <div class="alert alert-danger" role="alert" invisible="not error_message">
+                        <i class="fa fa-exclamation-triangle" title="Advertencia"></i>
+                        <strong>Error:</strong>
+                        <field name="error_message"/>
+                    </div>
+
+                    <!-- Mensaje de Éxito -->
+                    <div class="alert alert-success" role="alert" invisible="state != 'done'">
+                        <i class="fa fa-check-circle" title="Confirmado"></i>
+                        <strong>¡Éxito!</strong>
+                        Se generaron <field name="certificate_count"/> certificados correctamente.
+                    </div>
+
+                    <!-- Estado de Configuración -->
+                    <group invisible="state != 'draft'">
+                        <field name="config_status" nolabel="1" colspan="2" widget="html"/>
+                    </group>
+
+                    <notebook invisible="state != 'draft'">
+                        <page string="Configuración General" name="general">
+                            <group>
+                                <group string="Configuración Base">
+                                    <field name="header_id"
+                                           options="{'no_create': True, 'no_open': True}"
+                                           required="1"/>
+                                    <field name="company_id" readonly="1"/>
+                                    <field name="year" readonly="1"/>
+                                </group>
+                                <group string="Periodo de Certificación">
+                                    <field name="date_from" required="1"/>
+                                    <field name="date_to" required="1"/>
+                                    <field name="period_year" readonly="1"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group string="Opciones">
+                                    <field name="auto_compute" widget="boolean_toggle"/>
+                                    <field name="include_inactive" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Selección de Empleados" name="employees">
+                            <group>
+                                <group>
+                                    <field name="all_employees" widget="boolean_toggle"/>
+                                </group>
+                            </group>
+
+                            <group invisible="all_employees">
+                                <group string="Filtros">
+                                    <field name="department_ids"
+                                           widget="many2many_tags"
+                                           domain="[('company_id', '=', company_id)]"
+                                           options="{'no_create': True}"/>
+                                    <field name="job_ids"
+                                           widget="many2many_tags"
+                                           domain="[('company_id', '=', company_id)]"
+                                           options="{'no_create': True}"/>
+                                </group>
+                            </group>
+
+                            <group invisible="all_employees">
+                                <field name="employee_ids"
+                                       widget="many2many"
+                                       domain="[('company_id', '=', company_id)]"
+                                       options="{'no_create': True}"
+                                       nolabel="1">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="identification_id"/>
+                                        <field name="department_id"/>
+                                        <field name="job_id"/>
+                                    </list>
+                                </field>
+                            </group>
+                        </page>
+
+                        <!-- Vista Previa -->
+                        <page string="Vista Previa" name="preview">
+                            <group>
+                                <field name="preview_html" nolabel="1" colspan="2" widget="html"/>
+                            </group>
+                        </page>
+
+                        <page string="Resumen" name="summary">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card border-primary mb-3">
+                                        <div class="card-header bg-primary text-white">
+                                            <i class="fa fa-calendar" title="Calendario"></i> Información del Periodo
+                                        </div>
+                                        <div class="card-body">
+                                            <table class="table table-sm table-borderless">
+                                                <tr>
+                                                    <td><strong>Año:</strong></td>
+                                                    <td><field name="year" readonly="1" nolabel="1"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Periodo:</strong></td>
+                                                    <td>
+                                                        <field name="date_from" readonly="1" nolabel="1"/> -
+                                                        <field name="date_to" readonly="1" nolabel="1"/>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>Año del Periodo:</strong></td>
+                                                    <td><field name="period_year" readonly="1" nolabel="1"/></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="card border-success mb-3">
+                                        <div class="card-header bg-success text-white">
+                                            <i class="fa fa-users" title="Usuarios"></i> Empleados Seleccionados
+                                        </div>
+                                        <div class="card-body">
+                                            <div invisible="not all_employees">
+                                                <p class="text-center mb-0">
+                                                    <i class="fa fa-check-circle text-success" style="font-size: 2rem;" title="Confirmado"></i>
+                                                    <br/>
+                                                    <strong>Todos los Empleados</strong>
+                                                    <br/>
+                                                    <span class="text-muted">De la compañía seleccionada</span>
+                                                </p>
+                                            </div>
+                                            <div invisible="all_employees">
+                                                <p class="text-center mb-0" style="font-size: 2rem;">
+                                                    <field name="employee_ids" nolabel="1" widget="statinfo"/>
+                                                    <br/>
+                                                    <span class="text-muted" style="font-size: 0.875rem;">Empleados</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info" role="alert">
+                                <i class="fa fa-info-circle" title="Información"></i>
+                                <strong>Información:</strong>
+                                <ul class="mb-0">
+                                    <li invisible="not auto_compute">Se calcularán automáticamente los valores desde las nóminas procesadas</li>
+                                    <li invisible="auto_compute">Deberá completar manualmente los valores del certificado</li>
+                                    <li invisible="not include_inactive">Se incluirán empleados inactivos durante el periodo</li>
+                                    <li invisible="include_inactive">Solo se incluirán empleados activos</li>
+                                </ul>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer invisible="state != 'draft'">
+                    <button name="action_generate_certificates"
+                            type="object"
+                            string="Generar Certificados"
+                            class="btn-primary"
+                            confirm="¿Está seguro de generar los certificados para los empleados seleccionados?"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del Wizard -->
+    <record id="action_hr_certificate_income_wizard" model="ir.actions.act_window">
+        <field name="name">Generar Certificados</field>
+        <field name="res_model">hr.certificate.income.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_hr_certificate_income_header"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <!-- Menú para Generar Certificados -->
+    <menuitem id="menu_hr_certificate_income_generate"
+              name="Generar Certificados"
+              parent="lavish_hr_employee.menu_hr_certificate_income_root"
+              action="action_hr_certificate_income_wizard"
+              sequence="20"/>
+
+</odoo>

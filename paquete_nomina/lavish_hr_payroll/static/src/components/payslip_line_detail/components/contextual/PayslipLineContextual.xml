@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineContextual">
+        <div t-if="props.contextualInfo" class="pld-widget-section pld-contextual-view">
+            <div class="pld-section-content">
+                <!-- Header según tipo de relación -->
+                <div t-if="hasRelation" class="pld-ctx-header">
+                    <!-- PRESTAMO -->
+                    <t t-if="relationType === 'loan'">
+                        <div class="pld-ctx-tipo pld-ctx-loan">
+                            <i class="fa fa-credit-card"/>
+                            <span class="pld-ctx-label">PRÉSTAMO</span>
+                            <span class="pld-ctx-name"><t t-esc="relationData.name"/></span>
+                            <span t-if="relationData.loan_type_label" class="pld-ctx-badge">
+                                <t t-esc="relationData.loan_type_label"/>
+                            </span>
+                        </div>
+                    </t>
+                    <!-- NOVEDAD DE CONTRATO -->
+                    <t t-if="relationType === 'concept'">
+                        <div class="pld-ctx-tipo pld-ctx-concept">
+                            <i class="fa fa-file-text-o"/>
+                            <span class="pld-ctx-label">NOVEDAD</span>
+                            <span class="pld-ctx-name"><t t-esc="relationData.name"/></span>
+                            <span t-if="relationData.type_deduction_label" class="pld-ctx-badge pld-ctx-badge-type">
+                                <t t-esc="relationData.type_deduction_label"/>
+                            </span>
+                        </div>
+                    </t>
+                    <!-- AUSENCIA -->
+                    <t t-if="relationType === 'leave'">
+                        <div class="pld-ctx-tipo pld-ctx-leave">
+                            <i class="fa fa-medkit"/>
+                            <span class="pld-ctx-label">AUSENCIA</span>
+                            <span class="pld-ctx-name"><t t-esc="relationData.name"/></span>
+                            <span t-if="relationData.leave_type" class="pld-ctx-badge pld-ctx-badge-danger">
+                                <t t-esc="relationData.leave_type"/>
+                            </span>
+                        </div>
+                    </t>
+                    <!-- VACACIONES -->
+                    <t t-if="relationType === 'vacation'">
+                        <div class="pld-ctx-tipo pld-ctx-vacation">
+                            <i class="fa fa-sun-o"/>
+                            <span class="pld-ctx-label">VACACIONES</span>
+                            <span class="pld-ctx-name"><t t-esc="relationData.name"/></span>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Badges de Base (IBC, SS, Prima, Cesantias) -->
+                <t t-if="badges.length > 0">
+                    <div class="pld-ctx-badges">
+                        <t t-foreach="badges" t-as="badge" t-key="badge_index">
+                            <span t-att-class="'pld-ctx-base-badge pld-ctx-base-badge-' + (badge.color || 'primary')"
+                                  t-att-title="badge.tooltip">
+                                <i t-att-class="'fa ' + badge.icon"/>
+                                <t t-esc="badge.label"/>
+                            </span>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- KPIs Contextuales -->
+                <div t-if="kpis.length > 0" class="pld-ctx-kpis">
+                    <t t-foreach="kpis" t-as="kpi" t-key="kpi_index">
+                        <div t-att-class="'pld-ctx-kpi pld-ctx-kpi-' + (kpi.color || 'primary')">
+                            <i t-att-class="'fa ' + kpi.icon"/>
+                            <div class="pld-ctx-kpi-content">
+                                <span class="pld-ctx-kpi-label"><t t-esc="kpi.label"/></span>
+                                <span class="pld-ctx-kpi-value">
+                                    <t t-esc="formatValue(kpi.value, kpi.format)"/>
+                                </span>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Barra de progreso para préstamos -->
+                <t t-if="progress">
+                    <div class="pld-ctx-progress">
+                        <div class="pld-ctx-progress-bar">
+                            <div class="pld-ctx-progress-fill" t-att-style="'width: ' + progress.value + '%;'"/>
+                        </div>
+                        <span class="pld-ctx-progress-label"><t t-esc="progress.label"/></span>
+                    </div>
+                </t>
+
+                <!-- Acciones especiales (pago doble, saltos) -->
+                <t t-if="acciones.length > 0">
+                    <div class="pld-ctx-acciones">
+                        <t t-foreach="acciones" t-as="accion" t-key="accion_index">
+                            <div t-att-class="'pld-ctx-accion pld-ctx-accion-' + (accion.color || 'warning')">
+                                <i t-att-class="'fa ' + accion.icon"/>
+                                <span class="pld-ctx-accion-label"><t t-esc="accion.label"/></span>
+                                <span t-if="accion.descripcion" class="pld-ctx-accion-desc">
+                                    <t t-esc="accion.descripcion"/>
+                                </span>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Notas -->
+                <t t-if="notas.length > 0">
+                    <div class="pld-ctx-notas">
+                        <t t-foreach="notas" t-as="nota" t-key="nota_index">
+                            <div t-att-class="'pld-ctx-nota pld-ctx-nota-' + (nota.color || 'muted')">
+                                <i t-att-class="'fa ' + nota.icon"/>
+                                <span><t t-esc="nota.texto"/></span>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

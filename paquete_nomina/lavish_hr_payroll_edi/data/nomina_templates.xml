@@ -1,0 +1,673 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+
+    <!-- ================================================================== -->
+    <!-- TEMPLATE PRINCIPAL: NominaIndividual                               -->
+    <!-- Namespace: dian:gov:co:facturaelectronica:NominaIndividual          -->
+    <!-- ================================================================== -->
+    <template id="nomina_individual">
+        <NominaIndividual xmlns="dian:gov:co:facturaelectronica:NominaIndividual"
+                          xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+                          xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                          xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+                          xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"
+                          xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#"
+                          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                          SchemaLocation=""
+                          xsi:schemaLocation="dian:gov:co:facturaelectronica:NominaIndividual NominaIndividualElectronicaXSD.xsd">
+
+            <!-- Firma digital (placeholder, se inyecta después) -->
+            <ext:UBLExtensions>
+                <ext:UBLExtension>
+                    <ext:ExtensionContent/>
+                </ext:UBLExtension>
+            </ext:UBLExtensions>
+
+            <!-- Novedad (opcional) -->
+            <t t-if="Novedad">
+                <Novedad t-att-CUNENov="Novedad.get('CUNENov', '')" t-out="Novedad.get('valor', 'false')"/>
+            </t>
+            <t t-else="">
+                <Novedad CUNENov="A">false</Novedad>
+            </t>
+
+            <!-- Componentes reutilizables -->
+            <t t-call="lavish_hr_payroll_edi.nomina_periodo"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_secuencia_xml"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_lugar_generacion"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_proveedor_xml"/>
+
+            <CodigoQR t-out="CodigoQR"/>
+
+            <t t-call="lavish_hr_payroll_edi.nomina_informacion_general"/>
+
+            <!-- Notas (0..N) -->
+            <t t-if="Notas">
+                <Notas t-out="Notas"/>
+            </t>
+
+            <t t-call="lavish_hr_payroll_edi.nomina_empleador"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_trabajador"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_pago"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_fechas_pagos"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_devengados"/>
+            <t t-call="lavish_hr_payroll_edi.nomina_deducciones"/>
+
+            <!-- Redondeo (opcional) -->
+            <t t-if="Redondeo">
+                <Redondeo t-out="'%.2f' % Redondeo"/>
+            </t>
+
+            <!-- Totales (obligatorios) -->
+            <DevengadosTotal t-out="'%.2f' % DevengadosTotal"/>
+            <DeduccionesTotal t-out="'%.2f' % DeduccionesTotal"/>
+            <ComprobanteTotal t-out="'%.2f' % ComprobanteTotal"/>
+
+        </NominaIndividual>
+    </template>
+
+    <!-- ================================================================== -->
+    <!-- TEMPLATE PRINCIPAL: NominaIndividualDeAjuste                       -->
+    <!-- Namespace: dian:gov:co:facturaelectronica:NominaIndividualDeAjuste  -->
+    <!-- ================================================================== -->
+    <template id="nomina_individual_ajuste">
+        <NominaIndividualDeAjuste xmlns="dian:gov:co:facturaelectronica:NominaIndividualDeAjuste"
+                                  xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+                                  xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                                  xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+                                  xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"
+                                  xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#"
+                                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                                  SchemaLocation=""
+                                  xsi:schemaLocation="dian:gov:co:facturaelectronica:NominaIndividualDeAjuste NominaIndividualDeAjusteElectronicaXSD.xsd">
+
+            <ext:UBLExtensions>
+                <ext:UBLExtension>
+                    <ext:ExtensionContent/>
+                </ext:UBLExtension>
+            </ext:UBLExtensions>
+
+            <!-- TipoNota: 1=Reemplazar, 2=Eliminar (obligatorio) -->
+            <TipoNota t-out="TipoNota"/>
+
+            <!-- ======== REEMPLAZAR (TipoNota=1) ======== -->
+            <t t-if="str(TipoNota) == '1'">
+                <Reemplazar>
+                    <ReemplazandoPredecesor t-att-NumeroPred="Predecesor.get('NumeroPred')"
+                                            t-att-CUNEPred="Predecesor.get('CUNEPred')"
+                                            t-att-FechaGenPred="Predecesor.get('FechaGenPred')"/>
+
+                    <!-- Reutiliza TODOS los componentes (misma estructura que NominaIndividual) -->
+                    <t t-call="lavish_hr_payroll_edi.nomina_periodo"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_secuencia_xml"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_lugar_generacion"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_proveedor_xml"/>
+
+                    <CodigoQR t-out="CodigoQR"/>
+
+                    <t t-call="lavish_hr_payroll_edi.nomina_informacion_general"/>
+
+                    <t t-if="Notas">
+                        <Notas t-out="Notas"/>
+                    </t>
+
+                    <t t-call="lavish_hr_payroll_edi.nomina_empleador"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_trabajador"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_pago"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_fechas_pagos"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_devengados"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_deducciones"/>
+
+                    <t t-if="Redondeo">
+                        <Redondeo t-out="'%.2f' % Redondeo"/>
+                    </t>
+
+                    <DevengadosTotal t-out="'%.2f' % DevengadosTotal"/>
+                    <DeduccionesTotal t-out="'%.2f' % DeduccionesTotal"/>
+                    <ComprobanteTotal t-out="'%.2f' % ComprobanteTotal"/>
+                </Reemplazar>
+            </t>
+
+            <!-- ======== ELIMINAR (TipoNota=2) ======== -->
+            <t t-if="str(TipoNota) == '2'">
+                <Eliminar>
+                    <EliminandoPredecesor t-att-NumeroPred="Predecesor.get('NumeroPred')"
+                                          t-att-CUNEPred="Predecesor.get('CUNEPred')"
+                                          t-att-FechaGenPred="Predecesor.get('FechaGenPred')"/>
+
+                    <t t-call="lavish_hr_payroll_edi.nomina_secuencia_xml"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_lugar_generacion"/>
+                    <t t-call="lavish_hr_payroll_edi.nomina_proveedor_xml"/>
+
+                    <CodigoQR t-out="CodigoQR"/>
+
+                    <!-- InformacionGeneral para Eliminar: SIN PeriodoNomina, TipoMoneda, TRM -->
+                    <t t-call="lavish_hr_payroll_edi.nomina_informacion_general_eliminar"/>
+
+                    <t t-if="Notas">
+                        <Notas t-out="Notas"/>
+                    </t>
+
+                    <t t-call="lavish_hr_payroll_edi.nomina_empleador"/>
+                </Eliminar>
+            </t>
+
+        </NominaIndividualDeAjuste>
+    </template>
+
+    <!-- ================================================================== -->
+    <!-- COMPONENTES REUTILIZABLES                                          -->
+    <!-- ================================================================== -->
+
+    <!-- ===== PERIODO ===== -->
+    <template id="nomina_periodo">
+        <Periodo t-att-FechaIngreso="FechaIngreso"
+                 t-att-FechaRetiro="FechaRetiro if FechaRetiro else None"
+                 t-att-FechaLiquidacionInicio="FechaLiquidacionInicio"
+                 t-att-FechaLiquidacionFin="FechaLiquidacionFin"
+                 t-att-TiempoLaborado="TiempoLaborado"
+                 t-att-FechaGen="FechaGen"/>
+    </template>
+
+    <!-- ===== NUMERO SECUENCIA XML ===== -->
+    <template id="nomina_secuencia_xml">
+        <NumeroSecuenciaXML t-att-CodigoTrabajador="CodigoTrabajador"
+                            t-att-Prefijo="Prefijo"
+                            t-att-Consecutivo="Consecutivo"
+                            t-att-Numero="Numero"/>
+    </template>
+
+    <!-- ===== LUGAR GENERACION XML ===== -->
+    <template id="nomina_lugar_generacion">
+        <LugarGeneracionXML t-att-Pais="PaisGeneracion"
+                            t-att-DepartamentoEstado="DepartamentoGeneracion"
+                            t-att-MunicipioCiudad="MunicipioGeneracion"
+                            Idioma="es"/>
+    </template>
+
+    <!-- ===== PROVEEDOR XML ===== -->
+    <template id="nomina_proveedor_xml">
+        <ProveedorXML t-att-RazonSocial="ProveedorRazonSocial"
+                      t-att-PrimerApellido="ProveedorPrimerApellido if ProveedorPrimerApellido else None"
+                      t-att-SegundoApellido="ProveedorSegundoApellido if ProveedorSegundoApellido else None"
+                      t-att-PrimerNombre="ProveedorPrimerNombre if ProveedorPrimerNombre else None"
+                      t-att-OtrosNombres="ProveedorOtrosNombres if ProveedorOtrosNombres else None"
+                      t-att-NIT="ProveedorNIT"
+                      t-att-DV="ProveedorDV"
+                      t-att-SoftwareID="SoftwareID"
+                      t-att-SoftwareSC="SoftwareSC"/>
+    </template>
+
+    <!-- ===== INFORMACION GENERAL ===== -->
+    <template id="nomina_informacion_general">
+        <InformacionGeneral t-att-Version="Version"
+                            t-att-Ambiente="Ambiente"
+                            t-att-TipoXML="TipoXML"
+                            t-att-CUNE="CUNE"
+                            EncripCUNE="CUNE-SHA384"
+                            t-att-FechaGen="FechaGen"
+                            t-att-HoraGen="HoraGen"
+                            t-att-PeriodoNomina="PeriodoNomina"
+                            t-att-TipoMoneda="TipoMoneda"
+                            t-att-TRM="TRM"/>
+    </template>
+
+    <!-- ===== INFORMACION GENERAL para Eliminar (sin PeriodoNomina/TipoMoneda/TRM) ===== -->
+    <template id="nomina_informacion_general_eliminar">
+        <InformacionGeneral t-att-Version="Version"
+                            t-att-Ambiente="Ambiente"
+                            t-att-TipoXML="TipoXML"
+                            t-att-CUNE="CUNE"
+                            EncripCUNE="CUNE-SHA384"
+                            t-att-FechaGen="FechaGen"
+                            t-att-HoraGen="HoraGen"/>
+    </template>
+
+    <!-- ===== EMPLEADOR ===== -->
+    <template id="nomina_empleador">
+        <Empleador t-att-RazonSocial="EmpleadorRazonSocial"
+                   t-att-PrimerApellido="EmpleadorPrimerApellido if EmpleadorPrimerApellido else None"
+                   t-att-SegundoApellido="EmpleadorSegundoApellido if EmpleadorSegundoApellido else None"
+                   t-att-PrimerNombre="EmpleadorPrimerNombre if EmpleadorPrimerNombre else None"
+                   t-att-OtrosNombres="EmpleadorOtrosNombres if EmpleadorOtrosNombres else None"
+                   t-att-NIT="EmpleadorNIT"
+                   t-att-DV="EmpleadorDV"
+                   t-att-Pais="EmpleadorPais"
+                   t-att-DepartamentoEstado="EmpleadorDepartamento"
+                   t-att-MunicipioCiudad="EmpleadorMunicipio"
+                   t-att-Direccion="EmpleadorDireccion"/>
+    </template>
+
+    <!-- ===== TRABAJADOR ===== -->
+    <template id="nomina_trabajador">
+        <Trabajador t-att-TipoTrabajador="TipoTrabajador"
+                    t-att-SubTipoTrabajador="SubTipoTrabajador"
+                    t-att-AltoRiesgoPension="AltoRiesgoPension"
+                    t-att-TipoDocumento="TipoDocumento"
+                    t-att-NumeroDocumento="NumeroDocumento"
+                    t-att-PrimerApellido="TrabajadorPrimerApellido"
+                    t-att-SegundoApellido="TrabajadorSegundoApellido"
+                    t-att-PrimerNombre="TrabajadorPrimerNombre"
+                    t-att-OtrosNombres="TrabajadorOtrosNombres if TrabajadorOtrosNombres else None"
+                    t-att-LugarTrabajoPais="LugarTrabajoPais"
+                    t-att-LugarTrabajoDepartamentoEstado="LugarTrabajoDepartamento"
+                    t-att-LugarTrabajoMunicipioCiudad="LugarTrabajoMunicipio"
+                    t-att-LugarTrabajoDireccion="LugarTrabajoDireccion"
+                    t-att-SalarioIntegral="SalarioIntegral"
+                    t-att-TipoContrato="TipoContrato"
+                    t-att-Sueldo="Sueldo"
+                    t-att-CodigoTrabajador="CodigoTrabajador"/>
+    </template>
+
+    <!-- ===== PAGO ===== -->
+    <template id="nomina_pago">
+        <!-- Banco, TipoCuenta, NumeroCuenta son opcionales (efectivo no los usa) -->
+        <Pago t-att-Forma="PagoForma"
+              t-att-Metodo="PagoMetodo"
+              t-att-Banco="PagoBanco if PagoBanco else None"
+              t-att-TipoCuenta="PagoTipoCuenta if PagoTipoCuenta else None"
+              t-att-NumeroCuenta="PagoNumeroCuenta if PagoNumeroCuenta else None"/>
+    </template>
+
+    <!-- ===== FECHAS PAGOS ===== -->
+    <template id="nomina_fechas_pagos">
+        <FechasPagos>
+            <t t-foreach="FechasPagos or [FechaPago]" t-as="fp">
+                <FechaPago t-out="fp"/>
+            </t>
+        </FechasPagos>
+    </template>
+
+    <!-- ================================================================== -->
+    <!-- DEVENGADOS - Sección completa según XSD V1.0.6                     -->
+    <!-- Nombres de atributos corregidos vs código anterior                 -->
+    <!-- ================================================================== -->
+    <template id="nomina_devengados">
+        <Devengados>
+            <!-- Basico (obligatorio segun XSD 1..1; emitir vacio si no hay regla) -->
+            <Basico t-att-DiasTrabajados="(Basico or {}).get('DiasTrabajados', '0')"
+                    t-att-SueldoTrabajado="(Basico or {}).get('SueldoTrabajado', '0.00')"/>
+
+            <!-- Transporte (opcional, 0..N) -->
+            <t t-if="Transporte">
+                <Transporte t-att-AuxilioTransporte="Transporte.get('AuxilioTransporte')"
+                            t-att-ViaticoManuAlojS="Transporte.get('ViaticoManuAlojS')"
+                            t-att-ViaticoManuAlojNS="Transporte.get('ViaticoManuAlojNS')"/>
+            </t>
+
+            <!-- ===== HORAS EXTRAS (7 tipos, todos opcionales 0..1, hijos 0..N) ===== -->
+            <t t-if="HEDs">
+                <HEDs>
+                    <t t-foreach="HEDs" t-as="h">
+                        <HED t-att-HoraInicio="h.get('HoraInicio')"
+                             t-att-HoraFin="h.get('HoraFin')"
+                             t-att-Cantidad="h.get('Cantidad')"
+                             t-att-Porcentaje="h.get('Porcentaje')"
+                             t-att-Pago="h.get('Pago')"/>
+                    </t>
+                </HEDs>
+            </t>
+
+            <t t-if="HENs">
+                <HENs>
+                    <t t-foreach="HENs" t-as="h">
+                        <HEN t-att-HoraInicio="h.get('HoraInicio')"
+                             t-att-HoraFin="h.get('HoraFin')"
+                             t-att-Cantidad="h.get('Cantidad')"
+                             t-att-Porcentaje="h.get('Porcentaje')"
+                             t-att-Pago="h.get('Pago')"/>
+                    </t>
+                </HENs>
+            </t>
+
+            <t t-if="HRNs">
+                <HRNs>
+                    <t t-foreach="HRNs" t-as="h">
+                        <HRN t-att-HoraInicio="h.get('HoraInicio')"
+                             t-att-HoraFin="h.get('HoraFin')"
+                             t-att-Cantidad="h.get('Cantidad')"
+                             t-att-Porcentaje="h.get('Porcentaje')"
+                             t-att-Pago="h.get('Pago')"/>
+                    </t>
+                </HRNs>
+            </t>
+
+            <t t-if="HEDDFs">
+                <HEDDFs>
+                    <t t-foreach="HEDDFs" t-as="h">
+                        <HEDDF t-att-HoraInicio="h.get('HoraInicio')"
+                               t-att-HoraFin="h.get('HoraFin')"
+                               t-att-Cantidad="h.get('Cantidad')"
+                               t-att-Porcentaje="h.get('Porcentaje')"
+                               t-att-Pago="h.get('Pago')"/>
+                    </t>
+                </HEDDFs>
+            </t>
+
+            <t t-if="HRDDFs">
+                <HRDDFs>
+                    <t t-foreach="HRDDFs" t-as="h">
+                        <HRDDF t-att-HoraInicio="h.get('HoraInicio')"
+                               t-att-HoraFin="h.get('HoraFin')"
+                               t-att-Cantidad="h.get('Cantidad')"
+                               t-att-Porcentaje="h.get('Porcentaje')"
+                               t-att-Pago="h.get('Pago')"/>
+                    </t>
+                </HRDDFs>
+            </t>
+
+            <t t-if="HENDFs">
+                <HENDFs>
+                    <t t-foreach="HENDFs" t-as="h">
+                        <HENDF t-att-HoraInicio="h.get('HoraInicio')"
+                               t-att-HoraFin="h.get('HoraFin')"
+                               t-att-Cantidad="h.get('Cantidad')"
+                               t-att-Porcentaje="h.get('Porcentaje')"
+                               t-att-Pago="h.get('Pago')"/>
+                    </t>
+                </HENDFs>
+            </t>
+
+            <t t-if="HRNDFs">
+                <HRNDFs>
+                    <t t-foreach="HRNDFs" t-as="h">
+                        <HRNDF t-att-HoraInicio="h.get('HoraInicio')"
+                               t-att-HoraFin="h.get('HoraFin')"
+                               t-att-Cantidad="h.get('Cantidad')"
+                               t-att-Porcentaje="h.get('Porcentaje')"
+                               t-att-Pago="h.get('Pago')"/>
+                    </t>
+                </HRNDFs>
+            </t>
+
+            <!-- ===== VACACIONES (opcional 0..1) ===== -->
+            <t t-if="VacacionesComunes or VacacionesCompensadas">
+                <Vacaciones>
+                    <t t-foreach="VacacionesComunes or []" t-as="v">
+                        <VacacionesComunes t-att-FechaInicio="v.get('FechaInicio')"
+                                           t-att-FechaFin="v.get('FechaFin')"
+                                           t-att-Cantidad="v.get('Cantidad')"
+                                           t-att-Pago="v.get('Pago')"/>
+                    </t>
+                    <t t-foreach="VacacionesCompensadas or []" t-as="v">
+                        <VacacionesCompensadas t-att-Cantidad="v.get('Cantidad')"
+                                               t-att-Pago="v.get('Pago')"/>
+                    </t>
+                </Vacaciones>
+            </t>
+
+            <!-- ===== PRIMAS (opcional 0..1) ===== -->
+            <t t-if="Primas">
+                <Primas t-att-Cantidad="Primas.get('Cantidad')"
+                        t-att-Pago="Primas.get('Pago')"
+                        t-att-PagoNS="Primas.get('PagoNS') if Primas.get('PagoNS') else None"/>
+            </t>
+
+            <!-- ===== CESANTIAS (opcional 0..1) ===== -->
+            <t t-if="Cesantias">
+                <Cesantias t-att-Pago="Cesantias.get('Pago')"
+                           t-att-Porcentaje="Cesantias.get('Porcentaje')"
+                           t-att-PagoIntereses="Cesantias.get('PagoIntereses')"/>
+            </t>
+
+            <!-- ===== INCAPACIDADES (opcional 0..1, hijos 0..N) ===== -->
+            <t t-if="Incapacidades">
+                <Incapacidades>
+                    <t t-foreach="Incapacidades" t-as="inc">
+                        <Incapacidad t-att-FechaInicio="inc.get('FechaInicio')"
+                                     t-att-FechaFin="inc.get('FechaFin')"
+                                     t-att-Cantidad="inc.get('Cantidad')"
+                                     t-att-Tipo="inc.get('Tipo')"
+                                     t-att-Pago="inc.get('Pago')"/>
+                    </t>
+                </Incapacidades>
+            </t>
+
+            <!-- ===== LICENCIAS (opcional 0..1) ===== -->
+            <t t-if="LicenciasMP or LicenciasR or LicenciasNR">
+                <Licencias>
+                    <t t-foreach="LicenciasMP or []" t-as="lic">
+                        <LicenciaMP t-att-FechaInicio="lic.get('FechaInicio')"
+                                    t-att-FechaFin="lic.get('FechaFin')"
+                                    t-att-Cantidad="lic.get('Cantidad')"
+                                    t-att-Pago="lic.get('Pago')"/>
+                    </t>
+                    <t t-foreach="LicenciasR or []" t-as="lic">
+                        <LicenciaR t-att-FechaInicio="lic.get('FechaInicio')"
+                                   t-att-FechaFin="lic.get('FechaFin')"
+                                   t-att-Cantidad="lic.get('Cantidad')"
+                                   t-att-Pago="lic.get('Pago')"/>
+                    </t>
+                    <t t-foreach="LicenciasNR or []" t-as="lic">
+                        <LicenciaNR t-att-FechaInicio="lic.get('FechaInicio')"
+                                    t-att-FechaFin="lic.get('FechaFin')"
+                                    t-att-Cantidad="lic.get('Cantidad')"/>
+                    </t>
+                </Licencias>
+            </t>
+
+            <!-- ===== BONIFICACIONES (opcional 0..1, hijos 0..N) ===== -->
+            <t t-if="Bonificaciones">
+                <Bonificaciones>
+                    <t t-foreach="Bonificaciones" t-as="b">
+                        <Bonificacion t-att-BonificacionS="b.get('BonificacionS')"
+                                      t-att-BonificacionNS="b.get('BonificacionNS')"/>
+                    </t>
+                </Bonificaciones>
+            </t>
+
+            <!-- ===== AUXILIOS (opcional 0..1, hijos 0..N) ===== -->
+            <t t-if="Auxilios">
+                <Auxilios>
+                    <t t-foreach="Auxilios" t-as="a">
+                        <Auxilio t-att-AuxilioS="a.get('AuxilioS')"
+                                 t-att-AuxilioNS="a.get('AuxilioNS')"/>
+                    </t>
+                </Auxilios>
+            </t>
+
+            <!-- ===== HUELGAS LEGALES (opcional 0..1, hijos 0..N) ===== -->
+            <t t-if="HuelgasLegales">
+                <HuelgasLegales>
+                    <t t-foreach="HuelgasLegales" t-as="hl">
+                        <HuelgaLegal t-att-FechaInicio="hl.get('FechaInicio')"
+                                     t-att-FechaFin="hl.get('FechaFin')"
+                                     t-att-Cantidad="hl.get('Cantidad')"/>
+                    </t>
+                </HuelgasLegales>
+            </t>
+
+            <!-- ===== OTROS CONCEPTOS (opcional 0..1, hijos 0..N) ===== -->
+            <t t-if="OtrosConceptos">
+                <OtrosConceptos>
+                    <t t-foreach="OtrosConceptos" t-as="oc">
+                        <OtroConcepto t-att-DescripcionConcepto="oc.get('DescripcionConcepto')"
+                                      t-att-ConceptoS="oc.get('ConceptoS')"
+                                      t-att-ConceptoNS="oc.get('ConceptoNS')"/>
+                    </t>
+                </OtrosConceptos>
+            </t>
+
+            <!-- ===== COMPENSACIONES (opcional 0..1, hijos 0..N) ===== -->
+            <t t-if="Compensaciones">
+                <Compensaciones>
+                    <t t-foreach="Compensaciones" t-as="c">
+                        <Compensacion t-att-CompensacionO="c.get('CompensacionO')"
+                                      t-att-CompensacionE="c.get('CompensacionE')"/>
+                    </t>
+                </Compensaciones>
+            </t>
+
+            <!-- ===== BONO EPCTV (opcional 0..1, hijos 0..N) ===== -->
+            <t t-if="BonoEPCTVs">
+                <BonoEPCTVs>
+                    <t t-foreach="BonoEPCTVs" t-as="b">
+                        <BonoEPCTV t-att-PagoS="b.get('PagoS')"
+                                   t-att-PagoNS="b.get('PagoNS')"
+                                   t-att-PagoAlimentacionS="b.get('PagoAlimentacionS')"
+                                   t-att-PagoAlimentacionNS="b.get('PagoAlimentacionNS')"/>
+                    </t>
+                </BonoEPCTVs>
+            </t>
+
+            <!-- ===== COMISIONES (opcional 0..1, hijos 0..N decimal) ===== -->
+            <t t-if="Comisiones">
+                <Comisiones>
+                    <t t-foreach="Comisiones" t-as="c">
+                        <Comision t-out="'%.2f' % c"/>
+                    </t>
+                </Comisiones>
+            </t>
+
+            <!-- ===== PAGOS TERCEROS devengados (opcional 0..1, hijos 0..N decimal) ===== -->
+            <t t-if="DevPagosTerceros">
+                <PagosTerceros>
+                    <t t-foreach="DevPagosTerceros" t-as="p">
+                        <PagoTercero t-out="'%.2f' % p"/>
+                    </t>
+                </PagosTerceros>
+            </t>
+
+            <!-- ===== ANTICIPOS devengados (opcional 0..1, hijos 0..N decimal) ===== -->
+            <t t-if="DevAnticipos">
+                <Anticipos>
+                    <t t-foreach="DevAnticipos" t-as="a">
+                        <Anticipo t-out="'%.2f' % a"/>
+                    </t>
+                </Anticipos>
+            </t>
+
+            <!-- ===== ELEMENTOS SIMPLES decimales (opcionales 0..1) ===== -->
+            <t t-if="Dotacion">
+                <Dotacion t-out="'%.2f' % Dotacion"/>
+            </t>
+            <t t-if="ApoyoSost">
+                <ApoyoSost t-out="'%.2f' % ApoyoSost"/>
+            </t>
+            <t t-if="Teletrabajo">
+                <Teletrabajo t-out="'%.2f' % Teletrabajo"/>
+            </t>
+            <t t-if="BonifRetiro">
+                <BonifRetiro t-out="'%.2f' % BonifRetiro"/>
+            </t>
+            <t t-if="Indemnizacion">
+                <Indemnizacion t-out="'%.2f' % Indemnizacion"/>
+            </t>
+            <t t-if="DevReintegro">
+                <Reintegro t-out="'%.2f' % DevReintegro"/>
+            </t>
+        </Devengados>
+    </template>
+
+    <!-- ================================================================== -->
+    <!-- DEDUCCIONES - Sección completa según XSD V1.0.6                    -->
+    <!-- ================================================================== -->
+    <template id="nomina_deducciones">
+        <Deducciones>
+            <!-- Salud (obligatorio 1..1) -->
+            <Salud t-att-Porcentaje="Salud.get('Porcentaje')"
+                   t-att-Deduccion="Salud.get('Deduccion')"/>
+
+            <!-- FondoPension (obligatorio 1..1) -->
+            <FondoPension t-att-Porcentaje="FondoPension.get('Porcentaje')"
+                          t-att-Deduccion="FondoPension.get('Deduccion')"/>
+
+            <!-- FondoSP (opcional 0..1) - NOTA: atributo es DeduccionSP (no Deduccion) -->
+            <t t-if="FondoSP">
+                <FondoSP t-att-Porcentaje="FondoSP.get('Porcentaje')"
+                         t-att-DeduccionSP="FondoSP.get('DeduccionSP')"
+                         t-att-PorcentajeSub="FondoSP.get('PorcentajeSub')"
+                         t-att-DeduccionSub="FondoSP.get('DeduccionSub')"/>
+            </t>
+
+            <!-- Sindicatos (opcional 0..1, hijos 0..N) -->
+            <t t-if="Sindicatos">
+                <Sindicatos>
+                    <t t-foreach="Sindicatos" t-as="s">
+                        <Sindicato t-att-Porcentaje="s.get('Porcentaje')"
+                                   t-att-Deduccion="s.get('Deduccion')"/>
+                    </t>
+                </Sindicatos>
+            </t>
+
+            <!-- Sanciones (opcional 0..1, hijos 0..N) -->
+            <t t-if="Sanciones">
+                <Sanciones>
+                    <t t-foreach="Sanciones" t-as="s">
+                        <Sancion t-att-SancionPublic="s.get('SancionPublic')"
+                                 t-att-SancionPriv="s.get('SancionPriv')"/>
+                    </t>
+                </Sanciones>
+            </t>
+
+            <!-- Libranzas (opcional 0..1, hijos 0..N) -->
+            <t t-if="Libranzas">
+                <Libranzas>
+                    <t t-foreach="Libranzas" t-as="l">
+                        <Libranza t-att-Descripcion="l.get('Descripcion')"
+                                  t-att-Deduccion="l.get('Deduccion')"/>
+                    </t>
+                </Libranzas>
+            </t>
+
+            <!-- PagosTerceros deducciones (opcional 0..1, hijos 0..N decimal) -->
+            <t t-if="DedPagosTerceros">
+                <PagosTerceros>
+                    <t t-foreach="DedPagosTerceros" t-as="p">
+                        <PagoTercero t-out="'%.2f' % p"/>
+                    </t>
+                </PagosTerceros>
+            </t>
+
+            <!-- Anticipos deducciones (opcional 0..1, hijos 0..N decimal) -->
+            <t t-if="DedAnticipos">
+                <Anticipos>
+                    <t t-foreach="DedAnticipos" t-as="a">
+                        <Anticipo t-out="'%.2f' % a"/>
+                    </t>
+                </Anticipos>
+            </t>
+
+            <!-- OtrasDeducciones (opcional 0..1, hijos 0..N decimal) -->
+            <t t-if="OtrasDeducciones">
+                <OtrasDeducciones>
+                    <t t-foreach="OtrasDeducciones" t-as="od">
+                        <OtraDeduccion t-out="'%.2f' % od"/>
+                    </t>
+                </OtrasDeducciones>
+            </t>
+
+            <!-- Elementos simples decimales (todos opcionales 0..1) -->
+            <t t-if="PensionVoluntaria">
+                <PensionVoluntaria t-out="'%.2f' % PensionVoluntaria"/>
+            </t>
+            <t t-if="RetencionFuente">
+                <RetencionFuente t-out="'%.2f' % RetencionFuente"/>
+            </t>
+            <t t-if="AFC">
+                <AFC t-out="'%.2f' % AFC"/>
+            </t>
+            <t t-if="Cooperativa">
+                <Cooperativa t-out="'%.2f' % Cooperativa"/>
+            </t>
+            <t t-if="EmbargoFiscal">
+                <EmbargoFiscal t-out="'%.2f' % EmbargoFiscal"/>
+            </t>
+            <t t-if="PlanComplementarios">
+                <PlanComplementarios t-out="'%.2f' % PlanComplementarios"/>
+            </t>
+            <t t-if="Educacion">
+                <Educacion t-out="'%.2f' % Educacion"/>
+            </t>
+            <t t-if="DedReintegro">
+                <Reintegro t-out="'%.2f' % DedReintegro"/>
+            </t>
+            <t t-if="Deuda">
+                <Deuda t-out="'%.2f' % Deuda"/>
+            </t>
+        </Deducciones>
+    </template>
+
+
+</odoo>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista Form del Visor de Lineas -->
+        <record id="hr_payslip_line_viewer_form_view" model="ir.ui.view">
+            <field name="name">hr.payslip.line.viewer.form</field>
+            <field name="model">hr.payslip.line.viewer</field>
+            <field name="arch" type="xml">
+                <form string="Visor de Lineas de Nomina">
+                    <sheet>
+                        <group>
+                            <group string="Filtros de Busqueda">
+                                <field name="payslip_run_ids"
+                                       widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                                <field name="employee_ids"
+                                       widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                                <field name="department_ids"
+                                       widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <group string="Filtros Adicionales">
+                                <field name="category_ids"
+                                       widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                                <field name="salary_rule_ids"
+                                       widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                                <field name="date_from"/>
+                                <field name="date_to"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Opciones de Agrupacion">
+                                <field name="group_by"/>
+                            </group>
+                            <group string="Opciones de Visualizacion">
+                                <field name="show_zero_lines"/>
+                                <field name="show_subtotals"/>
+                                <field name="show_totals"/>
+                            </group>
+                        </group>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_load_lines"
+                                    type="object"
+                                    class="btn-primary"
+                                    icon="fa-search"
+                                    string="Cargar Lineas"/>
+                        </div>
+
+                        <!-- Resumen de totales -->
+                        <group string="Resumen" invisible="not line_ids">
+                            <group>
+                                <field name="total_devengos"/>
+                                <field name="total_deducciones"/>
+                            </group>
+                            <group>
+                                <field name="total_neto"/>
+                                <field name="employee_count"/>
+                            </group>
+                        </group>
+
+                        <!-- Lineas del visor -->
+                        <notebook invisible="not line_ids">
+                            <page string="Lineas de Nomina" name="lines">
+                                <field name="line_ids" readonly="1">
+                                    <list decoration-info="is_subtotal"
+                                          decoration-success="is_total"
+                                          create="0" edit="0" delete="0">
+                                        <field name="sequence" column_invisible="1"/>
+                                        <field name="is_subtotal" column_invisible="1"/>
+                                        <field name="is_total" column_invisible="1"/>
+                                        <field name="group_name"
+                                               string="Grupo"
+                                               invisible="not is_subtotal and not is_total"/>
+                                        <field name="employee_name"
+                                               string="Empleado"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="employee_identification"
+                                               string="Identificacion"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="department_name"
+                                               string="Departamento"
+                                               optional="show"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="rule_name"
+                                               string="Concepto"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="rule_code"
+                                               string="Codigo"
+                                               optional="show"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="category_name"
+                                               string="Categoria"
+                                               optional="show"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="quantity"
+                                               string="Cant."
+                                               optional="show"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="rate"
+                                               string="Tasa %"
+                                               optional="hide"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="amount_base"
+                                               string="Base"
+                                               optional="hide"
+                                               invisible="is_subtotal or is_total"/>
+                                        <field name="amount"
+                                               string="Monto"
+                                               sum="Total"/>
+                                        <field name="payslip_run_name"
+                                               string="Lote"
+                                               optional="hide"
+                                               invisible="is_subtotal or is_total"/>
+                                        <button name="action_open_payslip"
+                                                type="object"
+                                                icon="fa-file-text-o"
+                                                title="Ver Nomina"
+                                                invisible="is_subtotal or is_total"/>
+                                        <button name="action_open_employee"
+                                                type="object"
+                                                icon="fa-user"
+                                                title="Ver Empleado"
+                                                invisible="is_subtotal or is_total"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Accion del Visor de Lineas (Wizard) -->
+        <record id="action_hr_payslip_line_viewer" model="ir.actions.act_window">
+            <field name="name">Visor de Lineas de Nomina</field>
+            <field name="res_model">hr.payslip.line.viewer</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="hr_payslip_line_viewer_form_view"/>
+        </record>
+
+        <!-- Accion del Grid JavaScript (Client Action) -->
+        <record id="action_payslip_line_grid" model="ir.actions.client">
+            <field name="name">Grid de Lineas de Nomina</field>
+            <field name="tag">payslip_line_grid</field>
+            <field name="target">current</field>
+        </record>
+
+        <!-- Menu para el Grid -->
+        <menuitem id="menu_payslip_line_grid"
+                  name="Grid de Lineas"
+                  parent="hr_payroll.menu_hr_payroll_report"
+                  action="action_payslip_line_grid"
+                  sequence="98"/>
+
+        <!-- Menu para el Visor Wizard -->
+        <menuitem id="menu_payslip_line_viewer"
+                  name="Visor de Lineas"
+                  parent="hr_payroll.menu_hr_payroll_report"
+                  action="action_hr_payslip_line_viewer"
+                  sequence="99"/>
+
+    </data>
+</odoo>

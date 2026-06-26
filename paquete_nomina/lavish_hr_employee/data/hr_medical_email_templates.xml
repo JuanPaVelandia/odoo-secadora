@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Plantilla: Recordatorio 30 días -->
+    <record id="email_template_medical_reminder_30" model="mail.template">
+        <field name="name">Recordatorio: Certificado vence en 30 días</field>
+        <field name="model_id" ref="model_hr_medical_certificate"/>
+        <field name="subject">Recordatorio: Tu certificado médico vence en 30 días</field>
+        <field name="email_from">${object.company_id.email or ''}</field>
+        <field name="email_to">${object.employee_id.work_email or ''}</field>
+        <field name="body_html" type="html">
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #FF1D25;">Recordatorio: Certificado Médico por Vencer</h2>
+
+                <p>Hola <strong>${object.employee_id.name}</strong>,</p>
+
+                <p>Te recordamos que tu certificado médico <strong>${object.certificate_type}</strong>
+                   vence en <strong>30 días</strong> (${object.expiry_date}).</p>
+
+                <div style="background-color: #f8f9fa; padding: 15px; border-left: 4px solid #FF1D25; margin: 20px 0;">
+                    <p><strong>Detalles del Certificado:</strong></p>
+                    <ul>
+                        <li>Tipo: ${dict(object._fields['certificate_type'].selection).get(object.certificate_type)}</li>
+                        <li>Proveedor: ${object.provider_id.name}</li>
+                        <li>Fecha de emisión: ${object.issue_date}</li>
+                        <li>Fecha de vencimiento: ${object.expiry_date}</li>
+                    </ul>
+                </div>
+
+                <p>Por favor, programa tu renovación con suficiente anticipación.</p>
+
+                <p>Saludos,<br/>
+                   Departamento de Recursos Humanos<br/>
+                   ${object.company_id.name}
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Plantilla: Recordatorio 15 días -->
+    <record id="email_template_medical_reminder_15" model="mail.template">
+        <field name="name">Recordatorio: Certificado vence en 15 días</field>
+        <field name="model_id" ref="model_hr_medical_certificate"/>
+        <field name="subject">⚠️ URGENTE: Tu certificado médico vence en 15 días</field>
+        <field name="email_from">${object.company_id.email or ''}</field>
+        <field name="email_to">${object.employee_id.work_email or ''}</field>
+        <field name="body_html" type="html">
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #ff8800;">⚠️ Advertencia: Certificado Médico por Vencer</h2>
+
+                <p>Hola <strong>${object.employee_id.name}</strong>,</p>
+
+                <p style="color: #ff8800; font-weight: bold;">
+                   Tu certificado médico <strong>${object.certificate_type}</strong>
+                   vence en solo <strong>15 días</strong> (${object.expiry_date}).
+                </p>
+
+                <div style="background-color: #fff3cd; padding: 15px; border-left: 4px solid #ff8800; margin: 20px 0;">
+                    <p><strong>Detalles del Certificado:</strong></p>
+                    <ul>
+                        <li>Tipo: ${dict(object._fields['certificate_type'].selection).get(object.certificate_type)}</li>
+                        <li>Proveedor: ${object.provider_id.name}</li>
+                        <li>Fecha de vencimiento: ${object.expiry_date}</li>
+                        <li>Días restantes: 15</li>
+                    </ul>
+                </div>
+
+                <p style="color: #d9534f; font-weight: bold;">
+                   Es importante que programes tu renovación INMEDIATAMENTE para evitar la expiración.
+                </p>
+
+                <p>Saludos,<br/>
+                   Departamento de Recursos Humanos<br/>
+                   ${object.company_id.name}
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Plantilla: Recordatorio 7 días -->
+    <record id="email_template_medical_reminder_7" model="mail.template">
+        <field name="name">Recordatorio: Certificado vence en 7 días</field>
+        <field name="model_id" ref="model_hr_medical_certificate"/>
+        <field name="subject">🚨 CRÍTICO: Tu certificado médico vence en 7 días</field>
+        <field name="email_from">${object.company_id.email or ''}</field>
+        <field name="email_to">${object.employee_id.work_email or ''}</field>
+        <field name="body_html" type="html">
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #d9534f;">🚨 CRÍTICO: Certificado Médico por Vencer</h2>
+
+                <p>Hola <strong>${object.employee_id.name}</strong>,</p>
+
+                <p style="color: #d9534f; font-weight: bold; font-size: 16px;">
+                   ¡ATENCIÓN URGENTE! Tu certificado médico <strong>${object.certificate_type}</strong>
+                   vence en solo <strong>7 días</strong> (${object.expiry_date}).
+                </p>
+
+                <div style="background-color: #f8d7da; padding: 15px; border-left: 4px solid #d9534f; margin: 20px 0;">
+                    <p><strong>Detalles del Certificado:</strong></p>
+                    <ul>
+                        <li>Tipo: ${dict(object._fields['certificate_type'].selection).get(object.certificate_type)}</li>
+                        <li>Proveedor: ${object.provider_id.name}</li>
+                        <li>Fecha de vencimiento: ${object.expiry_date}</li>
+                        <li>Días restantes: <span style="color: #d9534f; font-weight: bold;">7</span></li>
+                    </ul>
+                </div>
+
+                <p style="color: #d9534f; font-weight: bold; font-size: 14px;">
+                   Debes renovar este certificado INMEDIATAMENTE.
+                   Contacta al departamento de Recursos Humanos HOY MISMO.
+                </p>
+
+                <p>Saludos,<br/>
+                   Departamento de Recursos Humanos<br/>
+                   ${object.company_id.name}
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Plantilla: Certificado Vencido -->
+    <record id="email_template_medical_expired" model="mail.template">
+        <field name="name">Notificación: Certificado vencido</field>
+        <field name="model_id" ref="model_hr_medical_certificate"/>
+        <field name="subject">❌ VENCIDO: Tu certificado médico ha expirado</field>
+        <field name="email_from">${object.company_id.email or ''}</field>
+        <field name="email_to">${object.employee_id.work_email or ''}</field>
+        <field name="body_html" type="html">
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #721c24;">❌ Certificado Médico VENCIDO</h2>
+
+                <p>Hola <strong>${object.employee_id.name}</strong>,</p>
+
+                <p style="color: #721c24; font-weight: bold; font-size: 16px;">
+                   Tu certificado médico <strong>${object.certificate_type}</strong>
+                   ha VENCIDO (${object.expiry_date}).
+                </p>
+
+                <div style="background-color: #f8d7da; padding: 15px; border: 2px solid #721c24; margin: 20px 0;">
+                    <p><strong>Detalles del Certificado:</strong></p>
+                    <ul>
+                        <li>Tipo: ${dict(object._fields['certificate_type'].selection).get(object.certificate_type)}</li>
+                        <li>Proveedor: ${object.provider_id.name}</li>
+                        <li>Fecha de vencimiento: ${object.expiry_date}</li>
+                        <li>Estado: <span style="color: #721c24; font-weight: bold;">VENCIDO</span></li>
+                    </ul>
+                </div>
+
+                <p style="color: #721c24; font-weight: bold; font-size: 14px;">
+                   Debes renovar este certificado URGENTEMENTE.
+                   Tu certificado vencido puede afectar tu estatus laboral.
+                </p>
+
+                <p style="font-size: 12px; color: #6c757d;">
+                   Por favor, contacta al departamento de Recursos Humanos inmediatamente
+                   para programar tu renovación.
+                </p>
+
+                <p>Saludos,<br/>
+                   Departamento de Recursos Humanos<br/>
+                   ${object.company_id.name}
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <!-- Plantilla: Auto Renovación Creada -->
+    <record id="email_template_medical_auto_renewal" model="mail.template">
+        <field name="name">Notificación: Renovación automática creada</field>
+        <field name="model_id" ref="model_hr_medical_certificate"/>
+        <field name="subject">✅ Se ha creado tu renovación de certificado médico</field>
+        <field name="email_from">${object.company_id.email or ''}</field>
+        <field name="email_to">${object.employee_id.work_email or ''}</field>
+        <field name="body_html" type="html">
+            <div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #28a745;">✅ Renovación Automática Creada</h2>
+
+                <p>Hola <strong>${object.employee_id.name}</strong>,</p>
+
+                <p>El sistema ha creado automáticamente una renovación para tu certificado médico
+                   <strong>${object.certificate_type}</strong>.</p>
+
+                <div style="background-color: #d4edda; padding: 15px; border-left: 4px solid #28a745; margin: 20px 0;">
+                    <p><strong>Certificado Original:</strong></p>
+                    <ul>
+                        <li>Tipo: ${dict(object.renewal_certificate_id._fields['certificate_type'].selection).get(object.renewal_certificate_id.certificate_type) if object.renewal_certificate_id else ''}</li>
+                        <li>Fecha de vencimiento: ${object.renewal_certificate_id.expiry_date if object.renewal_certificate_id else ''}</li>
+                    </ul>
+
+                    <p><strong>Nueva Renovación:</strong></p>
+                    <ul>
+                        <li>Referencia: ${object.name}</li>
+                        <li>Proveedor: ${object.provider_id.name}</li>
+                        <li>Estado: Programado</li>
+                    </ul>
+                </div>
+
+                <p>Por favor, coordina con Recursos Humanos para programar la fecha del examen.</p>
+
+                <p>Saludos,<br/>
+                   Departamento de Recursos Humanos<br/>
+                   ${object.company_id.name}
+                </p>
+            </div>
+        </field>
+    </record>
+
+</odoo>

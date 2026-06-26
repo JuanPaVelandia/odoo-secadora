@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Reporte de Certificado Médico -->
+    <record id="action_report_medical_certificate" model="ir.actions.report">
+        <field name="name">Certificado Médico</field>
+        <field name="model">hr.medical.certificate</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lavish_hr_employee.report_medical_certificate</field>
+        <field name="report_file">lavish_hr_employee.report_medical_certificate</field>
+        <field name="print_report_name">'Certificado Médico - %s' % (object.employee_id.name)</field>
+    </record>
+    
+    <template id="report_medical_certificate">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header -->
+                        <div class="text-center mb-4">
+                            <h2>CERTIFICADO MÉDICO</h2>
+                            <h4 t-field="o.provider_id.name"/>
+                            <p>
+                                <span t-field="o.provider_id.street"/>
+                                <t t-if="o.provider_id.city">, <span t-field="o.provider_id.city"/></t>
+                                <br/>
+                                Tel: <span t-field="o.provider_id.phone"/>
+                                - Email: <span t-field="o.provider_id.email"/>
+                            </p>
+                        </div>
+                        
+                        <!-- Información del Certificado -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <strong>No. Certificado:</strong> <span t-field="o.name"/>
+                            </div>
+                            <div class="col-6 text-right">
+                                <strong>Fecha:</strong> <span t-field="o.issue_date"/>
+                            </div>
+                        </div>
+                        
+                        <!-- Información del Empleado -->
+                        <div class="panel panel-default mb-4">
+                            <div class="panel-heading">
+                                <h4>Datos del Empleado</h4>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p><strong>Nombre:</strong> <span t-field="o.employee_id.name"/></p>
+                                        <p><strong>Identificación:</strong> <span t-field="o.employee_id.identification_id"/></p>
+                                        <p><strong>Cargo:</strong> <span t-field="o.employee_id.job_id.name"/></p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p><strong>Departamento:</strong> <span t-field="o.employee_id.department_id.name"/></p>
+                                        <p><strong>Empresa:</strong> <span t-field="o.employee_id.company_id.name"/></p>
+                                        <p><strong>Edad:</strong> <span t-out="o.employee_id.age"/> años</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tipo de Examen -->
+                        <div class="panel panel-default mb-4">
+                            <div class="panel-heading">
+                                <h4>Examen Realizado</h4>
+                            </div>
+                            <div class="panel-body">
+                                <p><strong>Tipo:</strong> 
+                                    <t t-if="o.certificate_type == 'aptitude'">Certificado de Aptitud Laboral</t>
+                                    <t t-elif="o.certificate_type == 'height_work'">Trabajo en Alturas</t>
+                                    <t t-elif="o.certificate_type == 'confined_spaces'">Espacios Confinados</t>
+                                    <t t-elif="o.certificate_type == 'psychosensory'">Psicosensométrico</t>
+                                    <t t-elif="o.certificate_type == 'occupational'">Examen Ocupacional</t>
+                                    <t t-elif="o.certificate_type == 'periodic'">Examen Periódico</t>
+                                    <t t-else=""><span t-field="o.certificate_type"/></t>
+                                </p>
+                                <p><strong>Fecha del Examen:</strong> <span t-field="o.exam_date"/></p>
+                                <p><strong>Vigencia hasta:</strong> <span t-field="o.expiry_date"/></p>
+                            </div>
+                        </div>
+                        
+                        <!-- Resultados -->
+                        <div class="panel panel-default mb-4">
+                            <div class="panel-heading">
+                                <h4>Resultado</h4>
+                            </div>
+                            <div class="panel-body">
+                                <h3 class="text-center">
+                                    <t t-if="o.result == 'apt'">
+                                        <span class="text-success">APTO</span>
+                                    </t>
+                                    <t t-elif="o.result == 'apt_restrictions'">
+                                        <span class="text-warning">APTO CON RESTRICCIONES</span>
+                                    </t>
+                                    <t t-elif="o.result == 'not_apt'">
+                                        <span class="text-danger">NO APTO</span>
+                                    </t>
+                                </h3>
+                                
+                                <t t-if="o.restrictions">
+                                    <h5>Restricciones:</h5>
+                                    <p t-field="o.restrictions"/>
+                                </t>
+                                
+                                <t t-if="o.recommendations">
+                                    <h5>Recomendaciones:</h5>
+                                    <p t-field="o.recommendations"/>
+                                </t>
+                            </div>
+                        </div>
+                        
+                        <!-- Resultados Detallados -->
+                        <t t-if="o.result_line_ids">
+                            <div class="panel panel-default mb-4">
+                                <div class="panel-heading">
+                                    <h4>Exámenes Realizados</h4>
+                                </div>
+                                <div class="panel-body">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Examen</th>
+                                                <th>Resultado</th>
+                                                <th>Valor</th>
+                                                <th>Referencia</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="o.result_line_ids" t-as="line">
+                                                <td><span t-field="line.name"/></td>
+                                                <td><span t-field="line.result"/></td>
+                                                <td><span t-field="line.value"/> <span t-field="line.unit"/></td>
+                                                <td><span t-field="line.reference_range"/></td>
+                                                <td>
+                                                    <t t-if="line.status == 'normal'">
+                                                        <span class="badge badge-success">Normal</span>
+                                                    </t>
+                                                    <t t-elif="line.status == 'abnormal'">
+                                                        <span class="badge badge-warning">Anormal</span>
+                                                    </t>
+                                                    <t t-elif="line.status == 'critical'">
+                                                        <span class="badge badge-danger">Crítico</span>
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </t>
+                        
+                        <!-- Firma -->
+                        <div class="row mt-5">
+                            <div class="col-6 offset-3 text-center">
+                                <div style="border-top: 1px solid black; margin-top: 60px;">
+                                    <p class="mt-2">
+                                        <strong>Médico Examinador</strong><br/>
+                                        <t t-if="o.provider_id.provider_type == 'specialist'">
+                                            <span t-field="o.provider_id.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            Profesional de la Salud
+                                        </t>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pie de página -->
+                        <div class="text-center mt-4" style="font-size: 10px;">
+                            <p>
+                                Este certificado es válido por el período indicado a partir de la fecha de emisión.<br/>
+                                Cualquier alteración o enmendadura anula su validez.
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

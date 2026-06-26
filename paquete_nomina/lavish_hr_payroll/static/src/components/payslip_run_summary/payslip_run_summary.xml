@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipRunSummary">
+        <div class="payslip_run_summary" style="width: 100%; min-width: 1200px; min-height: 500px; padding: 0 10px;">
+            <!-- Loading -->
+            <div t-if="state.loading" class="text-center p-5">
+                <i class="fa fa-spinner fa-spin fa-3x" style="color: #5C6BC0;"></i>
+                <p class="mt-3" style="color: #757575;">Cargando nóminas...</p>
+            </div>
+
+            <div t-else="" style="width: 100%;">
+                <!-- Barra de herramientas -->
+                <div class="mb-3 p-3 rounded" style="background: #F5F5F5; border: 1px solid #E0E0E0;">
+                    <!-- Fila 1: Filtros -->
+                    <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <!-- Filtro departamento -->
+                            <select class="form-select form-select-sm" style="width: 200px; border-color: #E0E0E0;" t-on-change="onDepartmentChange">
+                                <option value="all">Todos los departamentos</option>
+                                <t t-foreach="state.departments" t-as="dept" t-key="dept">
+                                    <option t-att-value="dept" t-att-selected="state.selectedDepartment === dept"><t t-esc="dept"/></option>
+                                </t>
+                            </select>
+                            <!-- Búsqueda -->
+                            <div class="input-group input-group-sm" style="width: 220px;">
+                                <span class="input-group-text" style="background: white; border-color: #E0E0E0;"><i class="fa fa-search" style="color: #757575;"></i></span>
+                                <input type="text" class="form-control" placeholder="Buscar empleado..." t-on-input="onSearchInput" style="border-color: #E0E0E0;"/>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                            <!-- Items por página -->
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="small text-muted">Mostrar:</span>
+                                <select class="form-select form-select-sm" style="width: 70px; border-color: #E0E0E0;" t-on-change="onPageSizeChange">
+                                    <option value="5" t-att-selected="state.pageSize === 5">5</option>
+                                    <option value="10" t-att-selected="state.pageSize === 10">10</option>
+                                    <option value="20" t-att-selected="state.pageSize === 20">20</option>
+                                    <option value="50" t-att-selected="state.pageSize === 50">50</option>
+                                </select>
+                            </div>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn" t-on-click="expandAll" title="Expandir todos" style="background: white; border-color: #E0E0E0; color: #757575;">
+                                    <i class="fa fa-expand"></i>
+                                </button>
+                                <button class="btn" t-on-click="collapseAll" title="Colapsar todos" style="background: white; border-color: #E0E0E0; color: #757575;">
+                                    <i class="fa fa-compress"></i>
+                                </button>
+                                <button class="btn" t-on-click="refreshData" title="Actualizar datos" style="background: #5C6BC0; border-color: #5C6BC0; color: white;">
+                                    <i class="fa fa-refresh"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Fila 2: Resumen y paginación -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <span class="badge px-3 py-2" style="background: #5C6BC0; color: white; font-size: 13px;">
+                                <i class="fa fa-users me-1"></i> <t t-esc="filteredPayslips.length"/> de <t t-esc="state.payslips.length"/> nóminas
+                            </span>
+                            <span class="px-2 py-1 rounded" style="background: #E8F5E9; color: #2E7D32; font-size: 12px;">
+                                <i class="fa fa-plus-circle me-1"></i>Dev: <strong><t t-esc="formatCurrency(filteredTotals.earnings)"/></strong>
+                            </span>
+                            <span class="px-2 py-1 rounded" style="background: #FFEBEE; color: #C62828; font-size: 12px;">
+                                <i class="fa fa-minus-circle me-1"></i>Ded: <strong><t t-esc="formatCurrency(filteredTotals.deductions)"/></strong>
+                            </span>
+                            <span class="px-2 py-1 rounded" style="background: #E8EAF6; color: #3949AB; font-size: 12px;">
+                                <i class="fa fa-money me-1"></i>Neto: <strong><t t-esc="formatCurrency(filteredTotals.net)"/></strong>
+                            </span>
+                        </div>
+                        <!-- Paginación -->
+                        <div class="d-flex align-items-center gap-2" t-if="totalPages > 1">
+                            <button class="btn btn-sm" t-on-click="prevPage" t-att-disabled="state.currentPage === 1" style="background: white; border-color: #E0E0E0; color: #757575;">
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                            <span class="small px-2" style="color: #757575;">Pág <strong><t t-esc="state.currentPage"/></strong> de <t t-esc="totalPages"/></span>
+                            <button class="btn btn-sm" t-on-click="nextPage" t-att-disabled="state.currentPage === totalPages" style="background: white; border-color: #E0E0E0; color: #757575;">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sin datos -->
+                <div t-if="!hasData" class="text-center p-5" style="color: #9E9E9E;">
+                    <i class="fa fa-inbox fa-4x mb-3"></i>
+                    <p class="fs-5">No hay nóminas en este lote</p>
+                </div>
+
+                <!-- Lista de Nóminas -->
+                <div t-else="" class="payslips-container" style="width: 100%;">
+                    <t t-foreach="paginatedPayslips" t-as="payslip" t-key="payslip.id">
+                        <div class="card mb-3 shadow-sm" t-att-style="'border-left: 5px solid ' + getStateColor(payslip.state) + '; background: #FFFFFF;'">
+                            <!-- Header -->
+                            <div class="card-header py-2 px-3 d-flex justify-content-between align-items-center"
+                                 style="cursor: pointer; background: #FAFAFA; border-bottom: 1px solid #EEEEEE;"
+                                 t-on-click="() => this.togglePayslip(payslip.id)">
+                                <div class="d-flex align-items-center gap-3">
+                                    <i t-att-class="'fa fa-lg ' + (isPayslipExpanded(payslip.id) ? 'fa-chevron-down' : 'fa-chevron-right')"
+                                       style="width: 20px; color: #9E9E9E;"></i>
+                                    <div class="rounded-circle text-white d-flex align-items-center justify-content-center fw-bold"
+                                         style="width: 42px; height: 42px; font-size: 14px; background: #5C6BC0;">
+                                        <t t-esc="payslip.employee_name.substring(0,2).toUpperCase()"/>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold fs-6" style="color: #212121;"><t t-esc="payslip.employee_name"/></div>
+                                        <small style="color: #757575;">
+                                            <i class="fa fa-id-card-o me-1"></i><t t-esc="payslip.identification"/>
+                                            <span class="mx-2">|</span>
+                                            <i class="fa fa-building-o me-1"></i><t t-esc="payslip.department"/>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="text-end">
+                                        <div class="small mb-1">
+                                            <span style="color: #4CAF50;"><i class="fa fa-arrow-up me-1"></i><t t-esc="formatCurrency(payslip.gross)"/></span>
+                                            <span style="color: #9E9E9E;" class="mx-2">-</span>
+                                            <span style="color: #F44336;"><i class="fa fa-arrow-down me-1"></i><t t-esc="formatCurrency(payslip.deductions)"/></span>
+                                        </div>
+                                        <div class="fw-bold fs-5" style="color: #3949AB;"><t t-esc="formatCurrency(payslip.net)"/></div>
+                                    </div>
+                                    <span class="badge px-3 py-2" t-att-style="'background: ' + getStateBadge(payslip.state).bg + '; color: ' + getStateBadge(payslip.state).color + ';'">
+                                        <t t-esc="getStateBadge(payslip.state).text"/>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Contenido expandido -->
+                            <div t-if="isPayslipExpanded(payslip.id)" class="card-body p-0">
+                                <!-- Barra de acciones -->
+                                <div class="d-flex justify-content-between align-items-center px-3 py-2 flex-wrap gap-2" style="background: #FAFAFA; border-bottom: 1px solid #EEEEEE;">
+                                    <div class="btn-group btn-group-sm">
+                                        <button class="btn" t-on-click.stop="() => this.openPayslipModal(payslip.id, payslip.employee_name)" title="Ver nómina" style="background: white; border-color: #E0E0E0; color: #616161;">
+                                            <i class="fa fa-eye me-1"></i> Ver
+                                        </button>
+                                        <button class="btn" t-on-click.stop="() => this.computePayslip(payslip.id)" title="Recalcular nómina" style="background: #E8EAF6; border-color: #C5CAE9; color: #3949AB;">
+                                            <i class="fa fa-calculator me-1"></i> Computar
+                                        </button>
+                                        <button class="btn" t-on-click.stop="() => this.openPayslipForm(payslip.id)" title="Abrir formulario completo" style="background: white; border-color: #E0E0E0; color: #616161;">
+                                            <i class="fa fa-external-link me-1"></i> Abrir
+                                        </button>
+                                    </div>
+                                    <!-- Opciones de novedades -->
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <button class="btn btn-sm" t-on-click.stop="() => this.addNoveltyToEmployee(payslip.employee_id, payslip.employee_name)" title="Agregar novedad/concepto" style="background: #5C6BC0; border-color: #5C6BC0; color: white;">
+                                            <i class="fa fa-plus me-1"></i> Novedad
+                                        </button>
+                                        <button class="btn btn-sm" t-on-click.stop="() => this.addOvertimeToEmployee(payslip.employee_id, payslip.employee_name)" title="Agregar hora extra" style="background: #7986CB; border-color: #7986CB; color: white;">
+                                            <i class="fa fa-clock-o me-1"></i> H. Extra
+                                        </button>
+                                        <button class="btn btn-sm" t-on-click.stop="() => this.addLeaveToEmployee(payslip.employee_id, payslip.employee_name)" title="Agregar ausencia" style="background: #9FA8DA; border-color: #9FA8DA; color: white;">
+                                            <i class="fa fa-calendar-minus-o me-1"></i> Ausencia
+                                        </button>
+                                        <button class="btn btn-sm" t-on-click.stop="() => this.addLoanToEmployee(payslip.employee_id, payslip.employee_name)" title="Agregar préstamo" style="background: #C5CAE9; border-color: #C5CAE9; color: #3949AB;">
+                                            <i class="fa fa-money me-1"></i> Préstamo
+                                        </button>
+                                        <button class="btn btn-sm" t-on-click.stop="() => this.viewEmployeeNovelties(payslip.employee_id, payslip.employee_name)" title="Ver todas las novedades" t-if="payslip.novelty_count > 0" style="background: #E8EAF6; border-color: #C5CAE9; color: #3949AB;">
+                                            <i class="fa fa-list"></i> (<t t-esc="payslip.novelty_count"/>)
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Tabla de líneas -->
+                                <div class="row g-0" style="min-height: 250px;">
+                                    <!-- DEVENGOS -->
+                                    <div class="col-6" style="border-right: 1px solid #EEEEEE;">
+                                        <div class="p-3">
+                                            <div class="d-flex align-items-center mb-3 pb-2" style="border-bottom: 2px solid #4CAF50;">
+                                                <i class="fa fa-plus-circle fa-lg me-2" style="color: #4CAF50;"></i>
+                                                <span class="fw-bold" style="color: #2E7D32; font-size: 14px;">DEVENGOS</span>
+                                            </div>
+
+                                            <!-- Salario Básico -->
+                                            <t t-if="payslip.basic_lines and payslip.basic_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-briefcase me-2" style="color: #43A047;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Salario Básico</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.basic_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#43A047'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-money'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Auxilio de Transporte -->
+                                            <t t-if="payslip.transport_lines and payslip.transport_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-bus me-2" style="color: #66BB6A;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Auxilio Transporte</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.transport_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#66BB6A'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-bus'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Horas Extra -->
+                                            <t t-if="payslip.overtime_lines and payslip.overtime_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-clock-o me-2" style="color: #26A69A;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Horas Extra y Recargos</span>
+                                                        <span class="badge ms-2" style="background: #E0F2F1; color: #00796B; font-size: 10px;"><t t-esc="payslip.overtime_lines.length"/></span>
+                                                    </div>
+                                                    <t t-foreach="payslip.overtime_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#26A69A'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-clock-o'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Ausencias/Vacaciones -->
+                                            <t t-if="payslip.absence_lines and payslip.absence_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-calendar-check-o me-2" style="color: #42A5F5;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Vacaciones / Ausencias</span>
+                                                        <span class="badge ms-2" style="background: #E3F2FD; color: #1565C0; font-size: 10px;"><t t-esc="payslip.absence_lines.length"/></span>
+                                                    </div>
+                                                    <t t-foreach="payslip.absence_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#42A5F5'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-calendar'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Devengos No Salariales -->
+                                            <t t-if="payslip.non_salary_earnings and payslip.non_salary_earnings.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-gift me-2" style="color: #7E57C2;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Devengos No Salariales</span>
+                                                        <span class="badge ms-2" style="background: #EDE7F6; color: #5E35B1; font-size: 10px;"><t t-esc="payslip.non_salary_earnings.length"/></span>
+                                                    </div>
+                                                    <t t-foreach="payslip.non_salary_earnings" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#7E57C2'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-gift'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- IBD/IBC del Período -->
+                                            <t t-if="payslip.ibd_ibc_lines and payslip.ibd_ibc_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-database me-2" style="color: #0097A7;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">IBD / IBC del Período</span>
+                                                        <span class="badge ms-2" style="background: #E0F7FA; color: #00838F; font-size: 10px;"><t t-esc="payslip.ibd_ibc_lines.length"/></span>
+                                                    </div>
+                                                    <t t-foreach="payslip.ibd_ibc_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#0097A7'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-database'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- IBC de Períodos Anteriores -->
+                                            <t t-if="payslip.ibc_previous_lines and payslip.ibc_previous_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-history me-2" style="color: #607D8B;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">IBC Períodos Anteriores</span>
+                                                        <span class="badge ms-2" style="background: #ECEFF1; color: #455A64; font-size: 10px;"><t t-esc="payslip.ibc_previous_lines.length"/></span>
+                                                    </div>
+                                                    <t t-foreach="payslip.ibc_previous_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#607D8B'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-history'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Otros Devengos -->
+                                            <t t-if="payslip.other_earnings and payslip.other_earnings.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-plus me-2" style="color: #81C784;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Otros Devengos</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.other_earnings" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#81C784'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-plus'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Total Devengos -->
+                                            <div class="pt-2 mt-3 d-flex justify-content-between fw-bold" style="border-top: 2px solid #4CAF50; background: #E8F5E9; padding: 8px; border-radius: 4px;">
+                                                <span style="color: #2E7D32;"><i class="fa fa-calculator me-2"></i>TOTAL DEVENGOS</span>
+                                                <span style="color: #2E7D32; font-size: 15px;"><t t-esc="formatCurrency(payslip.gross)"/></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- DEDUCCIONES -->
+                                    <div class="col-6">
+                                        <div class="p-3">
+                                            <div class="d-flex align-items-center mb-3 pb-2" style="border-bottom: 2px solid #EF5350;">
+                                                <i class="fa fa-minus-circle fa-lg me-2" style="color: #EF5350;"></i>
+                                                <span class="fw-bold" style="color: #C62828; font-size: 14px;">DEDUCCIONES</span>
+                                            </div>
+
+                                            <!-- Salud -->
+                                            <t t-if="payslip.health_lines and payslip.health_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-medkit me-2" style="color: #EF5350;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Salud (EPS)</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.health_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#EF5350'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-medkit'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Pensión -->
+                                            <t t-if="payslip.pension_lines and payslip.pension_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-shield me-2" style="color: #F44336;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Pensión</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.pension_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#F44336'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-shield'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Fondo Solidaridad -->
+                                            <t t-if="payslip.solidarity_lines and payslip.solidarity_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-handshake-o me-2" style="color: #E57373;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Fondo Solidaridad</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.solidarity_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#E57373'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-handshake-o'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Retención en la Fuente -->
+                                            <t t-if="payslip.retention_lines and payslip.retention_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-percent me-2" style="color: #FF7043;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Retención Fuente</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.retention_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#FF7043'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-percent'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Préstamos -->
+                                            <t t-if="payslip.loan_lines and payslip.loan_lines.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-credit-card me-2" style="color: #7986CB;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Préstamos</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.loan_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#7986CB'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-credit-card'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Otras Deducciones -->
+                                            <t t-if="payslip.other_deductions and payslip.other_deductions.length > 0">
+                                                <div class="mb-3">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-minus me-2" style="color: #EF9A9A;"></i>
+                                                        <span class="fw-bold small" style="color: #424242;">Otras Deducciones</span>
+                                                    </div>
+                                                    <t t-foreach="payslip.other_deductions" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#EF9A9A'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-minus'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Total Deducciones -->
+                                            <div class="pt-2 mt-3 d-flex justify-content-between fw-bold" style="border-top: 2px solid #EF5350; background: #FFEBEE; padding: 8px; border-radius: 4px;">
+                                                <span style="color: #C62828;"><i class="fa fa-calculator me-2"></i>TOTAL DEDUCCIONES</span>
+                                                <span style="color: #C62828; font-size: 15px;"><t t-esc="formatCurrency(payslip.deductions)"/></span>
+                                            </div>
+
+                                            <!-- Prestaciones Sociales -->
+                                            <t t-if="payslip.benefits_lines and payslip.benefits_lines.length > 0">
+                                                <div class="mt-3 pt-2" style="border-top: 2px dashed #FF9800;">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-trophy me-2" style="color: #FF9800;"></i>
+                                                        <span class="fw-bold small" style="color: #E65100;">Prestaciones Sociales</span>
+                                                        <span class="badge ms-2" style="background: #FFF3E0; color: #E65100; font-size: 10px;"><t t-esc="payslip.benefits_lines.length"/></span>
+                                                    </div>
+                                                    <t t-foreach="payslip.benefits_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#FF9800'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-trophy'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- Provisiones -->
+                                            <t t-if="payslip.provision_lines and payslip.provision_lines.length > 0">
+                                                <div class="mt-3 pt-2" style="border-top: 2px dashed #9C27B0;">
+                                                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #E0E0E0;">
+                                                        <i class="fa fa-bank me-2" style="color: #9C27B0;"></i>
+                                                        <span class="fw-bold small" style="color: #7B1FA2;">Provisiones</span>
+                                                        <span class="badge ms-2" style="background: #F3E5F5; color: #7B1FA2; font-size: 10px;"><t t-esc="payslip.provision_lines.length"/></span>
+                                                    </div>
+                                                    <t t-foreach="payslip.provision_lines" t-as="line" t-key="line.id">
+                                                        <t t-call="lavish_hr_payroll.PayslipLineRow">
+                                                            <t t-set="lineColor" t-value="'#9C27B0'"/>
+                                                            <t t-set="lineIcon" t-value="'fa-bank'"/>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Registros: Horas Extra y Ausencias -->
+                                <div t-if="(payslip.overtime_records and payslip.overtime_records.length > 0) or (payslip.leave_records and payslip.leave_records.length > 0)"
+                                     class="row g-0" style="border-top: 1px solid #EEEEEE; background: #FAFAFA;">
+                                    <div class="col-6" style="border-right: 1px solid #EEEEEE;">
+                                        <div class="p-3" t-if="payslip.overtime_records and payslip.overtime_records.length > 0">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fa fa-clock-o me-2" style="color: #26A69A;"></i>
+                                                <span class="fw-bold small" style="color: #00796B;">Horas Extra Registradas (<t t-esc="payslip.overtime_count"/>)</span>
+                                            </div>
+                                            <t t-foreach="payslip.overtime_records" t-as="ot" t-key="ot.id">
+                                                <div class="d-flex justify-content-between align-items-center py-1 px-2 mb-1 rounded" style="background: white; font-size: 11px; border: 1px solid #E0E0E0;">
+                                                    <div>
+                                                        <span style="color: #424242;"><t t-esc="ot.type"/></span>
+                                                        <span class="ms-2" style="color: #9E9E9E;"><i class="fa fa-calendar me-1"></i><t t-esc="ot.date"/></span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="badge" style="background: #E0F2F1; color: #00796B;"><t t-esc="formatNumber(ot.hours)"/> hrs</span>
+                                                        <i class="fa fa-info-circle" style="color: #9E9E9E; cursor: pointer;" t-on-click.stop="() => this.viewOvertime(ot.id)" title="Ver detalle"></i>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-3" t-if="payslip.leave_records and payslip.leave_records.length > 0">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i class="fa fa-calendar-minus-o me-2" style="color: #42A5F5;"></i>
+                                                <span class="fw-bold small" style="color: #1565C0;">Ausencias Registradas (<t t-esc="payslip.leave_count"/>)</span>
+                                            </div>
+                                            <t t-foreach="payslip.leave_records" t-as="lv" t-key="lv.id">
+                                                <div class="d-flex justify-content-between align-items-center py-1 px-2 mb-1 rounded" style="background: white; font-size: 11px; border: 1px solid #E0E0E0;">
+                                                    <div>
+                                                        <span style="color: #424242;"><t t-esc="lv.type"/></span>
+                                                        <span class="ms-2" style="color: #9E9E9E;"><t t-esc="lv.date_from"/> - <t t-esc="lv.date_to"/></span>
+                                                    </div>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <span class="badge" style="background: #E3F2FD; color: #1565C0;"><t t-esc="formatNumber(lv.days)"/> días</span>
+                                                        <i class="fa fa-info-circle" style="color: #9E9E9E; cursor: pointer;" t-on-click.stop="() => this.viewLeave(lv.id)" title="Ver detalle"></i>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Novedades -->
+                                <div t-if="payslip.novelties and payslip.novelties.length > 0" style="border-top: 1px solid #EEEEEE;">
+                                    <div class="p-3" style="background: #E8EAF6;">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i class="fa fa-bell me-2" style="color: #3949AB;"></i>
+                                            <span class="fw-bold small" style="color: #3949AB;">Novedades Aplicadas (<t t-esc="payslip.novelties.length"/>)</span>
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <t t-foreach="payslip.novelties" t-as="nov" t-key="nov.id">
+                                                <span class="badge px-2 py-1" style="background: #C5CAE9; color: #283593; font-size: 11px;">
+                                                    <t t-esc="nov.concept"/> - <t t-esc="formatCurrency(nov.amount)"/>
+                                                    <span t-if="nov.date" class="ms-1" style="opacity: 0.7;">(<t t-esc="nov.date"/>)</span>
+                                                </span>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- NETO A PAGAR -->
+                                <div class="p-3 d-flex justify-content-between align-items-center" style="background: #3949AB; color: white;">
+                                    <span class="fw-bold fs-5"><i class="fa fa-money me-2"></i>NETO A PAGAR</span>
+                                    <span class="fs-3 fw-bold"><t t-esc="formatCurrency(payslip.net)"/></span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <!-- Sub-template para lineas de nomina -->
+    <t t-name="lavish_hr_payroll.PayslipLineRow">
+        <div class="d-flex justify-content-between align-items-center py-1 px-2 mb-1 rounded"
+             style="font-size: 12px; background: #FAFAFA; cursor: pointer; transition: background 0.2s;"
+             t-on-click.stop="() => this.viewPayslipLineDetail(line.id, line.name)"
+             t-att-title="'Click para ver detalle de: ' + line.name">
+            <div class="d-flex align-items-center" style="max-width: 55%;">
+                <span class="badge me-2" style="background: #E8EAF6; color: #3949AB; font-size: 9px; padding: 2px 4px;">
+                    <t t-esc="line.id"/>
+                </span>
+                <span class="text-truncate" style="color: #616161;" t-att-title="line.name">
+                    <span class="me-1" style="color: #9E9E9E; font-size: 10px; font-family: monospace;"><t t-esc="line.code"/></span>
+                    <t t-esc="line.name"/>
+                </span>
+                <i t-if="line.rule_id" class="fa fa-info-circle ms-2"
+                   style="color: #BDBDBD; cursor: pointer; font-size: 11px;"
+                   t-on-click.stop="() => this.viewSalaryRule(line.rule_id, line.rule_name)"
+                   title="Ver regla salarial"></i>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span t-if="line.category" class="badge" style="background: #F5F5F5; color: #757575; font-size: 9px;">
+                    <t t-esc="line.category"/>
+                </span>
+                <span t-if="line.quantity and line.quantity != 1" class="badge" style="background: #EEEEEE; color: #757575; font-size: 9px;">
+                    <t t-esc="formatNumber(line.quantity)"/> x <t t-esc="formatNumber(line.rate)"/>%
+                </span>
+                <span class="fw-bold" t-att-style="'color: ' + lineColor"><t t-esc="formatCurrency(Math.abs(line.total))"/></span>
+                <i class="fa fa-external-link-square" style="color: #BDBDBD; font-size: 10px;" title="Ver detalle"></i>
+            </div>
+        </div>
+    </t>
+
+</templates>

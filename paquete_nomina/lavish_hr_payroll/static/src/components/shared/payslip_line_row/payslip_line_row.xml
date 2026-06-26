@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.SharedPayslipLineRow">
+        <div class="payslip-line" t-on-click="onClickDetail">
+            <!-- Icono de categoria -->
+            <i t-att-class="'payslip-line__icon fa ' + icon"
+               t-att-style="'color: ' + iconColor"/>
+
+            <!-- Nombre y codigo -->
+            <div class="payslip-line__name">
+                <t t-esc="name"/>
+                <span t-if="props.showCode and code" class="payslip-line__code">
+                    (<t t-esc="code"/>)
+                </span>
+            </div>
+
+            <!-- Cantidad (opcional) -->
+            <span t-if="props.showQty and quantity !== null" class="payslip-line__qty">
+                <t t-esc="quantity"/>
+            </span>
+
+            <!-- Total -->
+            <span t-att-class="'payslip-line__amount ' + amountClass">
+                <t t-esc="total"/>
+            </span>
+
+            <!-- Acciones (opcional) -->
+            <div t-if="hasActions" class="payslip-line__actions">
+                <button t-if="props.onViewRule"
+                        class="btn btn-sm btn-link p-0 me-1"
+                        t-on-click="onClickRule"
+                        title="Ver regla">
+                    <i class="fa fa-cog"/>
+                </button>
+                <button t-if="props.onViewDetail"
+                        class="btn btn-sm btn-link p-0"
+                        t-on-click="onClickDetail"
+                        title="Ver detalle">
+                    <i class="fa fa-external-link"/>
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

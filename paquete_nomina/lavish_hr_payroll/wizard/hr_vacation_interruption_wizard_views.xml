@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr_vacation_interruption_wizard_form" model="ir.ui.view">
+            <field name="name">hr.vacation.interruption.wizard.form</field>
+            <field name="model">hr.vacation.interruption.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Interrumpir Vacaciones">
+                    <group>
+                        <group string="Vacaciones Actuales">
+                            <field name="leave_id" invisible="1"/>
+                            <field name="employee_id"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="total_days"/>
+                        </group>
+                        <group string="Interrupcion">
+                            <field name="interruption_date"/>
+                            <field name="reason_id"/>
+                            <field name="days_enjoyed" readonly="1"/>
+                            <field name="days_returned" readonly="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="detail" placeholder="Detalle adicional sobre la interrupcion..."/>
+                    </group>
+                    <group string="Retomar Vacaciones">
+                        <group>
+                            <field name="will_return" widget="boolean_toggle"/>
+                            <field name="return_date" invisible="not will_return"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Confirmar Interrupcion" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_hr_vacation_interruption_wizard" model="ir.actions.act_window">
+            <field name="name">Interrumpir Vacaciones</field>
+            <field name="res_model">hr.vacation.interruption.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_leave_id': active_id}</field>
+        </record>
+    </data>
+</odoo>

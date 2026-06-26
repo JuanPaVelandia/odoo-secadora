@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.SharedDashboardCard">
+        <div t-att-class="cardClass + (state.isFullscreen ? ' fullscreen-modal' : '')">
+            <div t-att-class="state.isFullscreen ? 'modal d-block' : ''">
+                <div t-att-class="state.isFullscreen ? 'modal-dialog modal-xl modal-dialog-centered' : ''">
+                    <div t-att-class="state.isFullscreen ? 'modal-content' : 'card h-100'">
+
+                        <!-- Header -->
+                        <div t-if="hasHeader" t-att-class="headerClass">
+                            <h5 class="mb-0 d-flex align-items-center gap-2">
+                                <!-- Lottie Icon -->
+                                <t t-if="lottieIconPath">
+                                    <lord-icon
+                                        t-att-src="lottieIconPath"
+                                        trigger="loop"
+                                        delay="2000"
+                                        colors="primary:#0d6efd,secondary:#ffc107"
+                                        style="width:28px;height:28px;vertical-align:middle;">
+                                    </lord-icon>
+                                </t>
+                                <!-- FA Icon -->
+                                <t t-elif="props.icon">
+                                    <i t-att-class="iconClass"/>
+                                </t>
+                                <t t-esc="props.title"/>
+                            </h5>
+
+                            <!-- Header Actions -->
+                            <div class="d-flex gap-1">
+                                <!-- Custom header slot -->
+                                <t t-slot="header_actions"/>
+
+                                <!-- Fullscreen toggle -->
+                                <button t-if="props.fullscreenEnabled"
+                                        class="btn btn-sm btn-light"
+                                        t-on-click="toggleFullscreen"
+                                        title="Pantalla completa">
+                                    <i t-att-class="'fa ' + (state.isFullscreen ? 'fa-compress' : 'fa-expand')"/>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Body -->
+                        <div t-att-class="bodyClass">
+                            <!-- Loading State -->
+                            <t t-if="props.loading">
+                                <div class="payslip-loading">
+                                    <i class="payslip-loading__spinner fa fa-spinner fa-spin fa-3x"/>
+                                    <p class="payslip-loading__text mt-3">Cargando...</p>
+                                </div>
+                            </t>
+
+                            <!-- Empty State -->
+                            <t t-elif="props.empty">
+                                <div class="payslip-empty">
+                                    <t t-if="lottieIconPath">
+                                        <lord-icon
+                                            t-att-src="lottieIconPath"
+                                            trigger="loop"
+                                            delay="2000"
+                                            colors="primary:#9E9E9E"
+                                            style="width:64px;height:64px;">
+                                        </lord-icon>
+                                    </t>
+                                    <t t-else="">
+                                        <i class="payslip-empty__icon fa fa-inbox"/>
+                                    </t>
+                                    <p class="payslip-empty__text mt-2 mb-0">
+                                        <t t-esc="props.emptyMessage"/>
+                                    </p>
+                                </div>
+                            </t>
+
+                            <!-- Main Content -->
+                            <t t-else="">
+                                <t t-slot="default"/>
+                            </t>
+                        </div>
+
+                        <!-- Footer (if slot provided) -->
+                        <div t-if="hasFooter and !state.isFullscreen" class="card-footer">
+                            <t t-slot="footer"/>
+                        </div>
+
+                        <!-- Fullscreen Footer -->
+                        <div t-if="state.isFullscreen" class="modal-footer">
+                            <t t-slot="footer"/>
+                            <button class="btn btn-secondary" t-on-click="toggleFullscreen">
+                                <i class="fa fa-times me-1"/> Cerrar
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backdrop for fullscreen -->
+            <div t-if="state.isFullscreen"
+                 class="modal-backdrop fade show"
+                 t-on-click="toggleFullscreen"/>
+        </div>
+    </t>
+
+</templates>

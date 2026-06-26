@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.SummaryHeroCard">
+        <div class="card summary-hero-card">
+            <div class="card-body">
+                <div class="summary-hero-grid">
+                    <div class="summary-hero-info">
+                        <div class="summary-hero-brand">
+                            <div class="summary-hero-logo">
+                                <t t-if="hasLogo">
+                                    <img t-att-src="company.logo_url" alt="Logo"/>
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-building-o"/>
+                                </t>
+                            </div>
+                            <div class="summary-hero-title">
+                                <h4 class="mb-1">Resumen de nomina</h4>
+                                <p class="text-muted mb-0">
+                                    Periodo: <strong><t t-esc="periodName"/></strong>
+                                </p>
+                                <p class="text-muted mb-0">
+                                    <t t-esc="company.name"/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="summary-hero-metrics">
+                            <div class="summary-hero-metric">
+                                <span class="label">Total devengado</span>
+                                <span class="value text-success"><t t-esc="totalDevengado"/></span>
+                            </div>
+                            <div class="summary-hero-metric">
+                                <span class="label">Nomina neta</span>
+                                <span class="value text-primary"><t t-esc="totalNeto"/></span>
+                            </div>
+                            <div class="summary-hero-metric">
+                                <span class="label">Empleados activos</span>
+                                <span class="value"><t t-esc="totalEmployees"/></span>
+                            </div>
+                            <div class="summary-hero-metric">
+                                <span class="label">Nominas procesadas</span>
+                                <span class="value"><t t-esc="totalPayslips"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="summary-hero-chart">
+                        <div class="summary-hero-chart-header">
+                            <div>
+                                <span class="small text-muted d-block">Nomina neta (ultimos 6 meses)</span>
+                                <span class="summary-hero-total"><t t-esc="trendTotal"/></span>
+                            </div>
+                            <div class="text-end">
+                                <span class="summary-hero-change" t-att-class="trendChangeClass">
+                                    <i class="fa" t-att-class="trendChangeIcon"/>
+                                    <t t-esc="trendChange"/>%
+                                </span>
+                                <small class="text-muted d-block">Mes anterior: <t t-esc="trendPrev"/></small>
+                            </div>
+                        </div>
+                        <t t-if="hasTrend">
+                            <div class="summary-hero-chart-canvas">
+                                <canvas t-ref="chartCanvas"/>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="summary-hero-empty text-muted">
+                                <i class="fa fa-info-circle me-1"/>
+                                Sin datos de tendencia para el periodo
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

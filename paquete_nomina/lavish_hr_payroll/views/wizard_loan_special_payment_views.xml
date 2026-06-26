@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista Form del Wizard de Pago Especial -->
+    <record id="view_wizard_loan_special_payment_form" model="ir.ui.view">
+        <field name="name">wizard.loan.special.payment.form</field>
+        <field name="model">wizard.loan.special.payment</field>
+        <field name="arch" type="xml">
+            <form string="Pago Especial del Préstamo">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="loan_id" readonly="1" nolabel="1"/>
+                        </h1>
+                    </div>
+                    
+                    <group>
+                        <group string="Información del Pago">
+                            <field name="amount"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="date"/>
+                            <field name="apply_interest"/>
+                        </group>
+                        <group string="Información del Préstamo">
+                            <field name="current_balance" readonly="1"/>
+                            <field name="pending_installments_count" readonly="1"/>
+                        </group>
+                    </group>
+                    
+                    <group string="Política de Aplicación">
+                        <field name="policy" widget="radio"/>
+                        <field name="settlement"/>
+                        <field name="group_count" invisible="policy != 'group_next'" required="policy == 'group_next'"/>
+                    </group>
+                    
+                    <group string="Observaciones">
+                        <field name="note" nolabel="1" placeholder="Observaciones del pago especial..."/>
+                    </group>
+                    
+                    <div class="alert alert-info" role="alert" invisible="policy != 'replace_next'">
+                        <strong>Reemplazar Siguiente Cuota:</strong> El monto especificado reemplazará completamente la siguiente cuota pendiente.
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert" invisible="policy != 'reduce_installments'">
+                        <strong>Reducir Cuotas Restantes:</strong> El monto se aplicará proporcionalmente a todas las cuotas pendientes.
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert" invisible="policy != 'extra_payment'">
+                        <strong>Pago Adicional:</strong> El monto se registra como pago extra sin modificar el cronograma de cuotas.
+                    </div>
+                    
+                    <div class="alert alert-info" role="alert" invisible="policy != 'group_next'">
+                        <strong>Agrupar Cuotas:</strong> Las siguientes <field name="group_count" class="oe_inline"/> cuotas se combinarán en una sola.
+                    </div>
+                    
+                    <div class="alert alert-warning" role="alert" invisible="not settlement">
+                        <strong>Finiquito/Liquidación:</strong> Este pago liquidará completamente el préstamo. Se aplicarán intereses hasta la fecha especificada.
+                    </div>
+                    
+                </sheet>
+                <footer>
+                    <button name="action_apply_payment" string="Aplicar Pago" type="object" class="btn-primary"/>
+                    <button name="action_preview" string="Vista Previa" type="object" class="btn-secondary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del Wizard -->
+    <record id="action_wizard_loan_special_payment" model="ir.actions.act_window">
+        <field name="name">Pago Especial</field>
+        <field name="res_model">wizard.loan.special.payment</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_wizard_loan_special_payment_form"/>
+    </record>
+
+</odoo>

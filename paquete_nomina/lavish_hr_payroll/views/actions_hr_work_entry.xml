@@ -1,0 +1,269 @@
+<odoo>
+  <data>
+        
+        <record model="ir.actions.act_window"  id="action_hr_work_entry_refresh">
+				<field name="name">Actualizar entradas de trabajo</field>
+				<field name="res_model">hr.work.entry.refresh</field>
+				<field name="view_mode">form</field>
+                <field name="target">new</field>
+		</record>
+
+        <record id="hr_work_entry_refresh_form" model="ir.ui.view">
+            <field name="name">Actualizar entradas de trabajo</field>
+            <field name="model">hr.work.entry.refresh</field>
+            <field name="arch" type="xml">
+                    <form string="Actualizar entradas de trabajo"> 
+                        <sheet>                            
+                            <group>
+                                <group>
+                                    <label for="date_start"></label>
+                                    <div name="date_start">
+                                        <div class="text-info" invisible="earliest_available_date_message == ''">
+                                            <i class="fa fa-info-circle me-1" title="Hint"/>
+                                            <field name="earliest_available_date_message" nolabel="1"/>
+                                        </div >
+                                        <field name="date_start"/>
+                                    </div>
+                                    <label for="date_stop"></label>
+                                    <div name="date_stop">
+                                        <div class="text-info" invisible="latest_available_date_message == ''">
+                                            <i class="fa fa-info-circle me-1" title="Hint"/>
+                                            <field name="latest_available_date_message" nolabel="1"/>
+                                        </div>
+                                        <field name="date_stop"/>
+                                    </div>
+                                </group>
+                            </group>
+                            <div>
+                                <span class="text-muted">Advertencia: La regeneración de la entrada de trabajo eliminará todos los cambios manuales en el período seleccionado.</span>
+                            </div>  
+                            <group>                                      
+                                <field name="contract_ids">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="employee_id"/>
+                                        <field name="date_start"/>                            
+                                    </list>
+                                </field>                                           
+                            </group>                           
+                        </sheet>
+                        <footer>
+                            <button name="refresh_work_entry" string="Actualizar" type="object" class="oe_highlight"/>  
+                            <button name="cancel_button" string="Cancelar" class="btn-secondary" special="cancel"/>                                               
+                        </footer>
+                    </form>
+                </field>
+        </record>
+
+        <record id="hr_contract_view_kanban_ext" model="ir.ui.view">
+            <field name="name">hr.contract.kanban</field>
+            <field name="model">hr.contract</field>
+            <field name="inherit_id" ref="hr_contract.hr_contract_view_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//kanban" position="replace">
+                    <kanban default_order="date_end" sample="1">
+                        <!-- Fields that need to be available for the view -->
+                        <field name="employee_id"/>
+                        <field name="activity_state"/>
+                        <field name="state"/>
+                        <field name="emp_identification_id"/>
+                        <field name="name"/>
+                        <field name="job_id"/>
+                        <field name="department_id"/>
+                        <field name="date_start"/>
+                        <field name="date_end"/>
+                        <field name="contract_type"/>
+                        <field name="subcontract_type"/>
+                        <field name="wage"/>
+                        <field name="sequence"/>
+                        <field name="risk_id"/>
+                        <field name="economic_activity_level_risk_id"/>
+                        <field name="contract_days"/>
+                        <field name="ley_2101"/>
+                        <field name="remote_work_allowance"/>
+                        <field name="minimum_wage"/>
+                        <field name="not_pay_auxtransportation"/>
+                        <field name="not_pay_overtime"/>
+                        <field name="pay_auxtransportation"/>
+                        <field name="method_schedule_pay"/>
+                        <field name="not_validate_top_auxtransportation"/>
+                        <field name="retention_procedure"/>
+                        <field name="proyectar_fondos"/>
+                        <field name="proyectar_ret"/>
+                        <field name="kanban_state"/>
+                        
+                        <!-- Progress bar for activity states -->
+                        <progressbar field="activity_state" colors="{&quot;planned&quot;: &quot;success&quot;, &quot;today&quot;: &quot;warning&quot;, &quot;overdue&quot;: &quot;danger&quot;}"/>
+                        
+                        <templates>
+                            <!-- Define dropdown menu options -->
+                            <t t-name="menu" groups="hr_contract.group_hr_contract_manager">
+                                <a role="menuitem" type="edit" class="dropdown-item">Editar Contrato</a>
+                                <a role="menuitem" type="delete" class="dropdown-item">Eliminar</a>
+                                <a role="menuitem" class="dropdown-item" name="action_state_open" invisible="state != 'draft'">Activar</a>
+                                <a role="menuitem" class="dropdown-item" name="action_state_finished" invisible="state != 'open'">Finalizar por liquidar</a>
+                                <a role="menuitem" class="dropdown-item" name="action_state_cancel">Cancelar</a>
+                                <a role="menuitem" class="dropdown-item" name="generate_labor_certificate">Certificado Laboral</a>
+                                <a role="menuitem" class="dropdown-item" name="generate_report_severance">Carta retiro de cesantías</a>
+                                <a role="menuitem" class="dropdown-item" name="action_open_payslips">Ver nóminas</a>
+                            </t>
+                            
+                            <!-- Card template -->
+                            <t t-name="card">
+                                <!-- Main contract information -->
+                                <t t-set="contract_color" t-value="record.contract_type.raw_value == 'fijo' || record.contract_type.raw_value == 'fijo_parcial' ? '#3498db' : 
+                                                    record.contract_type.raw_value == 'obra' || record.contract_type.raw_value == 'obra_parcial' || record.contract_type.raw_value == 'obra_integral' ? '#e74c3c' : 
+                                                    record.contract_type.raw_value == 'indefinido' ? '#2ecc71' : 
+                                                    record.contract_type.raw_value == 'aprendizaje' ? '#f39c12' : 
+                                                    record.contract_type.raw_value == 'temporal' ? '#9b59b6' : '#95a5a6'"/>
+                                
+                                <div class="border-top" t-attf-style="border-color: #{contract_color} !important; border-top-width: 3px !important;"/>
+                                
+                                <!-- Contract ID and Type -->
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge rounded-pill py-1 px-2 text-white me-2" t-attf-style="background-color: #{contract_color};">
+                                        <i t-if="record.contract_type.raw_value == 'fijo' || record.contract_type.raw_value == 'fijo_parcial'" class="fa fa-calendar me-1"/>
+                                        <i t-elif="record.contract_type.raw_value == 'obra' || record.contract_type.raw_value == 'obra_parcial' || record.contract_type.raw_value == 'obra_integral'" class="fa fa-wrench me-1"/>
+                                        <i t-elif="record.contract_type.raw_value == 'indefinido'" class="fa fa-infinity me-1"/>
+                                        <i t-elif="record.contract_type.raw_value == 'aprendizaje'" class="fa fa-graduation-cap me-1"/>
+                                        <i t-elif="record.contract_type.raw_value == 'temporal'" class="fa fa-hourglass-half me-1"/>
+                                        <i t-else="" class="fa fa-file-text-o me-1"/>
+                                        
+                                        <t t-if="record.contract_type.raw_value == 'fijo'">Fijo</t>
+                                        <t t-elif="record.contract_type.raw_value == 'fijo_parcial'">Fijo P.</t>
+                                        <t t-elif="record.contract_type.raw_value == 'obra'">Obra</t>
+                                        <t t-elif="record.contract_type.raw_value == 'indefinido'">Indefinido</t>
+                                        <t t-elif="record.contract_type.raw_value == 'aprendizaje'">Aprendizaje</t>
+                                        <t t-elif="record.contract_type.raw_value == 'temporal'">Temporal</t>
+                                        <t t-else=""><field name="contract_type"/></t>
+                                        
+                                        <t t-if="record.subcontract_type.raw_value == 'obra_parcial'"> - Parcial</t>
+                                        <t t-elif="record.subcontract_type.raw_value == 'obra_integral'"> - Integral</t>
+                                        <t t-elif="record.subcontract_type.raw_value"> - <field name="subcontract_type"/></t>
+                                    </span>
+                                    <span class="badge rounded-pill text-dark bg-light">CL-<field name="sequence"/></span>
+                                </div>
+                                
+                                <!-- Contract name and employee information -->
+                                <field class="fw-bold fs-5" name="name"/>
+                                <field class="fw-medium mb-2" name="employee_id"/>
+                                <div class="text-muted small mb-1">CC: <field name="emp_identification_id"/></div>
+                                
+                                <!-- Department and job position -->
+                                <div t-if="record.department_id.raw_value" class="d-flex align-items-center text-muted mb-1">
+                                    <i class="fa fa-building me-1 opacity-75" title="Departamento"/>
+                                    <field name="department_id"/>
+                                </div>
+                                <div t-if="record.job_id.raw_value" class="d-flex align-items-center text-muted mb-2">
+                                    <i class="fa fa-briefcase me-1 opacity-75" title="Cargo"/>
+                                    <field name="job_id"/>
+                                </div>
+                                
+                                <!-- Contract period -->
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div class="text-muted">Inicio: <field name="date_start"/></div>
+                                        <div t-if="record.date_end.raw_value" class="text-muted">Fin: <field name="date_end"/></div>
+                                    </div>
+                                    
+                                    <!-- Contract progress bar (only for fixed-term contracts) -->
+                                    <t t-if="record.date_end.raw_value">
+                                        <t t-set="today" t-value="new Date().toISOString().split('T')[0]"/>
+                                        <t t-set="end_date" t-value="record.date_end.raw_value"/>
+                                        <t t-set="start_date" t-value="record.date_start.raw_value"/>
+                                        <t t-set="progress" t-value="((new Date(today) - new Date(start_date)) / (new Date(end_date) - new Date(start_date))) * 100"/>
+                                        <t t-set="progress_rounded" t-value="Math.min(100, Math.max(0, Math.round(progress)))"/>
+                                        
+                                        <div class="progress rounded-pill mt-1" style="height: 5px; background-color: #f5f5f5;">
+                                            <div t-attf-class="progress-bar" t-attf-style="width: #{progress_rounded}%; background-color: #{progress_rounded >= 100 ? '#e74c3c' : progress_rounded >= 70 ? '#f39c12' : '#2ecc71'};">
+                                            </div>
+                                        </div>
+                                        <div class="text-end small mt-1">
+                                            <span class="badge rounded-pill" t-attf-style="background-color: #{progress_rounded >= 100 ? '#e74c3c' : progress_rounded >= 70 ? '#f39c12' : '#2ecc71'}; color: white;">
+                                                <t t-out="progress_rounded"/>% completado
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                                
+                                <!-- Risk level and other key indicators -->
+                                <div t-if="record.risk_id.raw_value || record.retention_procedure.raw_value" class="mb-2">
+                                    <div t-if="record.risk_id.raw_value" class="d-flex align-items-center small mb-1">
+                                        <span class="badge rounded-pill bg-danger text-white me-1">ARL</span>
+                                        <span>Nivel <field name="risk_id"/> - <field name="economic_activity_level_risk_id"/></span>
+                                    </div>
+                                    <div t-if="record.retention_procedure.raw_value" class="d-flex align-items-center small">
+                                        <span class="badge rounded-pill bg-secondary text-white me-1">RET</span>
+                                        <span><field name="retention_procedure"/></span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Special flags using small icons/labels -->
+                                <div class="d-flex flex-wrap gap-1 mb-2">
+                                    <span t-if="record.ley_2101.raw_value" class="badge rounded-pill bg-success text-white px-2 py-1">LEY</span>
+                                    <span t-if="record.remote_work_allowance.raw_value" class="badge rounded-pill bg-info text-white px-2 py-1">REM</span>
+                                    <span t-if="record.minimum_wage.raw_value" class="badge rounded-pill bg-warning text-dark px-2 py-1">MIN</span>
+                                    <span t-if="record.not_pay_auxtransportation.raw_value" class="badge rounded-pill bg-danger text-white px-2 py-1">NAT</span>
+                                    <span t-if="record.not_pay_overtime.raw_value" class="badge rounded-pill bg-dark text-white px-2 py-1">NHE</span>
+                                    <span t-if="record.pay_auxtransportation.raw_value" class="badge rounded-pill bg-primary text-white px-2 py-1">TRA</span>
+                                </div>
+                                
+                                <!-- Contract days and payment method -->
+                                <div class="small text-muted mb-2">
+                                    <t t-if="record.contract_days.raw_value == 0">
+                                        <t t-set="days" t-value="Math.ceil((new Date() - new Date(record.date_start.raw_value)) / (1000 * 60 * 60 * 24))"/>
+                                        <t t-out="days"/>
+                                    </t>
+                                    <t t-else="">
+                                        <field name="contract_days"/>
+                                    </t>
+                                    días | <t t-if="record.method_schedule_pay.raw_value == 'bi-weekly'">Quincenal</t><t t-else="">Mensual</t>
+                                </div>
+                                
+                                <!-- Salary information -->
+                                <div class="fw-bold text-primary mb-2">
+                                    <field name="wage" widget="monetary"/> / <t t-if="record.method_schedule_pay.raw_value == 'bi-weekly'">Quinc.</t><t t-else="">Mes</t>
+                                </div>
+                                
+                                <!-- Quick action buttons -->
+                                <div class="btn-group mb-2" role="group">
+                                    <button class="btn btn-sm btn-outline-success" name="action_state_open" invisible="state != 'draft'" type="object" title="Activar">
+                                        Activar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-warning" name="action_state_finished" type="object" invisible="state != 'open'" title="Finalizar por liquidar">
+                                        Finalizar
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-secondary" name="generate_labor_certificate" type="object" title="Certificado Laboral">
+                                        Cert. Laboral
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" name="action_open_payslips" type="object" groups="hr_payroll.group_hr_payroll_user" title="Ver nóminas">
+                                        <i class="fa fa-file-text-o" title="Documento"/> Nóminas
+                                    </button>
+                                </div>
+                                
+                                <!-- Footer with state and activities -->
+                                <footer>
+                                    <field name="activity_ids" widget="kanban_activity"/>
+                                    <div class="d-flex ms-auto">
+                                        <field name="kanban_state" widget="state_selection"/>
+                                    </div>
+                                </footer>
+                            </t>
+                        </templates>
+                        
+                        <style>
+                        .o_kanban_record {
+                            transition: all 0.2s ease;
+                        }
+                        .o_kanban_record:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+                        }
+                        </style>
+                    </kanban>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
+      

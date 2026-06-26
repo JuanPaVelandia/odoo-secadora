@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineHeader">
+        <div class="pld-widget-section">
+            <div class="pld-section-header" 
+                 t-att-style="'background: ' + props.ruleConfig.gradient + '; border-bottom: 1px solid ' + props.ruleConfig.borderColor + ';'">
+                <div class="pld-header-left">
+                    <i t-att-class="'fa ' + props.ruleConfig.icon" 
+                       t-att-style="'color: ' + props.ruleConfig.color + '; font-size: 24px;'"/>
+                    <div class="pld-header-info">
+                        <span class="pld-badge" 
+                              t-att-style="'background: ' + props.ruleConfig.color + '; color: white;'">
+                            <t t-esc="props.line.code"/>
+                        </span>
+                        <span class="pld-header-title">
+                            <t t-esc="props.line.name"/>
+                        </span>
+                    </div>
+                </div>
+                <div class="pld-header-right">
+                    <span t-if="isDevengo" class="pld-badge pld-badge-devengo">
+                        <i class="fa fa-arrow-up"/> Devengo
+                    </span>
+                    <span t-else="" class="pld-badge pld-badge-deduccion">
+                        <i class="fa fa-arrow-down"/> Deducción
+                    </span>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

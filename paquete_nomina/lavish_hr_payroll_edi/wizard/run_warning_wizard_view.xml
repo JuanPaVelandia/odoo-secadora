@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hr_payslip_edi_run_warning_wizard_form" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.run.warning.wizard.form</field>
+        <field name="model">hr.payslip.edi.run.warning.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Advertencias de Datos Faltantes">
+                <sheet>
+                    <div class="alert alert-warning" role="alert">
+                        <strong>Se encontraron datos faltantes o inconsistentes.</strong>
+                        <p>Revise los errores antes de continuar con el envío a DIAN.</p>
+                    </div>
+                    <group>
+                        <field name="run_id" invisible="1"/>
+                        <field name="slip_ids" invisible="1"/>
+                        <field name="error_count" string="Total de Advertencias"/>
+                    </group>
+                    <separator string="Detalle de Advertencias"/>
+                    <group>
+                        <field name="warning_text" widget="text" nolabel="1"
+                            style="font-family: monospace; white-space: pre-wrap;
+                                   background-color: #f8f9fa; padding: 10px;
+                                   border-radius: 4px; min-height: 200px;"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_continue" string="Continuar de Todos Modos"
+                        type="object" class="btn-warning"
+                        confirm="¿Está seguro de continuar? Los documentos con errores pueden ser rechazados por la DIAN."/>
+                    <button name="action_cancel" string="Corregir Errores"
+                        type="object" class="btn-primary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

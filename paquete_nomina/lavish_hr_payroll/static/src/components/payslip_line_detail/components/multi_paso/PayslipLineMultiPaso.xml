@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineMultiPaso">
+        <div class="pld-widget-section pld-multipaso-view">
+            <!-- Header con tipo y base legal -->
+            <div class="pld-section-header pld-section-header-steps">
+                <div class="pld-header-left">
+                    <i t-att-class="'fa ' + props.ruleConfig.icon" t-att-style="'color: ' + props.ruleConfig.color + ';'"/>
+                    <span class="pld-header-title-dark"><t t-esc="data.titulo || 'CÁLCULO DETALLADO'"/></span>
+                    <span t-if="data.metodoLabel" class="pld-badge pld-badge-metodo"><t t-esc="data.metodoLabel"/></span>
+                </div>
+                <div class="pld-header-right">
+                    <span class="pld-badge pld-badge-steps"><t t-esc="totalPasos"/> pasos</span>
+                </div>
+            </div>
+
+            <div class="pld-section-content">
+                <!-- Base Legal y Explicación -->
+                <t t-if="data.baseLegal">
+                    <div class="pld-prov-intro">
+                        <div class="pld-prov-legal">
+                            <i class="fa fa-balance-scale"/>
+                            <a t-if="props.getLeyUrl(data.baseLegal)" t-att-href="props.getLeyUrl(data.baseLegal)" target="_blank" class="pld-legal-link" t-on-click.stop="">
+                                <t t-esc="data.baseLegal"/> <i class="fa fa-external-link"/>
+                            </a>
+                            <span t-else=""><t t-esc="data.baseLegal"/></span>
+                        </div>
+                        <t t-if="data.explicacion">
+                            <div class="pld-paso-explicacion">
+                                <i class="fa fa-info-circle"/> <t t-esc="data.explicacion"/>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Indicadores del backend -->
+                <t t-if="hasIndicadores">
+                    <div class="pld-indicadores-row">
+                        <t t-foreach="data.indicadores" t-as="ind" t-key="ind_index">
+                            <div t-att-class="'pld-indicador pld-indicador-' + (ind.color || 'primary')">
+                                <i t-att-class="'fa ' + (ind.icono || 'fa-info-circle')"/>
+                                <span><t t-esc="ind.texto"/></span>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Timeline Visual -->
+                <div class="pld-timeline">
+                    <t t-foreach="pasos" t-as="paso" t-key="paso_index">
+                        <div t-att-class="'pld-timeline-step ' + (isStepExpanded(paso.paso) ? 'pld-timeline-expanded' : '') + (paso.esFinal ? ' pld-timeline-final' : '')"
+                             t-on-click="() => this.scrollToStep(paso.paso)">
+                            <div class="pld-timeline-number" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                <t t-if="paso.esFinal"><i class="fa fa-check"/></t>
+                                <t t-else=""><t t-esc="paso.paso"/></t>
+                            </div>
+                            <div class="pld-timeline-label"><t t-esc="paso.etiquetaCorta || 'Paso ' + paso.paso"/></div>
+                        </div>
+                        <t t-if="paso_index &lt; pasos.length - 1">
+                            <div class="pld-timeline-connector"/>
+                        </t>
+                    </t>
+                </div>
+
+                <!-- Pasos Expandibles -->
+                <div class="pld-pasos-detalle">
+                    <t t-foreach="pasos" t-as="paso" t-key="'detail_' + paso_index">
+                        <div t-att-class="'pld-paso-row' + (paso.esFinal ? ' pld-paso-final' : '')">
+                            <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleStep(paso.paso)">
+                                <div class="pld-paso-left">
+                                    <span class="pld-paso-number-small" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                        <t t-if="paso.esFinal"><i class="fa fa-check"/></t>
+                                        <t t-else=""><t t-esc="paso.paso"/></t>
+                                    </span>
+                                    <div class="pld-paso-info">
+                                        <div class="pld-paso-titulo"><t t-esc="paso.concepto"/></div>
+                                        <div t-if="paso.formulaTexto" class="pld-paso-legal-small">
+                                            <i class="fa fa-calculator"/> <t t-esc="paso.formulaTexto"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pld-paso-right">
+                                    <span t-att-class="'pld-paso-valor' + (paso.esFinal ? ' pld-valor-final' : '')">
+                                        <t t-esc="formatPasoValue(paso)"/>
+                                    </span>
+                                    <i t-att-class="'fa fa-chevron-' + (isStepExpanded(paso.paso) ? 'up' : 'down')"/>
+                                </div>
+                            </div>
+
+                            <!-- Contenido Expandible del Paso -->
+                            <t t-if="isStepExpanded(paso.paso)">
+                                <div class="pld-paso-detalle">
+                                    <!-- Descripción del paso -->
+                                    <t t-if="paso.descripcion">
+                                        <div class="pld-paso-desc">
+                                            <i class="fa fa-info-circle"/> <t t-esc="paso.descripcion"/>
+                                        </div>
+                                    </t>
+
+                                    <!-- Tabla de detalle si tiene items -->
+                                    <t t-if="paso.items and paso.items.length > 0">
+                                        <table class="pld-paso-tabla">
+                                            <tbody>
+                                                <t t-foreach="paso.items" t-as="item" t-key="item_index">
+                                                    <!-- Separador visual -->
+                                                    <t t-if="item.formato === 'separator'">
+                                                        <tr class="pld-row-separator"><td colspan="3"><hr class="pld-separator"/></td></tr>
+                                                    </t>
+                                                    <!-- Encabezado de seccion -->
+                                                    <t t-elif="item.esEncabezado">
+                                                        <tr class="pld-row-header">
+                                                            <td colspan="2">
+                                                                <i t-if="item.icono" t-att-class="'fa ' + item.icono"/>
+                                                                <strong><t t-esc="item.nombre"/></strong>
+                                                                <span t-if="item.dias" class="pld-dias-badge"><t t-esc="item.dias"/> días</span>
+                                                            </td>
+                                                            <td t-if="item.valor !== null" class="text-right">
+                                                                <t t-esc="props.formatValue(item.valor, item.formato || 'currency')"/>
+                                                            </td>
+                                                            <td t-else=""/>
+                                                        </tr>
+                                                    </t>
+                                                    <!-- Subtotal -->
+                                                    <t t-elif="item.esSubtotal">
+                                                        <tr t-att-class="'pld-row-subtotal' + (item.esResultado ? ' pld-row-resultado' : '')">
+                                                            <td colspan="2">
+                                                                <i t-if="item.icono" t-att-class="'fa ' + item.icono"/>
+                                                                <strong><t t-esc="item.nombre"/></strong>
+                                                            </td>
+                                                            <td class="text-right">
+                                                                <strong><t t-esc="props.formatCurrency(item.valor)"/></strong>
+                                                                <span t-if="item.nota" class="pld-variacion-badge" t-att-class="item.nota.startsWith('+') ? 'pld-var-positive' : 'pld-var-negative'">
+                                                                    <t t-esc="item.nota"/>
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                    <!-- Fila normal -->
+                                                    <t t-else="">
+                                                        <tr t-att-class="(item.esResta ? 'pld-row-resta ' : '') + (item.esSuma ? 'pld-row-suma ' : '') + (item.esBase ? 'pld-row-base ' : '') + (item.esResultado ? 'pld-row-resultado ' : '') + (item.esTotal ? 'pld-row-total ' : '')">
+                                                            <td colspan="2">
+                                                                <i t-if="item.icono" t-att-class="'fa ' + item.icono + ' ' + (item.iconoClase || '')"/>
+                                                                <t t-esc="item.nombre"/>
+                                                                <span t-if="item.nota" class="pld-item-nota">(<t t-esc="item.nota"/>)</span>
+                                                            </td>
+                                                            <td t-att-class="'text-right ' + (item.esResta ? 'pld-valor-resta' : '') + (item.esSuma ? 'pld-valor-suma' : '') + (item.esResultado ? 'pld-valor-resultado' : '')">
+                                                                <t t-if="item.esResta">- </t>
+                                                                <t t-if="item.esSuma">+ </t>
+                                                                <t t-if="item.valor !== null">
+                                                                    <t t-esc="props.formatValue(item.valor, item.formato || 'currency')"/>
+                                                                </t>
+                                                                <span t-if="item.variacion" class="pld-variacion-badge" t-att-class="item.variacion > 0 ? 'pld-var-positive' : 'pld-var-negative'">
+                                                                    <t t-esc="item.variacion > 0 ? '+' + item.variacion.toFixed(1) + '%' : item.variacion.toFixed(1) + '%'"/>
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </t>
+                                            </tbody>
+                                            <t t-if="paso.subtotal">
+                                                <tfoot>
+                                                    <tr class="pld-tabla-total">
+                                                        <td colspan="2"><strong><t t-esc="paso.subtotalLabel || 'SUBTOTAL'"/></strong></td>
+                                                        <td class="text-right"><strong><t t-esc="props.formatCurrency(paso.subtotal)"/></strong></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </t>
+                                        </table>
+                                    </t>
+
+                                    <!-- Fórmula visual si la tiene -->
+                                    <t t-if="paso.formulaVisual">
+                                        <div class="pld-formula-visual">
+                                            <t t-foreach="paso.formulaVisual" t-as="elem" t-key="elem_index">
+                                                <t t-if="elem.tipo === 'operador'">
+                                                    <span class="pld-formula-op"><t t-esc="elem.valor"/></span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-att-class="'pld-formula-item' + (elem.esResultado ? ' pld-formula-result' : '')">
+                                                        <span class="pld-formula-label"><t t-esc="elem.etiqueta"/></span>
+                                                        <span class="pld-formula-value"><t t-esc="props.formatValue(elem.valor, elem.formato || 'currency')"/></span>
+                                                    </span>
+                                                </t>
+                                            </t>
+                                        </div>
+                                    </t>
+
+                                    <!-- Notas del paso -->
+                                    <t t-if="paso.notas and paso.notas.length > 0">
+                                        <div class="pld-paso-notas">
+                                            <t t-foreach="paso.notas" t-as="nota" t-key="nota_index">
+                                                <div class="pld-paso-nota">
+                                                    <i t-att-class="'fa ' + (nota.icono || 'fa-info-circle')"/>
+                                                    <span><t t-esc="nota.texto"/></span>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Resultado Final Destacado -->
+                <t t-if="data.resultadoFinal">
+                    <div class="pld-resultado-final-box">
+                        <div class="pld-resultado-main">
+                            <span class="pld-resultado-label">
+                                <i t-att-class="'fa ' + (data.resultadoFinal.icono || 'fa-check-circle')"/>
+                                <t t-esc="data.resultadoFinal.etiqueta"/>
+                            </span>
+                            <span class="pld-resultado-valor" t-att-style="'color: ' + props.ruleConfig.color + ';'">
+                                <t t-esc="props.formatCurrency(data.resultadoFinal.valor)"/>
+                            </span>
+                        </div>
+                        <t t-if="data.resultadoFinal.formulaResumen">
+                            <div class="pld-resultado-formula">
+                                <t t-esc="data.resultadoFinal.formulaResumen"/>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Warnings -->
+                <t t-if="hasWarnings">
+                    <div class="pld-warnings-box">
+                        <t t-foreach="data.warnings" t-as="warn" t-key="warn_index">
+                            <div class="pld-warning-item">
+                                <i class="fa fa-exclamation-triangle"/> <t t-esc="warn"/>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

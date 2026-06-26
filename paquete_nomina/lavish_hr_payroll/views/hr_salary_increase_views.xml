@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- List View -->
+    <record id="hr_salary_increase_view_tree" model="ir.ui.view">
+        <field name="name">hr.salary.increase.list</field>
+        <field name="model">hr.salary.increase</field>
+        <field name="arch" type="xml">
+            <list string="Procesos de Aumento Salarial">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="effective_date"/>
+                <field name="increase_type"/>
+                <field name="increase_percentage" invisible="increase_type != 'percentage'"/>
+                <field name="increase_fixed" invisible="increase_type not in ('fixed', 'increment')"/>
+                <field name="total_employees"/>
+                <field name="selected_count"/>
+                <field name="applied_count"/>
+                <field name="total_increase" sum="Total"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'confirmed'" decoration-success="state == 'done'" decoration-danger="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="hr_salary_increase_view_form" model="ir.ui.view">
+        <field name="name">hr.salary.increase.form</field>
+        <field name="model">hr.salary.increase</field>
+        <field name="arch" type="xml">
+            <form string="Proceso de Aumento Salarial">
+                <header>
+                    <button name="action_load_employees" string="Cargar Empleados" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_calculate" string="Recalcular" type="object"
+                            class="btn-secondary" invisible="state != 'draft'"/>
+                    <button name="action_confirm" string="Confirmar" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_apply" string="Aplicar Aumento" type="object"
+                            class="btn-success" invisible="state != 'confirmed'"
+                            confirm="Esto modificara el salario de los empleados seleccionados. Continuar?"/>
+                    <button name="action_cancel" string="Cancelar" type="object"
+                            invisible="state in ('done', 'cancelled')"/>
+                    <button name="action_draft" string="Volver a Borrador" type="object"
+                            invisible="state not in ('confirmed', 'cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_select_all" type="object" class="oe_stat_button" icon="fa-check-square"
+                                invisible="state != 'draft'">
+                            <span>Seleccionar Todos</span>
+                        </button>
+                        <button name="action_deselect_all" type="object" class="oe_stat_button" icon="fa-square-o"
+                                invisible="state != 'draft'">
+                            <span>Deseleccionar</span>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre del proceso"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuracion General">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="effective_date"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Tipo de Aumento">
+                            <field name="increase_type" widget="radio"/>
+                            <field name="increase_percentage" invisible="increase_type != 'percentage'"
+                                   widget="percentage"/>
+                            <field name="increase_fixed" invisible="increase_type not in ('fixed', 'increment')"/>
+                            <field name="round_to"/>
+                        </group>
+                    </group>
+                    <group string="Filtros de Empleados" invisible="state != 'draft'">
+                        <group>
+                            <label for="filter_min_wage"/>
+                            <div class="o_row">
+                                <field name="filter_min_wage" class="oe_inline"
+                                       help="Valor del salario minimo para filtrar"/>
+                                <field name="filter_exact_min_wage" widget="boolean_toggle" class="ms-2"/>
+                                <span class="text-muted ms-1">Solo exactos</span>
+                            </div>
+                            <field name="filter_department_ids" widget="many2many_tags"
+                                   placeholder="Todos los departamentos"/>
+                        </group>
+                        <group>
+                            <field name="filter_job_ids" widget="many2many_tags"
+                                   placeholder="Todos los cargos"/>
+                        </group>
+                    </group>
+                    <group string="Opciones">
+                        <field name="send_notification" widget="boolean_toggle"/>
+                    </group>
+                    <group string="Estadisticas" class="oe_subtotal_footer">
+                        <div class="row">
+                            <div class="col-md-3 text-center">
+                                <h3><field name="total_employees" class="oe_inline"/></h3>
+                                <span class="text-muted">Total Empleados</span>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h3 class="text-primary"><field name="selected_count" class="oe_inline"/></h3>
+                                <span class="text-muted">Seleccionados</span>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h3 class="text-success"><field name="applied_count" class="oe_inline"/></h3>
+                                <span class="text-muted">Aplicados</span>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <h3 class="text-info"><field name="total_increase" class="oe_inline"/></h3>
+                                <span class="text-muted">Incremento Mensual</span>
+                            </div>
+                        </div>
+                    </group>
+                    <notebook>
+                        <page string="Empleados" name="employees">
+                            <field name="line_ids" nolabel="1">
+                                <list string="Empleados" editable="bottom"
+                                      decoration-success="applied"
+                                      decoration-primary="selected and not applied"
+                                      decoration-muted="not selected">
+                                    <!-- Campos de relacion invisibles para computed fields -->
+                                    <field name="increase_id" column_invisible="1"/>
+                                    <field name="contract_id" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <!-- Campos visibles -->
+                                    <field name="selected" widget="boolean_toggle" readonly="parent.state != 'draft'"/>
+                                    <field name="employee_id" readonly="parent.state != 'draft'"/>
+                                    <field name="department_id" readonly="1" optional="show"/>
+                                    <field name="job_id" readonly="1" optional="show"/>
+                                    <field name="current_wage" readonly="1" sum="Total Actual"/>
+                                    <field name="new_wage" readonly="parent.state != 'draft'" sum="Total Nuevo"/>
+                                    <field name="increase_amount" readonly="1" sum="Total Incremento"/>
+                                    <field name="increase_pct" readonly="1" widget="percentage"/>
+                                    <field name="applied" readonly="1" widget="boolean"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Historial Generado" name="history" invisible="state != 'done'">
+                            <field name="change_wage_ids" nolabel="1" readonly="1">
+                                <kanban class="o_kanban_mobile">
+                                    <field name="date_start"/>
+                                    <field name="wage"/>
+                                    <field name="wage_old"/>
+                                    <field name="difference"/>
+                                    <field name="difference_percentage"/>
+                                    <field name="employee_id"/>
+                                    <field name="job_id"/>
+                                    <field name="reason"/>
+                                    <templates>
+                                        <t t-name="card">
+                                            <div class="d-flex flex-column p-3 rounded-3 shadow-sm bg-white mb-2" t-attf-style="border-left: 4px solid #{record.difference.raw_value >= 0 ? '#28a745' : '#dc3545'};">
+                                                <!-- Header -->
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <strong>
+                                                        <i class="fa fa-user me-1" title="Empleado"/>
+                                                        <field name="employee_id"/>
+                                                    </strong>
+                                                    <span t-attf-class="badge fs-6 #{record.difference.raw_value >= 0 ? 'bg-success' : 'bg-danger'}">
+                                                        +<field name="difference_percentage" widget="float" digits="[16,1]"/>%
+                                                    </span>
+                                                </div>
+                                                <!-- Comparativo -->
+                                                <div class="d-flex justify-content-between align-items-center border-top pt-2">
+                                                    <div class="text-center" style="flex:1;">
+                                                        <span class="text-muted small d-block">Anterior</span>
+                                                        <span class="text-secondary">$<field name="wage_old" widget="float" digits="[16,0]"/></span>
+                                                    </div>
+                                                    <i class="fa fa-long-arrow-right text-muted mx-2" title="Cambio"/>
+                                                    <div class="text-center" style="flex:1;">
+                                                        <span class="text-muted small d-block">Nuevo</span>
+                                                        <span class="fw-bold text-primary">$<field name="wage" widget="float" digits="[16,0]"/></span>
+                                                    </div>
+                                                </div>
+                                                <!-- Diferencia -->
+                                                <div class="text-center mt-2 pt-2 border-top">
+                                                    <span t-attf-class="badge #{record.difference.raw_value >= 0 ? 'bg-success' : 'bg-danger'}">
+                                                        +$<field name="difference" widget="float" digits="[16,0]"/>
+                                                    </span>
+                                                </div>
+                                                <!-- Info -->
+                                                <div class="d-flex justify-content-between text-muted small mt-2" t-if="record.job_id.value">
+                                                    <span><i class="fa fa-briefcase me-1" title="Cargo"/><field name="job_id"/></span>
+                                                    <span><i class="fa fa-calendar me-1" title="Calendario"/><field name="date_start"/></span>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </page>
+                        <page string="Notas" name="notes">
+                            <field name="notes" placeholder="Observaciones del proceso de aumento..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>  
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="hr_salary_increase_view_search" model="ir.ui.view">
+        <field name="name">hr.salary.increase.search</field>
+        <field name="model">hr.salary.increase</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Aumento Salarial">
+                <field name="name"/>
+                <field name="effective_date"/>
+                <filter string="Borrador" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Confirmado" name="confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter string="Aplicado" name="done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Este Ano" name="this_year" domain="[('effective_date', '&gt;=', (context_today()).strftime('%Y-01-01')), ('effective_date', '&lt;=', (context_today()).strftime('%Y-12-31'))]"/>
+                <group name="group_by">
+                    <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Fecha Efectiva" name="group_date" context="{'group_by': 'effective_date:month'}"/>
+                    <filter string="Empresa" name="group_company" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="hr_salary_increase_action" model="ir.actions.act_window">
+        <field name="name">Aumento Salarial</field>
+        <field name="res_model">hr.salary.increase</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="hr_salary_increase_view_search"/>
+        <field name="context">{'search_default_draft': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo proceso de aumento salarial
+            </p>
+            <p>
+                Este proceso permite aplicar aumentos de salario de forma masiva
+                a los empleados con contrato activo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="hr_salary_increase_menu"
+        name="Aumento Salarial"
+        parent="hr_payroll.menu_hr_payroll_employees"
+        action="hr_salary_increase_action"
+        sequence="35"/>
+
+</odoo>

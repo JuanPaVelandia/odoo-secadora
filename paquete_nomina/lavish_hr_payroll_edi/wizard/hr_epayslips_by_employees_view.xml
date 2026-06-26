@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_payslip_edi_employees_form" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.employees.form</field>
+        <field name="model">hr.payslip.edi.employees</field>
+        <field name="arch" type="xml">
+            <form string="Generar Nóminas Electrónicas">
+                <group>
+                    <group string="Período">
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                </group>
+                <separator string="Empleados con Nómina Confirmada"/>
+                <field name="employee_ids" nolabel="1">
+                    <list string="Empleados">
+                        <field name="name" string="Nombre"/>
+                        <field name="identification_id" string="Identificación"/>
+                        <field name="department_id" string="Departamento"/>
+                        <field name="job_id" string="Cargo"/>
+                    </list>
+                </field>
+                <div class="alert alert-info mt-2" role="alert">
+                    <i class="fa fa-info-circle"/> Solo empleados con nóminas confirmadas que no tienen EDI generado.
+                </div>
+                <footer>
+                    <button name="compute_edi_payslips" type="object"
+                        string="Generar Nóminas Electrónicas" class="btn-primary"
+                        invisible="not employee_ids"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_edi_by_employees" model="ir.actions.act_window">
+        <field name="name">Generar Nóminas Electrónicas</field>
+        <field name="res_model">hr.payslip.edi.employees</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

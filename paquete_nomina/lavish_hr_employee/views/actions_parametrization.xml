@@ -1,0 +1,869 @@
+<odoo>
+    <data>
+        <!-- Estructura salariales herencia -->
+        <record id="hr_payroll_structure_form_inherit" model="ir.ui.view">
+            <field name="name">hr.payroll.structure.form.inherit</field>
+            <field name="model">hr.payroll.structure</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_employee_grade_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='schedule_pay']" position="after">
+                    <field name="regular_pay" string="Pago Estandar"/>
+                    <field name="regular_31" string="Pago dia 31"/>
+                    <field name="process" widget="radio"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="hr_salary_rule_category_form_inherit" model="ir.ui.view">
+            <field name="name">hr.salary.rule.category.form.inherit</field>
+            <field name="model">hr.salary.rule.category</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="hr_payroll.hr_salary_rule_category_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <field name="active" invisible="1"/>
+                    </header>
+                </xpath>
+                <xpath expr="//field[@name='parent_id']" position="after">
+                    <field name="group_payroll_voucher"/>
+                    <field name="sequence"/>
+                    <field name="category_type"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="lavish_menu_action_contract_risk" model="ir.actions.act_window">
+            <field name="name">Riesgos profesionales</field>
+            <field name="res_model">hr.contract.risk</field>
+            <field name="view_mode">list</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Crear Riesgos Profesional
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_contract_risk">
+            <field name="name">lavish list contract risk</field>
+            <field name="model">hr.contract.risk</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="percent"/>
+                    <field name="date"/>
+                </list>
+            </field>
+        </record>
+        <!-- Actividad económica por nivel de riesgo -->
+        <record id="lavish_menu_action_lavish_economic_activity_level_risk" model="ir.actions.act_window">
+            <field name="name">Actividad económica por nivel de riesgo</field>
+            <field name="res_model">lavish.economic.activity.level.risk</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_lavish_economic_activity_level_risk">
+            <field name="name">Actividad económica por nivel de riesgo list</field>
+            <field name="model">lavish.economic.activity.level.risk</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="risk_class_id"/>
+                    <field name="code_ciiu_id"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+        <!-- Formulario de tipos de ausencia - ajustes -->
+        <record id="view_lavish_hr_employee_form_leave_type" model="ir.ui.view">
+            <field name="name">hr.leave.type.lavish.hr.employee.form.inherit</field>
+            <field name="model">hr.leave.type</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='leave_validation_type']" position="before">
+                    <field name="code" required="1"/>
+                </xpath>
+                <xpath expr="//form[1]/sheet[1]/group[1]" position="after">
+                    <notebook>
+                        <page string="Configuración General" name="general_config">
+                            <div class="alert alert-info mb-3" role="alert">
+                                <p><strong>Información:</strong> Configure el tipo de ausencia y su comportamiento básico.</p>
+                            </div>
+                            <group>
+                                <group name="group_basic_config" string="Tipo de Ausencia">
+                                    <field name="unpaid_absences"/>
+                                    <field name="is_vacation"/>
+                                    <field name="is_vacation_money"/>
+                                    <field name="novelty"/>
+                                    <field name="liquidacion_value"/>
+                                    <field name="eps_arl_input_id" help="Regla salarial que se usará para esta ausencia" invisible="rango_adicionales_enfermedad"/>
+                                    <field name="obligatory_attachment"/>
+                                </group>
+                                <group name="group_day_behavior" string="Comportamiento de Dias">
+                                    <field name="sub_wd"/>
+                                    <field name="pay_transport_allowance"/>
+                                    <field name="apply_day_31"/>
+                                    <field name="discounting_bonus_days"/>
+                                    <field name="evaluates_day_off"/>
+                                    <field name="discount_rest_day"/>
+                                </group>
+                            </group>
+                            <group>
+                                <group name="conf_eps_arl" string="Configuración de la EPS/ARL">
+                                    <field name="rango_adicionales_enfermedad" help="Habilita rangos adicionales por días de enfermedad"/>
+                                    <field name="num_days_no_assume" invisible="rango_adicionales_enfermedad" help="Días que no asume la EPS/ARL"/>
+                                    <field name="recognizing_factor_eps_arl" invisible="rango_adicionales_enfermedad" help="Porcentaje que reconoce la EPS/ARL"/>
+                                    <field name="periods_calculations_ibl" invisible="rango_adicionales_enfermedad" help="Períodos para cálculo de IBL"/>
+                                    <field name="eps_arl_input_id" invisible="rango_adicionales_enfermedad" help="Regla salarial para incapacidad"/>
+                                </group>
+                                <group name="conf_company" string="Configuración de la Empresa">
+                                    <field name="recognizing_factor_company" help="Porcentaje que reconoce la empresa"/>
+                                    <field name="periods_calculations_ibl_company" help="Períodos para cálculo de IBL empresa"/>
+                                    <field name="company_input_id" invisible="rango_adicionales_enfermedad" help="Regla salarial de incapacidad empresa"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Configuración Avanzada" name="advanced_config">
+                            <div class="alert alert-info mb-3" role="alert">
+                                <p><strong>Información:</strong> Configure opciones avanzadas para incapacidades e interrupciones.</p>
+                            </div>
+                            <group>
+                                <group string="Configuración de Interrupciones">
+                                    <field name="allow_interruption" help="Permite interrumpir este tipo de ausencia"/>
+                                </group>
+                                <group string="Complemento de Salario">
+                                    <field name="completar_salario"/>
+                                    <field name="company_complement_input_id" 
+                                           invisible="not completar_salario"
+                                           required="completar_salario"/>
+                                </group>
+                                <group string="Entidad Asociada">
+                                    <field name="type_of_entity_association" 
+                                           invisible="novelty not in ('ige', 'irl')"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="Configuración IBC" name="ibc_config">
+                            <div class="alert alert-warning mb-3" role="alert">
+                                <p><strong>Configuración IBC (Ingreso Base de Cotización):</strong> Estos parámetros controlan cómo se calcula el IBC para seguridad social según la normativa colombiana.</p>
+                            </div>
+                            <div class="o_inner_group row p-3 rounded-2 bg-white border mb-3">
+                                <div class="col-12 mb-2">
+                                    <h5 class="fw-bold text-primary">Validaciones de Ley</h5>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="d-flex align-items-center gap-3 p-2 bg-white rounded border mb-2">
+                                        <field name="valida_minimo" widget="boolean_toggle"/>
+                                        <div>
+                                            <label for="valida_minimo" class="fw-semibold"/>
+                                            <p class="text-muted small mb-0">El IBC no puede ser inferior a 1 SMMLV</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="d-flex align-items-center gap-3 p-2 bg-white rounded border mb-2">
+                                        <field name="ibc_tope_maximo" widget="boolean_toggle"/>
+                                        <div>
+                                            <label for="ibc_tope_maximo" class="fw-semibold"/>
+                                            <p class="text-muted small mb-0">Limita el IBC a 25 SMMLV máximo</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_inner_group row p-3 rounded-2 bg-white border mb-3">
+                                <div class="col-12 mb-2">
+                                    <h5 class="fw-bold text-primary">Base de Cotización para Licencias</h5>
+                                </div>
+                                <div class="col-lg-6">
+                                    <div class="d-flex align-items-center gap-3 p-2 bg-white rounded border mb-2">
+                                        <field name="use_ibl_as_ibc" widget="boolean_toggle"/>
+                                        <div>
+                                            <label for="use_ibl_as_ibc" class="fw-semibold"/>
+                                            <p class="text-muted small mb-0">Para licencias (luto, paternidad), usa el IBC del mes anterior como indica la ley</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_inner_group p-3 rounded-2 bg-white border">
+                                <div class="mb-3">
+                                    <h5 class="fw-bold text-primary">Conceptos IBL e IBC - Tipo Seleccionado</h5>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <div class="card border-success h-100">
+                                            <div class="card-header bg-success bg-opacity-10 d-flex align-items-center">
+                                                <i class="fa fa-calculator fa-lg text-success me-2" title="Calculadora"/>
+                                                <strong class="text-success">IBL - Ingreso Base Liquidacion</strong>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="text-muted small mb-2">Conceptos que suman al IBL:</p>
+                                                <ul class="list-group list-group-flush small">
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1">
+                                                        <span><i class="fa fa-money text-primary me-1" title="Salario"/>Salario Basico</span>
+                                                        <span class="badge bg-success">100%</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1">
+                                                        <span><i class="fa fa-clock-o text-warning me-1" title="Horas Extras"/>Horas Extras</span>
+                                                        <span class="badge bg-success">100%</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1">
+                                                        <span><i class="fa fa-line-chart text-info me-1" title="Comisiones"/>Comisiones</span>
+                                                        <span class="badge bg-success">100%</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1">
+                                                        <span><i class="fa fa-gift text-danger me-1" title="Bonificaciones"/>Bonificaciones Habituales</span>
+                                                        <span class="badge bg-success">100%</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1">
+                                                        <span><i class="fa fa-plus-circle text-secondary me-1" title="Otros conceptos"/>Otros Constitutivos Salario</span>
+                                                        <span class="badge bg-success">100%</span>
+                                                    </li>
+                                                </ul>
+                                                <div class="border-top mt-2 pt-2">
+                                                    <div class="d-flex justify-content-between fw-bold">
+                                                        <span>Periodos para calculo:</span>
+                                                        <span class="text-success"><field name="periods_calculations_ibl" class="d-inline"/> meses</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card border-primary h-100">
+                                            <div class="card-header bg-primary bg-opacity-10 d-flex align-items-center">
+                                                <i class="fa fa-shield fa-lg text-primary me-2" title="Seguridad social"/>
+                                                <strong class="text-primary">IBC - Ingreso Base Cotizacion</strong>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="text-muted small mb-2">Reglas de calculo IBC:</p>
+                                                <ul class="list-group list-group-flush small">
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1">
+                                                        <span><i class="fa fa-arrow-down text-warning me-1" title="Minimo"/>Minimo Legal</span>
+                                                        <span class="badge bg-warning text-dark">1 SMMLV</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1">
+                                                        <span><i class="fa fa-arrow-up text-danger me-1" title="Maximo"/>Maximo Legal</span>
+                                                        <span class="badge bg-danger">25 SMMLV</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1" invisible="novelty not in ('ige', 'irl')">
+                                                        <span><i class="fa fa-medkit text-info me-1" title="Incapacidad"/>Incapacidad</span>
+                                                        <span class="badge bg-info">Salario + Proporcion</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1" invisible="novelty not in ('lma', 'lpa', 'lt', 'lr')">
+                                                        <span><i class="fa fa-calendar-check-o text-success me-1" title="Licencias"/>Licencias</span>
+                                                        <span class="badge bg-success">IBC Mes Anterior</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center py-1" invisible="novelty not in ('vdi', 'vco', 'vre')">
+                                                        <span><i class="fa fa-plane text-primary me-1" title="Vacaciones"/>Vacaciones</span>
+                                                        <span class="badge bg-primary">IBC Mes Anterior</span>
+                                                    </li>
+                                                </ul>
+                                                <div class="border-top mt-2 pt-2">
+                                                    <div class="d-flex justify-content-between fw-bold">
+                                                        <span>Factor EPS/ARL:</span>
+                                                        <span class="text-primary"><field name="recognizing_factor_eps_arl" class="d-inline" widget="percentage"/></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-12">
+                                        <div class="card bg-white border">
+                                            <div class="card-body py-2">
+                                                <div class="row text-center">
+                                                    <div class="col-md-4 border-end">
+                                                        <small class="text-muted d-block">Tipo PILA</small>
+                                                        <span class="badge fs-6 bg-primary">
+                                                            <field name="novelty"/>
+                                                        </span>
+                                                    </div>
+                                                    <div class="col-md-4 border-end">
+                                                        <small class="text-muted d-block">Dias no asume EPS/ARL</small>
+                                                        <strong class="text-warning fs-5"><field name="num_days_no_assume"/></strong>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <small class="text-muted d-block">Factor Empresa</small>
+                                                        <strong class="text-success fs-5"><field name="recognizing_factor_company" widget="percentage"/></strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info small mt-3 mb-0" role="alert">
+                                    <i class="fa fa-info-circle me-1" title="Informacion"/>
+                                    <strong>Ley:</strong> El IBC no puede ser inferior a 1 SMMLV ni superior a 25 SMMLV. Para licencias remuneradas
+                                    (luto, paternidad, maternidad), el IBC debe ser el del mes anterior al inicio de la licencia.
+                                </div>
+                            </div>
+                        </page>
+                        <page string="Configuración EPS/ARL" name="eps_arl_config" invisible="novelty not in ('ige', 'irl')">
+                            <div class="alert alert-info mb-3" role="alert">
+                                <p><strong>Información:</strong> Configure los parámetros para incapacidades de origen común (EPS) o laboral (ARL).</p>
+                            </div>
+                            <group invisible="not rango_adicionales_enfermedad">
+                                <group string="Rangos de Enfermedad">
+                                    <field name="gi_b2" string="Porcentaje 1 a 2 días" help="Porcentaje para días 1-2"/>
+                                    <field name="company_input_id" string="Regla 1 a 2 días" help="Regla salarial para días 1-2"/>
+                                </group>
+                                <group>
+                                    <field name="gi_b90" string="Porcentaje 3 a 90 días" help="Porcentaje para días 3-90"/>
+                                    <field name="eps_arl_input_id" string="Regla 3 a 90 días" help="Regla salarial para días 3-90"/>
+                                </group>
+                                <group>
+                                    <field name="gi_b180" string="Porcentaje 91 a 180 días" help="Porcentaje para días 91-180"/>
+                                    <field name="gi_b180_eps_arl_input_id" string="Regla 91 a 180 días" help="Regla salarial para días 91-180"/>
+                                </group>
+                                <group>
+                                    <field name="gi_a180" string="Porcentaje más de 180 días" help="Porcentaje para más de 180 días"/>
+                                    <field name="gi_a180_eps_arl_input_id" string="Regla más de 180 días" help="Regla salarial para más de 180 días"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </xpath>
+            </field>
+        </record>
+        <record id="lavish_menu_action_annual_parameters" model="ir.actions.act_window">
+            <field name="name">Parámetros anuales</field>
+            <field name="res_model">hr.annual.parameters</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Crear Parámetro anual
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_annual_parameters">
+            <field name="name">lavish list annual parameters</field>
+            <field name="model">hr.annual.parameters</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="year"/>
+                    <field name="company_ids" widget="many2many_tags" groups="base.group_multi_company"/>
+                    <field name="smmlv_monthly"/>
+                    <field name="transportation_assistance_monthly"/>
+                    <field name="min_integral_salary"/>
+                    <field name="hours_daily"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.form_annual_parameters">
+            <field name="name">lavish form annual parameters</field>
+            <field name="model">hr.annual.parameters</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_create_working_hours" string="Crear Distribución de Horas (Ley 2101)" 
+                                type="object" class="oe_highlight" icon="fa-clock-o" groups="hr.group_hr_manager"/>
+                    </header>
+                    <sheet string="Parametros anuales">
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="year"/>
+                                <field name="company_ids" widget="many2many_tags" options="{'no_create': True}" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="Básicos" autofocus="autofocus">
+                                <group>
+                                    <group string="Salario Minimo" name="smlv" priority="1">
+                                        <field name="smmlv_monthly"/>
+                                        <field name="smmlv_daily"/>
+                                        <field name="top_four_fsp_smmlv"/>
+                                        <field name="top_twenty_five_smmlv"/>
+                                        <field name="top_ten_smmlv"/>
+                                    </group>
+                                    <group string="Auxilio de transporte" name="transportation" priority="2">
+                                        <field name="transportation_assistance_monthly"/>
+                                        <field name="transportation_assistance_daily"/>
+                                        <field name="top_max_transportation_assistance"/>
+                                    </group>
+                                    <group string="Salario Integral" name="integral_salary" priority="3">
+                                        <field name="min_integral_salary"/>
+                                        <field name="porc_integral_salary"/>
+                                        <field name="value_factor_integral_salary"/>
+                                        <field name="value_factor_integral_performance"/>
+                                    </group>
+                                    <group string="Horas Laborales" name="hours" priority="4">
+                                        <field name="hours_daily"/>
+                                        <field name="hours_weekly"/>
+                                        <field name="hours_fortnightly"/>
+                                        <field name="hours_monthly"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Seguridad Social">
+                                <group>
+                                    <group string="Salud" name="salud" priority="1">
+                                        <field name="value_porc_health_company"/>
+                                        <field name="value_porc_health_employee"/>
+                                        <field name="value_porc_health_total"/>
+                                        <field name="value_porc_health_employee_foreign"/>
+                                    </group>
+                                    <group string="Pensión" name="pension" priority="2">
+                                        <field name="value_porc_pension_company"/>
+                                        <field name="value_porc_pension_employee"/>
+                                        <field name="value_porc_pension_total"/>
+                                    </group>
+                                    <group string="Aportes parafiscales" name="aportes_parafiscales" priority="3">
+                                        <field name="value_porc_compensation_box_company"/>
+                                        <field name="value_porc_sena_company"/>
+                                        <field name="value_porc_icbf_company"/>
+                                    </group>
+                                    <group string="Provisiones prestaciones" name="provisiones_prestaciones" priority="4">
+                                        <field name="value_porc_provision_bonus"/>
+                                        <field name="value_porc_provision_cesantias"/>
+                                        <field name="value_porc_provision_intcesantias"/>
+                                        <field name="value_porc_provision_vacation"/>
+                                    </group>
+                                    <group string="Tope ley 1393" name="tope_ley_1393" priority="5">
+                                        <field name="value_porc_statute_1395"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Tributario">
+                                <group>
+                                    <group string="Retención en la fuente" name="retencion_fuente" priority="1">
+                                        <field name="value_uvt"/>
+                                        <field name="value_top_source_retention"/>
+                                    </group>
+                                    <group string="Incrementos" name="incrementos" priority="2">
+                                        <field name="value_porc_increment_smlv"/>
+                                        <field name="value_porc_ipc"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Políticas de Nómina">
+                                <group>
+                                    <group string="Cálculos de Nómina">
+                                        <field name="ded_round"/>
+                                        <field name="rtf_round"/>
+                                        <field name="aux_apr_prod"/>
+                                        <field name="complete_february_to_30"/>
+                                        <field name="month_change_policy"/>
+                                        <field name="aux_prst"/>
+                                        <field name="aus_prev"/>
+                                        <field name="positive_net"/>
+                                        <field name="nonprofit"/>
+                                        <field name="prst_wo_susp"/>
+                                        <field name="provision_quincenal_mode"/>
+                                        <field name="provision_days_method"/>
+                                        <field name="aux_in_variables_liquidation"/>
+                                    </group>
+                                    <group string="Contabilización">
+                                        <field name="accounting_method"/>
+                                        <field name="default_accounting_date"/>
+                                        <field name="overtime_calculation_method"/>
+                                        <field name="severance_pay_calculation"/>
+                                        <field name="store_payroll_history"/>
+                                        <field name="ibc_history_months"/>
+                                        <field name="use_ibl_as_ibc_global" widget="boolean_toggle"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Configuración de Horas Laborales">
+                                <group colspan="2">
+                                    <p class="text-muted" colspan="2">
+                                        La Ley 2101 de 2021 establece una reducción gradual de la jornada laboral máxima en Colombia:
+                                        <ul>
+                                            <li>Julio 2024: De 48 a 46 horas semanales</li>
+                                            <li>Julio 2025: De 46 a 44 horas semanales</li>
+                                            <li>Julio 2026: De 44 a 42 horas semanales</li>
+                                        </ul>
+                                        El botón "Crear Distribución de Horas" genera automáticamente la configuración para
+                                        cada mes del año según la normativa vigente.
+                                    </p>
+                                </group>
+                                <field name="working_hours_ids" nolabel="1" colspan="4">
+                                    <list string="Configuración de Horas Laborales">
+                                        <field name="year"/>
+                                        <field name="month"/>
+                                        <field name="max_hours_per_week"/>
+                                        <field name="hours_per_month"/>
+                                        <field name="hours_to_pay"/>
+                                        <field name="effective_date"/>
+                                        <field name="notes"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Ley 2466/2025 - Reforma Laboral">
+                                <group>
+                                    <group string="Jornada Nocturna">
+                                        <field name="night_shift_start_hour"/>
+                                        <field name="night_shift_end_hour"/>
+                                        <field name="night_shift_surcharge"/>
+                                    </group>
+                                    <group string="Recargos Dominicales/Festivos">
+                                        <field name="sunday_holiday_surcharge"/>
+                                        <div class="alert alert-warning small" colspan="2" role="alert">
+                                            <i class="fa fa-exclamation-triangle" title="Advertencia"/> Los porcentajes detallados de recargos
+                                            se configuran en <strong>Tipos de Horas Extras</strong>
+                                        </div>
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Gradualidad Ley 2466:</strong><br/>
+                                            Dom/Fest: 80% (2025), 90% (2026), 100% (2027)
+                                        </p>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Formula Calculo Horas Extras">
+                                        <field name="overtime_formula_type" widget="radio"/>
+                                        <field name="sync_working_hours_on_save"/>
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Clasica:</strong> Salario / 240 (fijo)<br/>
+                                            <strong>Legal:</strong> Salario / Horas mes (220, 210...)<br/>
+                                            <small>Ley 2101/2021 - Reduccion gradual jornada</small>
+                                        </p>
+                                    </group>
+                                    <group string="Porcentajes Horas Extras">
+                                        <div class="alert alert-info" colspan="2" role="alert">
+                                            <p><i class="fa fa-info-circle" title="Informacion"/> Los porcentajes de horas extras y recargos se configuran en:</p>
+                                            <p><strong>Nomina &gt; Configuracion &gt; Tipos de Horas Extras</strong></p>
+                                            <p class="text-muted small mb-0">
+                                                Cada tipo de hora extra (HE Diurna, Recargo Nocturno, etc.)
+                                                tiene su porcentaje configurable en el modelo hr.type.overtime.
+                                            </p>
+                                        </div>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Licencias">
+                                        <field name="paternity_leave_days"/>
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Licencia Paternidad:</strong><br/>
+                                            - 2024: 14 días (2 sem)<br/>
+                                            - 2025: 21 días (3 sem)<br/>
+                                            - 2026: 28 días (4 sem)
+                                        </p>
+                                    </group>
+                                    <group string="Contratos">
+                                        <field name="fixed_term_max_years"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Aprendices (Ley 2466)">
+                                        <field name="apprentice_full_social_security" widget="boolean_toggle"/>
+                                        <field name="apprentice_lectiva_salary_percent"/>
+                                        <field name="apprentice_practica_salary_percent"/>
+                                        <field name="aux_apr_lectiva"/>
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Contrato de Aprendizaje:</strong><br/>
+                                            Se considera contrato laboral a término fijo con todas las prestaciones sociales.
+                                        </p>
+                                    </group>
+                                    <group string="Plataformas Digitales">
+                                        <field name="platform_worker_ibc_percent"/>
+                                        <field name="platform_worker_health_platform_percent"/>
+                                        <field name="platform_worker_pension_platform_percent"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Trabajo Doméstico">
+                                        <field name="domestic_worker_written_contract_required"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hr_company_working_hours_tree" model="ir.ui.view">
+            <field name="name">hr.company.working.hours.list</field>
+            <field name="model">hr.company.working.hours</field>
+            <field name="arch" type="xml">
+                <list string="Horas Laborales por Empresa">
+                    <field name="name"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="year"/>
+                    <field name="month"/>
+                    <field name="max_hours_per_week"/>
+                    <field name="hours_per_day"/>
+                    <field name="hours_per_month"/>
+                    <field name="hours_to_pay"/>
+                    <field name="works_saturday" widget="boolean_toggle"/>
+                    <field name="work_start_time" widget="float_time" optional="hide"/>
+                    <field name="lunch_start_time" widget="float_time" optional="hide"/>
+                    <field name="lunch_duration_hours" optional="hide"/>
+                    <field name="work_end_time" widget="float_time" optional="hide"/>
+                    <field name="effective_date"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Kanban estilizada para Horas Laborales -->
+        <record id="view_hr_company_working_hours_kanban" model="ir.ui.view">
+            <field name="name">hr.company.working.hours.kanban</field>
+            <field name="model">hr.company.working.hours</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile" create="false" sample="1">
+                    <field name="name"/>
+                    <field name="year"/>
+                    <field name="month"/>
+                    <field name="max_hours_per_week"/>
+                    <field name="hours_per_day"/>
+                    <field name="hours_to_pay"/>
+                    <field name="works_saturday"/>
+                    <field name="work_start_time"/>
+                    <field name="work_end_time"/>
+                    <field name="lunch_start_time"/>
+                    <field name="lunch_end_time"/>
+                    <field name="lunch_duration_hours"/>
+                    <field name="effective_date"/>
+                    <field name="company_id"/>
+
+                    <templates>
+                        <t t-name="card">
+                            <!-- Card con gradiente según si trabaja sábado -->
+                            <div t-attf-style="background: #{record.works_saturday.raw_value ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'}; border-radius: 12px; padding: 0; margin: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; overflow: hidden; transition: all 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'">
+
+                                <!-- Icono de fondo gigante -->
+                                <div style="position: absolute; right: -30px; bottom: -30px; font-size: 180px; opacity: 0.1; color: white;">
+                                    <i class="fa fa-calendar" title="Calendario"/>
+                                </div>
+
+                                <!-- Header -->
+                                <div style="background: rgba(0,0,0,0.2); padding: 16px; color: white; position: relative; z-index: 1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h4 style="margin: 0; font-weight: 600; font-size: 18px;">
+                                                <field name="name"/>
+                                            </h4>
+                                            <p style="margin: 4px 0 0 0; opacity: 0.9; font-size: 13px;">
+                                                <i class="fa fa-building-o" title="Empresa"/> <field name="company_id"/>
+                                            </p>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span t-if="record.works_saturday.raw_value" style="background: rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;">
+                                                <i class="fa fa-calendar-check-o" title="Dias laborales"/> 6 DÍAS
+                                            </span>
+                                            <span t-else="" style="background: rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;">
+                                                <i class="fa fa-calendar-o" title="Dias laborales"/> 5 DÍAS
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Body -->
+                                <div style="padding: 20px; background: white; position: relative; z-index: 1;">
+                                    <!-- Horas semanales destacadas -->
+                                    <div style="text-align: center; margin-bottom: 20px;">
+                                        <div style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);">
+                                            <div style="font-size: 48px; font-weight: bold; line-height: 1;">
+                                                <field name="max_hours_per_week"/>
+                                            </div>
+                                            <div style="font-size: 14px; opacity: 0.9; margin-top: 4px; letter-spacing: 1px;">
+                                                HORAS/SEMANA
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Grid de información -->
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                        <!-- Horas por día -->
+                                        <div style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 12px; border-radius: 8px;">
+                                            <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                                <i class="fa fa-clock-o" style="font-size: 18px; color: #667eea; margin-right: 8px;" title="Horas por dia"/>
+                                                <strong style="font-size: 12px; color: #555;">Horas/Día</strong>
+                                            </div>
+                                            <div style="font-size: 24px; font-weight: bold; color: #333;">
+                                                <field name="hours_per_day"/>h
+                                            </div>
+                                        </div>
+
+                                        <!-- Horas mensuales -->
+                                        <div style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 12px; border-radius: 8px;">
+                                            <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                                <i class="fa fa-calendar" style="font-size: 18px; color: #f5576c; margin-right: 8px;" title="Horas a pagar"/>
+                                                <strong style="font-size: 12px; color: #555;">A Pagar</strong>
+                                            </div>
+                                            <div style="font-size: 24px; font-weight: bold; color: #333;">
+                                                <field name="hours_to_pay"/>h
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Horario de trabajo -->
+                                    <div style="background: #f8f9fa; padding: 14px; border-radius: 8px; border-left: 4px solid #667eea;">
+                                        <div style="margin-bottom: 8px;">
+                                            <strong style="color: #667eea; font-size: 13px;">
+                                                <i class="fa fa-sun-o" title="Jornada"/> JORNADA LABORAL
+                                            </strong>
+                                        </div>
+                                        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 16px; font-weight: 600; color: #333;">
+                                            <span>
+                                                <field name="work_start_time" widget="float_time"/>
+                                            </span>
+                                            <span style="color: #999;">→</span>
+                                            <span style="color: #f5576c;">
+                                                <i class="fa fa-cutlery" style="font-size: 14px;" title="Almuerzo"/>
+                                                <field name="lunch_start_time" widget="float_time"/>
+                                            </span>
+                                            <span style="color: #999;">→</span>
+                                            <span>
+                                                <field name="work_end_time" widget="float_time"/>
+                                            </span>
+                                        </div>
+                                        <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
+                                            <i class="fa fa-coffee" title="Almuerzo"/> Almuerzo: <strong><field name="lunch_duration_hours"/>h</strong>
+                                            (<field name="lunch_start_time" widget="float_time"/> - <field name="lunch_end_time" widget="float_time"/>)
+                                        </div>
+                                    </div>
+
+                                    <!-- Fecha efectiva -->
+                                    <div style="margin-top: 12px; text-align: center; padding-top: 12px; border-top: 1px solid #e0e0e0;">
+                                        <span style="font-size: 12px; color: #666;">
+                                            <i class="fa fa-check-circle" style="color: #28a745;" title="Vigente"/> Vigente desde: <strong><field name="effective_date"/></strong>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Vista formulario para Horas Laborales -->
+        <record id="view_hr_company_working_hours_form" model="ir.ui.view">
+            <field name="name">hr.company.working.hours.form</field>
+            <field name="model">hr.company.working.hours</field>
+            <field name="arch" type="xml">
+                <form string="Horas Laborales por Empresa">
+                    <header>
+                        <button name="action_create_resource_calendar"
+                                string="Generar Calendario de Trabajo"
+                                type="object"
+                                class="oe_highlight"
+                                icon="fa-calendar"
+                                groups="hr.group_hr_manager"
+                                help="Crea automáticamente un resource.calendar con los turnos de trabajo configurados"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                                <field name="year"/>
+                                <field name="month"/>
+                                <field name="effective_date"/>
+                            </group>
+                            <group>
+                                <field name="max_hours_per_week"/>
+                                <field name="hours_per_month"/>
+                                <field name="hours_to_pay"/>
+                                <field name="annual_parameter_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Configuración de Horario Semanal" name="weekly_schedule">
+                                <div class="alert alert-info mb-3" role="alert">
+                                    <p><i class="fa fa-info-circle" title="Informacion"/> <strong>Información:</strong> Configure el horario de trabajo diario incluyendo almuerzo y días laborales.</p>
+                                </div>
+                                <group>
+                                    <group string="Horario de Trabajo">
+                                        <field name="work_start_time" widget="float_time"/>
+                                        <field name="work_end_time" widget="float_time"/>
+                                        <field name="hours_per_day"/>
+                                    </group>
+                                    <group string="Horario de Almuerzo">
+                                        <field name="lunch_start_time" widget="float_time"/>
+                                        <field name="lunch_end_time" widget="float_time"/>
+                                        <field name="lunch_duration_hours"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Días Laborales">
+                                        <field name="works_saturday"/>
+                                        <label for="works_saturday" string=""/>
+                                        <div class="text-muted" colspan="2">
+                                            <small>
+                                                <ul>
+                                                    <li><strong>Lunes a Viernes:</strong> Siempre laborales</li>
+                                                    <li><strong>Sábado:</strong> Laboral solo si está marcado</li>
+                                                    <li><strong>Domingo:</strong> Siempre descanso</li>
+                                                </ul>
+                                            </small>
+                                        </div>
+                                    </group>
+                                    <group string="Resumen Calculado">
+                                        <field name="works_saturday"/>
+                                        <field name="hours_per_day" readonly="1"/>
+                                    </group>
+                                </group>
+                                <separator string="Ejemplo de Jornada Diaria"/>
+                                <group>
+                                    <div class="alert alert-primary" role="alert" colspan="2">
+                                        <h5><i class="fa fa-clock-o" title="Horario"/> Horario de trabajo:</h5>
+                                        <p style="font-size: 16px; line-height: 2;">
+                                            <strong><field name="work_start_time" widget="float_time" readonly="1"/></strong>
+                                            → Trabajo →
+                                            <strong><field name="lunch_start_time" widget="float_time" readonly="1"/></strong>
+                                            <br/>
+                                            <strong><field name="lunch_start_time" widget="float_time" readonly="1"/></strong>
+                                            → Almuerzo (<field name="lunch_duration_hours" readonly="1"/> horas) →
+                                            <strong><field name="lunch_end_time" widget="float_time" readonly="1"/></strong>
+                                            <br/>
+                                            <strong><field name="lunch_end_time" widget="float_time" readonly="1"/></strong>
+                                            → Trabajo →
+                                            <strong><field name="work_end_time" widget="float_time" readonly="1"/></strong>
+                                        </p>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string="Notas" name="notes">
+                                <group>
+                                    <field name="notes" nolabel="1" placeholder="Observaciones adicionales..."/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Acción para Horas Laborales -->
+        <record id="action_hr_company_working_hours" model="ir.actions.act_window">
+            <field name="name">Horas Laborales</field>
+            <field name="res_model">hr.company.working.hours</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear un nuevo registro de horas laborales
+                </p>
+                <p>
+                    Configure las horas laborales máximas según la Ley 2101 de 2021
+                    que establece una reducción gradual de la jornada laboral en Colombia.
+                </p>
+            </field>
+        </record>
+
+        <!-- Menú para Horas Laborales -->
+        <menuitem id="menu_hr_company_working_hours" 
+                name="Horas Laborales" 
+                parent="hr.menu_human_resources_configuration" 
+                action="action_hr_company_working_hours" 
+                sequence="100" 
+                groups="hr.group_hr_manager"/>
+
+
+    </data>
+</odoo>

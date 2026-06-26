@@ -1,0 +1,231 @@
+/**
+ * Generic Hierarchical Table Styles
+ * ==================================
+ */
+
+.generic-hierarchical-table {
+    width: 100%;
+    background: #FFFFFF;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+// Header
+.generic-table__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: #F5F5F5;
+    border-bottom: 2px solid #E0E0E0;
+}
+
+.generic-table__title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212121;
+}
+
+.generic-table__search {
+    position: relative;
+    max-width: 300px;
+    flex: 1;
+    margin-left: 1rem;
+}
+
+.generic-table__search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #757575;
+    pointer-events: none;
+}
+
+.generic-table__search input {
+    padding-left: 2.5rem;
+}
+
+// Container
+.generic-table__container {
+    overflow-x: auto;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+// Table
+.generic-table__thead {
+    position: sticky;
+    top: 0;
+    background: #FAFAFA;
+    z-index: 10;
+
+    th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        color: #616161;
+        padding: 0.75rem 1rem;
+        border-bottom: 2px solid #E0E0E0;
+        white-space: nowrap;
+    }
+}
+
+.generic-table__tbody {
+    tr {
+        transition: background-color 0.2s ease;
+
+        &:hover {
+            background-color: #F5F5F5 !important;
+        }
+    }
+
+    td {
+        padding: 0.5rem 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #EEEEEE;
+    }
+}
+
+// Columna de expansión
+.generic-table__expand-col {
+    width: 50px;
+    padding: 0 !important;
+    text-align: center;
+}
+
+.generic-table__expand-btn {
+    color: #616161;
+    text-decoration: none;
+    padding: 0.25rem 0.5rem;
+
+    &:hover {
+        color: #212121;
+    }
+
+    i {
+        transition: transform 0.2s ease;
+    }
+}
+
+.generic-table__indent {
+    display: inline-block;
+}
+
+// Filas según nivel
+.generic-table__row {
+    &--category {
+        font-weight: 700;
+        font-size: 0.95rem;
+
+        td {
+            padding-top: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+    }
+
+    &--rule {
+        font-weight: 500;
+        font-size: 0.875rem;
+
+        td {
+            padding-top: 0.6rem;
+            padding-bottom: 0.6rem;
+        }
+    }
+
+    &--line {
+        font-weight: 400;
+        font-size: 0.85rem;
+
+        td {
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+    }
+
+    &--expandable {
+        cursor: pointer;
+    }
+}
+
+// Celdas especiales
+.generic-table__cell {
+    &--name {
+        font-weight: inherit;
+    }
+
+    &--ibd_percentage {
+        text-align: center;
+        font-weight: 600;
+        border-radius: 4px;
+        padding: 0.25rem 0.5rem !important;
+    }
+
+    &--percentage_used,
+    &--amount_used {
+        text-align: right;
+        font-family: 'Courier New', monospace;
+    }
+
+    &--law_reference {
+        font-size: 0.85rem;
+    }
+}
+
+// Links
+.generic-table__link {
+    color: #FF0000;
+    text-decoration: underline;
+    font-weight: 500;
+
+    &:hover {
+        color: #C62828;
+        text-decoration: underline;
+    }
+
+    i {
+        font-size: 0.7rem;
+        opacity: 0.7;
+    }
+}
+
+// Mensaje vacío
+.generic-table__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .generic-table__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .generic-table__search {
+        margin-left: 0;
+        max-width: 100%;
+    }
+
+    .generic-table__container {
+        overflow-x: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .generic-table__row {
+        &--category,
+        &--rule,
+        &--line {
+            font-size: 0.8rem;
+        }
+    }
+}

@@ -1,0 +1,12 @@
+<odoo>
+<data>
+
+<!-- Accion Cliente para el Catalogo de Reglas de Nomina -->
+<record id="action_payroll_catalog" model="ir.actions.client">
+    <field name="name">Catalogo de Reglas</field>
+    <field name="tag">payroll_catalog</field>
+    <field name="target">main</field>
+</record>
+
+</data>
+</odoo>

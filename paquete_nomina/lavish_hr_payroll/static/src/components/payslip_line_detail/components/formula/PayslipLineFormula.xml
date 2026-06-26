@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineFormula">
+        <div class="pld-widget-section pld-formula-view">
+            <!-- Header -->
+            <div class="pld-section-header pld-section-header-formula">
+                <div class="pld-header-left">
+                    <i t-att-class="'fa ' + props.ruleConfig.icon" t-att-style="'color: ' + props.ruleConfig.color + ';'"/>
+                    <span class="pld-header-title-dark"><t t-esc="data.titulo || 'DETALLE DEL CÁLCULO'"/></span>
+                </div>
+                <div class="pld-header-right">
+                    <t t-if="data.baseLegal">
+                        <a t-if="props.getLeyUrl(data.baseLegal)" t-att-href="props.getLeyUrl(data.baseLegal)" target="_blank" class="pld-legal-link" t-on-click.stop="">
+                            <t t-esc="data.baseLegal"/> <i class="fa fa-external-link"/>
+                        </a>
+                        <span t-else="" class="pld-badge pld-badge-legal"><t t-esc="data.baseLegal"/></span>
+                    </t>
+                </div>
+            </div>
+
+            <div class="pld-section-content">
+                <!-- Explicación -->
+                <t t-if="data.explicacion">
+                    <div class="pld-paso-explicacion">
+                        <i class="fa fa-info-circle"/> <t t-esc="data.explicacion"/>
+                    </div>
+                </t>
+
+                <!-- Indicadores del backend -->
+                <t t-if="hasIndicadores">
+                    <div class="pld-indicadores-row">
+                        <t t-foreach="data.indicadores" t-as="ind" t-key="ind_index">
+                            <div t-att-class="'pld-indicador pld-indicador-' + (ind.color || 'primary')">
+                                <i t-att-class="'fa ' + (ind.icono || 'fa-info-circle')"/>
+                                <span><t t-esc="ind.texto"/></span>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Layout de 2 Columnas -->
+                <div class="pld-formula-2col">
+                    <!-- Columna Izquierda: KPIs -->
+                    <div class="pld-formula-col-left">
+                        <t t-if="hasKpis">
+                            <div class="pld-kpis-box">
+                                <div class="pld-kpis-header">
+                                    <i class="fa fa-dashboard"/> Variables del Cálculo
+                                </div>
+                                <div class="pld-kpis-grid">
+                                    <t t-foreach="kpis" t-as="kpi" t-key="kpi_index">
+                                        <div t-att-class="'pld-kpi-card ' + (kpi.destacado ? 'pld-kpi-destacado' : '')">
+                                            <div class="pld-kpi-label">
+                                                <i t-if="kpi.icono" t-att-class="'fa ' + kpi.icono"/>
+                                                <t t-esc="kpi.etiqueta"/>
+                                            </div>
+                                            <div class="pld-kpi-valor" t-att-style="kpi.destacado ? 'color: ' + props.ruleConfig.color + ';' : ''">
+                                                <t t-esc="props.formatValue(kpi.valor, kpi.formato)"/>
+                                            </div>
+                                            <t t-if="kpi.subtitulo">
+                                                <div class="pld-kpi-sub"><t t-esc="kpi.subtitulo"/></div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Fórmula Principal -->
+                        <t t-if="data.formula">
+                            <div class="pld-formula-principal">
+                                <div class="pld-formula-header">
+                                    <i class="fa fa-calculator"/> Fórmula
+                                </div>
+                                <div class="pld-formula-codigo">
+                                    <code><t t-esc="data.formula"/></code>
+                                </div>
+                                <t t-if="data.formulaTexto">
+                                    <div class="pld-formula-texto">
+                                        <t t-esc="data.formulaTexto"/>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Columna Derecha: Pasos -->
+                    <div class="pld-formula-col-right">
+                        <t t-if="hasPasos">
+                            <div class="pld-pasos-box">
+                                <div class="pld-pasos-header pld-clickable" t-on-click="toggleStepsDetail">
+                                    <i class="fa fa-list-ol"/> Pasos del Cálculo (<t t-esc="pasos.length"/>)
+                                    <i t-att-class="'fa fa-chevron-' + (state.showStepsDetail ? 'up' : 'down')" style="float:right;"/>
+                                </div>
+                                <t t-if="state.showStepsDetail">
+                                    <div class="pld-formula-steps">
+                                        <t t-foreach="pasos" t-as="paso" t-key="paso_index">
+                                            <div t-att-class="'pld-formula-step ' + (paso.tipo === 'resultado' || paso.esFinal ? 'pld-step-subtotal' : '')">
+                                                <span class="pld-step-num" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                                    <t t-if="paso.esFinal"><i class="fa fa-check"/></t>
+                                                    <t t-else=""><t t-esc="paso.paso"/></t>
+                                                </span>
+                                                <span class="pld-step-desc"><t t-esc="paso.concepto"/></span>
+                                                <span class="pld-step-formula" t-if="paso.formulaTexto">
+                                                    <t t-esc="paso.formulaTexto"/>
+                                                </span>
+                                                <span class="pld-step-val">
+                                                    <t t-esc="formatPasoValue(paso)"/>
+                                                </span>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Tablas Adicionales (Ancho Completo) -->
+                <t t-if="hasTablas">
+                    <div class="pld-tablas-container">
+                        <t t-foreach="tablas" t-as="tabla" t-key="tabla_index">
+                            <div class="pld-tabla-section">
+                                <div class="pld-subtabla-header pld-clickable" t-on-click="() => this.toggleTable(tabla.id || tabla_index)">
+                                    <i t-att-class="'fa ' + (tabla.icono || 'fa-table')"/>
+                                    <t t-esc="tabla.titulo"/>
+                                    <span t-if="tabla.count" class="pld-tabla-count">(<t t-esc="tabla.count"/>)</span>
+                                    <i t-att-class="'fa fa-chevron-' + (isTableExpanded(tabla.id || tabla_index) ? 'up' : 'down')" style="float:right;"/>
+                                </div>
+                                <t t-if="isTableExpanded(tabla.id || tabla_index)">
+                                    <table class="pld-paso-tabla">
+                                        <thead>
+                                            <tr>
+                                                <t t-foreach="tabla.columnas" t-as="col" t-key="col_index">
+                                                    <th t-att-class="col.align ? 'text-' + col.align : ''">
+                                                        <t t-esc="col.titulo"/>
+                                                    </th>
+                                                </t>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="tabla.filas" t-as="fila" t-key="fila_index">
+                                                <tr t-att-class="fila.esTotal ? 'pld-tabla-total' : (fila_index % 2 === 1 ? 'pld-row-alt' : '')">
+                                                    <t t-foreach="tabla.columnas" t-as="col" t-key="'cell_' + col_index">
+                                                        <td t-att-class="col.align ? 'text-' + col.align : ''">
+                                                            <t t-if="fila.esTotal"><strong><t t-esc="fila[col.campo]"/></strong></t>
+                                                            <t t-elif="col.formato === 'currency'"><t t-esc="props.formatCurrency(fila[col.campo])"/></t>
+                                                            <t t-elif="col.formato === 'badge'">
+                                                                <span class="pld-badge-codigo"><t t-esc="fila[col.campo]"/></span>
+                                                            </t>
+                                                            <t t-else=""><t t-esc="fila[col.campo]"/></t>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                        <t t-if="tabla.footer">
+                                            <tfoot>
+                                                <tr class="pld-tabla-total">
+                                                    <t t-foreach="tabla.columnas" t-as="col" t-key="'foot_' + col_index">
+                                                        <td t-att-class="col.align ? 'text-' + col.align : ''">
+                                                            <strong>
+                                                                <t t-if="col.formato === 'currency'"><t t-esc="props.formatCurrency(tabla.footer[col.campo])"/></t>
+                                                                <t t-else=""><t t-esc="tabla.footer[col.campo]"/></t>
+                                                            </strong>
+                                                        </td>
+                                                    </t>
+                                                </tr>
+                                            </tfoot>
+                                        </t>
+                                    </table>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Resultado Final -->
+                <div class="pld-resultado-final-box">
+                    <div class="pld-resultado-main">
+                        <span class="pld-resultado-label">
+                            <i class="fa fa-check-circle"/> <t t-esc="data.resultadoLabel || 'TOTAL'"/>
+                        </span>
+                        <span class="pld-resultado-valor" t-att-style="'color: ' + props.ruleConfig.color + ';'">
+                            <t t-esc="props.formatCurrency(data.resultado)"/>
+                        </span>
+                    </div>
+                    <t t-if="data.formulaResumen">
+                        <div class="pld-resultado-formula">
+                            <t t-esc="data.formulaResumen"/>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Notas o Warnings -->
+                <t t-if="data.notas and data.notas.length > 0">
+                    <div class="pld-notas-box">
+                        <t t-foreach="data.notas" t-as="nota" t-key="nota_index">
+                            <div t-att-class="'pld-nota-item pld-nota-' + (nota.tipo || 'info')">
+                                <i t-att-class="'fa ' + (nota.icono || 'fa-info-circle')"/>
+                                <span><t t-esc="nota.texto"/></span>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

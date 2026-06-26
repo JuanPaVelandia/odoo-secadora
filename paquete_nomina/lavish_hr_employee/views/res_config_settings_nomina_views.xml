@@ -1,0 +1,1123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         CONFIGURACIÓN UNIFICADA: Nómina CO
+         Vista moderna con cards, badges e iconos
+         ═══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="res_config_settings_view_form_nomina_co" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.nomina.co</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="priority">50</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Nomina Colombia" string="Nómina Colombia" name="lavish_nomina_co" groups="hr_payroll.group_hr_payroll_manager" logo="/lavish_hr_employee/static/description/payroll.png">
+
+                    <!-- HEADER CON SELECTOR DE AÑO -->
+                    <block title="Parametros de Nomina Colombia" name="nomina_co_header">
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-calendar-check-o fa-2x text-primary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Año de Parametros</strong>
+                                <div class="text-muted mb-2">Seleccione el año fiscal para configurar los parametros de nomina</div>
+                                <div class="content-group">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-4">
+                                            <field name="nomina_annual_parameters_id" class="w-100" options="{'no_create': True}"/>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <button name="action_copy_parameters_wizard" type="object" class="btn btn-outline-secondary btn-sm me-2" icon="fa-copy">
+                                                Copiar Año Anterior
+                                            </button>
+                                            <button name="action_create_new_year" type="object" class="btn btn-outline-primary btn-sm me-2" icon="fa-plus">
+                                                Nuevo Año
+                                            </button>
+                                            <button name="action_open_annual_parameters" type="object" class="btn btn-link btn-sm" icon="fa-external-link">
+                                                Ver Detalle Completo
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </block>
+
+                    <!-- VALORES PRINCIPALES - CARDS DESTACADAS -->
+                    <block title="Valores Principales" name="nomina_co_main_values">
+
+                        <!-- Indicador de Año Seleccionado -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-calendar fa-lg text-primary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <div class="d-flex align-items-center">
+                                    <strong class="fw-bold me-2">Año de Parametros:</strong>
+                                    <span class="badge bg-primary fs-5 px-3 py-2">
+                                        <field name="nomina_selected_year" readonly="1" nolabel="1"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SMMLV Card -->
+                        <div class="o_setting_box" id="smmlv_card">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-money fa-lg text-success"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong class="fw-bold">Salario Minimo (SMMLV)</strong>
+                                        <span class="badge bg-success ms-2"><field name="nomina_selected_year" readonly="1" nolabel="1"/></span>
+                                    </div>
+                                </div>
+                                <div class="text-muted mb-2">Salario Minimo Mensual Legal Vigente para Colombia</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">SMMLV Mensual</div>
+                                                <field name="nomina_smmlv_monthly" widget="monetary" class="fs-4 fw-bold text-success"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">SMMLV Diario</div>
+                                                <field name="nomina_smmlv_daily" widget="monetary" class="fs-5 fw-semibold"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Auxilio Transporte Card -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-bus fa-lg text-info"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Auxilio de Transporte</strong>
+                                <div class="text-muted mb-2">Subsidio mensual de transporte para empleados con salario hasta 2 SMMLV</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">Valor Mensual</div>
+                                                <field name="nomina_transportation_assistance" widget="monetary" class="fs-4 fw-bold text-info"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">Tope Aplicacion (2 SMMLV)</div>
+                                                <field name="nomina_top_aux_transporte" widget="monetary" class="fs-5 fw-semibold"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UVT Card -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-calculator fa-lg text-warning"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Unidad de Valor Tributario (UVT)</strong>
+                                <div class="text-muted mb-2">Base para calculo de retenciones e impuestos - DIAN</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">Valor UVT</div>
+                                                <field name="nomina_value_uvt" widget="monetary" class="fs-4 fw-bold text-warning"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">Tope RTF (95 UVT)</div>
+                                                <field name="nomina_top_source_retention" widget="monetary" class="fs-5"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">Tope 10 SMMLV</div>
+                                                <field name="nomina_top_10_smmlv" widget="monetary" class="fs-5"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Salario Integral Card -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-briefcase fa-lg text-purple"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Salario Integral</strong>
+                                <span class="badge bg-secondary ms-2">13 SMMLV</span>
+                                <div class="text-muted mb-2">Minimo para contratos con salario integral (incluye factor prestacional)</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">Salario Minimo Integral</div>
+                                                <field name="nomina_min_integral_salary" widget="monetary" class="fs-4 fw-bold"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">% Factor Salarial</div>
+                                                <div class="d-flex align-items-center">
+                                                    <field name="nomina_porc_integral_salary" class="fs-5 fw-bold"/>
+                                                    <span class="ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small">Tope IBC (25 SMMLV)</div>
+                                                <field name="nomina_top_25_smmlv" widget="monetary" class="small"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Avanzado -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="nomina_show_advanced"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <span class="badge bg-info ms-2">Opciones Avanzadas</span>
+                                <div class="text-muted">Mostrar configuracion detallada: Seguridad Social, Provisiones, Opciones de Calculo y Jornada Laboral</div>
+                            </div>
+                        </div>
+
+                    </block>
+
+                    <!-- SEGURIDAD SOCIAL -->
+                    <block title="Seguridad Social" name="nomina_social_security" invisible="not nomina_show_advanced">
+
+                        <!-- Salud -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-medkit fa-lg text-danger"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Aportes a Salud</strong>
+                                <span class="badge bg-danger ms-2">12.5% Total</span>
+                                <div class="text-muted mb-2">Distribucion de aportes al sistema de salud</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #dc3545 !important;">
+                                                <div class="text-muted small mb-1">Empresa</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_health_company" class="fs-3 fw-bold text-danger"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #6c757d !important;">
+                                                <div class="text-muted small mb-1">Empleado</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_health_employee" class="fs-3 fw-bold"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center bg-light">
+                                                <div class="text-muted small mb-1">Total</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_health_total" class="fs-3 fw-bold text-success"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pension -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-user-circle fa-lg text-primary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Aportes a Pension</strong>
+                                <span class="badge bg-primary ms-2">16% Total</span>
+                                <div class="text-muted mb-2">Distribucion de aportes al fondo de pensiones</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #0d6efd !important;">
+                                                <div class="text-muted small mb-1">Empresa</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_pension_company" class="fs-3 fw-bold text-primary"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #6c757d !important;">
+                                                <div class="text-muted small mb-1">Empleado</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_pension_employee" class="fs-3 fw-bold"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center bg-light">
+                                                <div class="text-muted small mb-1">Total</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_pension_total" class="fs-3 fw-bold text-success"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parafiscales -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-institution fa-lg text-secondary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Aportes Parafiscales</strong>
+                                <span class="badge bg-secondary ms-2">9% Total (Empresa)</span>
+                                <div class="text-muted mb-2">Aportes obligatorios del empleador a entidades parafiscales</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #198754 !important;">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-users me-1"/>Caja Compensacion
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_compensation_box" class="fs-3 fw-bold text-success"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #fd7e14 !important;">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-graduation-cap me-1"/>SENA
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_sena" class="fs-3 fw-bold text-warning"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #6f42c1 !important;">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-child me-1"/>ICBF
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_icbf" class="fs-3 fw-bold"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuracion Empresa -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-building fa-lg text-dark"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Configuracion de Empresa</strong>
+                                <div class="text-muted mb-2">Exoneraciones y opciones especiales de la compañia</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check mb-2">
+                                                    <field name="nomina_exonerated_law_1607" class="form-check-input"/>
+                                                    <label for="nomina_exonerated_law_1607" class="form-check-label fw-semibold">
+                                                        <i class="fa fa-check-circle text-success me-1"/>
+                                                        Exonerado Ley 1607
+                                                    </label>
+                                                </div>
+                                                <div class="text-muted small ps-4">Exonera: SENA, ICBF y Salud Empresa para salarios menores a 10 SMMLV</div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-3 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>Ejemplo IBC $4,000,000:</div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <span class="badge bg-success">ON</span><br/>
+                                                            SENA: <s class="text-danger">$80K</s> $0<br/>
+                                                            ICBF: <s class="text-danger">$120K</s> $0<br/>
+                                                            Salud Emp: <s class="text-danger">$340K</s> $0<br/>
+                                                            <span class="text-success fw-bold">Ahorro: $540K</span>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <span class="badge bg-secondary">OFF</span><br/>
+                                                            SENA: $80K (2%)<br/>
+                                                            ICBF: $120K (3%)<br/>
+                                                            Salud Emp: $340K (8.5%)<br/>
+                                                            <span class="text-muted fw-bold">Total: $540K</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check mb-2">
+                                                    <field name="nomina_include_absences_1393" class="form-check-input"/>
+                                                    <label for="nomina_include_absences_1393" class="form-check-label fw-semibold">
+                                                        <i class="fa fa-calendar-times-o text-warning me-1"/>
+                                                        Incluir Ausencias Ley 1393
+                                                    </label>
+                                                </div>
+                                                <div class="text-muted small ps-4">Incluir ausencias en calculo de aportes sobre pagos no salariales</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mt-2">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-shield me-1"/>Entidad ARL
+                                                </div>
+                                                <field name="nomina_entity_arp_id" class="w-100"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-id-card me-1"/>Tipo de Aportante
+                                                </div>
+                                                <field name="nomina_type_contributor" class="w-100"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </block>
+
+                    <!-- PROVISIONES -->
+                    <block title="Provisiones Mensuales" name="nomina_provisions" invisible="not nomina_show_advanced">
+
+                        <!-- Porcentajes -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-pie-chart fa-lg text-info"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Porcentajes de Provision</strong>
+                                <div class="text-muted mb-2">Porcentajes para calculo mensual de provisiones de prestaciones sociales</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 text-center" style="border-top: 4px solid #0dcaf0 !important;">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-gift me-1"/>Prima
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_provision_prima" class="fs-4 fw-bold text-info"/>
+                                                    <span class="fs-6 ms-1">%</span>
+                                                </div>
+                                                <div class="text-muted small">1/12 mensual</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 text-center" style="border-top: 4px solid #198754 !important;">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-bank me-1"/>Cesantias
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_provision_cesantias" class="fs-4 fw-bold text-success"/>
+                                                    <span class="fs-6 ms-1">%</span>
+                                                </div>
+                                                <div class="text-muted small">1/12 mensual</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 text-center" style="border-top: 4px solid #ffc107 !important;">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-percent me-1"/>Int. Cesantias
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_provision_int_cesantias" class="fs-4 fw-bold text-warning"/>
+                                                    <span class="fs-6 ms-1">%</span>
+                                                </div>
+                                                <div class="text-muted small">12%/12 meses</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 text-center" style="border-top: 4px solid #6f42c1 !important;">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-plane me-1"/>Vacaciones
+                                                </div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_provision_vacaciones" class="fs-4 fw-bold"/>
+                                                    <span class="fs-6 ms-1">%</span>
+                                                </div>
+                                                <div class="text-muted small">15/360 dias</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metodo Calculo -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-cogs fa-lg text-secondary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Metodo de Calculo</strong>
+                                <div class="text-muted mb-2">Configuracion del calculo de cesantias y prestaciones</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check mb-2">
+                                                    <field name="nomina_simple_provisions" class="form-check-input"/>
+                                                    <label for="nomina_simple_provisions" class="form-check-label fw-semibold">
+                                                        Provisiones Simplificadas
+                                                    </label>
+                                                </div>
+                                                <div class="text-muted small ps-4">Usar metodo simplificado para calculo de provisiones</div>
+                                                <div class="mt-3">
+                                                    <div class="text-muted small mb-1">Días para provisión</div>
+                                                    <field name="nomina_provision_days_method" class="w-100"/>
+                                                </div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-3 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>Ejemplo Salario $3,000,000:</div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <span class="badge bg-success">ON</span> Prima = $3M x 8.33%<br/>
+                                                            <span class="text-success fw-bold">= $249,900</span>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <span class="badge bg-secondary">OFF</span> Prima = $3M x 15/360<br/>
+                                                            <span class="text-muted fw-bold">= $125,000</span> (15 dias)
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="text-muted small mb-1">Calculo de Cesantias</div>
+                                                <field name="nomina_severance_calculation" class="w-100"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </block>
+
+                    <!-- OPCIONES DE CALCULO -->
+                    <block title="Opciones de Calculo" name="nomina_calculation_options" invisible="not nomina_show_advanced">
+
+                        <!-- Retencion -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-percent fa-lg text-danger"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Retencion en la Fuente</strong>
+                                <div class="text-muted mb-2">Opciones de calculo de retencion en la fuente</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_rtf_projection" class="form-check-input"/>
+                                                    <label for="nomina_rtf_projection" class="form-check-label">
+                                                        <i class="fa fa-calendar me-1 text-primary"/>
+                                                        Retencion Proyectada en 1ra Quincena
+                                                    </label>
+                                                </div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>RTF mensual $200K:</div>
+                                                    <span class="badge bg-success">ON</span> Q1=$100K, Q2=$100K<br/>
+                                                    <span class="badge bg-secondary">OFF</span> Q1=$0, Q2=$200K
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_rtf_round" class="form-check-input"/>
+                                                    <label for="nomina_rtf_round" class="form-check-label">
+                                                        <i class="fa fa-sort-numeric-asc me-1 text-warning"/>
+                                                        Redondear Retencion
+                                                    </label>
+                                                </div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>RTF $183,456.78:</div>
+                                                    <span class="badge bg-success">ON</span> = $183,500<br/>
+                                                    <span class="badge bg-secondary">OFF</span> = $183,456.78
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Deducciones -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-minus-circle fa-lg text-warning"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Deducciones de Nomina</strong>
+                                <div class="text-muted mb-2">Opciones de deducciones y neto</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_ded_round" class="form-check-input"/>
+                                                    <label for="nomina_ded_round" class="form-check-label">
+                                                        <i class="fa fa-sort-numeric-asc me-1 text-info"/>
+                                                        Redondear Deducciones SS
+                                                    </label>
+                                                </div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>Salud $160,345 + Pension $213,789:</div>
+                                                    <span class="badge bg-success">ON</span> Salud=$160,400 Pension=$213,800<br/>
+                                                    <span class="text-muted small">(Redondea al 100 superior)</span><br/>
+                                                    <span class="badge bg-secondary">OFF</span> Valores exactos sin redondear
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_positive_net" class="form-check-input"/>
+                                                    <label for="nomina_positive_net" class="form-check-label">
+                                                        <i class="fa fa-plus-circle me-1 text-success"/>
+                                                        Solo Neto Positivo
+                                                    </label>
+                                                </div>
+                                                <div class="text-muted small ps-4">No permite nominas con neto negativo</div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>Deduc. > Deveng.:</div>
+                                                    <span class="badge bg-success">ON</span> <i class="fa fa-ban text-danger"/> Bloquea<br/>
+                                                    <span class="badge bg-secondary">OFF</span> Neto = -$500K
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prestaciones -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-gift fa-lg text-success"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Prestaciones Sociales</strong>
+                                <div class="text-muted mb-2">Opciones de calculo de prestaciones</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_fragment_vac" class="form-check-input"/>
+                                                    <label for="nomina_fragment_vac" class="form-check-label">
+                                                        <i class="fa fa-puzzle-piece me-1 text-info"/>
+                                                        Vacaciones Fragmentadas
+                                                    </label>
+                                                </div>
+                                                <div class="text-muted small ps-4">Permite dividir vacaciones en periodos</div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>15 dias de vacaciones:</div>
+                                                    <span class="badge bg-success">ON</span> 5+5+5 dias OK<br/>
+                                                    <span class="badge bg-secondary">OFF</span> Solo 15 dias continuos
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_prst_wo_susp" class="form-check-input"/>
+                                                    <label for="nomina_prst_wo_susp" class="form-check-label">
+                                                        <i class="fa fa-ban me-1 text-danger"/>
+                                                        No Descontar Suspensiones de Prima
+                                                    </label>
+                                                </div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>3 dias suspension (semestre 180 dias):</div>
+                                                    <span class="badge bg-success">ON</span> Prima = 180 dias (no descuenta)<br/>
+                                                    <span class="badge bg-secondary">OFF</span> Prima = 180 - 3 = <span class="text-danger fw-bold">177 dias</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Horas Extras -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-clock-o fa-lg text-primary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Horas Extras</strong>
+                                <div class="text-muted mb-2">Metodo de calculo de horas extras y recargos</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="text-muted small mb-1">Metodo de Calculo</div>
+                                                <field name="nomina_overtime_method" class="w-100"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </block>
+
+                    <!-- JORNADA LABORAL -->
+                    <block title="Jornada Laboral" name="nomina_calendar" invisible="not nomina_show_advanced">
+
+                        <!-- Horas -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-hourglass-half fa-lg text-info"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Horas Laborales</strong>
+                                <span class="badge bg-info ms-2">Ley 2101 de 2021</span>
+                                <div class="text-muted mb-2">Configuracion de jornada laboral segun normativa vigente</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-top: 4px solid #0dcaf0 !important;">
+                                                <div class="text-muted small mb-1">Horas/Mes</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_hours_monthly" class="fs-3 fw-bold text-info"/>
+                                                    <span class="ms-1">hrs</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center bg-light">
+                                                <div class="text-muted small mb-1">Horas/Semana</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_hours_weekly" class="fs-3 fw-bold"/>
+                                                    <span class="ms-1">hrs</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center bg-light">
+                                                <div class="text-muted small mb-1">Horas/Dia</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_hours_daily" class="fs-3 fw-bold"/>
+                                                    <span class="ms-1">hrs</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Nota explicativa -->
+                                    <div class="mt-3 p-2 border-start border-info border-3 bg-light rounded small">
+                                        <div class="fw-semibold mb-1"><i class="fa fa-info-circle text-info me-1"/>Horas Efectivas vs Comerciales:</div>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <span class="badge bg-info">Efectivas (Ley 2101)</span><br/>
+                                                42 hrs/semana reales<br/>
+                                                8.4 hrs/dia (5 dias) o 7 hrs (6 dias)
+                                            </div>
+                                            <div class="col-6">
+                                                <span class="badge bg-secondary">Comerciales (Nomina)</span><br/>
+                                                220 hrs/mes ÷ 30 dias = 7.33 hrs/dia<br/>
+                                                7.33 × 7 dias = <span class="fw-bold">51.31 hrs/sem</span>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2 text-muted fst-italic">
+                                            <i class="fa fa-lightbulb-o text-warning me-1"/>
+                                            Las 51.31 hrs/semana son para calculo de nomina (mes comercial 30 dias).
+                                            La jornada real es 42 hrs segun Ley 2101/2021.
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <button name="action_create_working_hours" type="object" class="btn btn-outline-info btn-sm" icon="fa-magic">
+                                            Aplicar Ley 2101 (42 hrs/semana)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reglas Calendario -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-calendar fa-lg text-secondary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Reglas de Calendario</strong>
+                                <div class="text-muted mb-2">Manejo de dias especiales en el calculo de nomina</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_complete_february" class="form-check-input"/>
+                                                    <label for="nomina_complete_february" class="form-check-label">
+                                                        <i class="fa fa-calendar-plus-o me-1 text-primary"/>
+                                                        Completar Febrero a 30 dias
+                                                    </label>
+                                                </div>
+                                                <div class="text-muted small ps-4">Ajusta febrero para calculo comercial</div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>Febrero 2025 (28 dias):</div>
+                                                    <span class="badge bg-success">ON</span> Dias = 30 (comercial)<br/>
+                                                    <span class="badge bg-secondary">OFF</span> Dias = 28 (calendario)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="form-check">
+                                                    <field name="nomina_apply_day_31" class="form-check-input"/>
+                                                    <label for="nomina_apply_day_31" class="form-check-label">
+                                                        <i class="fa fa-calendar-check-o me-1 text-warning"/>
+                                                        Aplicar Regla Dia 31
+                                                    </label>
+                                                </div>
+                                                <div class="text-muted small ps-4">Excluir dia 31 del calculo</div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>Enero (31 dias):</div>
+                                                    <span class="badge bg-success">ON</span> Dias pagados = 30<br/>
+                                                    <span class="badge bg-secondary">OFF</span> Dias pagados = 31
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contabilizacion -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-book fa-lg text-dark"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Contabilizacion</strong>
+                                <div class="text-muted mb-2">Metodo de contabilizacion de la nomina desde el lote</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-sitemap me-1"/>Metodo Contable (Desde Lote)
+                                                </div>
+                                                <field name="nomina_accounting_method" class="w-100"/>
+                                                <div class="text-muted small mt-2">
+                                                    Define cómo se contabiliza desde el lote de nóminas
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3">
+                                                <div class="text-muted small mb-1">
+                                                    <i class="fa fa-list me-1"/>Agrupacion de Lineas
+                                                </div>
+                                                <field name="nomina_accounting_line_grouping" class="w-100"/>
+                                                <div class="text-muted small mt-2">
+                                                    Define si se agrupan o se muestran en detalle las líneas contables
+                                                </div>
+                                                <!-- Ejemplo visual -->
+                                                <div class="mt-2 p-2 bg-light rounded small">
+                                                    <div class="fw-semibold mb-1"><i class="fa fa-lightbulb-o text-warning me-1"/>Ejemplo 3 empleados, misma regla:</div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <span class="badge bg-success">Agrupar</span><br/>
+                                                            1 línea: $9,000,000
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <span class="badge bg-info">Detalle</span><br/>
+                                                            3 líneas: $3M c/u
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </block>
+
+                    <!-- VALORES DE REFERENCIA -->
+                    <block title="Valores de Referencia" name="nomina_topes" invisible="not nomina_show_advanced">
+
+                        <!-- Incrementos -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-line-chart fa-lg text-success"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Incrementos Anuales</strong>
+                                <div class="text-muted mb-2">Porcentajes de incremento anual aplicados</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #198754 !important;">
+                                                <div class="text-muted small mb-1">Incremento SMMLV</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_increment_smlv" class="fs-3 fw-bold text-success"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #fd7e14 !important;">
+                                                <div class="text-muted small mb-1">IPC (Inflacion)</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_ipc" class="fs-3 fw-bold text-warning"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="border rounded p-3 text-center" style="border-left: 4px solid #6f42c1 !important;">
+                                                <div class="text-muted small mb-1">Factor Integral</div>
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <field name="nomina_porc_integral_salary" class="fs-3 fw-bold"/>
+                                                    <span class="fs-5 ms-1">%</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Topes -->
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-arrows-v fa-lg text-primary"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Topes Calculados</strong>
+                                <div class="text-muted mb-2">Valores limite automaticos basados en SMMLV vigente</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small mb-1">4 SMMLV (FSP)</div>
+                                                <field name="nomina_top_4_smmlv" widget="monetary" class="fw-bold"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small mb-1">10 SMMLV (Exoneracion)</div>
+                                                <field name="nomina_top_10_smmlv" widget="monetary" class="fw-bold"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small mb-1">25 SMMLV (IBC Max)</div>
+                                                <field name="nomina_top_25_smmlv" widget="monetary" class="fw-bold"/>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <div class="border rounded p-3 bg-light">
+                                                <div class="text-muted small mb-1">2 SMMLV (Aux. Transporte)</div>
+                                                <field name="nomina_top_aux_transporte" widget="monetary" class="fw-bold"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </block>
+
+                    <!-- REFERENCIAS LEGALES -->
+                    <block title="Referencias Legales" name="nomina_legal_references" invisible="not nomina_show_advanced">
+
+                        <div class="o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <i class="fa fa-balance-scale fa-lg text-dark"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <strong class="fw-bold">Normativa Aplicable</strong>
+                                <div class="text-muted mb-2">Enlaces a la legislacion colombiana vigente aplicada en este modulo</div>
+                                <div class="content-group">
+                                    <div class="row g-3">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h6 class="fw-bold mb-2">
+                                                    <i class="fa fa-gavel me-2 text-primary"/>Seguridad Social
+                                                </h6>
+                                                <ul class="list-unstyled mb-0 small">
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=5248" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Ley 100/1993 - Sistema General de Seguridad Social
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=60436" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Ley 1607/2012 - Exoneracion SENA/ICBF
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=36841" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Ley 1393/2010 - Limite 40% pagos no salariales
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=5536" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Decreto 1295/1994 - Sistema de Riesgos Laborales
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h6 class="fw-bold mb-2">
+                                                    <i class="fa fa-file-text me-2 text-success"/>Prestaciones Sociales
+                                                </h6>
+                                                <ul class="list-unstyled mb-0 small">
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=33104" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>CST Art. 306-308 - Prima de Servicios
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=33104" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>CST Art. 249 - Cesantias
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=1570" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Ley 52/1975 - Intereses Cesantias (12%)
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=33104" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>CST Art. 186 - Vacaciones (15 dias)
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mt-2">
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h6 class="fw-bold mb-2">
+                                                    <i class="fa fa-clock-o me-2 text-info"/>Jornada Laboral
+                                                </h6>
+                                                <ul class="list-unstyled mb-0 small">
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=166056" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Ley 2101/2021 - Jornada 42 horas semanales
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=33104" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>CST Art. 161 - Recargos Nocturnos y Dominicales
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="border rounded p-3 bg-light">
+                                                <h6 class="fw-bold mb-2">
+                                                    <i class="fa fa-money me-2 text-warning"/>Tributario
+                                                </h6>
+                                                <ul class="list-unstyled mb-0 small">
+                                                    <li class="mb-2">
+                                                        <a href="https://estatuto.co/?e=383" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Art. 383 ET - Tabla Retencion en la Fuente
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://estatuto.co/?e=387" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>Art. 387 ET - Deducciones y Rentas Exentas
+                                                        </a>
+                                                    </li>
+                                                    <li class="mb-2">
+                                                        <a href="https://www.dian.gov.co" target="_blank" class="text-decoration-none">
+                                                            <i class="fa fa-external-link me-1"/>DIAN - Portal Oficial
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </block>
+
+                    <!-- Punto de herencia para módulos que extiendan esta vista -->
+                    <div id="nomina_co_extension_point"/>
+
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         ACCIÓN PARA ABRIR CONFIGURACIÓN NÓMINA CO
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <record id="action_nomina_co_config" model="ir.actions.act_window">
+        <field name="name">Nómina CO</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'lavish_nomina_co'}</field>
+    </record>
+
+</odoo>

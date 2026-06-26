@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Menú principal para Portal de Empleados en configuración de RRHH -->
+    <menuitem id="menu_hr_employee_portal_root"
+              name="Portal de Empleados"
+              parent="hr_payroll.menu_hr_payroll_employees" 
+              sequence="100"
+              groups="hr.group_hr_manager"/>
+    <record id="action_employee_portal_simulation" model="ir.actions.act_url">
+        <field name="name">Simulación Portal Empleado</field>
+        <field name="url">/my/employee/simulate</field>
+        <field name="target">new</field>
+    </record>
+    <menuitem id="menu_hr_employee_portal_simulation"
+              name="Simulación de Portal"
+              parent="menu_hr_employee_portal_root"
+              action="action_employee_portal_simulation"
+              sequence="10"
+              groups="hr.group_hr_manager"/>
+
+    <!-- Acción para la simulación del portal -->
+
+
+</odoo>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineSimple">
+        <div class="pld-widget-section pld-simple-view">
+            <div class="pld-section-content">
+                <!-- KPIs en fila -->
+                <div class="pld-kpis-row">
+                    <t t-foreach="props.kpis" t-as="kpi" t-key="kpi_index">
+                        <div class="pld-kpi-simple">
+                            <div class="pld-kpi-simple-label">
+                                <t t-esc="kpi.etiqueta"/>
+                            </div>
+                            <div class="pld-kpi-simple-value" t-att-style="'color: ' + props.ruleConfig.color + ';'">
+                                <t t-esc="props.formatValue(kpi.valor, kpi.formato)"/>
+                            </div>
+                            <div t-if="kpi.subtitulo" class="pld-kpi-simple-sub">
+                                <t t-esc="kpi.subtitulo"/>
+                            </div>
+                        </div>
+                        <div t-if="kpi_index &lt; props.kpis.length - 1" class="pld-kpi-separator">
+                            <i class="fa fa-times"/>
+                        </div>
+                    </t>
+                    <!-- Total -->
+                    <div class="pld-kpi-separator">
+                        <i class="fa fa-equals"/>
+                    </div>
+                    <div class="pld-kpi-simple pld-kpi-total">
+                        <div class="pld-kpi-simple-label">TOTAL</div>
+                        <div class="pld-kpi-simple-value pld-value-total" t-att-style="'color: ' + props.ruleConfig.color + ';'">
+                            <t t-esc="props.formatCurrency(props.total)"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fórmula corta -->
+                <t t-if="props.formula">
+                    <div class="pld-simple-formula">
+                        <i class="fa fa-calculator"/> <t t-esc="props.formula"/>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

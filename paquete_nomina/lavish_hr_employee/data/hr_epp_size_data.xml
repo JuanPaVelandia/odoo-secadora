@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- =================================================================
+        TALLAS EPP/DOTACIÓN - Datos Iniciales
+        ================================================================= -->
+
+        <!-- ===================== TALLAS ROPA (clothing) ===================== -->
+
+        <record id="size_clothing_xxs" model="hr.epp.size">
+            <field name="name">XXS</field>
+            <field name="description">Extra Extra Pequeño</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">5</field>
+        </record>
+
+        <record id="size_clothing_xs" model="hr.epp.size">
+            <field name="name">XS</field>
+            <field name="description">Extra Pequeño</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <record id="size_clothing_s" model="hr.epp.size">
+            <field name="name">S</field>
+            <field name="description">Pequeño</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="size_clothing_m" model="hr.epp.size">
+            <field name="name">M</field>
+            <field name="description">Mediano</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="size_clothing_l" model="hr.epp.size">
+            <field name="name">L</field>
+            <field name="description">Grande</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="size_clothing_xl" model="hr.epp.size">
+            <field name="name">XL</field>
+            <field name="description">Extra Grande</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="size_clothing_xxl" model="hr.epp.size">
+            <field name="name">XXL</field>
+            <field name="description">Extra Extra Grande</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <record id="size_clothing_3xl" model="hr.epp.size">
+            <field name="name">3XL</field>
+            <field name="description">Triple Extra Grande</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">70</field>
+        </record>
+
+        <!-- ===================== TALLAS CALZADO (shoes) ===================== -->
+
+        <record id="size_shoes_35" model="hr.epp.size">
+            <field name="name">35</field>
+            <field name="description">Talla 35</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">35</field>
+            <field name="measurement_min">22.5</field>
+            <field name="measurement_max">23.0</field>
+        </record>
+
+        <record id="size_shoes_36" model="hr.epp.size">
+            <field name="name">36</field>
+            <field name="description">Talla 36</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">36</field>
+            <field name="measurement_min">23.0</field>
+            <field name="measurement_max">23.5</field>
+        </record>
+
+        <record id="size_shoes_37" model="hr.epp.size">
+            <field name="name">37</field>
+            <field name="description">Talla 37</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">37</field>
+            <field name="measurement_min">23.5</field>
+            <field name="measurement_max">24.0</field>
+        </record>
+
+        <record id="size_shoes_38" model="hr.epp.size">
+            <field name="name">38</field>
+            <field name="description">Talla 38</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">38</field>
+            <field name="measurement_min">24.0</field>
+            <field name="measurement_max">24.5</field>
+        </record>
+
+        <record id="size_shoes_39" model="hr.epp.size">
+            <field name="name">39</field>
+            <field name="description">Talla 39</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">39</field>
+            <field name="measurement_min">24.5</field>
+            <field name="measurement_max">25.0</field>
+        </record>
+
+        <record id="size_shoes_40" model="hr.epp.size">
+            <field name="name">40</field>
+            <field name="description">Talla 40</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">40</field>
+            <field name="measurement_min">25.0</field>
+            <field name="measurement_max">25.5</field>
+        </record>
+
+        <record id="size_shoes_41" model="hr.epp.size">
+            <field name="name">41</field>
+            <field name="description">Talla 41</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">41</field>
+            <field name="measurement_min">25.5</field>
+            <field name="measurement_max">26.0</field>
+        </record>
+
+        <record id="size_shoes_42" model="hr.epp.size">
+            <field name="name">42</field>
+            <field name="description">Talla 42</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">42</field>
+            <field name="measurement_min">26.0</field>
+            <field name="measurement_max">26.5</field>
+        </record>
+
+        <record id="size_shoes_43" model="hr.epp.size">
+            <field name="name">43</field>
+            <field name="description">Talla 43</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">43</field>
+            <field name="measurement_min">26.5</field>
+            <field name="measurement_max">27.0</field>
+        </record>
+
+        <record id="size_shoes_44" model="hr.epp.size">
+            <field name="name">44</field>
+            <field name="description">Talla 44</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">44</field>
+            <field name="measurement_min">27.0</field>
+            <field name="measurement_max">27.5</field>
+        </record>
+
+        <record id="size_shoes_45" model="hr.epp.size">
+            <field name="name">45</field>
+            <field name="description">Talla 45</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">45</field>
+            <field name="measurement_min">27.5</field>
+            <field name="measurement_max">28.0</field>
+        </record>
+
+        <record id="size_shoes_46" model="hr.epp.size">
+            <field name="name">46</field>
+            <field name="description">Talla 46</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">46</field>
+            <field name="measurement_min">28.0</field>
+            <field name="measurement_max">28.5</field>
+        </record>
+
+        <!-- ===================== TALLAS GUANTES (gloves) ===================== -->
+
+        <record id="size_gloves_6" model="hr.epp.size">
+            <field name="name">6</field>
+            <field name="description">Talla 6 - XS</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">6</field>
+            <field name="measurement_min">15.0</field>
+            <field name="measurement_max">16.5</field>
+        </record>
+
+        <record id="size_gloves_7" model="hr.epp.size">
+            <field name="name">7</field>
+            <field name="description">Talla 7 - S</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">7</field>
+            <field name="measurement_min">17.0</field>
+            <field name="measurement_max">18.5</field>
+        </record>
+
+        <record id="size_gloves_8" model="hr.epp.size">
+            <field name="name">8</field>
+            <field name="description">Talla 8 - M</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">8</field>
+            <field name="measurement_min">19.0</field>
+            <field name="measurement_max">20.5</field>
+        </record>
+
+        <record id="size_gloves_9" model="hr.epp.size">
+            <field name="name">9</field>
+            <field name="description">Talla 9 - L</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">9</field>
+            <field name="measurement_min">21.0</field>
+            <field name="measurement_max">22.5</field>
+        </record>
+
+        <record id="size_gloves_10" model="hr.epp.size">
+            <field name="name">10</field>
+            <field name="description">Talla 10 - XL</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">10</field>
+            <field name="measurement_min">23.0</field>
+            <field name="measurement_max">24.5</field>
+        </record>
+
+        <record id="size_gloves_11" model="hr.epp.size">
+            <field name="name">11</field>
+            <field name="description">Talla 11 - XXL</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">11</field>
+            <field name="measurement_min">25.0</field>
+            <field name="measurement_max">26.5</field>
+        </record>
+
+        <record id="size_gloves_12" model="hr.epp.size">
+            <field name="name">12</field>
+            <field name="description">Talla 12 - 3XL</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">12</field>
+            <field name="measurement_min">27.0</field>
+            <field name="measurement_max">28.5</field>
+        </record>
+
+        <!-- ===================== TALLAS CASCO (helmet) ===================== -->
+
+        <record id="size_helmet_s" model="hr.epp.size">
+            <field name="name">S</field>
+            <field name="description">Pequeño (52-54 cm)</field>
+            <field name="size_type">helmet</field>
+            <field name="sequence">10</field>
+            <field name="measurement_min">52</field>
+            <field name="measurement_max">54</field>
+        </record>
+
+        <record id="size_helmet_m" model="hr.epp.size">
+            <field name="name">M</field>
+            <field name="description">Mediano (54-56 cm)</field>
+            <field name="size_type">helmet</field>
+            <field name="sequence">20</field>
+            <field name="measurement_min">54</field>
+            <field name="measurement_max">56</field>
+        </record>
+
+        <record id="size_helmet_l" model="hr.epp.size">
+            <field name="name">L</field>
+            <field name="description">Grande (56-58 cm)</field>
+            <field name="size_type">helmet</field>
+            <field name="sequence">30</field>
+            <field name="measurement_min">56</field>
+            <field name="measurement_max">58</field>
+        </record>
+
+        <record id="size_helmet_xl" model="hr.epp.size">
+            <field name="name">XL</field>
+            <field name="description">Extra Grande (58-60 cm)</field>
+            <field name="size_type">helmet</field>
+            <field name="sequence">40</field>
+            <field name="measurement_min">58</field>
+            <field name="measurement_max">60</field>
+        </record>
+
+        <record id="size_helmet_xxl" model="hr.epp.size">
+            <field name="name">XXL</field>
+            <field name="description">Extra Extra Grande (60-62 cm)</field>
+            <field name="size_type">helmet</field>
+            <field name="sequence">50</field>
+            <field name="measurement_min">60</field>
+            <field name="measurement_max">62</field>
+        </record>
+
+        <record id="size_helmet_universal" model="hr.epp.size">
+            <field name="name">UNIVERSAL</field>
+            <field name="description">Talla Universal Ajustable</field>
+            <field name="size_type">helmet</field>
+            <field name="sequence">60</field>
+        </record>
+
+    </data>
+</odoo>

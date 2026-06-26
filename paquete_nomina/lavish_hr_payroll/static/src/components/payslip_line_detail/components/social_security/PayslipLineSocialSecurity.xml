@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineSocialSecurity">
+        <div class="pld-widget-section pld-ss-view">
+            <div class="pld-section-content">
+                <!-- Header SS -->
+                <div class="pld-ss-header">
+                    <div class="pld-ss-tipo">
+                        <i t-att-class="'fa ' + props.ruleConfig.icon" t-att-style="'color: ' + props.ruleConfig.color + ';'"/>
+                        <span class="pld-ss-tipo-label"><t t-esc="data.tipo"/></span>
+                    </div>
+                    <div class="pld-ss-legal">
+                        <i class="fa fa-balance-scale"/>
+                        <a t-if="props.getLeyUrl(data.base_legal)"
+                           t-att-href="props.getLeyUrl(data.base_legal)"
+                           target="_blank" class="pld-legal-link" t-on-click.stop="">
+                            <t t-esc="data.base_legal"/> <i class="fa fa-external-link"/>
+                        </a>
+                        <span t-else=""><t t-esc="data.base_legal"/></span>
+                    </div>
+                </div>
+
+                <!-- Distribución porcentajes -->
+                <div class="pld-ss-distribucion">
+                    <div class="pld-ss-dist-title">
+                        <i class="fa fa-pie-chart"/> Distribución de Aportes
+                    </div>
+                    <div class="pld-ss-dist-bars">
+                        <!-- Barra empleado -->
+                        <div class="pld-ss-bar pld-ss-bar-empleado">
+                            <div class="pld-ss-bar-header">
+                                <span class="pld-ss-bar-label">
+                                    <i class="fa fa-user"/> Empleado
+                                </span>
+                                <span class="pld-ss-bar-pct">
+                                    <t t-esc="data.porcentaje_empleado"/>%
+                                </span>
+                            </div>
+                            <div class="pld-ss-bar-track">
+                                <div class="pld-ss-bar-fill pld-ss-fill-empleado"
+                                     t-att-style="'width: ' + empleadoBarWidth + '%;'"/>
+                            </div>
+                            <div class="pld-ss-bar-valor">
+                                <t t-esc="props.formatCurrency(data.valor_empleado)"/>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Total -->
+                    <div class="pld-ss-total-row">
+                        <span class="pld-ss-total-label">
+                            <i class="fa fa-calculator"/> Aporte Empleado
+                        </span>
+                        <span class="pld-ss-total-pct">
+                            <t t-esc="data.porcentaje_empleado"/>%
+                        </span>
+                        <span class="pld-ss-total-valor" t-att-style="'color: ' + props.ruleConfig.color + ';'">
+                            <t t-esc="props.formatCurrency(data.valor_empleado)"/>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Cálculo empleado -->
+                <div class="pld-ss-calculo">
+                    <div class="pld-ss-calculo-title">
+                        <i class="fa fa-calculator"/> Cálculo Deducción Empleado
+                    </div>
+                    <div class="pld-ss-calculo-formula">
+                        <span class="pld-ss-formula-item">
+                            <span class="pld-ss-formula-label">IBC</span>
+                            <span class="pld-ss-formula-value"><t t-esc="props.formatCurrency(data.ibc)"/></span>
+                        </span>
+                        <span class="pld-ss-formula-op">x</span>
+                        <span class="pld-ss-formula-item">
+                            <span class="pld-ss-formula-label">Tasa</span>
+                            <span class="pld-ss-formula-value"><t t-esc="data.porcentaje_empleado"/>%</span>
+                        </span>
+                        <span class="pld-ss-formula-op">=</span>
+                        <span class="pld-ss-formula-item pld-ss-formula-result">
+                            <span class="pld-ss-formula-label">Deducción</span>
+                            <span class="pld-ss-formula-value" t-att-style="'color: ' + props.ruleConfig.color + ';'">
+                                <t t-esc="props.formatCurrency(data.valor_empleado)"/>
+                            </span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Condiciones -->
+                <t t-if="hasCondiciones">
+                    <div class="pld-ss-condiciones">
+                        <div class="pld-ss-condiciones-title">
+                            <i class="fa fa-info-circle"/> Condiciones
+                        </div>
+                        <ul class="pld-ss-condiciones-list">
+                            <t t-foreach="data.condiciones" t-as="cond" t-key="cond_index">
+                                <li><t t-esc="cond"/></li>
+                            </t>
+                        </ul>
+                    </div>
+                </t>
+
+                <!-- Entidad -->
+                <t t-if="data.entidad">
+                    <div class="pld-ss-entidad">
+                        <i class="fa fa-institution"/>
+                        <span>Entidad: <strong><t t-esc="data.entidad"/></strong></span>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

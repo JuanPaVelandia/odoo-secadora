@@ -1,0 +1,854 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- ================================================================ -->
+    <!-- TREE: hr.payslip.edi                                             -->
+    <!-- ================================================================ -->
+    <record id="view_hr_payslip_edi_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.tree</field>
+        <field name="model">hr.payslip.edi</field>
+        <field name="arch" type="xml">
+            <list string="Nómina Electrónica" sample="1">
+                <field name="company_id" column_invisible="1"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="number" decoration-bf="1"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="payslip_run_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="total_devengos" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_deducciones" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_paid" widget="monetary" options="{'currency_field': 'currency_id'}" decoration-bf="1"/>
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'verify'"
+                    decoration-success="state == 'done'"
+                    decoration-danger="state == 'cancel'"/>
+                <field name="state_dian" widget="badge"
+                    decoration-muted="state_dian == 'por_notificar'"
+                    decoration-warning="state_dian == 'por_validar'"
+                    decoration-success="state_dian == 'exitoso'"
+                    decoration-danger="state_dian in ('error', 'rechazado')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- FORM: hr.payslip.edi                                             -->
+    <!-- ================================================================ -->
+    <record id="view_hr_payslip_edi_form" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.form</field>
+        <field name="model">hr.payslip.edi</field>
+        <field name="arch" type="xml">
+            <form string="Nómina Electrónica">
+                <!-- Alerta vencimiento certificado -->
+                <div class="alert alert-danger" role="alert"
+                     invisible="not certificate_expiry_warning">
+                    <i class="fa fa-exclamation-triangle me-1"/>
+                    <field name="certificate_expiry_warning" readonly="1" nolabel="1"/>
+                </div>
+                <!-- Alerta provisiones con valores negativos -->
+                <div class="alert alert-warning" role="alert"
+                     invisible="not provision_warning">
+                    <i class="fa fa-warning me-1"/>
+                    <strong>Alerta Provisiones:</strong>
+                    <field name="provision_warning" readonly="1" nolabel="1"/>
+                </div>
+                <!-- Banner liquidación de contrato -->
+                <div class="alert alert-secondary" role="alert"
+                     invisible="not is_liquidacion">
+                    <i class="fa fa-info-circle me-1"/>
+                    <strong>Liquidación de contrato</strong> - Fecha terminación:
+                    <field name="date_end_contract" readonly="1" class="d-inline"/>
+                </div>
+                <!-- Banners de validación DIAN -->
+                <div class="alert alert-info" role="alert"
+                     invisible="state_dian != 'por_notificar'">
+                    Documento pendiente de envío a DIAN.
+                </div>
+                <div class="alert alert-warning" role="alert"
+                     invisible="state_dian != 'por_validar'">
+                    Documento enviado. Pendiente validación DIAN.
+                    <button name="action_check_status_dian" type="object"
+                            string="Consultar Estado" class="btn-link"/>
+                </div>
+                <div class="alert alert-success" role="alert"
+                     invisible="state_dian != 'exitoso'">
+                    Documento validado exitosamente por DIAN. CUNE: <field name="current_cune" readonly="1"/>
+                </div>
+                <div class="alert alert-danger" role="alert"
+                     invisible="state_dian not in ('error', 'rechazado')">
+                    <strong>Error DIAN:</strong> <field name="response_message_dian" readonly="1"/>
+                    <div class="mt-2">
+                        <button name="action_retry_send_dian" type="object"
+                                string="Reintentar con Comparación" class="btn btn-warning btn-sm me-2"/>
+                        <button name="action_consult_dian_status" type="object"
+                                string="Consultar Estado DIAN" class="btn btn-info btn-sm me-2"
+                                invisible="not ZipKey"/>
+                        <button name="action_recuperar_nomina" type="object"
+                                string="Recuperar y Limpiar" class="btn-link"/>
+                    </div>
+                </div>
+
+                <header>
+                    <button string="Computar" name="action_compute_sheet" type="object"
+                        invisible="state not in ('draft', 'verify')" class="oe_highlight"
+                        icon="fa-refresh"
+                        title="Busca nóminas del período, consolida líneas y calcula devengos, deducciones y neto"/>
+                    <button string="Confirmar" name="action_confirm" type="object"
+                        invisible="state != 'draft'" class="oe_highlight"/>
+                    <button string="Marcar Hecho" name="action_done" type="object"
+                        invisible="state != 'verify'" class="oe_highlight"/>
+                    <button string="Enviar a DIAN" name="action_send_dian" type="object"
+                        invisible="state != 'done' or state_dian == 'exitoso'"
+                        class="oe_highlight"/>
+                    <button string="Test XML" name="action_test_xml" type="object"
+                        invisible="state not in ('verify', 'done')"
+                        class="btn-info" icon="fa-code"
+                        title="Generar y previsualizar XML sin enviar a DIAN"/>
+                    <button string="Consultar DIAN" name="action_check_status_dian" type="object"
+                        invisible="state_dian != 'por_validar'"/>
+                    <button string="Reintentar" name="action_retry_send_dian" type="object"
+                        invisible="state_dian not in ('rechazado', 'error', 'por_validar')"
+                        class="btn-warning"/>
+                    <button string="Consultar Estado" name="action_consult_dian_status" type="object"
+                        invisible="not ZipKey"
+                        title="Consulta directa a DIAN para verificar estado del documento"/>
+                    <button string="Recuperar" name="action_recuperar_nomina" type="object"
+                        invisible="state_dian not in ('rechazado', 'error', 'por_validar')"
+                        title="Limpia estado DIAN para permitir reenvío"/>
+                    <button string="Crear Nota de Ajuste" name="action_create_adjustment" type="object"
+                        invisible="state_dian != 'exitoso'"/>
+                    <button string="Ajuste Datos Empleado" name="action_create_data_adjustment" type="object"
+                        invisible="state_dian != 'exitoso'"
+                        title="Crea nota de ajuste solo para actualizar datos del empleado (nombre, documento, etc.) sin cambiar valores financieros"/>
+                    <button string="Ajuste Parcial" name="action_create_partial_adjustment_wizard" type="object"
+                        invisible="state_dian != 'exitoso'"
+                        class="btn-secondary"
+                        title="Seleccionar conceptos específicos a modificar en la nota de ajuste"/>
+                    <button string="Enviar Correo" name="action_send_email_nomina" type="object"
+                        invisible="state_dian != 'exitoso'"
+                        class="btn-secondary" icon="fa-envelope"
+                        title="Enviar documento de nómina electrónica por correo al empleado"/>
+                    <button string="Cancelar" name="action_cancel" type="object"
+                        invisible="state not in ('draft', 'verify')"/>
+                    <button string="Volver a Borrador" name="action_draft" type="object"
+                        invisible="state != 'cancel'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,verify,done"/>
+                </header>
+
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payslips" type="object"
+                            class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="payslip_count" widget="statinfo" string="Nóminas"/>
+                        </button>
+                        <button name="action_update_employee_data" type="object"
+                            class="oe_stat_button" icon="fa-refresh"
+                            invisible="state_dian == 'exitoso'">
+                            <span class="o_stat_text">Actualizar Datos</span>
+                        </button>
+                        <button name="action_view_adjustment_chain" type="object"
+                            class="oe_stat_button" icon="fa-chain"
+                            invisible="not credit_note and adjustment_count == 0">
+                            <field name="adjustment_count" widget="statinfo" string="Ajustes"/>
+                        </button>
+                        <button name="action_view_logs" type="object"
+                            class="oe_stat_button" icon="fa-list-alt"
+                            invisible="log_count == 0">
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="log_count" nolabel="1"/>
+                                    <span invisible="log_error_count == 0"
+                                        class="text-danger ms-1">
+                                        (<field name="log_error_count" nolabel="1"/> err)
+                                    </span>
+                                </span>
+                                <span class="o_stat_text">Logs</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <label for="employee_id" class="oe_edit_only"/>
+                        <h1>
+                            <field name="employee_id" placeholder="Empleado"/>
+                        </h1>
+                        <field name="name" class="oe_inline"/>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+                            <label for="date_from" string="Período"/>
+                            <div>
+                                <field name="date_from" class="oe_inline"/> -
+                                <field name="date_to" class="oe_inline"/>
+                            </div>
+                            <field name="version_id" required="1"
+                                domain="[('employee_id','=',employee_id)]"/>
+                            <field name="struct_id"/>
+                            <field name="payment_date"/>
+                            <field name="provision_mode"/>
+                            <field name="use_external_accumulated"
+                                invisible="provision_mode == 'exclude'"
+                                widget="boolean_toggle"/>
+                            <field name="is_liquidacion" invisible="1"/>
+                            <field name="date_end_contract"
+                                invisible="not is_liquidacion"
+                                decoration-danger="is_liquidacion"/>
+                        </group>
+                        <group>
+                            <field name="number"/>
+                            <field name="payslip_run_id"/>
+                            <field name="state_dian" widget="badge"/>
+                            <field name="credit_note"/>
+                            <field name="type_note" invisible="not credit_note"/>
+                            <field name="previous_cune" invisible="not credit_note"/>
+                            <field name="parent_edi_id" invisible="not credit_note"/>
+                            <field name="origin_edi_id" invisible="not credit_note"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Totales">
+                            <field name="total_devengos" widget="monetary"/>
+                            <field name="total_deducciones" widget="monetary"/>
+                            <field name="total_paid" widget="monetary"/>
+                        </group>
+                        <group string="Salarios">
+                            <field name="basic_wage" widget="monetary"/>
+                            <field name="net_wage" widget="monetary"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="nominas" string="Nóminas y Conceptos">
+                            <group>
+                                <button name="action_compute_sheet" type="object"
+                                    string="Actualizar Datos" class="btn-secondary"
+                                    icon="fa-refresh"
+                                    invisible="state not in ('draft', 'verify')"/>
+                            </group>
+                            <field name="payslip_ids" widget="many2many"
+                                domain="[('employee_id', '=', employee_id), ('state', 'in', ['done', 'paid'])]">
+                                <list string="Nóminas">
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="number" decoration-bf="1"/>
+                                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="basic_wage" widget="monetary"/>
+                                    <field name="net_wage" widget="monetary" decoration-bf="1"/>
+                                    <field name="state" widget="badge"
+                                        decoration-info="state == 'draft'"
+                                        decoration-success="state in ('done','paid')"/>
+                                </list>
+                            </field>
+
+                            <!-- Devengos -->
+                            <separator string="Devengos"/>
+                            <field name="earnings_ids" nolabel="1">
+                                <list string="Devengos" create="0" delete="0">
+                                    <field name="name" string="Concepto"/>
+                                    <field name="code" string="Código"/>
+                                    <field name="dian_code" string="DIAN" optional="show"/>
+                                    <field name="quantity" string="Cant."/>
+                                    <field name="amount" string="Monto"/>
+                                    <field name="total" string="Total" sum="Total Devengos" decoration-bf="1"/>
+                                    <field name="rate_2" string="Tasa 2" optional="show"/>
+                                    <field name="total_2" string="Total 2" optional="show"/>
+                                </list>
+                            </field>
+
+                            <!-- Deducciones -->
+                            <separator string="Deducciones"/>
+                            <field name="deductions_ids" nolabel="1">
+                                <list string="Deducciones" create="0" delete="0">
+                                    <field name="name" string="Concepto"/>
+                                    <field name="code" string="Código"/>
+                                    <field name="dian_code" string="DIAN" optional="show"/>
+                                    <field name="quantity" string="Cant."/>
+                                    <field name="amount" string="Monto"/>
+                                    <field name="total" string="Total" sum="Total Deducciones" decoration-bf="1"/>
+                                    <field name="rate_2" string="Tasa 2" optional="show"/>
+                                    <field name="total_2" string="Total 2" optional="show"/>
+                                </list>
+                            </field>
+
+                            <!-- Seguridad Social -->
+                            <separator string="Seguridad Social"/>
+                            <field name="social_security_ids" nolabel="1">
+                                <list string="Seguridad Social" create="0" delete="0">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="quantity"/>
+                                    <field name="amount"/>
+                                    <field name="total" sum="Total Seguridad Social"/>
+                                </list>
+                            </field>
+
+                            <!-- Provisiones -->
+                            <separator string="Provisiones"/>
+                            <field name="provisions_ids" nolabel="1">
+                                <list string="Provisiones" create="0" delete="0">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="quantity"/>
+                                    <field name="amount"/>
+                                    <field name="total" sum="Total Provisiones"/>
+                                </list>
+                            </field>
+
+                            <!-- Bases / Subtotales -->
+                            <separator string="Bases"/>
+                            <field name="bases_ids" nolabel="1">
+                                <list string="Bases" create="0" delete="0">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="quantity"/>
+                                    <field name="amount"/>
+                                    <field name="total" sum="Total Bases"/>
+                                </list>
+                            </field>
+
+                            <!-- Neto -->
+                            <separator string="Neto"/>
+                            <field name="outcome_ids" nolabel="1">
+                                <list string="Neto" create="0" delete="0">
+                                    <field name="name"/>
+                                    <field name="code"/>
+                                    <field name="quantity"/>
+                                    <field name="amount"/>
+                                    <field name="total" sum="Total Neto" decoration-bf="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Días Trabajados" name="worked_days">
+                            <field name="worked_days_line_ids">
+                                <list string="Días Trabajados" editable="bottom" create="0" delete="0">
+                                    <field name="work_entry_type_id"/>
+                                    <field name="name"/>
+                                    <field name="number_of_days" sum="Total Días"/>
+                                    <field name="number_of_hours"/>
+                                    <field name="amount" sum="Total Monto"/>
+                                    <field name="is_paid" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="DIAN" name="dian_info">
+                            <group>
+                                <group string="Identificadores">
+                                    <field name="current_cune"/>
+                                    <field name="cune_url" widget="url" text="Consultar en DIAN" invisible="not current_cune"/>
+                                    <field name="ZipKey"/>
+                                    <field name="name_xml"/>
+                                    <field name="name_zip"/>
+                                    <field name="resend"/>
+                                </group>
+                                <group string="Respuesta">
+                                    <field name="response_message_dian"/>
+                                    <field name="xml_response_dian" string="XML Respuesta DIAN"
+                                        invisible="not xml_response_dian"/>
+                                    <field name="xml_send_query_dian" string="XML Consulta"
+                                        invisible="not xml_send_query_dian"/>
+                                </group>
+                            </group>
+                            <!-- Botones de descarga XML -->
+                            <div class="mb-3" invisible="not xml_sended and not xml_response_dian">
+                                <h5><i class="fa fa-download"/> Descargar XML</h5>
+                                <button name="action_download_xml_enviado" type="object"
+                                    class="btn btn-sm btn-primary me-2"
+                                    icon="fa-file-code-o" string="XML Enviado"
+                                    invisible="not xml_sended"/>
+                                <button name="action_download_xml_respuesta" type="object"
+                                    class="btn btn-sm btn-info me-2"
+                                    icon="fa-file-code-o" string="XML Respuesta DIAN"
+                                    invisible="not xml_response_dian"/>
+                                <button name="action_download_xml_consulta" type="object"
+                                    class="btn btn-sm btn-secondary me-2"
+                                    icon="fa-file-code-o" string="XML Consulta"
+                                    invisible="not xml_send_query_dian"/>
+                                <button name="action_download_xml_firmado" type="object"
+                                    class="btn btn-sm btn-outline-primary me-2"
+                                    icon="fa-file-text-o" string="XML Firmado"
+                                    invisible="not name_xml"/>
+                                <button name="action_download_zip" type="object"
+                                    class="btn btn-sm btn-outline-secondary"
+                                    icon="fa-file-archive-o" string="ZIP"
+                                    invisible="not name_zip"/>
+                            </div>
+                            <group string="XML Enviado" invisible="not xml_sended">
+                                <field name="xml_sended" widget="text" nolabel="1"/>
+                            </group>
+                        </page>
+
+                        <page string="Historial de Ajustes" name="adjustment_history"
+                              invisible="not credit_note and adjustment_count == 0">
+                            <field name="child_edi_ids" readonly="1">
+                                <list string="Notas de Ajuste" create="0" delete="0"
+                                      decoration-success="state_dian == 'exitoso'"
+                                      decoration-danger="state_dian in ('rechazado', 'error')"
+                                      decoration-warning="state_dian == 'por_validar'">
+                                    <field name="number" decoration-bf="1"/>
+                                    <field name="type_note"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="total_devengos"/>
+                                    <field name="total_deducciones"/>
+                                    <field name="total_paid" decoration-bf="1"/>
+                                    <field name="state_dian" widget="badge"
+                                        decoration-success="state_dian == 'exitoso'"
+                                        decoration-danger="state_dian in ('rechazado', 'error')"
+                                        decoration-warning="state_dian == 'por_validar'"
+                                        decoration-muted="state_dian == 'por_notificar'"/>
+                                    <field name="adjustment_note_description" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- SEARCH: hr.payslip.edi                                           -->
+    <!-- ================================================================ -->
+    <record id="view_hr_payslip_edi_search" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.search</field>
+        <field name="model">hr.payslip.edi</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Nómina Electrónica">
+                <field name="number"/>
+                <field name="employee_id"/>
+                <field name="payslip_run_id"/>
+                <separator/>
+                <filter string="Borrador" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="En Espera" name="verify" domain="[('state', '=', 'verify')]"/>
+                <filter string="Hecho" name="done" domain="[('state', '=', 'done')]"/>
+                <separator/>
+                <filter string="Por Notificar" name="por_notificar" domain="[('state_dian', '=', 'por_notificar')]"/>
+                <filter string="Por Validar" name="por_validar" domain="[('state_dian', '=', 'por_validar')]"/>
+                <filter string="Exitoso" name="exitoso" domain="[('state_dian', '=', 'exitoso')]"/>
+                <filter string="Rechazado/Error" name="error" domain="[('state_dian', 'in', ['rechazado', 'error'])]"/>
+                <separator/>
+                <filter string="Notas de Ajuste" name="credit_notes" domain="[('credit_note', '=', True)]"/>
+                <filter string="Documentos Originales" name="originals" domain="[('credit_note', '=', False)]"/>
+                <separator/>
+                <group>
+                    <filter string="Empleado" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Lote" name="group_by_batch" context="{'group_by': 'payslip_run_id'}"/>
+                    <filter string="Estado DIAN" name="group_state_dian" context="{'group_by': 'state_dian'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- TREE: hr.payslip.edi.run (Lotes)                                 -->
+    <!-- ================================================================ -->
+    <record id="view_hr_payslip_edi_run_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.run.tree</field>
+        <field name="model">hr.payslip.edi.run</field>
+        <field name="arch" type="xml">
+            <list string="Lotes Nómina Electrónica" sample="1">
+                <field name="name"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="fecha_vencimiento"/>
+                <field name="company_id"/>
+                <field name="payslip_count"/>
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'verify'"
+                    decoration-success="state == 'close'"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- FORM: hr.payslip.edi.run (Lotes)                                 -->
+    <!-- ================================================================ -->
+    <record id="view_hr_payslip_edi_run_form" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.run.form</field>
+        <field name="model">hr.payslip.edi.run</field>
+        <field name="arch" type="xml">
+            <form string="Lote Nómina Electrónica">
+                <!-- Alerta vencimiento certificado -->
+                <div class="alert alert-danger" role="alert"
+                     invisible="not certificate_expiry_warning">
+                    <i class="fa fa-exclamation-triangle me-1"/>
+                    <field name="certificate_expiry_warning" readonly="1" nolabel="1"/>
+                </div>
+                <header>
+                    <button name="action_open_generate_wizard" type="object"
+                        string="Generar Nóminas" class="btn-primary"
+                        icon="fa-plus"
+                        invisible="state != 'draft'"/>
+                    <button name="action_validate" type="object"
+                        string="Consolidar Líneas" class="btn-primary"
+                        icon="fa-refresh"
+                        invisible="not step1_ready or step2_ready"/>
+                    <button name="action_done_all" type="object"
+                        string="Confirmar Todas" class="btn-primary"
+                        icon="fa-check"
+                        invisible="not step2_ready or step3_ready"/>
+                    <button name="action_force_done" type="object"
+                        string="Forzar Terminado" class="btn-warning"
+                        icon="fa-bolt"
+                        invisible="not es_ajuste_electronico or step3_ready"
+                        confirm="¿Forzar todas las nóminas a estado Hecho para envío electrónico?"/>
+                    <button name="validar_dian" type="object"
+                        string="Validar DIAN" class="btn-primary"
+                        icon="fa-cloud-upload"
+                        invisible="not step3_ready or step4_ready"/>
+                    <button name="action_open_selective_dian" type="object"
+                        string="Envío Selectivo" class="btn-secondary"
+                        icon="fa-check-square-o"
+                        invisible="not step3_ready"
+                        title="Seleccionar documentos específicos para validar y enviar a DIAN"/>
+                    <button name="action_close" type="object"
+                        string="Cerrar Lote" class="btn-success"
+                        icon="fa-check-circle"
+                        invisible="not step4_ready or state == 'close'"/>
+                    <button name="restart_full_batch" type="object"
+                        string="Reiniciar Lote" class="btn-secondary"
+                        icon="fa-undo"
+                        invisible="state == 'draft' and payslip_count == 0"
+                        confirm="¿Está seguro de reiniciar el lote? Se eliminarán todas las nóminas."/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <!-- Campos ocultos para cómputo -->
+                    <field name="step1_ready" invisible="1"/>
+                    <field name="step2_ready" invisible="1"/>
+                    <field name="step3_ready" invisible="1"/>
+                    <field name="step4_ready" invisible="1"/>
+                    <field name="slip_draft_count" invisible="1"/>
+                    <field name="slip_verify_count" invisible="1"/>
+                    <field name="slip_done_count" invisible="1"/>
+                    <field name="slip_dian_pending_count" invisible="1"/>
+                    <field name="slip_dian_success_count" invisible="1"/>
+                    <field name="slip_dian_error_count" invisible="1"/>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_payslips" class="oe_stat_button" icon="fa-book"
+                            type="object" invisible="payslip_count == 0">
+                            <field name="payslip_count" widget="statinfo" string="Nóminas"/>
+                        </button>
+                    </div>
+                    <label for="name" class="oe_edit_only"/>
+                    <h1>
+                        <field name="name"/>
+                    </h1>
+
+                    <!-- ============================================ -->
+                    <!-- STEPPER: Paso a Paso del Proceso            -->
+                    <!-- ============================================ -->
+                    <div class="alert alert-info p-3 mb-3" style="border-radius: 8px;">
+                        <h5 class="mb-3"><i class="fa fa-tasks"/> Proceso de Nómina Electrónica</h5>
+                        <div class="row">
+                            <!-- PASO 1: Generar Nóminas -->
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 rounded bg-success text-white" style="min-height: 80px;"
+                                     invisible="not step1_ready">
+                                    <i class="fa fa-check-circle fa-2x mb-1"/>
+                                    <div><strong>1. Generar</strong></div>
+                                    <small><field name="step1_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-secondary text-white" style="min-height: 80px;"
+                                     invisible="step1_ready">
+                                    <i class="fa fa-circle-o fa-2x mb-1"/>
+                                    <div><strong>1. Generar</strong></div>
+                                    <small><field name="step1_status" readonly="1"/></small>
+                                </div>
+                                <button name="action_open_generate_wizard" type="object"
+                                    class="btn btn-primary btn-sm mt-2 w-100"
+                                    invisible="state != 'draft'">
+                                    <i class="fa fa-plus"/> Generar Nóminas
+                                </button>
+                            </div>
+
+                            <!-- PASO 2: Consolidar -->
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 rounded bg-success text-white" style="min-height: 80px;"
+                                     invisible="not step2_ready">
+                                    <i class="fa fa-check-circle fa-2x mb-1"/>
+                                    <div><strong>2. Consolidar</strong></div>
+                                    <small><field name="step2_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-warning text-dark" style="min-height: 80px;"
+                                     invisible="step2_ready or not step1_ready">
+                                    <i class="fa fa-exclamation-circle fa-2x mb-1"/>
+                                    <div><strong>2. Consolidar</strong></div>
+                                    <small><field name="step2_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-secondary text-white" style="min-height: 80px;"
+                                     invisible="step1_ready">
+                                    <i class="fa fa-circle-o fa-2x mb-1"/>
+                                    <div><strong>2. Consolidar</strong></div>
+                                    <small>Esperando paso 1</small>
+                                </div>
+                                <button name="action_validate" type="object"
+                                    class="btn btn-warning btn-sm mt-2 w-100"
+                                    invisible="not step1_ready or step2_ready">
+                                    <i class="fa fa-refresh"/> Consolidar Líneas
+                                </button>
+                            </div>
+
+                            <!-- PASO 3: Confirmar -->
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 rounded bg-success text-white" style="min-height: 80px;"
+                                     invisible="not step3_ready">
+                                    <i class="fa fa-check-circle fa-2x mb-1"/>
+                                    <div><strong>3. Confirmar</strong></div>
+                                    <small><field name="step3_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-warning text-dark" style="min-height: 80px;"
+                                     invisible="step3_ready or not step2_ready">
+                                    <i class="fa fa-exclamation-circle fa-2x mb-1"/>
+                                    <div><strong>3. Confirmar</strong></div>
+                                    <small><field name="step3_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-secondary text-white" style="min-height: 80px;"
+                                     invisible="step2_ready">
+                                    <i class="fa fa-circle-o fa-2x mb-1"/>
+                                    <div><strong>3. Confirmar</strong></div>
+                                    <small>Esperando paso 2</small>
+                                </div>
+                                <button name="action_done_all" type="object"
+                                    class="btn btn-warning btn-sm mt-2 w-100"
+                                    invisible="not step2_ready or step3_ready">
+                                    <i class="fa fa-check"/> Confirmar Todas
+                                </button>
+                            </div>
+
+                            <!-- PASO 4: Validar DIAN -->
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 rounded bg-success text-white" style="min-height: 80px;"
+                                     invisible="not step4_ready">
+                                    <i class="fa fa-check-circle fa-2x mb-1"/>
+                                    <div><strong>4. DIAN</strong></div>
+                                    <small><field name="step4_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-danger text-white" style="min-height: 80px;"
+                                     invisible="step4_ready or slip_dian_error_count == 0">
+                                    <i class="fa fa-times-circle fa-2x mb-1"/>
+                                    <div><strong>4. DIAN</strong></div>
+                                    <small><field name="step4_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-warning text-dark" style="min-height: 80px;"
+                                     invisible="step4_ready or not step3_ready or slip_dian_error_count > 0">
+                                    <i class="fa fa-cloud-upload fa-2x mb-1"/>
+                                    <div><strong>4. DIAN</strong></div>
+                                    <small><field name="step4_status" readonly="1"/></small>
+                                </div>
+                                <div class="p-2 rounded bg-secondary text-white" style="min-height: 80px;"
+                                     invisible="step3_ready">
+                                    <i class="fa fa-circle-o fa-2x mb-1"/>
+                                    <div><strong>4. DIAN</strong></div>
+                                    <small>Esperando paso 3</small>
+                                </div>
+                                <button name="validar_dian" type="object"
+                                    class="btn btn-primary btn-sm mt-2 w-100"
+                                    invisible="not step3_ready or step4_ready">
+                                    <i class="fa fa-cloud-upload"/> Validar DIAN
+                                </button>
+                                <button name="action_open_selective_dian" type="object"
+                                    class="btn btn-outline-primary btn-sm mt-1 w-100"
+                                    invisible="not step3_ready">
+                                    <i class="fa fa-check-square-o"/> Envío Selectivo
+                                </button>
+                                <button name="action_close" type="object"
+                                    class="btn btn-success btn-sm mt-2 w-100"
+                                    invisible="not step4_ready or state == 'close'">
+                                    <i class="fa fa-check-circle"/> Cerrar Lote
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Resumen de contadores -->
+                        <div class="mt-3" invisible="payslip_count == 0">
+                            <div class="row text-center">
+                                <div class="col">
+                                    <div class="badge text-bg-secondary fs-6 p-2">
+                                        <strong><field name="slip_draft_count" class="d-inline"/></strong> Borrador
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="badge text-bg-info fs-6 p-2">
+                                        <strong><field name="slip_verify_count" class="d-inline"/></strong> Verificación
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="badge text-bg-primary fs-6 p-2">
+                                        <strong><field name="slip_done_count" class="d-inline"/></strong> Listas
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="badge text-bg-success fs-6 p-2">
+                                        <strong><field name="slip_dian_success_count" class="d-inline"/></strong> DIAN OK
+                                    </div>
+                                </div>
+                                <div class="col" invisible="slip_dian_error_count == 0">
+                                    <div class="badge text-bg-danger fs-6 p-2">
+                                        <strong><field name="slip_dian_error_count" class="d-inline"/></strong> Errores
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acciones adicionales -->
+                    <div class="mb-3" invisible="state == 'draft' and payslip_count == 0">
+                        <button name="restart_full_batch" type="object"
+                            class="btn btn-outline-secondary btn-sm"
+                            invisible="state == 'draft'"
+                            confirm="¿Está seguro de reiniciar el lote? Se eliminarán todas las nóminas.">
+                            <i class="fa fa-undo"/> Reiniciar Lote
+                        </button>
+                        <button name="action_draft" type="object"
+                            class="btn btn-outline-secondary btn-sm ms-2"
+                            invisible="state != 'close'">
+                            <i class="fa fa-arrow-left"/> Volver a Borrador
+                        </button>
+                        <button name="action_create_batch_adjustments" type="object"
+                            class="btn btn-outline-warning btn-sm ms-2"
+                            invisible="state != 'close'">
+                            <i class="fa fa-files-o"/> Crear Ajustes Masivos
+                        </button>
+                        <button name="action_detect_adjustments_needed" type="object"
+                            class="btn btn-outline-info btn-sm ms-2"
+                            invisible="state != 'close'">
+                            <i class="fa fa-search"/> Detectar Ajustes
+                        </button>
+                    </div>
+
+                    <group>
+                        <group>
+                            <label for="date_start" string="Período"/>
+                            <div class="o_row">
+                                <field name="date_start" class="oe_inline"/> -
+                                <field name="date_end" class="oe_inline"/>
+                            </div>
+                            <field name="fecha_vencimiento"/>
+                        </group>
+                        <group>
+                            <field name="credit_note"/>
+                            <field name="es_ajuste_electronico" widget="boolean_toggle"/>
+                            <field name="payslip_run_source_id"
+                                string="Lote Origen"
+                                options="{'no_create': True}"
+                                invisible="not es_ajuste_electronico"/>
+                            <field name="provision_mode"/>
+                            <field name="use_external_accumulated"
+                                invisible="provision_mode == 'exclude'"
+                                widget="boolean_toggle"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="company_id"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="nominas" string="Nóminas por Empleado">
+                            <field name="slip_ids" widget="one2many">
+                                <list decoration-success="state_dian == 'exitoso'"
+                                      decoration-danger="state_dian in ('rechazado', 'error')"
+                                      decoration-warning="state_dian == 'por_validar'"
+                                      decoration-muted="state == 'cancel'"
+                                      default_order="employee_id, date_from"
+                                      default_group_by="employee_id">
+                                    <field name="employee_id"/>
+                                    <field name="name"/>
+                                    <field name="date_from"/>
+                                    <field name="date_to"/>
+                                    <field name="date_end_contract" optional="hide" string="Fin Contrato"/>
+                                    <field name="total_devengos" sum="Total Devengados"/>
+                                    <field name="total_deducciones" sum="Total Deducciones"/>
+                                    <field name="total_paid" sum="Total Neto"/>
+                                    <field name="state" widget="badge"
+                                        decoration-success="state == 'done'"
+                                        decoration-info="state == 'verify'"
+                                        decoration-muted="state == 'cancel'"/>
+                                    <field name="state_dian" widget="badge"
+                                        decoration-success="state_dian == 'exitoso'"
+                                        decoration-danger="state_dian in ('rechazado', 'error')"
+                                        decoration-warning="state_dian == 'por_validar'"
+                                        decoration-info="state_dian == 'por_notificar'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="resumen" string="Resumen por Empleado">
+                            <field name="employee_summary_ids" readonly="1">
+                                <list decoration-success="all_dian_ok"
+                                      decoration-danger="has_dian_errors"
+                                      decoration-warning="has_pending_dian"
+                                      create="false" delete="false" edit="false">
+                                    <field name="employee_id"/>
+                                    <field name="payslip_count" string="Nóminas"/>
+                                    <field name="total_devengados" sum="Total"/>
+                                    <field name="total_deducciones" sum="Total"/>
+                                    <field name="total_neto" sum="Total"/>
+                                    <field name="done_count" string="Listas"/>
+                                    <field name="dian_ok_count" string="DIAN OK"/>
+                                    <field name="dian_error_count" string="Errores"/>
+                                    <field name="all_dian_ok" invisible="1"/>
+                                    <field name="has_dian_errors" invisible="1"/>
+                                    <field name="has_pending_dian" invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- ACTIONS                                                          -->
+    <!-- ================================================================ -->
+    <record id="action_hr_payslip_edi" model="ir.actions.act_window">
+        <field name="name">Nómina Electrónica</field>
+        <field name="res_model">hr.payslip.edi</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{"search_default_group_by_batch": 1}</field>
+    </record>
+
+    <record id="action_hr_payslip_edi_run" model="ir.actions.act_window">
+        <field name="name">Lotes Nómina Electrónica</field>
+        <field name="res_model">hr.payslip.edi.run</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- ================================================================ -->
+    <!-- MENUS - Nómina Electrónica                                       -->
+    <!-- ================================================================ -->
+
+    <!-- Menú principal bajo Nómina -->
+    <menuitem id="menu_hr_payroll_edi_root"
+        name="Nómina Electrónica"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_root"
+        sequence="75"/>
+
+    <!-- Submenús -->
+    <menuitem id="menu_hr_payroll_edi_batch"
+        name="Lotes Masivos"
+        parent="menu_hr_payroll_edi_root"
+        action="action_hr_payslip_edi_run"
+        sequence="10"/>
+
+    <menuitem id="menu_hr_payroll_edi_individual"
+        name="Por Empleado"
+        parent="menu_hr_payroll_edi_root"
+        action="action_hr_payslip_edi"
+        sequence="20"/>
+
+    <menuitem id="menu_hr_payroll_edi_config"
+        name="Configuración"
+        parent="menu_hr_payroll_edi_root"
+        sequence="100"/>
+</odoo>

@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================ -->
+    <!-- ESTILOS CSS PARA CERTIFICADOS LABORALES -->
+    <!-- ============================================ -->
+    <template id="certificate_styles">
+        <style type="text/css">
+            /* ========================================
+               ESTILO CLÁSICO (classic)
+               ======================================== */
+            .style-classic {
+                --primary-color: #2c3e50;
+                --secondary-color: #3498db;
+                --accent-color: #27ae60;
+                --text-color: #333;
+                --border-color: #dee2e6;
+                --bg-light: #f8f9fa;
+                font-family: 'Times New Roman', Times, serif;
+            }
+            .style-classic .certificate-title {
+                background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+                color: white;
+                padding: 12px 40px;
+                border-radius: 8px;
+                display: inline-block;
+            }
+            .style-classic .signature-line {
+                border-top: 2px solid #2c3e50;
+            }
+
+            /* ========================================
+               ESTILO MODERNO (modern)
+               ======================================== */
+            .style-modern {
+                --primary-color: #6c5ce7;
+                --secondary-color: #a29bfe;
+                --accent-color: #00b894;
+                --text-color: #2d3436;
+                --border-color: #dfe6e9;
+                --bg-light: #f5f6fa;
+                font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            }
+            .style-modern .certificate-title {
+                background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+                color: white;
+                padding: 15px 50px;
+                border-radius: 30px;
+                display: inline-block;
+                box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+            }
+            .style-modern .header-section {
+                border-bottom: 3px solid #6c5ce7;
+            }
+            .style-modern .signature-line {
+                border-top: 3px solid #6c5ce7;
+                border-radius: 2px;
+            }
+            .style-modern .notes-box {
+                border-left: 5px solid #6c5ce7;
+                background: linear-gradient(to right, #f5f6fa, white);
+            }
+
+            /* ========================================
+               ESTILO FORMAL / EJECUTIVO (formal)
+               ======================================== */
+            .style-formal {
+                --primary-color: #1a1a2e;
+                --secondary-color: #16213e;
+                --accent-color: #c9a227;
+                --text-color: #1a1a2e;
+                --border-color: #c9a227;
+                --bg-light: #fafafa;
+                font-family: 'Garamond', 'Times New Roman', serif;
+            }
+            .style-formal .certificate-title {
+                background: #1a1a2e;
+                color: #c9a227;
+                padding: 15px 60px;
+                border: 2px solid #c9a227;
+                display: inline-block;
+                letter-spacing: 4px;
+            }
+            .style-formal .header-section {
+                border-bottom: double 4px #c9a227;
+            }
+            .style-formal .signature-line {
+                border-top: 1px solid #1a1a2e;
+            }
+            .style-formal .company-name {
+                letter-spacing: 2px;
+                text-transform: uppercase;
+            }
+
+            /* ========================================
+               ESTILO MINIMALISTA (minimal)
+               ======================================== */
+            .style-minimal {
+                --primary-color: #000;
+                --secondary-color: #666;
+                --accent-color: #000;
+                --text-color: #333;
+                --border-color: #e0e0e0;
+                --bg-light: #fafafa;
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            }
+            .style-minimal .certificate-title {
+                background: transparent;
+                color: #000;
+                padding: 10px 0;
+                border-bottom: 2px solid #000;
+                display: inline-block;
+                letter-spacing: 3px;
+            }
+            .style-minimal .header-section {
+                border-bottom: 1px solid #e0e0e0;
+            }
+            .style-minimal .signature-line {
+                border-top: 1px solid #000;
+            }
+            .style-minimal .notes-box {
+                border: 1px solid #e0e0e0;
+                background: white;
+            }
+
+            /* ========================================
+               ESTILO ELEGANTE (elegant)
+               ======================================== */
+            .style-elegant {
+                --primary-color: #4a0e4e;
+                --secondary-color: #89216b;
+                --accent-color: #da4453;
+                --text-color: #2c2c2c;
+                --border-color: #e8d5e7;
+                --bg-light: #fdf8fd;
+                font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, serif;
+            }
+            .style-elegant .certificate-title {
+                background: linear-gradient(135deg, #4a0e4e 0%, #89216b 100%);
+                color: white;
+                padding: 18px 50px;
+                border-radius: 0;
+                display: inline-block;
+                position: relative;
+            }
+            .style-elegant .certificate-title::before,
+            .style-elegant .certificate-title::after {
+                content: '✦';
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                color: rgba(255,255,255,0.5);
+            }
+            .style-elegant .certificate-title::before { left: 15px; }
+            .style-elegant .certificate-title::after { right: 15px; }
+            .style-elegant .header-section {
+                border-bottom: 2px solid #4a0e4e;
+            }
+            .style-elegant .signature-line {
+                border-top: 2px solid #4a0e4e;
+            }
+
+            /* ========================================
+               ESTILO CORPORATIVO (corporate)
+               ======================================== */
+            .style-corporate {
+                --primary-color: #0066cc;
+                --secondary-color: #004999;
+                --accent-color: #00994d;
+                --text-color: #333;
+                --border-color: #cce0ff;
+                --bg-light: #f0f7ff;
+                font-family: 'Arial', 'Helvetica Neue', sans-serif;
+            }
+            .style-corporate .certificate-title {
+                background: #0066cc;
+                color: white;
+                padding: 12px 40px;
+                border-radius: 4px;
+                display: inline-block;
+            }
+            .style-corporate .header-section {
+                background: linear-gradient(to right, #0066cc, #004999);
+                padding: 15px;
+                color: white;
+            }
+            .style-corporate .header-section * {
+                color: white !important;
+            }
+            .style-corporate .signature-line {
+                border-top: 2px solid #0066cc;
+            }
+            .style-corporate .notes-box {
+                border-left: 4px solid #0066cc;
+                background: #f0f7ff;
+            }
+
+            /* ========================================
+               ESTILOS COMUNES
+               ======================================== */
+            .certificate-body {
+                line-height: 1.8;
+                text-align: justify;
+            }
+            .highlight-name {
+                color: var(--primary-color);
+                font-weight: bold;
+            }
+            .highlight-money {
+                color: var(--accent-color);
+                font-weight: bold;
+            }
+            .salary-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 20px 0;
+            }
+            .salary-table th {
+                background: var(--bg-light);
+                border: 1px solid var(--border-color);
+                padding: 10px;
+                text-align: left;
+            }
+            .salary-table td {
+                border: 1px solid var(--border-color);
+                padding: 10px;
+            }
+            .salary-table td.amount {
+                text-align: right;
+            }
+        </style>
+    </template>
+
+    <!-- ============================================ -->
+    <!-- TEMPLATE PRINCIPAL DEL CERTIFICADO -->
+    <!-- ============================================ -->
+    <template id="report_certificacion_laboral_document">
+        <t t-call="web.html_container">
+            <t t-foreach="inside_foreach_docs or docs" t-as="m">
+                <t t-call="web.basic_layout">
+                    <t t-set="o" t-value="m.contract_id"/>
+                    <t t-set="cp" t-value="m.get_hr_labor_certificate_template()"/>
+                    <t t-set="company" t-value="o.employee_id.company_id"/>
+                    <t t-set="style" t-value="cp.certificate_style or 'classic'"/>
+
+                    <!-- Incluir estilos CSS -->
+                    <t t-call="lavish_hr_employee.certificate_styles"/>
+
+                    <!-- Contenedor principal con clase de estilo -->
+                    <div t-attf-class="style-#{style}">
+
+                        <!-- ============================================ -->
+                        <!-- HEADER SEGÚN ESTILO Y CONFIGURACIÓN -->
+                        <!-- ============================================ -->
+                        <t t-if="cp.type_header_footer == 'custom'">
+                            <div class="header">
+                                <img t-att-src="image_data_uri(cp.img_header_file)" style="width: 100%;"/>
+                            </div>
+                        </t>
+                        <t t-elif="style == 'corporate'">
+                            <!-- Header Corporativo -->
+                            <div class="header header-section" style="margin-bottom: 20px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 15%; vertical-align: middle;">
+                                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                                 style="max-height: 50px; background: white; padding: 5px; border-radius: 4px;" alt="Logo"/>
+                                        </td>
+                                        <td style="width: 85%; vertical-align: middle; text-align: right; font-size: 11px;">
+                                            <strong t-field="company.name" style="font-size: 14px;"/><br/>
+                                            <span>NIT: <span t-field="company.vat"/></span><br/>
+                                            <span t-field="company.street"/>
+                                            <t t-if="company.city">, <span t-field="company.city"/></t>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-elif="style == 'minimal'">
+                            <!-- Header Minimalista -->
+                            <div class="header header-section" style="padding: 20px 0; margin-bottom: 30px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 70%; vertical-align: bottom;">
+                                            <span t-field="company.name" style="font-size: 20px; font-weight: 300; letter-spacing: 1px;"/>
+                                        </td>
+                                        <td style="width: 30%; vertical-align: bottom; text-align: right;">
+                                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                                 style="max-height: 40px; opacity: 0.8;" alt="Logo"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-elif="style == 'formal'">
+                            <!-- Header Formal/Ejecutivo -->
+                            <div class="header header-section" style="padding: 25px 0; margin-bottom: 30px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 20%; vertical-align: middle; text-align: center;">
+                                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                                 style="max-height: 70px;" alt="Logo"/>
+                                        </td>
+                                        <td style="width: 80%; vertical-align: middle; text-align: center;">
+                                            <span class="company-name" t-field="company.name"
+                                                  style="font-size: 18px; color: #1a1a2e;"/><br/>
+                                            <span style="color: #c9a227; font-size: 12px;">NIT: <span t-field="company.vat"/></span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-elif="style == 'elegant'">
+                            <!-- Header Elegante -->
+                            <div class="header header-section" style="padding: 20px 0; margin-bottom: 25px; text-align: center;">
+                                <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                     style="max-height: 60px; margin-bottom: 10px;" alt="Logo"/><br/>
+                                <span t-field="company.name" style="font-size: 16px; font-style: italic; color: #4a0e4e;"/><br/>
+                                <span style="font-size: 11px; color: #666;">NIT: <span t-field="company.vat"/></span>
+                            </div>
+                        </t>
+                        <t t-elif="style == 'modern'">
+                            <!-- Header Moderno -->
+                            <div class="header header-section" style="padding: 20px 0; margin-bottom: 25px;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 25%; vertical-align: middle;">
+                                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                                 style="max-height: 55px;" alt="Logo"/>
+                                        </td>
+                                        <td style="width: 75%; vertical-align: middle; text-align: right;">
+                                            <span t-field="company.name" style="font-size: 16px; font-weight: 600; color: #6c5ce7;"/><br/>
+                                            <span style="font-size: 11px; color: #636e72;">
+                                                NIT: <span t-field="company.vat"/> |
+                                                <span t-field="company.street"/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <!-- Header Clásico (default) -->
+                            <div class="header header-section" style="padding: 15px 0; border-bottom: 2px solid #2c3e50;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="width: 20%; vertical-align: middle;">
+                                            <img t-if="company.logo" t-att-src="image_data_uri(company.logo)"
+                                                 style="max-height: 60px;" alt="Logo"/>
+                                        </td>
+                                        <td style="width: 80%; vertical-align: middle; text-align: right; font-size: 11px;">
+                                            <strong t-field="company.name"/><br/>
+                                            <span>NIT: <span t-field="company.vat"/></span><br/>
+                                            <span t-field="company.street"/>
+                                            <t t-if="company.city">, <span t-field="company.city"/></t>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </t>
+
+                        <div class="page" style="padding: 20px 0;">
+
+                            <!-- Titulo de la empresa (solo para algunos estilos) -->
+                            <t t-if="style in ['classic', 'modern']">
+                                <div style="text-align: center; margin: 30px 0;">
+                                    <h3 style="margin: 0 0 5px 0; font-size: 18px;">
+                                        <span t-field="o.employee_id.company_id.name"/>
+                                    </h3>
+                                    <p style="color: #666; margin: 0; font-size: 14px;">
+                                        NIT: <span t-field="o.employee_id.company_id.company_registry"/>
+                                    </p>
+                                </div>
+                            </t>
+
+                            <!-- ============================================ -->
+                            <!-- TÍTULO "CERTIFICA QUE" SEGÚN ESTILO -->
+                            <!-- ============================================ -->
+                            <div style="text-align: center; margin: 40px 0 30px 0;">
+                                <t t-if="style == 'minimal'">
+                                    <h4 class="certificate-title" style="margin: 0; font-size: 14px; font-weight: 400; letter-spacing: 3px;">
+                                        CERTIFICA
+                                    </h4>
+                                </t>
+                                <t t-elif="style == 'formal'">
+                                    <span class="certificate-title" style="font-size: 14px; letter-spacing: 4px;">
+                                        CERTIFICA QUE
+                                    </span>
+                                </t>
+                                <t t-elif="style == 'elegant'">
+                                    <span class="certificate-title" style="font-size: 15px; letter-spacing: 2px;">
+                                        ✦ CERTIFICA QUE ✦
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span class="certificate-title">
+                                        <span style="font-size: 16px; letter-spacing: 2px;">CERTIFICA QUE</span>
+                                    </span>
+                                </t>
+                            </div>
+
+                            <!-- ============================================ -->
+                            <!-- CUERPO DEL CERTIFICADO -->
+                            <!-- ============================================ -->
+                            <div class="certificate-body" style="margin: 0 20px; font-size: 13px;">
+                                <p>
+                                    <!-- BLOQUE 2: Identificación del Empleado -->
+                                    <t t-if="cp.show_gender_treatment">
+                                        <span t-if="o.employee_id.gender == 'male'">El señor</span>
+                                        <span t-if="o.employee_id.gender == 'female'">La señora</span>
+                                    </t>
+                                    <span class="highlight-name"><span t-out="o.employee_id.name"/></span>
+
+                                    <t t-if="cp.show_identification">
+                                        , identificado(a) con
+                                        <t t-if="cp.show_document_type">
+                                            <span t-if="o.employee_id.type_document_id" t-out="o.employee_id.type_document_id.name.lower()"/>
+                                            <span t-else="">cédula de ciudadanía</span>
+                                        </t>
+                                        <t t-else="">documento</t>
+                                        número
+                                        <strong><span t-out="str(o.employee_id.identification_id)"/></strong>
+                                    </t>,
+
+                                    <!-- BLOQUE 3: Información Laboral -->
+                                    <t t-if="cp.show_contract_dates">
+                                        <t t-if="o.state != 'open'">
+                                            laboró en nuestra compañía desde el
+                                            <strong><span t-out="o.get_date_text(o.date_start)"/></strong>
+                                            hasta el
+                                            <strong><span t-out="o.get_date_text(o.retirement_date)"/></strong>,
+                                        </t>
+                                        <t t-else="">
+                                            labora en nuestra compañía desde el
+                                            <strong><span t-out="o.get_date_text(o.date_start)"/></strong>,
+                                        </t>
+                                    </t>
+
+                                    <t t-if="cp.show_contract_type">
+                                        mediante un
+                                        <span class="highlight-name"><span t-out="o.get_contract_type()"/></span>
+                                    </t>
+
+                                    <t t-if="o.state == 'open' and cp.show_contract_dates">, hasta la fecha</t>.
+                                </p>
+
+                                <p>
+                                    <!-- Cargo y Departamento -->
+                                    <t t-if="cp.show_job_position">
+                                        Desempeñando el cargo de
+                                        <span class="highlight-name"><span t-out="o.sudo().job_id.name"/></span>
+                                    </t>
+                                    <t t-if="cp.show_department and o.department_id">
+                                        en el departamento de
+                                        <strong><span t-out="o.department_id.name"/></strong>
+                                    </t>
+
+                                    <!-- BLOQUE 4: Información Salarial -->
+                                    <t t-if="cp.show_base_salary">
+                                        , devengando un salario básico mensual de
+                                        <t t-if="cp.show_salary_in_words">
+                                            <span class="highlight-money">
+                                                <span t-out="o.get_amount_text(o.wage)"/> M/Cte.
+                                            </span>
+                                        </t>
+                                        (<span t-out="o.wage" t-options="{'widget': 'monetary', 'precision': 0, 'display_currency': o.company_id.currency_id}"/>)
+                                    </t>
+
+                                    <!-- BLOQUE 5: Promedios -->
+                                    <t t-set="promedio_heyrec" t-value="o.get_average_concept_heyrec()"/>
+                                    <t t-if="promedio_heyrec and cp.show_average_overtime">
+                                        y un promedio de horas extras mensual en los últimos tres meses de
+                                        <span class="highlight-money">
+                                            <span t-out="o.get_amount_text(promedio_heyrec)"/> M/Cte.
+                                        </span>
+                                        (<span t-out="promedio_heyrec" t-options="{'widget': 'monetary', 'precision': 0, 'display_currency': o.company_id.currency_id}"/>)
+                                    </t>
+
+                                    <!-- Salario Variable: Modo Total -->
+                                    <t t-if="cp.show_variable_salary and cp.variable_salary_mode == 'total'">
+                                        <t t-set="salary_rule_amount" t-value="0"/>
+                                        <t t-foreach="sorted(cp.certificate_template_detail_ids.filtered(lambda x: x.include_in_average), key=lambda x: x.sequence)" t-as="cpd">
+                                            <t t-set="salary_rule_amount" t-value="salary_rule_amount + o.get_average_concept_certificate(cpd.rule_salary_id, cpd.last_month, cpd.average_last_months, cpd.value_contract, cpd.payment_frequency)"/>
+                                        </t>
+                                        <t t-if="salary_rule_amount">
+                                            y un salario variable de
+                                            <span class="highlight-money">
+                                                <span t-out="o.get_amount_text(salary_rule_amount)"/> M/Cte.
+                                            </span>
+                                            (<span t-out="salary_rule_amount" t-options="{'widget': 'monetary', 'precision': 0, 'display_currency': o.company_id.currency_id}"/>).
+                                        </t>
+                                    </t>
+
+                                    <!-- Salario Variable: Modo Detalle -->
+                                    <t t-if="cp.show_variable_salary and cp.variable_salary_mode == 'detail'">
+                                        <t t-foreach="sorted(cp.certificate_template_detail_ids.filtered(lambda x: x.show_individually), key=lambda x: x.sequence)" t-as="cpd">
+                                            <t t-set="salary_rule_amount" t-value="o.get_average_concept_certificate(cpd.rule_salary_id, cpd.last_month, cpd.average_last_months, cpd.value_contract, cpd.payment_frequency)"/>
+                                            <t t-if="salary_rule_amount">
+                                                y un
+                                                <t t-if="cpd.average_last_months">
+                                                    promedio de <span t-out="cpd.display_label or cpd.rule_salary_id.name"/> en los últimos tres meses de
+                                                </t>
+                                                <t t-if="cpd.last_month or cpd.value_contract">
+                                                    <span t-out="cpd.display_label or cpd.rule_salary_id.name"/> de
+                                                </t>
+                                                <span class="highlight-money">
+                                                    <span t-out="o.get_amount_text(salary_rule_amount)"/> M/Cte.
+                                                </span>
+                                                (<span t-out="salary_rule_amount" t-options="{'widget': 'monetary', 'precision': 0, 'display_currency': o.company_id.currency_id}"/>)
+                                                <t t-if="cpd.last_month or cpd.value_contract"> promedio mensual.</t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </p>
+
+                                <!-- Tabla de Salarios (si está configurado) -->
+                                <t t-if="cp.show_base_salary and cp.salary_display_mode in ['table', 'both']">
+                                    <div style="margin: 20px 0;">
+                                        <table class="salary-table" style="font-size: 12px;">
+                                            <thead>
+                                                <tr>
+                                                    <th>Concepto</th>
+                                                    <th style="text-align: right;">Valor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>Salario Básico Mensual</td>
+                                                    <td class="amount">
+                                                        <span t-out="o.wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                                <t t-if="cp.show_variable_salary">
+                                                    <t t-foreach="sorted(cp.certificate_template_detail_ids.filtered(lambda x: x.show_individually), key=lambda x: x.sequence)" t-as="cpd">
+                                                        <t t-set="rule_val" t-value="o.get_average_concept_certificate(cpd.rule_salary_id, cpd.last_month, cpd.average_last_months, cpd.value_contract, cpd.payment_frequency)"/>
+                                                        <tr t-if="rule_val">
+                                                            <td>
+                                                                <span t-out="cpd.display_label or cpd.rule_salary_id.name"/>
+                                                                <t t-if="cpd.average_last_months"> (Promedio 3 meses)</t>
+                                                            </td>
+                                                            <td class="amount">
+                                                                <span t-out="rule_val" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                                            </td>
+                                                        </tr>
+                                                    </t>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+
+                                <!-- ============================================ -->
+                                <!-- BLOQUE 6: Párrafo de Expedición -->
+                                <!-- ============================================ -->
+                                <t t-if="cp.show_requestor">
+                                    <p style="margin-top: 30px;">
+                                        Se expide a solicitud del interesado
+                                        <t t-if="m.info_to">
+                                            <strong><span t-out="m.info_to"/></strong>
+                                        </t>
+                                        <t t-if="m.partner_id">
+                                            para presentar ante <strong><span t-out="m.partner_id.name"/></strong>
+                                        </t>.
+                                    </p>
+                                </t>
+
+                                <t t-if="cp.show_city_date">
+                                    <p>
+                                        Para constancia se firma en la ciudad de
+                                        <strong><span t-out="str(o.company_id.partner_id.city_id.name or o.company_id.city or '')"/></strong>,
+                                        el <strong><span t-out="o.get_date_text(datetime.datetime.now(), 1)"/></strong>.
+                                    </p>
+                                </t>
+
+                                <!-- Texto de cierre personalizado -->
+                                <t t-if="cp.custom_closing_text">
+                                    <div style="margin-top: 20px;">
+                                        <t t-out="cp.custom_closing_text"/>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- ============================================ -->
+                            <!-- BLOQUE 7: Firma -->
+                            <!-- ============================================ -->
+                            <t t-if="cp.show_signature">
+                                <div style="margin-top: 60px; padding: 0 20px;">
+                                    <p style="margin-bottom: 30px;">Cordialmente,</p>
+
+                                    <t t-set="autorizado" t-value="o.get_signature_certification()"/>
+                                    <t t-if="autorizado.get('firma')">
+                                        <img t-att-src="image_data_uri(autorizado.get('firma'))"
+                                             style="max-height: 80px; margin-bottom: 10px;"/>
+                                    </t>
+
+                                    <div class="signature-line" style="margin-top: 40px; padding-top: 10px; width: 250px;">
+                                        <p style="margin: 0; font-size: 11px; color: #666;">Firma Autorizada</p>
+                                        <t t-if="cp.show_signature_name and autorizado.get('nombre')">
+                                            <p style="margin: 5px 0 0 0; font-size: 12px; font-weight: bold;">
+                                                <span t-out="autorizado.get('nombre')"/>
+                                            </p>
+                                        </t>
+                                        <t t-if="cp.show_signature_position and autorizado.get('cargo')">
+                                            <p style="margin: 0; font-size: 11px; color: #666;">
+                                                <span t-out="autorizado.get('cargo')"/>
+                                            </p>
+                                        </t>
+                                    </div>
+                                </div>
+                            </t>
+
+                            <!-- ============================================ -->
+                            <!-- BLOQUE 8: Notas -->
+                            <!-- ============================================ -->
+                            <t t-if="cp.show_notes and cp.notes">
+                                <div class="notes-box" style="margin: 30px 20px; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary-color); background: var(--bg-light);">
+                                    <p style="margin: 0; font-size: 11px; color: #666;">
+                                        <span t-out="cp.notes"/>
+                                    </p>
+                                </div>
+                            </t>
+
+                        </div>
+
+                        <!-- ============================================ -->
+                        <!-- FOOTER -->
+                        <!-- ============================================ -->
+                        <div class="footer" style="font-size: 10px; color: #666;">
+                            <t t-if="cp.type_header_footer == 'custom' and cp.img_footer_file">
+                                <img t-att-src="image_data_uri(cp.img_footer_file)" style="width: 100%;"/>
+                            </t>
+                            <t t-else="">
+                                <div style="padding: 10px 0; border-top: 1px solid #e0e0e0;">
+                                    <table style="width: 100%;">
+                                        <tr>
+                                            <td style="width: 50%;">
+                                                <t t-if="cp.show_certificate_number">
+                                                    Certificado No. <strong><span t-out="m.sequence"/></strong>
+                                                </t>
+                                            </td>
+                                            <td style="width: 50%; text-align: right;">
+                                                <span t-if="company.phone">Tel: <span t-field="company.phone"/> | </span>
+                                                <span t-if="company.email"><span t-field="company.email"/></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </t>
+                        </div>
+
+                    </div><!-- Fin contenedor con estilo -->
+
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_certificacion_laboral">
+        <t t-foreach="docs" t-as="o">
+            <t t-set="inside_foreach_docs" t-value="o"/>
+            <t t-call="lavish_hr_employee.report_certificacion_laboral_document"
+               t-lang="o.contract_id.employee_id.work_contact_id.lang"/>
+        </t>
+    </template>
+</odoo>

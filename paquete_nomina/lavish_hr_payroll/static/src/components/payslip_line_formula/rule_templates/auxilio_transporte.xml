@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TEMPLATE: AUXILIO DE TRANSPORTE
+         Base Legal: Ley 15/1959, Decreto anual
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <t t-name="lavish_hr_payroll.RuleTemplate.AuxilioTransporte">
+        <div class="auxilio-transporte-widget" style="font-family: Inter, Arial, sans-serif;">
+
+            <!-- HEADER -->
+            <div style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: white; padding: 16px; border-radius: 12px 12px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="fa fa-bus fa-lg" style="margin-right: 10px;"></i>
+                        <span style="font-size: 18px; font-weight: 700;">AUXILIO DE TRANSPORTE</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 24px; font-weight: 700;">
+                            <t t-esc="widget.formatValue(data.valor_calculado, 'currency')"/>
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.9;">Ley 15/1959</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTENIDO -->
+            <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-top: none; border-radius: 0 0 12px 12px;">
+
+                <!-- CONDICION DE APLICACION -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" t-att-style="'background: ' + (data.aplica ? '#DCFCE7' : '#FEE2E2') + '; padding: 10px 16px;'">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span t-att-style="'background: ' + (data.aplica ? '#22C55E' : '#DC2626') + '; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;'">1</span>
+                                <span t-att-style="'font-weight: 600; color: ' + (data.aplica ? '#15803D' : '#991B1B') + ';'">CONDICION DE APLICACION</span>
+                            </div>
+                            <t t-if="data.aplica">
+                                <span style="background: #22C55E; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    <i class="fa fa-check"></i> APLICA
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <span style="background: #DC2626; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                                    <i class="fa fa-times"></i> NO APLICA
+                                </span>
+                            </t>
+                        </div>
+                    </div>
+                    <div t-att-style="'padding: 12px 16px; background: ' + (data.aplica ? '#F0FDF4' : '#FEF2F2') + ';'">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #E5E7EB;">
+                                    <div style="font-size: 10px; color: #6B7280;">Salario Base</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #374151;">
+                                        <t t-esc="widget.formatValue(data.salario_base, 'currency')"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #E5E7EB;">
+                                    <div style="font-size: 10px; color: #6B7280;">Tope 2 SMMLV</div>
+                                    <div style="font-size: 16px; font-weight: 700; color: #374151;">
+                                        <t t-esc="widget.formatValue(data.tope_2_smmlv, 'currency')"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 10px; padding: 8px; background: white; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 12px; color: #374151;">
+                                <t t-if="data.aplica">
+                                    <i class="fa fa-check-circle" style="color: #22C55E;"></i>
+                                    Salario <strong>menor o igual</strong> a 2 SMMLV
+                                </t>
+                                <t t-else="">
+                                    <i class="fa fa-times-circle" style="color: #DC2626;"></i>
+                                    Salario <strong>supera</strong> 2 SMMLV (<t t-esc="data.motivo_no_aplica"/>)
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VARIACIONES DEL PERIODO (si existen) -->
+                <t t-if="data.variaciones and data.variaciones.length > 0">
+                    <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                        <div class="step-header" style="background: #FEF3C7; padding: 10px 16px; cursor: pointer;"
+                             t-on-click="() => widget.toggleSection('variaciones')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span style="background: #F59E0B; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">2</span>
+                                    <span style="font-weight: 600; color: #B45309;">VARIACIONES DEL PERIODO</span>
+                                    <span style="background: #F59E0B; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">
+                                        <t t-esc="data.variaciones.length"/>
+                                    </span>
+                                </div>
+                                <i t-att-class="'fa ' + (widget.state.expandedSections.variaciones ? 'fa-chevron-up' : 'fa-chevron-down')" style="color: #B45309;"></i>
+                            </div>
+                        </div>
+                        <div t-if="widget.state.expandedSections.variaciones" style="padding: 12px 16px; background: #FFFBEB;">
+                            <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background: #FEF3C7;">
+                                        <th style="padding: 8px; text-align: left; font-size: 10px; color: #92400E;">Tipo</th>
+                                        <th style="padding: 8px; text-align: center; font-size: 10px; color: #92400E;">Dias</th>
+                                        <th style="padding: 8px; text-align: left; font-size: 10px; color: #92400E;">Efecto</th>
+                                        <th style="padding: 8px; text-align: left; font-size: 10px; color: #92400E;">Base Legal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="data.variaciones" t-as="variacion" t-key="variacion_index">
+                                        <tr style="border-bottom: 1px dashed #FCD34D;">
+                                            <td style="padding: 8px;">
+                                                <span style="font-weight: 600; color: #374151;">
+                                                    <t t-esc="variacion.tipo"/>
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px; text-align: center;">
+                                                <span style="background: #F59E0B; color: white; padding: 2px 10px; border-radius: 10px; font-weight: 600;">
+                                                    <t t-esc="variacion.dias"/>
+                                                </span>
+                                            </td>
+                                            <td style="padding: 8px; color: #6B7280;">
+                                                <t t-esc="variacion.efecto"/>
+                                            </td>
+                                            <td style="padding: 8px; font-size: 10px; color: #9CA3AF;">
+                                                <t t-esc="variacion.base_legal"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- CALCULO -->
+                <div class="step-section" style="border-bottom: 1px solid #E5E7EB;">
+                    <div class="step-header" style="background: #DBEAFE; padding: 10px 16px; cursor: pointer;"
+                         t-on-click="() => widget.toggleSection('calculo')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <span style="background: #3B82F6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 8px;">
+                                    <t t-if="data.variaciones and data.variaciones.length > 0">3</t>
+                                    <t t-else="">2</t>
+                                </span>
+                                <span style="font-weight: 600; color: #1D4ED8;">CALCULO</span>
+                            </div>
+                            <span style="font-weight: 600; color: #1D4ED8;">
+                                <t t-esc="widget.formatValue(data.valor_calculado, 'currency')"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div t-if="widget.state.expandedSections.calculo" style="padding: 16px; background: #EFF6FF;">
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #BFDBFE;">
+                                    <div style="font-size: 10px; color: #6B7280;">Valor Mensual</div>
+                                    <div style="font-size: 14px; font-weight: 700; color: #1D4ED8;">
+                                        <t t-esc="widget.formatValue(data.valor_mensual, 'currency')"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #BFDBFE;">
+                                    <div style="font-size: 10px; color: #6B7280;">Dias Laborados</div>
+                                    <div style="font-size: 14px; font-weight: 700; color: #1D4ED8;">
+                                        <t t-esc="data.dias_trabajados"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #BFDBFE;">
+                                    <div style="font-size: 10px; color: #6B7280;">Dias con Derecho</div>
+                                    <div style="font-size: 14px; font-weight: 700; color: #22C55E;">
+                                        <t t-esc="data.dias_con_derecho"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formula -->
+                        <div style="margin-top: 12px; background: white; border: 2px solid #BFDBFE; border-radius: 10px; padding: 12px; text-align: center;">
+                            <div style="font-size: 11px; color: #6B7280; margin-bottom: 4px;">FORMULA</div>
+                            <div style="font-size: 14px; font-family: monospace; color: #374151;">
+                                Auxilio = Valor x Dias con Derecho / 30
+                            </div>
+                            <div style="margin-top: 8px; font-size: 14px; font-family: monospace; color: #374151;">
+                                <t t-esc="widget.formatValue(data.valor_mensual, 'currency')"/> x <t t-esc="data.dias_con_derecho"/> / 30 =
+                                <strong style="color: #1D4ED8;"><t t-esc="widget.formatValue(data.valor_calculado, 'currency')"/></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INCLUYE EN PRESTACIONES -->
+                <div style="padding: 12px 16px; background: #F5F3FF; border-bottom: 1px solid #E5E7EB;">
+                    <div style="font-size: 11px; font-weight: 600; color: #6D28D9; margin-bottom: 8px;">
+                        <i class="fa fa-info-circle"></i> INCLUYE EN PRESTACIONES (Art. 7 Ley 1/1963)
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <span style="background: #22C55E; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px;">
+                            <i class="fa fa-check"></i> Cesantias
+                        </span>
+                        <span style="background: #22C55E; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px;">
+                            <i class="fa fa-check"></i> Int. Cesantias
+                        </span>
+                        <span style="background: #22C55E; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px;">
+                            <i class="fa fa-check"></i> Prima
+                        </span>
+                        <span style="background: #DC2626; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px;">
+                            <i class="fa fa-times"></i> Vacaciones
+                        </span>
+                    </div>
+                </div>
+
+                <!-- RESULTADO -->
+                <div style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: white; padding: 16px; border-radius: 0 0 12px 12px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fa fa-check-circle fa-lg" style="margin-right: 10px;"></i>
+                            <span style="font-size: 16px; font-weight: 700;">AUXILIO A PAGAR</span>
+                        </div>
+                        <div style="font-size: 28px; font-weight: 700; font-family: monospace;">
+                            <t t-esc="widget.formatValue(data.valor_calculado, 'currency')"/>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </t>
+
+</templates>

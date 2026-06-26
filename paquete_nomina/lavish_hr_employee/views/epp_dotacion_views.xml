@@ -1,0 +1,608 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de Configuración EPP -->
+    <record id="view_hr_epp_configuration_form" model="ir.ui.view">
+        <field name="name">hr.epp.configuration.form</field>
+        <field name="model">hr.epp.configuration</field>
+        <field name="arch" type="xml">
+            <form string="Configuracion EPP/Dotacion">
+                <sheet>
+                    <group>
+                        <group string="Configuracion General">
+                            <field name="name" required="1"/>
+                            <field name="type" required="1"/>
+                            <field name="frequency"/>
+                            <field name="generate_automatically"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <group string="Configuracion de Inventario">
+                            <field name="use_stock_location"/>
+                            <field name="location_id" invisible="not use_stock_location" required="use_stock_location"/>
+                            <field name="last_generation_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Items del Kit">
+                            <field name="kit_line_ids">
+                                <list editable="bottom">
+                                    <field name="item_type"/>
+                                    <field name="name"/>
+                                    <field name="product_id" domain="[('type', 'in', ['product', 'consu'])]"/>
+                                    <field name="quantity"/>
+                                    <field name="requires_size" invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Proveedores">
+                            <field name="supplier_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="vat"/>
+                                    <field name="phone"/>
+                                    <field name="email"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_epp_configuration_list" model="ir.ui.view">
+        <field name="name">hr.epp.configuration.list</field>
+        <field name="model">hr.epp.configuration</field>
+        <field name="arch" type="xml">
+            <list string="Configuraciones EPP/Dotacion">
+                <field name="name"/>
+                <field name="type"/>
+                <field name="frequency"/>
+                <field name="generate_automatically"/>
+                <field name="active"/>
+                <field name="last_generation_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista de Solicitudes EPP -->
+    <record id="view_hr_epp_request_form" model="ir.ui.view">
+        <field name="name">hr.epp.request.form</field>
+        <field name="model">hr.epp.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud EPP/Dotacion">
+                <header>
+                    <button name="action_request" string="Enviar Solicitud" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Aprobar" type="object"
+                            class="btn-primary" invisible="state != 'requested'" groups="hr.group_hr_manager"/>
+                    <button name="action_create_picking" string="Crear Movimiento Inventario" type="object"
+                            class="btn-primary" invisible="state != 'approved' or picking_id" groups="stock.group_stock_user"/>
+                    <button name="action_deliver" string="Marcar como Entregado" type="object"
+                            class="btn-primary" invisible="state != 'picking'" groups="hr.group_hr_user"/>
+                    <button name="action_cancel" string="Cancelar" type="object"
+                            invisible="state in ('delivered', 'cancelled')" groups="hr.group_hr_user"/>
+                    <button name="action_print_delivery" string="Imprimir Acta de Entrega" type="object"
+                            class="btn-secondary" invisible="state not in ('picking', 'delivered')"/>
+                    <button name="action_view_picking" string="Ver Movimiento" type="object"
+                            class="btn-secondary" invisible="not picking_id"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,requested,approved,picking,delivered"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_picking" type="object" class="oe_stat_button"
+                                icon="fa-truck" invisible="not picking_id">
+                            <field name="picking_count" widget="statinfo" string="Movimientos"/>
+                        </button>
+                        <button name="action_view_purchase_order" type="object" class="oe_stat_button"
+                                icon="fa-shopping-cart" invisible="not purchase_order_id" groups="purchase.group_purchase_user">
+                            <field name="purchase_count" widget="statinfo" string="Ordenes Compra"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informacion General">
+                            <field name="employee_id" options="{'no_create': True}" readonly="state not in ('draft', 'scheduled')" />
+                            <field name="department_id" readonly="1"/>
+                            <field name="job_id" readonly="1"/>
+                            <field name="type" readonly="state != 'draft'"/>
+                            <field name="request_date" readonly="state != 'draft'"/>
+                            <field name="configuration_id" readonly="state != 'draft'"
+                                   domain="[('type', '=', type), ('active', '=', True)]"/>
+                        </group>
+                        <group string="Informacion de Entrega">
+                            <field name="delivery_location" readonly="state not in ('draft', 'requested')"/>
+                            <field name="delivery_address" invisible="delivery_location != 'other'"
+                                   readonly="state not in ('draft', 'requested')"
+                                   required="delivery_location == 'other'"/>
+                            <field name="approved_date" readonly="1"/>
+                            <field name="approved_by" readonly="1"/>
+                            <field name="delivered_date" readonly="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Items Solicitados">
+                            <field name="line_ids" readonly="state not in ('draft', 'requested')">
+                                <list editable="bottom">
+                                    <field name="item_type"/>
+                                    <field name="product_id" domain="[('type', 'in', ['product', 'consu'])]"/>
+                                    <field name="name"/>
+                                    <field name="quantity"/>
+                                    <field name="size" invisible="item_type not in ('shirt', 'pants', 'shoes', 'gloves', 'boots')"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Inventario" groups="stock.group_stock_user">
+                            <group>
+                                <field name="picking_id" readonly="1"/>
+                                <field name="location_id" readonly="state != 'approved'"
+                                       groups="stock.group_stock_user"/>
+                                <field name="purchase_order_id" readonly="1"
+                                       groups="purchase.group_purchase_user"/>
+                            </group>
+                        </page>
+                        <page string="Firma de Recibido" invisible="state not in ('picking', 'delivered')">
+                            <group>
+                                <field name="signature" widget="signature" readonly="state == 'delivered'"/>
+                                <field name="signed_date" readonly="1"/>
+                            </group>
+                            <field name="notes" placeholder="Observaciones adicionales..."
+                                   readonly="state == 'delivered'"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_epp_request_list" model="ir.ui.view">
+        <field name="name">hr.epp.request.list</field>
+        <field name="model">hr.epp.request</field>
+        <field name="arch" type="xml">
+            <list string="Solicitudes EPP/Dotacion"
+                  decoration-info="state=='draft'"
+                  decoration-warning="state=='requested'"
+                  decoration-success="state=='delivered'"
+                  decoration-danger="state=='cancelled'">
+                <field name="name"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="type"/>
+                <field name="request_date"/>
+                <field name="department_id"/>
+                <field name="delivery_location"/>
+                <field name="state" widget="badge"
+                       decoration-info="state=='draft'"
+                       decoration-warning="state=='requested'"
+                       decoration-success="state=='delivered'"
+                       decoration-danger="state=='cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_epp_request_kanban" model="ir.ui.view">
+        <field name="name">hr.epp.request.kanban</field>
+        <field name="model">hr.epp.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" class="o_kanban_mobile" sample="1">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="type"/>
+                <field name="state"/>
+                <field name="request_date"/>
+                <field name="delivered_date"/>
+                <progressbar field="state" colors='{"draft": "secondary", "requested": "warning", "approved": "info", "picking": "primary", "delivered": "success", "cancelled": "danger"}'/>
+                <templates>
+                    <t t-name="card">
+                        <main>
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+                                <field name="state" widget="label_selection"
+                                       options="{'classes': {'draft': 'secondary', 'requested': 'warning', 'approved': 'info', 'picking': 'primary', 'delivered': 'success', 'cancelled': 'danger'}}"/>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <div>
+                                    <field name="employee_id" widget="many2one_avatar_employee"/>
+                                    <span class="ms-2"><field name="type"/></span>
+                                </div>
+                                <div class="text-muted">
+                                    <i class="fa fa-calendar me-1" title="Calendario"/>
+                                    <field name="request_date"/>
+                                </div>
+                            </div>
+                        </main>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_hr_epp_request_search" model="ir.ui.view">
+        <field name="name">hr.epp.request.search</field>
+        <field name="model">hr.epp.request</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Solicitudes EPP">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="department_id"/>
+                <filter string="EPP" name="filter_epp" domain="[('type', '=', 'epp')]"/>
+                <filter string="Dotacion" name="filter_dotacion" domain="[('type', '=', 'dotacion')]"/>
+                <separator/>
+                <filter string="Borrador" name="filter_draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Solicitado" name="filter_requested" domain="[('state', '=', 'requested')]"/>
+                <filter string="Aprobado" name="filter_approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="En Picking" name="filter_picking" domain="[('state', '=', 'picking')]"/>
+                <filter string="Entregado" name="filter_delivered" domain="[('state', '=', 'delivered')]"/>
+                <filter string="Cancelado" name="filter_cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter string="Mis Solicitudes" name="my_requests" domain="[('employee_id.user_id', '=', uid)]"/>
+                <group name="group_by">
+                    <filter string="Empleado" name="group_employee" context="{'group_by':'employee_id'}"/>
+                    <filter string="Tipo" name="group_type" context="{'group_by':'type'}"/>
+                    <filter string="Estado" name="group_state" context="{'group_by':'state'}"/>
+                    <filter string="Departamento" name="group_department" context="{'group_by':'department_id'}"/>
+                    <filter string="Fecha Solicitud" name="group_request_date" context="{'group_by':'request_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista de Certificados Medicos -->
+    <record id="view_hr_medical_certificate_form" model="ir.ui.view">
+        <field name="name">hr.medical.certificate.form</field>
+        <field name="model">hr.medical.certificate</field>
+        <field name="arch" type="xml">
+            <form string="Certificado Medico">
+                <header>
+                    <button name="action_schedule" string="Programar" type="object"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_start" string="Iniciar Examen" type="object"
+                            invisible="state != 'scheduled'"/>
+                    <button name="action_waiting_results" string="Esperando Resultados" type="object"
+                            invisible="state != 'in_process'"/>
+                    <button name="action_validate" string="Validar" type="object"
+                            class="btn-primary" invisible="state != 'waiting_results'" groups="hr.group_hr_manager"/>
+                    <button name="action_cancel" string="Cancelar" type="object"
+                            invisible="state in ('cancelled', 'expired')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="scheduled,in_process,waiting_results,valid"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informacion General">
+                            <field name="employee_id" options="{'no_create': True}" readonly="state not in ('draft', 'scheduled')" />
+                            <field name="certificate_type" readonly="state != 'draft'"/>
+                            <field name="exam_date" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="expiry_date" readonly="state not in ('draft', 'scheduled', 'in_process', 'waiting_results')"/>
+                        </group>
+                        <group string="Proveedor Medico">
+                            <field name="provider_id" options="{'no_create': True}" readonly="state not in ('draft', 'scheduled')" />
+                            <field name="doctor_name" readonly="state not in ('draft', 'scheduled')"/>
+                            <field name="result" readonly="state != 'waiting_results'"/>
+                            <field name="cost"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Servicios">
+                            <field name="service_ids" readonly="state not in ('draft', 'scheduled')">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="service_type"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Restricciones y Recomendaciones">
+                            <field name="restrictions" readonly="state in ('cancelled', 'expired')"/>
+                            <field name="recommendations" readonly="state in ('cancelled', 'expired')"/>
+                        </page>
+                        <page string="Documentos">
+                            <field name="attachment_ids" widget="many2many_binary"
+                                   readonly="state in ('cancelled', 'expired')"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_medical_certificate_list" model="ir.ui.view">
+        <field name="name">hr.medical.certificate.list</field>
+        <field name="model">hr.medical.certificate</field>
+        <field name="arch" type="xml">
+            <list string="Certificados Medicos"
+                  decoration-success="state=='valid'"
+                  decoration-warning="state=='expiring'"
+                  decoration-danger="state in ('expired', 'cancelled')">
+                <field name="name"/>
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="certificate_type"/>
+                <field name="exam_date"/>
+                <field name="expiry_date"/>
+                <field name="result"/>
+                <field name="state" widget="badge"
+                       decoration-success="state=='valid'"
+                       decoration-warning="state=='expiring'"
+                       decoration-danger="state in ('expired', 'cancelled')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_medical_certificate_calendar" model="ir.ui.view">
+        <field name="name">hr.medical.certificate.calendar</field>
+        <field name="model">hr.medical.certificate</field>
+        <field name="arch" type="xml">
+            <calendar string="Certificados Médicos"
+                      date_start="exam_date"
+                      color="state"
+                      quick_create="0"
+                      event_open_popup="1"
+                      mode="month">
+                <field name="employee_id"/>
+                <field name="certificate_type"/>
+                <field name="state"/>
+                <field name="result" invisible="1"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Vistas de Proveedores Medicos -->
+    <record id="view_hr_medical_provider_form" model="ir.ui.view">
+        <field name="name">hr.medical.provider.form</field>
+        <field name="model">hr.medical.provider</field>
+        <field name="arch" type="xml">
+            <form string="Proveedor Medico">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Nombre del Proveedor"/>
+                        <h1>
+                            <field name="name" placeholder="Nombre del proveedor medico"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Informacion General">
+                            <field name="provider_type"/>
+                            <field name="partner_id"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Datos de Contacto">
+                            <field name="nit"/>
+                            <field name="phone"/>
+                            <field name="email" widget="email"/>
+                            <field name="street"/>
+                            <field name="city"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Servicios Ofrecidos">
+                            <field name="service_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="service_type"/>
+                                    <field name="price"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Plantillas de Examenes">
+                            <field name="template_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="exam_type"/>
+                                    <field name="validity_months"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_medical_provider_list" model="ir.ui.view">
+        <field name="name">hr.medical.provider.list</field>
+        <field name="model">hr.medical.provider</field>
+        <field name="arch" type="xml">
+            <list string="Proveedores Medicos">
+                <field name="name"/>
+                <field name="provider_type"/>
+                <field name="nit"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="city"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_medical_provider_search" model="ir.ui.view">
+        <field name="name">hr.medical.provider.search</field>
+        <field name="model">hr.medical.provider</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Proveedores">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="nit"/>
+                <field name="city"/>
+                <filter string="Laboratorio" name="filter_laboratory" domain="[('provider_type', '=', 'laboratory')]"/>
+                <filter string="Clinica" name="filter_clinic" domain="[('provider_type', '=', 'clinic')]"/>
+                <filter string="Hospital" name="filter_hospital" domain="[('provider_type', '=', 'hospital')]"/>
+                <separator/>
+                <filter string="Activos" name="filter_active" domain="[('active', '=', True)]"/>
+                <filter string="Inactivos" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter string="Tipo" name="group_type" context="{'group_by':'provider_type'}"/>
+                    <filter string="Ciudad" name="group_city" context="{'group_by':'city'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vistas de Servicios Medicos -->
+    <record id="view_hr_medical_service_form" model="ir.ui.view">
+        <field name="name">hr.medical.service.form</field>
+        <field name="model">hr.medical.service</field>
+        <field name="arch" type="xml">
+            <form string="Servicio Medico">
+                <sheet>
+                    <group>
+                        <group string="Informacion del Servicio">
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="service_type"/>
+                        </group>
+                        <group string="Producto y Precio">
+                            <field name="product_id"/>
+                            <field name="price"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="description" placeholder="Descripcion detallada del servicio medico..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_medical_service_list" model="ir.ui.view">
+        <field name="name">hr.medical.service.list</field>
+        <field name="model">hr.medical.service</field>
+        <field name="arch" type="xml">
+            <list string="Servicios Medicos" editable="bottom">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="service_type"/>
+                <field name="price"/>
+                <field name="product_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_hr_medical_service_search" model="ir.ui.view">
+        <field name="name">hr.medical.service.search</field>
+        <field name="model">hr.medical.service</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Servicios">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="service_type"/>
+                <filter string="Examenes de Sangre" name="filter_blood" domain="[('service_type', '=', 'blood_test')]"/>
+                <filter string="Radiologia" name="filter_xray" domain="[('service_type', '=', 'xray')]"/>
+                <filter string="Audiometria" name="filter_audio" domain="[('service_type', '=', 'audiometry')]"/>
+                <filter string="Trabajo en Alturas" name="filter_height" domain="[('service_type', '=', 'height_work')]"/>
+                <group name="group_by">
+                    <filter string="Tipo de Servicio" name="group_type" context="{'group_by':'service_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vistas de Plantillas de Examenes -->
+    <record id="view_hr_medical_template_form" model="ir.ui.view">
+        <field name="name">hr.medical.template.form</field>
+        <field name="model">hr.medical.template</field>
+        <field name="arch" type="xml">
+            <form string="Plantilla de Examen">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" string="Nombre de la Plantilla"/>
+                        <h1>
+                            <field name="name" placeholder="Ej: Examen de Ingreso Completo"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuracion">
+                            <field name="exam_type"/>
+                            <field name="provider_id"/>
+                            <field name="validity_months"/>
+                            <field name="duration_hours"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Servicios Incluidos">
+                            <field name="service_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group string="Instrucciones de Preparacion">
+                        <field name="preparation_instructions" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_medical_template_list" model="ir.ui.view">
+        <field name="name">hr.medical.template.list</field>
+        <field name="model">hr.medical.template</field>
+        <field name="arch" type="xml">
+            <list string="Plantillas de Examenes">
+                <field name="name"/>
+                <field name="exam_type"/>
+                <field name="provider_id"/>
+                <field name="validity_months"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Herencia de vista de empleado para agregar boton EPP -->
+    <record id="view_employee_form_inherit_epp" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.epp</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar botones en el button box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_epp_requests" type="object"
+                        class="oe_stat_button" icon="fa-shield">
+                    <field name="epp_request_count" widget="statinfo" string="EPP/Dotacion"/>
+                </button>
+                <button name="action_view_medical_certificates" type="object"
+                        class="oe_stat_button" icon="fa-heartbeat"
+                        invisible="not medical_certificate_count">
+                    <field name="medical_certificate_count" widget="statinfo" string="Certificados"/>
+                </button>
+            </xpath>
+
+            <!-- Agregar pestaña de tallas en el notebook -->
+            <xpath expr="//page[@name='hr_settings']" position="after">
+                <page string="Tallas y EPP" groups="hr.group_hr_user">
+                    <group>
+                        <group string="Tallas de Dotacion">
+                            <field name="shirt_size"/>
+                            <field name="pants_size"/>
+                            <field name="shoe_size"/>
+                        </group>
+                        <group string="Productos por Defecto">
+                            <field name="default_shirt_product_id" domain="[('type', 'in', ['product', 'consu'])]"/>
+                            <field name="default_pants_product_id" domain="[('type', 'in', ['product', 'consu'])]"/>
+                            <field name="default_shoes_product_id" domain="[('type', 'in', ['product', 'consu'])]"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Informacion EPP">
+                            <field name="last_dotacion_date" readonly="1"/>
+                            <field name="has_valid_medical" readonly="1"/>
+                        </group>
+                        <group string="Distancia al Trabajo">
+                            <field name="km_home_work" string="Distancia (km)"/>
+                            <field name="lives_near_work" widget="boolean_toggle" string="Vive cerca (menos 1km)"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

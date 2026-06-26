@@ -1,0 +1,2039 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineDetail">
+        <div t-if="line" class="pld-container">
+
+            <!-- HEADER: Siempre visible - Usando componente -->
+            <PayslipLineHeader
+                line="line"
+                ruleConfig="ruleConfig"
+            />
+
+            <!-- ========================================== -->
+            <!-- INFORMACION CONTEXTUAL: Prestamos, Novedades, Ausencias - Usando componente -->
+            <!-- ========================================== -->
+            <t t-if="contextualInfo">
+                <PayslipLineContextual
+                    contextualInfo="contextualInfo"
+                    formatCurrency="formatCurrency"
+                />
+            </t>
+
+            <!-- Versión anterior inline (mantener por compatibilidad si es necesario) -->
+            <t t-if="false and contextualInfo">
+                <div class="pld-widget-section pld-contextual-view">
+                    <div class="pld-section-content">
+                        <!-- Header segun tipo de relacion -->
+                        <div t-if="contextualInfo.has_relation" class="pld-ctx-header">
+                            <!-- PRESTAMO -->
+                            <t t-if="contextualInfo.relation_type === 'loan'">
+                                <div class="pld-ctx-tipo pld-ctx-loan">
+                                    <i class="fa fa-credit-card"/>
+                                    <span class="pld-ctx-label">PRESTAMO</span>
+                                    <span class="pld-ctx-name"><t t-esc="contextualInfo.relation_data.name"/></span>
+                                    <span t-if="contextualInfo.relation_data.loan_type_label" class="pld-ctx-badge">
+                                        <t t-esc="contextualInfo.relation_data.loan_type_label"/>
+                                    </span>
+                                </div>
+                            </t>
+                            <!-- NOVEDAD DE CONTRATO -->
+                            <t t-if="contextualInfo.relation_type === 'concept'">
+                                <div class="pld-ctx-tipo pld-ctx-concept">
+                                    <i class="fa fa-file-text-o"/>
+                                    <span class="pld-ctx-label">NOVEDAD</span>
+                                    <span class="pld-ctx-name"><t t-esc="contextualInfo.relation_data.name"/></span>
+                                    <span t-if="contextualInfo.relation_data.type_deduction_label" class="pld-ctx-badge pld-ctx-badge-type">
+                                        <t t-esc="contextualInfo.relation_data.type_deduction_label"/>
+                                    </span>
+                                </div>
+                            </t>
+                            <!-- AUSENCIA -->
+                            <t t-if="contextualInfo.relation_type === 'leave'">
+                                <div class="pld-ctx-tipo pld-ctx-leave">
+                                    <i class="fa fa-medkit"/>
+                                    <span class="pld-ctx-label">AUSENCIA</span>
+                                    <span class="pld-ctx-name"><t t-esc="contextualInfo.relation_data.name"/></span>
+                                    <span t-if="contextualInfo.relation_data.leave_type" class="pld-ctx-badge pld-ctx-badge-danger">
+                                        <t t-esc="contextualInfo.relation_data.leave_type"/>
+                                    </span>
+                                </div>
+                            </t>
+                            <!-- VACACIONES -->
+                            <t t-if="contextualInfo.relation_type === 'vacation'">
+                                <div class="pld-ctx-tipo pld-ctx-vacation">
+                                    <i class="fa fa-sun-o"/>
+                                    <span class="pld-ctx-label">VACACIONES</span>
+                                    <span class="pld-ctx-name"><t t-esc="contextualInfo.relation_data.name"/></span>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Badges de Base (IBC, SS, Prima, Cesantias) -->
+                        <t t-if="contextualInfo.badges and contextualInfo.badges.length > 0">
+                            <div class="pld-ctx-badges">
+                                <t t-foreach="contextualInfo.badges" t-as="badge" t-key="badge_index">
+                                    <span t-att-class="'pld-ctx-base-badge pld-ctx-base-badge-' + (badge.color || 'primary')"
+                                          t-att-title="badge.tooltip">
+                                        <i t-att-class="'fa ' + badge.icon"/>
+                                        <t t-esc="badge.label"/>
+                                    </span>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- KPIs Contextuales -->
+                        <div t-if="contextualInfo.kpis.length > 0" class="pld-ctx-kpis">
+                            <t t-foreach="contextualInfo.kpis" t-as="kpi" t-key="kpi_index">
+                                <div t-att-class="'pld-ctx-kpi pld-ctx-kpi-' + (kpi.color || 'primary')">
+                                    <i t-att-class="'fa ' + kpi.icon"/>
+                                    <div class="pld-ctx-kpi-content">
+                                        <span class="pld-ctx-kpi-label"><t t-esc="kpi.label"/></span>
+                                        <span class="pld-ctx-kpi-value">
+                                            <t t-if="kpi.format === 'currency'" t-esc="formatCurrency(kpi.value)"/>
+                                            <t t-else="" t-esc="kpi.value"/>
+                                        </span>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Barra de progreso para prestamos -->
+                        <t t-if="contextualInfo.progress">
+                            <div class="pld-ctx-progress">
+                                <div class="pld-ctx-progress-bar">
+                                    <div class="pld-ctx-progress-fill" t-att-style="'width: ' + contextualInfo.progress.value + '%;'"/>
+                                </div>
+                                <span class="pld-ctx-progress-label"><t t-esc="contextualInfo.progress.label"/></span>
+                            </div>
+                        </t>
+
+                        <!-- Acciones especiales (pago doble, saltos) -->
+                        <t t-if="contextualInfo.acciones.length > 0">
+                            <div class="pld-ctx-acciones">
+                                <t t-foreach="contextualInfo.acciones" t-as="accion" t-key="accion_index">
+                                    <div t-att-class="'pld-ctx-accion pld-ctx-accion-' + (accion.color || 'warning')">
+                                        <i t-att-class="'fa ' + accion.icon"/>
+                                        <span class="pld-ctx-accion-label"><t t-esc="accion.label"/></span>
+                                        <span t-if="accion.descripcion" class="pld-ctx-accion-desc">
+                                            <t t-esc="accion.descripcion"/>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- Notas -->
+                        <t t-if="contextualInfo.notas.length > 0">
+                            <div class="pld-ctx-notas">
+                                <t t-foreach="contextualInfo.notas" t-as="nota" t-key="nota_index">
+                                    <div t-att-class="'pld-ctx-nota pld-ctx-nota-' + (nota.color || 'muted')">
+                                        <i t-att-class="'fa ' + nota.icon"/>
+                                        <span><t t-esc="nota.texto"/></span>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- TIPO SIMPLE: KPIs en fila + formula corta - Usando componente -->
+            <!-- ========================================== -->
+            <t t-if="isSimple and simpleKpis">
+                <PayslipLineSimple
+                    kpis="simpleKpis"
+                    formula="simpleFormula"
+                    total="line.total"
+                    ruleConfig="ruleConfig"
+                    formatCurrency="formatCurrency"
+                    formatValue="formatValue"
+                />
+            </t>
+
+            <!-- ========================================== -->
+            <!-- TIPO PROVISION: Vista detallada paso a paso - Usando componente -->
+            <!-- ========================================== -->
+            <t t-if="isProvision and provisionData">
+                <PayslipLineProvision
+                    provisionData="provisionData"
+                    ruleConfig="ruleConfig"
+                    formatCurrency="formatCurrency"
+                    formatValue="formatValue"
+                    getLeyUrl="getLeyUrl"
+                />
+            </t>
+
+            <!-- Versión anterior inline (mantener por compatibilidad si es necesario) -->
+            <t t-if="false and isProvision">
+                <div class="pld-widget-section pld-provision-view pld-multipaso-view">
+                    <!-- Header con tipo y base legal -->
+                    <div class="pld-section-header pld-section-header-steps">
+                        <div class="pld-header-left">
+                            <i t-att-class="'fa ' + ruleConfig.icon" t-att-style="'color: ' + ruleConfig.color + ';'"/>
+                            <span class="pld-header-title-dark"><t t-esc="provisionData.tipoProvision || 'PROVISIÓN'"/></span>
+                            <span class="pld-badge pld-badge-metodo"><t t-esc="provisionData.metodoLabel"/></span>
+                            <span t-if="provisionData.esLiquidacion" class="pld-badge pld-badge-warning">LIQUIDACIÓN</span>
+                        </div>
+                        <div class="pld-header-right">
+                            <span class="pld-badge pld-badge-steps">4 pasos</span>
+                        </div>
+                    </div>
+
+                    <div class="pld-section-content">
+                        <!-- Base Legal y Explicación -->
+                        <div class="pld-prov-intro">
+                            <div class="pld-prov-legal">
+                                <i class="fa fa-balance-scale"/>
+                                <a t-if="getLeyUrl(provisionData.baseLegal)" t-att-href="getLeyUrl(provisionData.baseLegal)" target="_blank" class="pld-legal-link" t-on-click.stop="">
+                                    <t t-esc="provisionData.baseLegal"/> <i class="fa fa-external-link"/>
+                                </a>
+                                <span t-else=""><t t-esc="provisionData.baseLegal"/></span>
+                            </div>
+                            <t t-if="provisionData.explicacion">
+                                <div class="pld-paso-explicacion">
+                                    <i class="fa fa-info-circle"/> <t t-esc="provisionData.explicacion"/>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Timeline Visual (como IBD) -->
+                        <div class="pld-timeline">
+                            <div t-att-class="'pld-timeline-step ' + (isProvStepExpanded(1) ? 'pld-timeline-expanded' : '')"
+                                 t-on-click="() => this.scrollToProvStep(1)">
+                                <div class="pld-timeline-number" style="background: #3B82F6;">1</div>
+                                <div class="pld-timeline-label">Base</div>
+                            </div>
+                            <div class="pld-timeline-connector"/>
+                            <div t-att-class="'pld-timeline-step ' + (isProvStepExpanded(2) ? 'pld-timeline-expanded' : '')"
+                                 t-on-click="() => this.scrollToProvStep(2)">
+                                <div class="pld-timeline-number" style="background: #8B5CF6;">2</div>
+                                <div class="pld-timeline-label">Días</div>
+                            </div>
+                            <div class="pld-timeline-connector"/>
+                            <div t-att-class="'pld-timeline-step ' + (isProvStepExpanded(3) ? 'pld-timeline-expanded' : '')"
+                                 t-on-click="() => this.scrollToProvStep(3)">
+                                <div class="pld-timeline-number" style="background: #F97316;">3</div>
+                                <div class="pld-timeline-label">Fórmula</div>
+                            </div>
+                            <div class="pld-timeline-connector"/>
+                            <div t-att-class="'pld-timeline-step pld-timeline-final ' + (isProvStepExpanded(4) ? 'pld-timeline-expanded' : '')"
+                                 t-on-click="() => this.scrollToProvStep(4)">
+                                <div class="pld-timeline-number" style="background: #22C55E;"><i class="fa fa-check"/></div>
+                                <div class="pld-timeline-label">Resultado</div>
+                            </div>
+                        </div>
+
+                        <!-- Pasos Expandibles -->
+                        <div class="pld-pasos-detalle">
+
+                            <!-- PASO 1: Composición de la Base -->
+                            <div class="pld-paso-row">
+                                <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleProvStep(1)">
+                                    <div class="pld-paso-left">
+                                        <span class="pld-paso-number-small" style="background: #3B82F6;">1</span>
+                                        <div class="pld-paso-info">
+                                            <div class="pld-paso-titulo">Composición de la Base</div>
+                                            <div class="pld-paso-legal-small">
+                                                <i class="fa fa-money"/> Salario + Variables + Auxilio
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pld-paso-right">
+                                        <span class="pld-paso-valor"><t t-esc="formatCurrency(provisionData.baseTotal)"/></span>
+                                        <i t-att-class="'fa fa-chevron-' + (isProvStepExpanded(1) ? 'up' : 'down')"/>
+                                    </div>
+                                </div>
+                                <t t-if="isProvStepExpanded(1)">
+                                    <div class="pld-paso-detalle">
+                                        <table class="pld-paso-tabla">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tipo</th>
+                                                    <th>Concepto</th>
+                                                    <th class="text-center">Días</th>
+                                                    <th class="text-right">Valor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><span class="pld-badge-tipo-sm">SAL</span></td>
+                                                    <td>Salario Base del Cálculo</td>
+                                                    <td class="text-center"><t t-esc="provisionData.diasPagados || provisionData.diasComputables || 30"/></td>
+                                                    <td class="text-right"><t t-esc="formatCurrency(provisionData.salarioBase)"/></td>
+                                                </tr>
+                                                <t t-if="provisionData.variableTotal > 0">
+                                                    <tr>
+                                                        <td><span class="pld-badge-tipo-sm pld-tipo-var">VAR</span></td>
+                                                        <td>Total Variables (HE, Comisiones, Bonificaciones)</td>
+                                                        <td class="text-center">-</td>
+                                                        <td class="text-right pld-valor-suma">+ <t t-esc="formatCurrency(provisionData.variableTotal)"/></td>
+                                                    </tr>
+                                                </t>
+                                                <!-- Auxilio de Transporte: mostrar siempre la seccion -->
+                                                <t t-if="provisionData.aplicaAuxilio and provisionData.auxilioTransporte > 0">
+                                                    <tr>
+                                                        <td><span class="pld-badge-tipo-sm pld-tipo-aux">AUX</span></td>
+                                                        <td>Auxilio de Transporte</td>
+                                                        <td class="text-center"><t t-esc="provisionData.diasPagados || provisionData.diasComputables || 30"/></td>
+                                                        <td class="text-right pld-valor-suma">+ <t t-esc="formatCurrency(provisionData.auxilioTransporte)"/></td>
+                                                    </tr>
+                                                </t>
+                                                <t t-elif="!provisionData.aplicaAuxilio">
+                                                    <tr class="pld-row-disabled">
+                                                        <td><span class="pld-badge-tipo-sm pld-tipo-aux-na">AUX</span></td>
+                                                        <td>
+                                                            <span class="text-muted">Auxilio de Transporte</span>
+                                                            <span class="pld-nota-no-aplica">
+                                                                <i class="fa fa-info-circle"/> No aplica
+                                                                <t t-if="provisionData.configAuxilio and provisionData.configAuxilio.razon_no_aplica">
+                                                                    - <t t-esc="provisionData.configAuxilio.razon_no_aplica"/>
+                                                                </t>
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-center text-muted">-</td>
+                                                        <td class="text-right text-muted">$ 0</td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="pld-tabla-total">
+                                                    <td colspan="3"><strong>BASE TOTAL PARA PROVISIÓN</strong></td>
+                                                    <td class="text-right"><strong><t t-esc="formatCurrency(provisionData.baseTotal)"/></strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+
+                                        <!-- Detalle de conceptos variables si existen -->
+                                        <t t-if="provisionData.conceptosIncluidos and provisionData.conceptosIncluidos.length > 0">
+                                            <div class="pld-subtabla-container">
+                                                <div class="pld-subtabla-header">
+                                                    <i class="fa fa-list-ul"/> Detalle de Conceptos Variables
+                                                    <span class="pld-conceptos-count">(<t t-esc="provisionData.conceptosIncluidos.length"/> conceptos)</span>
+                                                </div>
+                                                <table class="pld-paso-tabla pld-tabla-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Cat.</th>
+                                                            <th>Código</th>
+                                                            <th>Concepto</th>
+                                                            <th class="text-right">Valor</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="provisionData.conceptosIncluidos" t-as="concepto" t-key="concepto_index">
+                                                            <tr t-att-class="concepto_index % 2 === 1 ? 'pld-row-alt' : ''">
+                                                                <td><span class="pld-badge-cat-sm"><t t-esc="(concepto.categoria || 'VAR').substring(0, 3)"/></span></td>
+                                                                <td class="pld-codigo"><t t-esc="concepto.codigo"/></td>
+                                                                <td><t t-esc="concepto.nombre"/></td>
+                                                                <td class="text-right"><t t-esc="formatCurrency(concepto.valor)"/></td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="pld-tabla-total">
+                                                            <td colspan="3"><strong>TOTAL VARIABLES</strong></td>
+                                                            <td class="text-right"><strong><t t-esc="formatCurrency(provisionData.variableTotal)"/></strong></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- PASO 2: Días del Período -->
+                            <div class="pld-paso-row">
+                                <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleProvStep(2)">
+                                    <div class="pld-paso-left">
+                                        <span class="pld-paso-number-small" style="background: #8B5CF6;">2</span>
+                                        <div class="pld-paso-info">
+                                            <div class="pld-paso-titulo">Días del Período</div>
+                                            <div class="pld-paso-legal-small">
+                                                <i class="fa fa-calendar"/> Días pagados - Ausencias
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pld-paso-right">
+                                        <span class="pld-paso-valor"><t t-esc="provisionData.diasComputables"/> días</span>
+                                        <i t-att-class="'fa fa-chevron-' + (isProvStepExpanded(2) ? 'up' : 'down')"/>
+                                    </div>
+                                </div>
+                                <t t-if="isProvStepExpanded(2)">
+                                    <div class="pld-paso-detalle">
+                                        <table class="pld-paso-tabla">
+                                            <thead>
+                                                <tr>
+                                                    <th>Concepto</th>
+                                                    <th class="text-right">Días</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><i class="fa fa-calendar-check-o pld-icon-ok"/> Días del Período</td>
+                                                    <td class="text-right"><t t-esc="provisionData.diasPeriodo || provisionData.diasPagados"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td><i class="fa fa-check pld-icon-ok"/> Días Pagados</td>
+                                                    <td class="text-right"><t t-esc="provisionData.diasPagados"/></td>
+                                                </tr>
+                                                <t t-if="provisionData.diasAusenciasPagadas > 0">
+                                                    <tr>
+                                                        <td><i class="fa fa-bed pld-icon-warn"/> Ausencias Pagadas (Incapacidad, Licencia)</td>
+                                                        <td class="text-right"><t t-esc="provisionData.diasAusenciasPagadas"/></td>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="provisionData.diasAusenciasNoPagadas > 0">
+                                                    <tr class="pld-row-resta">
+                                                        <td><i class="fa fa-minus-circle pld-icon-resta"/> Ausencias No Pagadas (Suspensión)</td>
+                                                        <td class="text-right pld-valor-resta">- <t t-esc="provisionData.diasAusenciasNoPagadas"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="pld-tabla-total">
+                                                    <td><strong>DÍAS COMPUTABLES</strong></td>
+                                                    <td class="text-right"><strong><t t-esc="provisionData.diasComputables"/></strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- PASO 3: Fórmula de Cálculo -->
+                            <div class="pld-paso-row">
+                                <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleProvStep(3)">
+                                    <div class="pld-paso-left">
+                                        <span class="pld-paso-number-small" style="background: #F97316;">3</span>
+                                        <div class="pld-paso-info">
+                                            <div class="pld-paso-titulo">Fórmula de Cálculo</div>
+                                            <div class="pld-paso-legal-small">
+                                                <i class="fa fa-calculator"/> Base × Días ÷ <t t-esc="provisionData.periodoBase"/> × <t t-esc="provisionData.tasa"/>%
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pld-paso-right">
+                                        <span class="pld-paso-valor"><t t-esc="formatCurrency(provisionData.provisionCalculada)"/></span>
+                                        <i t-att-class="'fa fa-chevron-' + (isProvStepExpanded(3) ? 'up' : 'down')"/>
+                                    </div>
+                                </div>
+                                <t t-if="isProvStepExpanded(3)">
+                                    <div class="pld-paso-detalle">
+                                        <!-- Fórmula Visual -->
+                                        <div class="pld-prov-formula">
+                                            <div class="pld-prov-formula-content">
+                                                <span class="pld-prov-formula-item">
+                                                    <span class="pld-prov-formula-label">Base</span>
+                                                    <span class="pld-prov-formula-value"><t t-esc="formatCurrency(provisionData.baseTotal)"/></span>
+                                                </span>
+                                                <span class="pld-prov-formula-op">×</span>
+                                                <span class="pld-prov-formula-item">
+                                                    <span class="pld-prov-formula-label">Días</span>
+                                                    <span class="pld-prov-formula-value"><t t-esc="provisionData.diasComputables"/></span>
+                                                </span>
+                                                <span class="pld-prov-formula-op">÷</span>
+                                                <span class="pld-prov-formula-item">
+                                                    <span class="pld-prov-formula-label">Período</span>
+                                                    <span class="pld-prov-formula-value"><t t-esc="provisionData.periodoBase"/></span>
+                                                </span>
+                                                <t t-if="provisionData.tasa > 1">
+                                                    <span class="pld-prov-formula-op">×</span>
+                                                    <span class="pld-prov-formula-item">
+                                                        <span class="pld-prov-formula-label">Tasa</span>
+                                                        <span class="pld-prov-formula-value"><t t-esc="provisionData.tasa"/>%</span>
+                                                    </span>
+                                                </t>
+                                                <span class="pld-prov-formula-op">=</span>
+                                                <span class="pld-prov-formula-item pld-prov-formula-result">
+                                                    <span class="pld-prov-formula-label">Provisión</span>
+                                                    <span class="pld-prov-formula-value"><t t-esc="formatCurrency(provisionData.provisionCalculada)"/></span>
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pasos del backend si existen -->
+                                        <t t-if="provisionData.formulaPasos and provisionData.formulaPasos.length > 0">
+                                            <div class="pld-subtabla-container">
+                                                <div class="pld-subtabla-header">
+                                                    <i class="fa fa-list-ol"/> Detalle Paso a Paso
+                                                </div>
+                                                <table class="pld-paso-tabla pld-tabla-sm">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>#</th>
+                                                            <th>Operación</th>
+                                                            <th class="text-right">Resultado</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="provisionData.formulaPasos" t-as="paso" t-key="paso_index">
+                                                            <tr>
+                                                                <td><span class="pld-paso-num-mini"><t t-esc="paso.paso"/></span></td>
+                                                                <td><t t-esc="paso.concepto || paso.formula_texto"/></td>
+                                                                <td class="text-right"><t t-esc="formatValue(paso.resultado, paso.formato || 'currency')"/></td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- PASO 4: Resultado Final -->
+                            <div class="pld-paso-row pld-paso-final">
+                                <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleProvStep(4)">
+                                    <div class="pld-paso-left">
+                                        <span class="pld-paso-number-small" style="background: #22C55E;"><i class="fa fa-check"/></span>
+                                        <div class="pld-paso-info">
+                                            <div class="pld-paso-titulo">Resultado Final</div>
+                                            <div class="pld-paso-legal-small">
+                                                <i class="fa fa-check-circle"/> Cálculo del período actual
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="pld-paso-right">
+                                        <span class="pld-paso-valor pld-valor-final"><t t-esc="formatCurrency(provisionData.provisionCalculada)"/></span>
+                                        <i t-att-class="'fa fa-chevron-' + (isProvStepExpanded(4) ? 'up' : 'down')"/>
+                                    </div>
+                                </div>
+                                <t t-if="isProvStepExpanded(4)">
+                                    <div class="pld-paso-detalle">
+                                        <table class="pld-paso-tabla">
+                                            <thead>
+                                                <tr>
+                                                    <th>Concepto</th>
+                                                    <th class="text-right">Valor</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><i class="fa fa-plus pld-icon-ok"/> Provisión Calculada del Período</td>
+                                                    <td class="text-right"><t t-esc="formatCurrency(provisionData.provisionCalculada)"/></td>
+                                                </tr>
+                                                <t t-if="provisionData.provisionAcumulada > 0">
+                                                    <tr>
+                                                        <td><i class="fa fa-calendar-check-o"/> Ya Provisionado en Vigencia/Rango</td>
+                                                        <td class="text-right"><t t-esc="formatCurrency(provisionData.provisionAcumulada)"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="pld-tabla-total pld-tabla-total-final">
+                                                    <td><strong><i class="fa fa-database"/> VALOR DEL PERÍODO</strong></td>
+                                                    <td class="text-right"><strong><t t-esc="formatCurrency(provisionData.provisionCalculada)"/></strong></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+
+                                        <!-- Comparativa con período anterior -->
+                                        <t t-if="provisionData.valorAnterior > 0">
+                                            <div class="pld-subtabla-container pld-comparativa-box">
+                                                <div class="pld-subtabla-header">
+                                                    <i class="fa fa-exchange"/> Comparativa con Período Anterior
+                                                </div>
+                                                <div class="pld-comparativa-grid">
+                                                    <div class="pld-comp-item">
+                                                        <span class="pld-comp-label">Anterior</span>
+                                                        <span class="pld-comp-value"><t t-esc="formatCurrency(provisionData.valorAnterior)"/></span>
+                                                    </div>
+                                                    <span class="pld-comp-arrow"><i class="fa fa-arrow-right"/></span>
+                                                    <div class="pld-comp-item">
+                                                        <span class="pld-comp-label">Actual</span>
+                                                        <span class="pld-comp-value"><t t-esc="formatCurrency(provisionData.provisionCalculada)"/></span>
+                                                    </div>
+                                                    <div t-att-class="'pld-comp-diff ' + (provisionData.diferenciaPeriodoAnterior >= 0 ? 'pld-diff-positive' : 'pld-diff-negative')">
+                                                        <i t-att-class="provisionData.diferenciaPeriodoAnterior >= 0 ? 'fa fa-arrow-up' : 'fa fa-arrow-down'"/>
+                                                        <t t-esc="provisionData.diferenciaPeriodoAnterior >= 0 ? '+' : ''"/><t t-esc="formatCurrency(provisionData.diferenciaPeriodoAnterior)"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+
+                                        <!-- Fechas del período -->
+                                        <t t-if="provisionData.fechaInicio or provisionData.fechaCorte">
+                                            <div class="pld-prov-fechas-inline">
+                                                <span t-if="provisionData.fechaInicio"><i class="fa fa-calendar"/> Desde: <strong><t t-esc="provisionData.fechaInicio"/></strong></span>
+                                                <span t-if="provisionData.fechaCorte"><i class="fa fa-calendar-check-o"/> Hasta: <strong><t t-esc="provisionData.fechaCorte"/></strong></span>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Indicadores -->
+                        <t t-if="provisionData.indicadores and provisionData.indicadores.length > 0">
+                            <div class="pld-prov-indicadores">
+                                <t t-foreach="provisionData.indicadores" t-as="ind" t-key="ind_index">
+                                    <div class="pld-prov-indicador" t-att-class="'pld-ind-' + ind.color">
+                                        <i t-att-class="ind.icono"/><span><t t-esc="ind.texto"/></span>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- Warnings -->
+                        <t t-if="provisionData.warnings and provisionData.warnings.length > 0">
+                            <div class="pld-prov-warnings">
+                                <t t-foreach="provisionData.warnings" t-as="warn" t-key="warn_index">
+                                    <div class="pld-prov-warning"><i class="fa fa-exclamation-triangle"/> <t t-esc="warn"/></div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- SECCION SEGURIDAD SOCIAL (si aplica)       -->
+            <!-- ========================================== -->
+            <!-- Seguridad Social - Usando componente -->
+            <t t-if="isSeguridadSocial and seguridadSocialResumen">
+                <PayslipLineSocialSecurity
+                    ssData="seguridadSocialResumen"
+                    ruleConfig="ruleConfig"
+                    formatCurrency="formatCurrency"
+                    getLeyUrl="getLeyUrl"
+                />
+            </t>
+
+            <!-- Versión anterior inline (mantener por compatibilidad si es necesario) -->
+            <t t-if="false and isSeguridadSocial and seguridadSocialResumen">
+                <div class="pld-widget-section pld-ss-view">
+                    <div class="pld-section-content">
+                        <!-- Header SS -->
+                        <div class="pld-ss-header">
+                            <div class="pld-ss-tipo">
+                                <i t-att-class="'fa ' + ruleConfig.icon" t-att-style="'color: ' + ruleConfig.color + ';'"/>
+                                <span class="pld-ss-tipo-label"><t t-esc="seguridadSocialResumen.tipo"/></span>
+                            </div>
+                            <div class="pld-ss-legal">
+                                <i class="fa fa-balance-scale"/>
+                                <a t-if="getLeyUrl(seguridadSocialResumen.base_legal)"
+                                   t-att-href="getLeyUrl(seguridadSocialResumen.base_legal)"
+                                   target="_blank" class="pld-legal-link" t-on-click.stop="">
+                                    <t t-esc="seguridadSocialResumen.base_legal"/> <i class="fa fa-external-link"/>
+                                </a>
+                                <span t-else=""><t t-esc="seguridadSocialResumen.base_legal"/></span>
+                            </div>
+                        </div>
+
+                        <!-- Distribucion porcentajes -->
+                        <div class="pld-ss-distribucion">
+                            <div class="pld-ss-dist-title">
+                                <i class="fa fa-pie-chart"/> Distribución de Aportes
+                            </div>
+                            <div class="pld-ss-dist-bars">
+                                <!-- Barra empleado -->
+                                <div class="pld-ss-bar pld-ss-bar-empleado">
+                                    <div class="pld-ss-bar-header">
+                                        <span class="pld-ss-bar-label">
+                                            <i class="fa fa-user"/> Empleado
+                                        </span>
+                                        <span class="pld-ss-bar-pct">
+                                            <t t-esc="seguridadSocialResumen.porcentaje_empleado"/>%
+                                        </span>
+                                    </div>
+                                    <div class="pld-ss-bar-track">
+                                        <div class="pld-ss-bar-fill pld-ss-fill-empleado"
+                                             t-att-style="'width: ' + (seguridadSocialResumen.porcentaje_empleado / seguridadSocialResumen.porcentaje_total * 100) + '%;'"/>
+                                    </div>
+                                    <div class="pld-ss-bar-valor">
+                                        <t t-esc="formatCurrency(seguridadSocialResumen.valor_empleado)"/>
+                                    </div>
+                                </div>
+                                <!-- Barra empresa (oculta - solo se muestra la parte del empleado) -->
+                            </div>
+                            <!-- Total (solo empleado) -->
+                            <div class="pld-ss-total-row">
+                                <span class="pld-ss-total-label">
+                                    <i class="fa fa-calculator"/> Aporte Empleado
+                                </span>
+                                <span class="pld-ss-total-pct">
+                                    <t t-esc="seguridadSocialResumen.porcentaje_empleado"/>%
+                                </span>
+                                <span class="pld-ss-total-valor" t-att-style="'color: ' + ruleConfig.color + ';'">
+                                    <t t-esc="formatCurrency(seguridadSocialResumen.valor_empleado)"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Calculo empleado -->
+                        <div class="pld-ss-calculo">
+                            <div class="pld-ss-calculo-title">
+                                <i class="fa fa-calculator"/> Cálculo Deducción Empleado
+                            </div>
+                            <div class="pld-ss-calculo-formula">
+                                <span class="pld-ss-formula-item">
+                                    <span class="pld-ss-formula-label">IBC</span>
+                                    <span class="pld-ss-formula-value"><t t-esc="formatCurrency(seguridadSocialResumen.ibc)"/></span>
+                                </span>
+                                <span class="pld-ss-formula-op">x</span>
+                                <span class="pld-ss-formula-item">
+                                    <span class="pld-ss-formula-label">Tasa</span>
+                                    <span class="pld-ss-formula-value"><t t-esc="seguridadSocialResumen.porcentaje_empleado"/>%</span>
+                                </span>
+                                <span class="pld-ss-formula-op">=</span>
+                                <span class="pld-ss-formula-item pld-ss-formula-result">
+                                    <span class="pld-ss-formula-label">Deducción</span>
+                                    <span class="pld-ss-formula-value" t-att-style="'color: ' + ruleConfig.color + ';'">
+                                        <t t-esc="formatCurrency(seguridadSocialResumen.valor_empleado)"/>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Condiciones -->
+                        <t t-if="seguridadSocialResumen.condiciones.length > 0">
+                            <div class="pld-ss-condiciones">
+                                <div class="pld-ss-condiciones-title">
+                                    <i class="fa fa-info-circle"/> Condiciones
+                                </div>
+                                <ul class="pld-ss-condiciones-list">
+                                    <t t-foreach="seguridadSocialResumen.condiciones" t-as="cond" t-key="cond_index">
+                                        <li><t t-esc="cond"/></li>
+                                    </t>
+                                </ul>
+                            </div>
+                        </t>
+
+                        <!-- Entidad -->
+                        <t t-if="seguridadSocialResumen.entidad">
+                            <div class="pld-ss-entidad">
+                                <i class="fa fa-institution"/>
+                                <span>Entidad: <strong><t t-esc="seguridadSocialResumen.entidad"/></strong></span>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- SECCION IBC (si aplica)                   -->
+            <!-- ========================================== -->
+            <t t-if="hasComputation and isIBC and ibcResumen">
+                <div class="pld-widget-section pld-ibc-view">
+                    <div class="pld-section-content">
+                        <!-- Header IBC -->
+                        <div class="pld-ibc-header">
+                            <div class="pld-ibc-tipo">
+                                <i class="fa fa-building" style="color: #0EA5E9;"/>
+                                <span class="pld-ibc-tipo-label">INGRESO BASE DE COTIZACION</span>
+                            </div>
+                            <div class="pld-ibc-legal">
+                                <i class="fa fa-balance-scale"/>
+                                <a t-if="getLeyUrl(ibcResumen.base_legal)"
+                                   t-att-href="getLeyUrl(ibcResumen.base_legal)"
+                                   target="_blank" class="pld-legal-link" t-on-click.stop="">
+                                    <t t-esc="ibcResumen.base_legal"/> <i class="fa fa-external-link"/>
+                                </a>
+                                <span t-else=""><t t-esc="ibcResumen.base_legal"/></span>
+                            </div>
+                        </div>
+
+                        <!-- Resultado IBC -->
+                        <div class="pld-ibc-resultado">
+                            <div class="pld-ibc-resultado-row">
+                                <span class="pld-ibc-resultado-label">
+                                    <i class="fa fa-calculator"/> IBC Calculado
+                                </span>
+                                <span class="pld-ibc-resultado-valor">
+                                    <t t-esc="formatCurrency(ibcResumen.ibc_calculado)"/>
+                                </span>
+                            </div>
+                            <div class="pld-ibc-resultado-sub">
+                                <span><t t-esc="ibcResumen.ibc_en_smmlv.toFixed(2)"/> SMMLV</span>
+                                <span class="pld-ibc-smmlv">(SMMLV: <t t-esc="formatCurrency(ibcResumen.smmlv)"/>)</span>
+                            </div>
+                        </div>
+
+                        <!-- Validaciones -->
+                        <div class="pld-ibc-validaciones">
+                            <div class="pld-ibc-val-title pld-clickable" t-on-click="() => this.toggleSection('ibc_validaciones')">
+                                <i class="fa fa-check-square"/> Validaciones
+                                <i t-att-class="'fa fa-chevron-' + (state.sections.ibc_validaciones ? 'up' : 'down')" style="float: right; color: #6B7280;"/>
+                            </div>
+                            <t t-if="state.sections.ibc_validaciones">
+                                <t t-foreach="ibcResumen.validaciones" t-as="val" t-key="val_index">
+                                    <div t-att-class="'pld-ibc-validacion ' + (val.cumple ? 'pld-val-ok' : 'pld-val-warning')">
+                                        <i t-att-class="'fa ' + (val.cumple ? 'fa-check-circle' : 'fa-exclamation-triangle')"/>
+                                        <div class="pld-val-content">
+                                            <div class="pld-val-regla">
+                                                <strong><t t-esc="val.regla"/></strong> - <t t-esc="val.descripcion"/>
+                                            </div>
+                                            <div class="pld-val-mensaje"><t t-esc="val.mensaje"/></div>
+                                            <div class="pld-val-legal">
+                                                <a t-if="getLeyUrl(val.base_legal)"
+                                                   t-att-href="getLeyUrl(val.base_legal)"
+                                                   target="_blank" class="pld-legal-link" t-on-click.stop="">
+                                                    <t t-esc="val.base_legal"/> <i class="fa fa-external-link"/>
+                                                </a>
+                                                <span t-else=""><t t-esc="val.base_legal"/></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </t>
+                        </div>
+
+                        <!-- Notas -->
+                        <div class="pld-ibc-notas">
+                            <t t-foreach="ibcResumen.notas" t-as="nota" t-key="nota_index">
+                                <div class="pld-ibc-nota">
+                                    <i class="fa fa-info-circle"/> <t t-esc="nota"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- TIPO PRESTACION: Prima, Cesantias, Vac    -->
+            <!-- ========================================== -->
+            <!-- Prestación - Usando componente -->
+            <t t-if="isPrestacion and prestacionData">
+                <PayslipLinePrestacion
+                    prestacionData="prestacionData"
+                    ruleConfig="ruleConfig"
+                    formatCurrency="formatCurrency"
+                    formatValue="formatValue"
+                    getLeyUrl="getLeyUrl"
+                    getStepColor="getStepColor"
+                />
+            </t>
+
+            <!-- Versión anterior inline (mantener por compatibilidad si es necesario) -->
+            <t t-if="false and isPrestacion">
+                <div class="pld-widget-section pld-prestacion-view">
+                    <!-- Header con tipo y base legal -->
+                    <div class="pld-section-header pld-section-header-steps">
+                        <div class="pld-header-left">
+                            <i t-att-class="'fa ' + ruleConfig.icon" t-att-style="'color: ' + ruleConfig.color + ';'"/>
+                            <span class="pld-header-title-dark"><t t-esc="prestacionData.tipoPrestacion"/></span>
+                            <span t-if="prestacionData.esLiquidacion" class="pld-badge pld-badge-warning">LIQUIDACION</span>
+                        </div>
+                        <div class="pld-header-right">
+                            <a t-if="getLeyUrl(prestacionData.baseLegal)" t-att-href="getLeyUrl(prestacionData.baseLegal)" target="_blank" class="pld-legal-link" t-on-click.stop="">
+                                <t t-esc="prestacionData.baseLegal"/> <i class="fa fa-external-link"/>
+                            </a>
+                            <span t-else="" class="pld-badge pld-badge-legal"><t t-esc="prestacionData.baseLegal"/></span>
+                        </div>
+                    </div>
+
+                    <div class="pld-section-content">
+                        <!-- Explicacion -->
+                        <t t-if="prestacionData.explicacion">
+                            <div class="pld-paso-explicacion">
+                                <i class="fa fa-info-circle"/> <t t-esc="prestacionData.explicacion"/>
+                            </div>
+                        </t>
+
+                        <!-- Indicadores del backend -->
+                        <t t-if="prestacionData.indicadores.length > 0">
+                            <div class="pld-indicadores-row">
+                                <t t-foreach="prestacionData.indicadores" t-as="ind" t-key="ind_index">
+                                    <div t-att-class="'pld-indicador pld-indicador-' + (ind.color || 'primary')">
+                                        <i t-att-class="'fa ' + (ind.icono || 'fa-info-circle')"/>
+                                        <span class="pld-ind-texto"><t t-esc="ind.texto"/></span>
+                                        <span class="pld-ind-desc"><t t-esc="ind.descripcion"/></span>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- Composicion de la Base -->
+                        <div class="pld-prestacion-base">
+                            <div class="pld-subtabla-header">
+                                <i class="fa fa-money"/> Composicion de la Base
+                            </div>
+                            <table class="pld-paso-tabla">
+                                <thead>
+                                    <tr>
+                                        <th>Componente</th>
+                                        <th class="text-right">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fa fa-money"/> Salario Base</td>
+                                        <td class="text-right"><t t-esc="formatCurrency(prestacionData.salarioBase)"/></td>
+                                    </tr>
+                                    <t t-if="prestacionData.variableTotal > 0">
+                                        <tr>
+                                            <td>
+                                                <i class="fa fa-plus-circle pld-icon-ok"/> Variable Total
+                                                <span class="pld-texto-sm">(promedio <t t-esc="prestacionData.mesesPeriodo"/> meses)</span>
+                                            </td>
+                                            <td class="text-right pld-valor-suma">+ <t t-esc="formatCurrency(prestacionData.variableTotal)"/></td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="prestacionData.aplicaAuxilio and prestacionData.auxilioTransporte > 0">
+                                        <tr>
+                                            <td><i class="fa fa-bus"/> Auxilio de Transporte</td>
+                                            <td class="text-right pld-valor-suma">+ <t t-esc="formatCurrency(prestacionData.auxilioTransporte)"/></td>
+                                        </tr>
+                                    </t>
+                                    <t t-if="prestacionData.conceptosNeto != 0">
+                                        <tr t-att-class="prestacionData.conceptosNeto >= 0 ? '' : 'pld-row-resta'">
+                                            <td>
+                                                <i t-att-class="prestacionData.conceptosNeto >= 0 ? 'fa fa-plus-circle pld-icon-ok' : 'fa fa-minus-circle pld-icon-resta'"/>
+                                                Conceptos Adicionales
+                                            </td>
+                                            <td t-att-class="'text-right ' + (prestacionData.conceptosNeto >= 0 ? 'pld-valor-suma' : 'pld-valor-resta')">
+                                                <t t-esc="prestacionData.conceptosNeto >= 0 ? '+' : ''"/><t t-esc="formatCurrency(prestacionData.conceptosNeto)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="pld-tabla-total">
+                                        <td><strong>BASE TOTAL MENSUAL</strong></td>
+                                        <td class="text-right"><strong><t t-esc="formatCurrency(prestacionData.baseTotal)"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Detalle de Variables (si hay) -->
+                        <t t-if="prestacionData.lineasVariable.length > 0">
+                            <div class="pld-subtabla-container">
+                                <div class="pld-subtabla-header pld-clickable" t-on-click="() => this.toggleSection('prest_variable')">
+                                    <i class="fa fa-list"/> Detalle Componentes Variables (<t t-esc="prestacionData.lineasVariable.length"/>)
+                                    <i t-att-class="'fa fa-chevron-' + (state.sections.prest_variable ? 'up' : 'down')" style="float:right;"/>
+                                </div>
+                                <t t-if="state.sections.prest_variable">
+                                    <table class="pld-paso-tabla pld-tabla-sm pld-tabla-variables">
+                                        <thead>
+                                            <tr>
+                                                <th>Código</th>
+                                                <th>Concepto</th>
+                                                <th>Nómina</th>
+                                                <th>Fecha</th>
+                                                <th class="text-right">Total</th>
+                                                <th class="text-right">Usado</th>
+                                                <th class="text-right">%</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="prestacionData.lineasVariable" t-as="linea" t-key="linea_index">
+                                                <tr>
+                                                    <td><span class="pld-badge-codigo"><t t-esc="linea.codigo"/></span></td>
+                                                    <td><t t-esc="linea.nombre"/></td>
+                                                    <td>
+                                                        <a t-if="linea.payslipId" t-att-href="'/web#id=' + linea.payslipId + '&amp;model=hr.payslip&amp;view_type=form'" target="_blank" class="pld-link-nomina">
+                                                            <i class="fa fa-file-text-o"/> <t t-esc="linea.slipNumber || 'Ver'"/>
+                                                        </a>
+                                                        <span t-else="" class="pld-texto-sm"><t t-esc="linea.slipNumber || '-'"/></span>
+                                                    </td>
+                                                    <td class="pld-texto-sm"><t t-esc="linea.fecha || '-'"/></td>
+                                                    <td class="text-right"><t t-esc="formatCurrency(linea.total)"/></td>
+                                                    <td class="text-right"><t t-esc="formatCurrency(linea.valorUsado)"/></td>
+                                                    <td class="text-right pld-texto-sm">
+                                                        <t t-if="linea.total > 0">
+                                                            <t t-esc="((linea.valorUsado / linea.total) * 100).toFixed(1)"/>%
+                                                        </t>
+                                                        <t t-else="">-</t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="pld-tabla-total">
+                                                <td colspan="4"><strong>TOTAL VARIABLE</strong></td>
+                                                <td class="text-right"><strong><t t-esc="formatCurrency(prestacionData.lineasVariable.reduce((sum, l) => sum + l.total, 0))"/></strong></td>
+                                                <td class="text-right"><strong><t t-esc="formatCurrency(prestacionData.variableTotal)"/></strong></td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </t>
+                            </div>
+                        </t>
+
+                        <!-- Pasos del Calculo -->
+                        <div class="pld-prestacion-pasos">
+                            <div class="pld-subtabla-header">
+                                <i class="fa fa-calculator"/> Pasos del Calculo
+                            </div>
+                            <div class="pld-formula-steps">
+                                <t t-foreach="prestacionData.formulaPasos" t-as="paso" t-key="paso_index">
+                                    <div t-att-class="'pld-formula-step ' + (paso.tipo === 'resultado' ? 'pld-step-subtotal' : '')">
+                                        <span class="pld-step-num" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                            <t t-esc="paso.paso"/>
+                                        </span>
+                                        <span class="pld-step-desc"><t t-esc="paso.concepto"/></span>
+                                        <span class="pld-step-formula" t-if="paso.formulaTexto">
+                                            <t t-esc="paso.formulaTexto"/>
+                                        </span>
+                                        <span class="pld-step-val">
+                                            <t t-esc="formatValue(paso.resultado, paso.formato)"/>
+                                        </span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Resultado Final -->
+                        <div class="pld-prestacion-resultado">
+                            <div class="pld-resultado-main">
+                                <span class="pld-resultado-label">
+                                    <i class="fa fa-check-circle"/> <t t-esc="prestacionData.tipoPrestacion"/>
+                                </span>
+                                <span class="pld-resultado-valor" t-att-style="'color: ' + ruleConfig.color + ';'">
+                                    <t t-esc="formatCurrency(prestacionData.total)"/>
+                                </span>
+                            </div>
+                            <div class="pld-resultado-formula">
+                                Base (<t t-esc="formatCurrency(prestacionData.baseTotal)"/>) x
+                                <t t-esc="prestacionData.diasTrabajados"/> días /
+                                <t t-esc="prestacionData.divisor"/>
+                            </div>
+                        </div>
+
+                        <!-- Comparativa con periodo anterior -->
+                        <t t-if="prestacionData.valorAnterior > 0">
+                            <div class="pld-comparativa-box">
+                                <div class="pld-subtabla-header">
+                                    <i class="fa fa-exchange"/> Comparativa Periodo Anterior
+                                </div>
+                                <div class="pld-comparativa-grid">
+                                    <div class="pld-comp-item">
+                                        <span class="pld-comp-label">Anterior</span>
+                                        <span class="pld-comp-valor"><t t-esc="formatCurrency(prestacionData.valorAnterior)"/></span>
+                                    </div>
+                                    <div class="pld-comp-item">
+                                        <span class="pld-comp-label">Actual</span>
+                                        <span class="pld-comp-valor"><t t-esc="formatCurrency(prestacionData.total)"/></span>
+                                    </div>
+                                    <div t-att-class="'pld-comp-item ' + (prestacionData.diferencia >= 0 ? 'pld-comp-up' : 'pld-comp-down')">
+                                        <span class="pld-comp-label">Diferencia</span>
+                                        <span class="pld-comp-valor">
+                                            <i t-att-class="'fa ' + (prestacionData.diferencia >= 0 ? 'fa-arrow-up' : 'fa-arrow-down')"/>
+                                            <t t-esc="formatCurrency(Math.abs(prestacionData.diferencia))"/>
+                                            (<t t-esc="prestacionData.porcentajeCambio.toFixed(1)"/>%)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- SECCION RETENCION (si aplica)             -->
+            <!-- ========================================== -->
+            <t t-if="isRetencion and retencionResumen">
+                <div class="pld-widget-section pld-ret-view">
+                    <div class="pld-section-content">
+                        <!-- Header Retencion -->
+                        <div class="pld-ret-header">
+                            <div class="pld-ret-tipo">
+                                <i class="fa fa-percent" style="color: #DC2626;"/>
+                                <span class="pld-ret-tipo-label">RETENCION EN LA FUENTE</span>
+                                <span class="pld-ret-proc">Proc. <t t-esc="retencionResumen.procedimiento"/></span>
+                            </div>
+                            <div class="pld-ret-legal">
+                                <i class="fa fa-balance-scale"/>
+                                <a t-if="getLeyUrl(retencionResumen.base_legal)"
+                                   t-att-href="getLeyUrl(retencionResumen.base_legal)"
+                                   target="_blank" class="pld-legal-link" t-on-click.stop="">
+                                    <t t-esc="retencionResumen.base_legal"/> <i class="fa fa-external-link"/>
+                                </a>
+                                <span t-else=""><t t-esc="retencionResumen.base_legal"/></span>
+                            </div>
+                        </div>
+
+                        <!-- Flujo de calculo con UVT y detalle expandible -->
+                        <div class="pld-ret-flujo">
+                            <div class="pld-ret-flujo-title">
+                                <i class="fa fa-arrow-down"/> Depuracion Base Gravable (Art. 383-387 ET)
+                            </div>
+                            <div class="pld-ret-flujo-items">
+                                <t t-foreach="retencionResumen.flujo" t-as="item" t-key="item.id">
+                                    <div t-att-class="'pld-ret-flujo-item ' + (item.destacado ? 'pld-flujo-destacado' : '') + (item.resta ? ' pld-flujo-resta' : '') + (item.subtotal ? ' pld-flujo-subtotal' : '') + (item.expandible ? ' pld-flujo-expandible' : '') + (isFlujoItemExpanded(item.id) ? ' pld-flujo-expanded' : '')">
+                                        <!-- Header del item (clickeable si es expandible) -->
+                                        <div t-att-class="'pld-flujo-header' + (item.expandible ? ' pld-flujo-clickable' : '')"
+                                             t-on-click="() => item.expandible and this.toggleFlujoItem(item.id)">
+                                            <div class="pld-flujo-main">
+                                                <div class="pld-flujo-info">
+                                                    <!-- Icono de expansion -->
+                                                    <t t-if="item.expandible">
+                                                        <i t-att-class="'fa pld-flujo-chevron ' + (isFlujoItemExpanded(item.id) ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                                                    </t>
+                                                    <i t-att-class="'fa ' + item.icono"/>
+                                                    <span class="pld-flujo-etiqueta"><t t-esc="item.etiqueta"/></span>
+                                                    <!-- Base legal como badge -->
+                                                    <t t-if="item.base_legal">
+                                                        <span class="pld-flujo-base-legal"><t t-esc="item.base_legal"/></span>
+                                                    </t>
+                                                </div>
+                                                <div class="pld-flujo-valores">
+                                                    <div t-att-class="'pld-flujo-valor ' + (item.resta ? 'pld-valor-resta' : '')">
+                                                        <t t-esc="formatCurrency(item.valor)"/>
+                                                    </div>
+                                                    <div class="pld-flujo-uvt" t-if="item.uvt">
+                                                        <t t-esc="item.uvt"/> UVT
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Contenido expandible con detalle ampliado -->
+                                        <t t-if="item.expandible and isFlujoItemExpanded(item.id)">
+                                            <div class="pld-flujo-content">
+                                                <!-- Elemento de Ley (texto normativo) -->
+                                                <t t-if="item.elemento_ley">
+                                                    <div class="pld-flujo-ley">
+                                                        <i class="fa fa-gavel"/> <span class="pld-ley-titulo">Fundamento Legal:</span>
+                                                        <p class="pld-ley-texto"><t t-esc="item.elemento_ley"/></p>
+                                                    </div>
+                                                </t>
+                                                <!-- Descripcion corta -->
+                                                <t t-if="item.descripcion and !item.elemento_ley">
+                                                    <div class="pld-flujo-descripcion">
+                                                        <i class="fa fa-info-circle"/> <t t-esc="item.descripcion"/>
+                                                    </div>
+                                                </t>
+                                                <!-- Categorias incluidas/excluidas (para ingresos) -->
+                                                <t t-if="item.categorias_incluir">
+                                                    <div class="pld-flujo-categorias">
+                                                        <span class="pld-cat-label"><i class="fa fa-check-circle"/> Incluye:</span>
+                                                        <div class="pld-cat-badges">
+                                                            <t t-foreach="item.categorias_incluir" t-as="cat" t-key="cat">
+                                                                <span class="pld-cat-badge pld-cat-incluir"><t t-esc="cat"/></span>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                                <t t-if="item.categorias_excluir">
+                                                    <div class="pld-flujo-categorias pld-cat-excluir-wrap">
+                                                        <span class="pld-cat-label"><i class="fa fa-times-circle"/> Excluye:</span>
+                                                        <div class="pld-cat-badges">
+                                                            <t t-foreach="item.categorias_excluir" t-as="cat" t-key="cat">
+                                                                <span class="pld-cat-badge pld-cat-excluir"><t t-esc="cat"/></span>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </t>
+                                                <!-- Detalle de componentes (lineas usadas) -->
+                                                <t t-if="item.detalle and item.detalle.length > 0">
+                                                    <div class="pld-flujo-detalle-titulo">
+                                                        <i class="fa fa-list-ul"/> Conceptos/Reglas Usados (<t t-esc="item.detalle.length"/>):
+                                                    </div>
+                                                    <div class="pld-flujo-detalle pld-flujo-detalle-tabla">
+                                                        <t t-foreach="item.detalle" t-as="det" t-key="det_index">
+                                                            <div t-att-class="'pld-flujo-det-item-full' + (det.esProyectado ? ' pld-det-proyectado' : '')">
+                                                                <div class="pld-det-main">
+                                                                    <span class="pld-det-codigo" t-if="det.code">
+                                                                        <t t-esc="det.code"/>
+                                                                    </span>
+                                                                    <span class="pld-det-concepto-full">
+                                                                        <i t-att-class="'fa ' + (det.icono || 'fa-circle-o')"/>
+                                                                        <t t-esc="det.concepto"/>
+                                                                    </span>
+                                                                    <span class="pld-det-categoria" t-if="det.categoria">
+                                                                        <t t-esc="det.categoria"/>
+                                                                    </span>
+                                                                </div>
+                                                                <div class="pld-det-valores">
+                                                                    <span class="pld-det-valor-full"><t t-esc="formatCurrency(det.valor)"/></span>
+                                                                    <t t-if="det.esProyectado and det.factor">
+                                                                        <span class="pld-det-factor" title="Factor de proyeccion">
+                                                                            <i class="fa fa-calendar"/> x<t t-esc="det.factor.toFixed(2)"/>
+                                                                        </span>
+                                                                    </t>
+                                                                    <t t-if="det.limite">
+                                                                        <span class="pld-det-limite-full">
+                                                                            <i class="fa fa-balance-scale"/> <t t-esc="det.limite"/>
+                                                                        </span>
+                                                                    </t>
+                                                                </div>
+                                                            </div>
+                                                        </t>
+                                                    </div>
+                                                </t>
+                                                <!-- Mensaje si no hay detalle -->
+                                                <t t-if="!item.detalle or item.detalle.length === 0">
+                                                    <div class="pld-flujo-sin-detalle">
+                                                        <i class="fa fa-info-circle"/> No hay conceptos detallados disponibles
+                                                    </div>
+                                                </t>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                            <div class="pld-ret-base-uvt">
+                                <i class="fa fa-calculator"/> Base Gravable Final: <strong><t t-esc="retencionResumen.base_en_uvt.toFixed(2)"/> UVT</strong>
+                                <span class="pld-ret-uvt-ref">(UVT <t t-esc="retencionResumen.uvt ? (new Date().getFullYear()) : ''"/>: <t t-esc="formatCurrency(retencionResumen.uvt)"/>)</span>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de rangos -->
+                        <div class="pld-ret-rangos">
+                            <div class="pld-ret-rangos-title">
+                                <i class="fa fa-table"/> Tabla Art. 383 E.T. - Rangos UVT
+                            </div>
+                            <table class="pld-table pld-table-ret">
+                                <thead>
+                                    <tr>
+                                        <th>Desde (UVT)</th>
+                                        <th>Hasta (UVT)</th>
+                                        <th>Tarifa</th>
+                                        <th>Formula</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="retencionResumen.rangos" t-as="rango" t-key="rango_index">
+                                        <tr t-att-class="rango.activo ? 'pld-rango-activo' : ''">
+                                            <td><t t-esc="rango.desde"/></td>
+                                            <td><t t-esc="rango.hasta === Infinity ? 'En adelante' : rango.hasta"/></td>
+                                            <td><t t-esc="rango.tarifa"/>%</td>
+                                            <td class="pld-rango-formula"><t t-esc="rango.formula"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Resultado retencion detallado -->
+                        <div class="pld-ret-resultado">
+                            <div class="pld-ret-resultado-main">
+                                <div class="pld-ret-resultado-label">
+                                    <i class="fa fa-check-circle"/> Retencion a Aplicar
+                                </div>
+                                <div class="pld-ret-resultado-valor" t-att-style="'color: ' + ruleConfig.color + ';'">
+                                    <t t-esc="formatCurrency(retencionResumen.retencion)"/>
+                                </div>
+                            </div>
+                            <div class="pld-ret-resultado-detalles">
+                                <div class="pld-ret-detalle-row">
+                                    <span><i class="fa fa-percent"/> Tarifa Marginal:</span>
+                                    <strong><t t-esc="retencionResumen.tarifa_porcentaje"/>%</strong>
+                                </div>
+                                <div class="pld-ret-detalle-row">
+                                    <span><i class="fa fa-line-chart"/> Tarifa Efectiva:</span>
+                                    <strong><t t-esc="retencionResumen.tarifa_efectiva.toFixed(2)"/>%</strong>
+                                </div>
+                                <t t-if="retencionResumen.retencion_anterior > 0">
+                                    <div class="pld-ret-detalle-row pld-ret-anterior">
+                                        <span><i class="fa fa-history"/> Ret. Anterior:</span>
+                                        <strong><t t-esc="formatCurrency(retencionResumen.retencion_anterior)"/></strong>
+                                    </div>
+                                </t>
+                                <t t-if="retencionResumen.es_proyectada">
+                                    <div class="pld-ret-detalle-row pld-ret-proyectada">
+                                        <span><i class="fa fa-calendar"/> Proyeccion:</span>
+                                        <strong>Quincenal (x2)</strong>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Condiciones -->
+                        <div class="pld-ret-condiciones">
+                            <t t-foreach="retencionResumen.condiciones" t-as="cond" t-key="cond_index">
+                                <div class="pld-ret-cond">
+                                    <i class="fa fa-check"/> <t t-esc="cond"/>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- TIPO FORMULA: 2 columnas + tabla rangos - Usando componente -->
+            <!-- ========================================== -->
+            <t t-if="isFormula and formulaData">
+                <PayslipLineFormula
+                    formulaData="formulaData"
+                    ruleConfig="ruleConfig"
+                    formatCurrency="formatCurrency"
+                    formatValue="formatValue"
+                    getLeyUrl="getLeyUrl"
+                />
+            </t>
+
+            <!-- Versión anterior inline (mantener por compatibilidad si es necesario) -->
+            <t t-if="false and isFormula">
+                <div class="pld-widget-section pld-formula-view">
+                    <div class="pld-section-content">
+                        <div class="pld-formula-columns">
+                            <!-- Columna Izquierda: Inputs -->
+                            <div class="pld-formula-col-left">
+                                <div class="pld-formula-col-header">
+                                    <i class="fa fa-database"/> DATOS DE ENTRADA
+                                </div>
+                                <div class="pld-formula-inputs">
+                                    <t t-foreach="formulaInputs" t-as="input" t-key="input_index">
+                                        <div class="pld-formula-input-item">
+                                            <span class="pld-input-label"><t t-esc="input.etiqueta"/></span>
+                                            <span class="pld-input-value">
+                                                <t t-esc="formatValue(input.valor, input.formato)"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                                <!-- Validaciones -->
+                                <t t-if="formulaValidaciones.length > 0">
+                                    <div class="pld-formula-validaciones">
+                                        <t t-foreach="formulaValidaciones" t-as="val" t-key="val_index">
+                                            <div t-att-class="'pld-validation-badge pld-val-' + val.estado">
+                                                <i t-att-class="'fa ' + (val.estado === 'ok' ? 'fa-check-circle' : val.estado === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle')"/>
+                                                <span><t t-esc="val.etiqueta"/>: <t t-esc="val.mensaje"/></span>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Columna Derecha: Pasos -->
+                            <div class="pld-formula-col-right">
+                                <div class="pld-formula-col-header">
+                                    <i class="fa fa-list-ol"/> PASOS DEL CALCULO
+                                </div>
+                                <div class="pld-formula-steps">
+                                    <t t-foreach="formulaPasos" t-as="paso" t-key="paso_index">
+                                        <div t-att-class="'pld-formula-step ' + (paso.es_subtotal ? 'pld-step-subtotal' : '')">
+                                            <span class="pld-step-num" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                                <t t-esc="paso.numero || (paso_index + 1)"/>
+                                            </span>
+                                            <span class="pld-step-desc"><t t-esc="paso.descripcion"/></span>
+                                            <span class="pld-step-val">
+                                                <t t-esc="formatValue(paso.valor, paso.formato || 'currency')"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                                <!-- Total -->
+                                <div class="pld-formula-total">
+                                    <span class="pld-total-label">
+                                        <i class="fa fa-check-circle"/> <t t-esc="formulaTotal.etiqueta"/>
+                                    </span>
+                                    <span class="pld-total-value" t-att-style="'color: ' + ruleConfig.color + ';'">
+                                        <t t-esc="formatCurrency(formulaTotal.valor)"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Rangos (opcional) -->
+                        <t t-if="tablaRangos">
+                            <div class="pld-tabla-rangos">
+                                <div class="pld-tabla-header">
+                                    <i class="fa fa-table"/> <t t-esc="tablaRangos.titulo"/>
+                                </div>
+                                <!-- Nota de la tabla -->
+                                <t t-if="tablaRangos.nota">
+                                    <div class="pld-tabla-nota">
+                                        <i class="fa fa-info-circle"/> <t t-esc="tablaRangos.nota"/>
+                                    </div>
+                                </t>
+                                <table class="pld-table pld-table-rangos">
+                                    <thead>
+                                        <tr>
+                                            <t t-foreach="tablaRangos.columnas" t-as="col" t-key="col_index">
+                                                <th><t t-esc="col"/></th>
+                                            </t>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="tablaRangos.filas" t-as="fila" t-key="fila_index">
+                                            <tr t-att-class="fila.activo ? 'pld-row-active' : ''">
+                                                <td class="pld-rango-label">
+                                                    <t t-if="fila.activo">
+                                                        <i class="fa fa-arrow-right pld-rango-indicator"/>
+                                                    </t>
+                                                    <t t-esc="fila.rango"/>
+                                                </td>
+                                                <t t-foreach="fila.valores" t-as="val" t-key="val_index">
+                                                    <td><t t-esc="val"/></td>
+                                                </t>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                                <!-- Condicion evaluada -->
+                                <t t-if="tablaRangos.condicion">
+                                    <div t-att-class="'pld-tabla-condicion ' + (tablaRangos.condicion.valor ? 'pld-condicion-ok' : 'pld-condicion-no')">
+                                        <i t-att-class="'fa ' + (tablaRangos.condicion.valor ? 'fa-check-circle' : 'fa-times-circle')"/>
+                                        <div class="pld-condicion-content">
+                                            <span class="pld-condicion-titulo"><t t-esc="tablaRangos.condicion.titulo"/></span>
+                                            <span class="pld-condicion-mensaje"><t t-esc="tablaRangos.condicion.mensaje"/></span>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- TIPO MULTI_PASO: Timeline + pasos expand - Usando componente -->
+            <!-- ========================================== -->
+            <t t-if="isMultiPaso and multipasoData">
+                <PayslipLineMultiPaso
+                    multipasoData="multipasoData"
+                    ruleConfig="ruleConfig"
+                    formatCurrency="formatCurrency"
+                    formatValue="formatValue"
+                    getLeyUrl="getLeyUrl"
+                />
+            </t>
+
+            <!-- Versión anterior inline (mantener por compatibilidad si es necesario) -->
+            <t t-if="false and isMultiPaso">
+                <!-- Timeline Visual -->
+                <div class="pld-widget-section pld-multipaso-view">
+                    <div class="pld-section-header pld-section-header-steps">
+                        <div class="pld-header-left">
+                            <i class="fa fa-tasks" style="color: #15803D;"/>
+                            <span class="pld-header-title-dark">PROCESO DE CALCULO</span>
+                        </div>
+                        <div class="pld-header-right">
+                            <span class="pld-badge pld-badge-steps">
+                                <t t-esc="multiPasoTimeline.pasos_total"/> pasos
+                            </span>
+                        </div>
+                    </div>
+                    <div class="pld-section-content">
+                        <!-- Timeline horizontal -->
+                        <div class="pld-timeline">
+                            <t t-foreach="multiPasoPasos" t-as="paso" t-key="paso.numero">
+                                <div t-att-class="'pld-timeline-step ' +
+                                    (paso.destacado ? 'pld-timeline-highlighted ' : '') +
+                                    (paso.es_paso_final ? 'pld-timeline-final ' : '') +
+                                    (paso.alerta ? 'pld-timeline-alert ' : '') +
+                                    (isStepExpanded(paso.numero) ? 'pld-timeline-expanded' : '')"
+                                     t-on-click="() => this.scrollToStep(paso.numero)">
+                                    <div class="pld-timeline-number" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                        <t t-if="paso.es_paso_final">
+                                            <i class="fa fa-check"/>
+                                        </t>
+                                        <t t-elif="paso.alerta">
+                                            <i class="fa fa-exclamation"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-esc="paso.numero"/>
+                                        </t>
+                                    </div>
+                                    <div class="pld-timeline-label">
+                                        <t t-esc="paso.titulo.length > 15 ? paso.titulo.substring(0, 15) + '...' : paso.titulo"/>
+                                    </div>
+                                </div>
+                                <div t-if="paso_index &lt; multiPasoPasos.length - 1" class="pld-timeline-connector"/>
+                            </t>
+                        </div>
+
+                        <!-- Pasos Expandibles -->
+                        <div class="pld-pasos-detalle">
+                            <t t-foreach="multiPasoPasos" t-as="paso" t-key="paso.numero">
+                                <div t-att-class="'pld-paso-row ' + (paso.es_paso_final ? 'pld-paso-final' : '')">
+                                    <!-- Header clickeable -->
+                                    <div class="pld-paso-header-row pld-clickable" t-on-click="() => this.toggleStep(paso.numero)">
+                                        <div class="pld-paso-left">
+                                            <span class="pld-paso-number-small" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                                <t t-esc="paso.numero"/>
+                                            </span>
+                                            <div class="pld-paso-info">
+                                                <div class="pld-paso-titulo"><t t-esc="paso.titulo"/></div>
+                                                <div t-if="paso.base_legal" class="pld-paso-legal-small">
+                                                    <i class="fa fa-balance-scale"/>
+                                                    <a t-if="getLeyUrl(paso.base_legal)"
+                                                       t-att-href="getLeyUrl(paso.base_legal)"
+                                                       target="_blank"
+                                                       class="pld-legal-link"
+                                                       t-on-click.stop="">
+                                                        <t t-esc="paso.base_legal"/> <i class="fa fa-external-link"/>
+                                                    </a>
+                                                    <span t-else=""><t t-esc="paso.base_legal"/></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pld-paso-right">
+                                            <span class="pld-paso-valor">
+                                                <t t-esc="formatCurrency(paso.subtotal ? paso.subtotal.valor : 0)"/>
+                                            </span>
+                                            <i t-att-class="'fa fa-chevron-' + (isStepExpanded(paso.numero) ? 'up' : 'down')"/>
+                                        </div>
+                                    </div>
+                                    <!-- Contenido expandible -->
+                                    <t t-if="isStepExpanded(paso.numero)">
+                                        <div class="pld-paso-detalle">
+                                            <!-- Explicacion del paso -->
+                                            <div t-if="paso.explicacion" class="pld-paso-explicacion">
+                                                <i class="fa fa-info-circle"/> <t t-esc="paso.explicacion"/>
+                                            </div>
+
+                                            <!-- TIPO TABLA: Conceptos con columnas -->
+                                            <t t-if="paso.items.tipo === 'tabla' and paso.items.filas and paso.items.filas.length > 0">
+                                                <table class="pld-paso-tabla">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tipo</th>
+                                                            <th>Código</th>
+                                                            <th>Nombre</th>
+                                                            <th class="text-right">Valor</th>
+                                                            <th class="text-center">Base 40%</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="paso.items.filas" t-as="fila" t-key="fila_index">
+                                                            <tr>
+                                                                <td><span class="pld-badge-tipo-sm"><t t-esc="fila.tipo"/></span></td>
+                                                                <td class="pld-codigo"><t t-esc="fila.codigo"/></td>
+                                                                <td><t t-esc="fila.nombre"/></td>
+                                                                <td class="text-right"><t t-esc="formatCurrency(fila.valor)"/></td>
+                                                                <td class="text-center">
+                                                                    <span t-att-class="'pld-badge-40 ' + (fila.base40 === 'Si' ? 'pld-40-si' : (fila.base40 === 'No' ? 'pld-40-no' : 'pld-40-exceso'))">
+                                                                        <t t-esc="fila.base40"/>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="pld-tabla-total">
+                                                            <td colspan="3"><strong>TOTAL</strong></td>
+                                                            <td class="text-right"><strong><t t-esc="formatCurrency(paso.items.total)"/></strong></td>
+                                                            <td/>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </t>
+
+                                            <!-- TIPO TABLA AUSENCIAS: Con IBC usado -->
+                                            <t t-if="paso.items.tipo === 'tabla_ausencias' and paso.items.filas and paso.items.filas.length > 0">
+                                                <table class="pld-paso-tabla">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Tipo</th>
+                                                            <th>Código</th>
+                                                            <th>Nombre</th>
+                                                            <th class="text-right">Pago</th>
+                                                            <th class="text-right">IBC Usado</th>
+                                                            <th class="text-center">Base 40%</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <t t-foreach="paso.items.filas" t-as="fila" t-key="fila_index">
+                                                            <tr>
+                                                                <td><span class="pld-badge-tipo-sm pld-badge-aus"><t t-esc="fila.tipo"/></span></td>
+                                                                <td class="pld-codigo"><t t-esc="fila.codigo"/></td>
+                                                                <td><t t-esc="fila.nombre"/></td>
+                                                                <td class="text-right"><t t-esc="formatCurrency(fila.valor)"/></td>
+                                                                <td class="text-right pld-ibc-destacado"><t t-esc="formatCurrency(fila.ibc_usado)"/></td>
+                                                                <td class="text-center">
+                                                                    <span t-att-class="'pld-badge-40 ' + (fila.base40 === 'Si' ? 'pld-40-si' : 'pld-40-no')">
+                                                                        <t t-esc="fila.base40"/>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr class="pld-tabla-total">
+                                                            <td colspan="3"><strong>TOTAL</strong></td>
+                                                            <td class="text-right"><t t-esc="formatCurrency(paso.items.total)"/></td>
+                                                            <td class="text-right pld-ibc-destacado"><strong><t t-esc="formatCurrency(paso.items.ibc_total)"/></strong></td>
+                                                            <td/>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                                <div t-if="paso.items.nota" class="pld-paso-nota-ibc">
+                                                    <i class="fa fa-info-circle"/> <t t-esc="paso.items.nota"/>
+                                                </div>
+                                            </t>
+
+                                            <!-- TIPO CALCULO: Lineas de formula -->
+                                            <t t-if="paso.items.tipo === 'calculo' and paso.items.lineas">
+                                                <div class="pld-paso-calculo">
+                                                    <t t-foreach="paso.items.lineas" t-as="linea" t-key="linea_index">
+                                                        <!-- Separador -->
+                                                        <t t-if="linea.separador">
+                                                            <div class="pld-calculo-separador"/>
+                                                        </t>
+                                                        <!-- Linea normal -->
+                                                        <t t-else="">
+                                                            <div t-att-class="'pld-calculo-linea ' + (linea.destacado ? 'pld-linea-destacada' : '') + (linea.alerta ? 'pld-linea-alerta' : '') + (linea.ok ? 'pld-linea-ok' : '') + (linea.es_final ? 'pld-linea-final' : '') + (linea.tipo_valor === 'factor' ? 'pld-linea-factor' : '')">
+                                                                <span class="pld-calculo-label"><t t-esc="linea.etiqueta"/></span>
+                                                                <span class="pld-calculo-valor">
+                                                                    <t t-if="linea.valor !== null and linea.valor !== undefined">
+                                                                        <!-- Formato porcentaje -->
+                                                                        <t t-if="linea.formato === 'porcentaje'">
+                                                                            <t t-esc="(linea.valor * 100).toFixed(0)"/>%
+                                                                        </t>
+                                                                        <!-- Formato moneda (default) -->
+                                                                        <t t-else="">
+                                                                            <t t-esc="formatCurrency(linea.valor)"/>
+                                                                        </t>
+                                                                    </t>
+                                                                    <span t-if="linea.info" class="pld-calculo-info">
+                                                                        <t t-esc="linea.info"/>
+                                                                    </span>
+                                                                </span>
+                                                            </div>
+                                                        </t>
+                                                    </t>
+                                                </div>
+                                                <t t-if="paso.items.cumple !== undefined">
+                                                    <div t-att-class="'pld-limite-check ' + (paso.items.cumple ? 'pld-check-ok' : 'pld-check-fail')">
+                                                        <i t-att-class="'fa ' + (paso.items.cumple ? 'fa-check-circle' : 'fa-exclamation-triangle')"/>
+                                                        <t t-if="paso.items.cumple">No supera el límite de 25 SMMLV</t>
+                                                        <t t-else="">Se aplicó el límite máximo de 25 SMMLV</t>
+                                                    </div>
+                                                </t>
+                                                <!-- Nota de salario integral -->
+                                                <t t-if="paso.items.esSalarioIntegral">
+                                                    <div class="pld-nota-integral">
+                                                        <i class="fa fa-info-circle"/>
+                                                        <strong>Salario Integral:</strong> Se aplicó factor del 70% (Art. 132 CST).
+                                                        El 30% restante corresponde al factor prestacional.
+                                                    </div>
+                                                </t>
+                                                <!-- Explicacion del paso si existe -->
+                                                <t t-if="paso.items.explicacion">
+                                                    <div class="pld-paso-explicacion-detalle">
+                                                        <i class="fa fa-lightbulb-o"/> <t t-esc="paso.items.explicacion"/>
+                                                    </div>
+                                                </t>
+                                            </t>
+
+                                            <!-- TIPO TABLA_FACTOR: Desglose por categoría para salario integral -->
+                                            <t t-if="paso.items.tipo === 'tabla_factor'">
+                                                <div class="pld-tabla-factor">
+                                                    <table class="table table-sm table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Concepto</th>
+                                                                <th class="text-right">Monto Original</th>
+                                                                <th class="text-center">Factor</th>
+                                                                <th class="text-right">Monto Depurado</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <!-- Conceptos al 70% (BASIC) -->
+                                                            <t t-if="paso.items.reglas70 and paso.items.reglas70.length > 0">
+                                                                <tr class="pld-seccion-header">
+                                                                    <td colspan="4"><strong><i class="fa fa-briefcase"/> Devengos Factor 70%</strong></td>
+                                                                </tr>
+                                                                <t t-foreach="paso.items.reglas70" t-as="regla" t-key="regla.codigo">
+                                                                    <tr class="pld-row-70">
+                                                                        <td>
+                                                                            <span class="pld-regla-nombre"><t t-esc="regla.nombre"/></span>
+                                                                            <t t-if="regla.esBasic">
+                                                                                <span class="badge bg-primary ms-1">BASIC</span>
+                                                                            </t>
+                                                                        </td>
+                                                                        <td class="text-right"><t t-esc="formatCurrency(regla.montoOriginal)"/></td>
+                                                                        <td class="text-center">
+                                                                            <span class="badge bg-warning">70%</span>
+                                                                        </td>
+                                                                        <td class="text-right"><strong><t t-esc="formatCurrency(regla.montoAjustado)"/></strong></td>
+                                                                    </tr>
+                                                                </t>
+                                                                <tr class="pld-tabla-subtotal-70">
+                                                                    <td><strong>Subtotal Devengos 70%</strong></td>
+                                                                    <td class="text-right"><strong><t t-esc="formatCurrency(paso.items.resumen.totalBase70)"/></strong></td>
+                                                                    <td class="text-center"><span class="badge bg-warning">70%</span></td>
+                                                                    <td class="text-right"><strong><t t-esc="formatCurrency(paso.items.resumen.totalAjustado70)"/></strong></td>
+                                                                </tr>
+                                                            </t>
+                                                            <!-- Conceptos al 100% (Comisiones, etc) -->
+                                                            <t t-if="paso.items.reglas100 and paso.items.reglas100.length > 0">
+                                                                <tr class="pld-seccion-header">
+                                                                    <td colspan="4"><strong><i class="fa fa-money"/> Devengos Factor 100%</strong></td>
+                                                                </tr>
+                                                                <t t-foreach="paso.items.reglas100" t-as="regla" t-key="regla.codigo">
+                                                                    <tr class="pld-row-100">
+                                                                        <td>
+                                                                            <span class="pld-regla-nombre"><t t-esc="regla.nombre"/></span>
+                                                                        </td>
+                                                                        <td class="text-right"><t t-esc="formatCurrency(regla.montoOriginal)"/></td>
+                                                                        <td class="text-center">
+                                                                            <span class="badge bg-secondary">100%</span>
+                                                                        </td>
+                                                                        <td class="text-right"><strong><t t-esc="formatCurrency(regla.montoAjustado)"/></strong></td>
+                                                                    </tr>
+                                                                </t>
+                                                                <tr class="pld-tabla-subtotal-100">
+                                                                    <td><strong>Subtotal Devengos 100%</strong></td>
+                                                                    <td class="text-right"><strong><t t-esc="formatCurrency(paso.items.resumen.totalBase100)"/></strong></td>
+                                                                    <td class="text-center"><span class="badge bg-secondary">100%</span></td>
+                                                                    <td class="text-right"><strong><t t-esc="formatCurrency(paso.items.resumen.totalAjustado100)"/></strong></td>
+                                                                </tr>
+                                                            </t>
+                                                            <!-- IBC Ausencias (siempre 100%) -->
+                                                            <t t-if="paso.items.ibcAusencias > 0">
+                                                                <tr class="pld-seccion-header">
+                                                                    <td colspan="4"><strong><i class="fa fa-calendar-times-o"/> IBC Ausencias (mes anterior)</strong></td>
+                                                                </tr>
+                                                                <tr class="pld-row-ausencia">
+                                                                    <td>
+                                                                        <span class="pld-regla-nombre">IBC Ausencias</span>
+                                                                    </td>
+                                                                    <td class="text-right"><t t-esc="formatCurrency(paso.items.ibcAusencias)"/></td>
+                                                                    <td class="text-center">
+                                                                        <span class="badge bg-info">100%</span>
+                                                                    </td>
+                                                                    <td class="text-right"><strong><t t-esc="formatCurrency(paso.items.ibcAusencias)"/></strong></td>
+                                                                </tr>
+                                                            </t>
+                                                        </tbody>
+                                                        <tfoot>
+                                                            <tr class="pld-tabla-total">
+                                                                <td><strong>TOTAL</strong></td>
+                                                                <td class="text-right"><strong><t t-esc="formatCurrency((paso.items.resumen.totalBase70 || 0) + (paso.items.resumen.totalBase100 || 0) + (paso.items.ibcAusencias || 0))"/></strong></td>
+                                                                <td class="text-center"/>
+                                                                <td class="text-right pld-valor-final"><strong><t t-esc="formatCurrency(paso.items.total)"/></strong></td>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                    <t t-if="paso.items.explicacion">
+                                                        <div class="pld-paso-explicacion-detalle">
+                                                            <i class="fa fa-lightbulb-o"/> <t t-esc="paso.items.explicacion"/>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </t>
+
+                                            <!-- TIPO SIMPLE: Solo valor -->
+                                            <t t-if="paso.items.tipo === 'simple'">
+                                                <div class="pld-paso-simple">
+                                                    <span>Valor: </span>
+                                                    <strong><t t-esc="formatCurrency(paso.items.valor)"/></strong>
+                                                </div>
+                                            </t>
+
+                                            <!-- Formula si existe -->
+                                            <t t-if="paso.formula">
+                                                <div class="pld-paso-formula">
+                                                    <i class="fa fa-calculator"/> <t t-esc="paso.formula"/>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </t>
+                                </div>
+                            </t>
+                        </div>
+
+                        <!-- Comparativa con periodo anterior -->
+                        <t t-if="comparativaAnterior and comparativaAnterior.mostrar">
+                            <div class="pld-comparativa">
+                                <div class="pld-comparativa-header">
+                                    <i class="fa fa-exchange"/> Comparativa con Periodo Anterior
+                                </div>
+                                <div class="pld-comparativa-body">
+                                    <div class="pld-comp-item">
+                                        <span class="pld-comp-label">Anterior</span>
+                                        <span class="pld-comp-value"><t t-esc="formatCurrency(comparativaAnterior.valor_anterior)"/></span>
+                                    </div>
+                                    <div class="pld-comp-arrow">
+                                        <i t-att-class="'fa fa-arrow-' + comparativaAnterior.tendencia"/>
+                                    </div>
+                                    <div class="pld-comp-item">
+                                        <span class="pld-comp-label">Actual</span>
+                                        <span class="pld-comp-value pld-comp-current"><t t-esc="formatCurrency(comparativaAnterior.valor_actual)"/></span>
+                                    </div>
+                                    <div class="pld-comp-diff" t-att-class="comparativaAnterior.diferencia >= 0 ? 'pld-diff-positive' : 'pld-diff-negative'">
+                                        <span><t t-esc="comparativaAnterior.diferencia >= 0 ? '+' : ''"/><t t-esc="formatCurrency(comparativaAnterior.diferencia)"/></span>
+                                        <span class="pld-comp-pct">(<t t-esc="comparativaAnterior.porcentaje"/>%)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Total Final con desglose completo -->
+                        <div class="pld-multipaso-total">
+                            <div class="pld-total-final-desglose">
+                                <div class="pld-desglose-titulo">
+                                    <i class="fa fa-check-circle"/> RESULTADO FINAL
+                                </div>
+                                <!-- Desglose de componentes base -->
+                                <div class="pld-desglose-items">
+                                    <div class="pld-desglose-item">
+                                        <span class="pld-desglose-label">Ingresos Salariales</span>
+                                        <span class="pld-desglose-valor"><t t-esc="formatCurrency(ibdComponentes.salariales)"/></span>
+                                    </div>
+                                    <div t-if="ibdComponentes.ibcAusencias > 0" class="pld-desglose-item pld-desglose-ausencia">
+                                        <span class="pld-desglose-label">+ IBC Ausencias</span>
+                                        <span class="pld-desglose-valor"><t t-esc="formatCurrency(ibdComponentes.ibcAusencias)"/></span>
+                                    </div>
+                                    <div t-if="ibdComponentes.excesoNoSalarial > 0" class="pld-desglose-item">
+                                        <span class="pld-desglose-label">+ Exceso No Salarial (40%)</span>
+                                        <span class="pld-desglose-valor"><t t-esc="formatCurrency(ibdComponentes.excesoNoSalarial)"/></span>
+                                    </div>
+                                </div>
+
+                                <!-- Subtotal base (si hay ajustes posteriores) -->
+                                <t t-if="ibdComponentes.esSalarioIntegral or ibdComponentes.aplicoLimite25">
+                                    <div class="pld-desglose-subtotal">
+                                        <span class="pld-desglose-label">= Subtotal IBC</span>
+                                        <span class="pld-desglose-valor"><t t-esc="formatCurrency(ibdComponentes.ibcAntesFactor)"/></span>
+                                    </div>
+                                </t>
+
+                                <!-- Factor 70% para Salario Integral -->
+                                <t t-if="ibdComponentes.esSalarioIntegral">
+                                    <div class="pld-desglose-item pld-desglose-factor">
+                                        <span class="pld-desglose-label">
+                                            <i class="fa fa-percent"/> × 70% Factor Salarial
+                                            <span class="pld-desglose-nota">(Art. 132 CST - Sal. Integral)</span>
+                                        </span>
+                                        <span class="pld-desglose-valor pld-valor-ajuste"><t t-esc="formatCurrency(ibdComponentes.ibcDespuesFactor)"/></span>
+                                    </div>
+                                </t>
+
+                                <!-- Límite 25 SMMLV -->
+                                <t t-if="ibdComponentes.aplicoLimite25">
+                                    <div class="pld-desglose-item pld-desglose-limite">
+                                        <span class="pld-desglose-label">
+                                            <i class="fa fa-exclamation-triangle"/> Límite 25 SMMLV aplicado
+                                            <span class="pld-desglose-nota">(Máx: <t t-esc="formatCurrency(ibdComponentes.limite25Smmlv)"/>)</span>
+                                        </span>
+                                        <span class="pld-desglose-valor pld-valor-limite"><t t-esc="formatCurrency(ibdComponentes.limite25Smmlv)"/></span>
+                                    </div>
+                                </t>
+
+                                <!-- Línea separadora y total final -->
+                                <div class="pld-desglose-total">
+                                    <span class="pld-desglose-total-label">= IBC FINAL</span>
+                                    <span class="pld-desglose-total-valor" t-att-style="'color: ' + ruleConfig.color + ';'">
+                                        <t t-esc="formatCurrency(line.total)"/>
+                                    </span>
+                                </div>
+
+                                <!-- Explicación del cálculo para salario integral -->
+                                <t t-if="ibdComponentes.esSalarioIntegral">
+                                    <div class="pld-desglose-explicacion">
+                                        <i class="fa fa-info-circle"/>
+                                        <strong>Salario Integral:</strong> Solo el 70% del salario constituye factor salarial para cotización a seguridad social (Art. 132 CST).
+                                        El 30% restante corresponde al factor prestacional incluido en el salario integral.
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- SECCION COMUN: REGLAS USADAS              -->
+            <!-- ========================================== -->
+            <t t-if="hasReglasUsadas">
+                <div class="pld-widget-section">
+                    <div class="pld-section-header pld-section-header-clickable pld-section-header-rules"
+                         t-on-click="() => this.toggleSection('reglas')">
+                        <div class="pld-header-left">
+                            <i class="fa fa-cubes" style="color: #0891B2;"/>
+                            <span class="pld-header-title-dark">CONCEPTOS BASE / REGLAS USADAS</span>
+                        </div>
+                        <div class="pld-header-right">
+                            <span class="pld-badge pld-badge-rules">
+                                <t t-esc="reglasUsadas.length"/> conceptos
+                            </span>
+                            <span class="pld-badge pld-badge-rules-total">
+                                <t t-esc="formatCurrency(totalReglasUsadas)"/>
+                            </span>
+                            <i t-att-class="'fa fa-chevron-' + (state.sections.reglas ? 'up' : 'down')" style="color: #6B7280; margin-left: 8px;"/>
+                        </div>
+                    </div>
+                    <div t-if="state.sections.reglas" class="pld-section-content">
+                        <table class="pld-table pld-table-rules">
+                            <colgroup>
+                                <col style="width: 60px;"/>
+                                <col style="width: 120px;"/>
+                                <col style="width: auto;"/>
+                                <col style="width: 100px;"/>
+                                <col style="width: 60px;"/>
+                                <col style="width: 60px;"/>
+                                <col style="width: 110px;"/>
+                            </colgroup>
+                            <thead>
+                                <tr class="pld-table-header">
+                                    <th class="pld-th-tipo">Tipo</th>
+                                    <th class="pld-th-code">Codigo</th>
+                                    <th class="pld-th-name">Nombre</th>
+                                    <th class="pld-th-amount text-right">Base</th>
+                                    <th class="pld-th-qty text-right">Cant</th>
+                                    <th class="pld-th-rate text-right">%</th>
+                                    <th class="pld-th-total text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="reglasUsadas" t-as="regla" t-key="regla.rule_id or regla_index">
+                                    <tr t-att-class="'pld-rule-row ' + (regla_index % 2 === 1 ? 'pld-row-alt' : '') + (regla.es_ausencia ? ' pld-row-ausencia' : '')"
+                                        t-on-click="() => this.openRule(regla.rule_id)">
+                                        <td class="pld-col-tipo">
+                                            <span t-att-class="'pld-badge-tipo ' + (regla.es_ausencia ? 'pld-badge-ausencia' : (regla.category_code === 'DEV_SALARIAL' ? 'pld-badge-dev' : (regla.category_code === 'BASIC' ? 'pld-badge-basic' : 'pld-badge-cat')))">
+                                                <t t-if="regla.es_ausencia">INC</t>
+                                                <t t-elif="regla.category_code === 'BASIC'">BAS</t>
+                                                <t t-elif="regla.category_code === 'DEV_SALARIAL'">DEV</t>
+                                                <t t-elif="regla.category_code">
+                                                    <t t-esc="regla.category_code.substring(0, 3)"/>
+                                                </t>
+                                                <t t-else="">VAR</t>
+                                            </span>
+                                        </td>
+                                        <td class="pld-col-code">
+                                            <span class="pld-badge pld-badge-rule-code">
+                                                <t t-esc="regla.code"/>
+                                            </span>
+                                        </td>
+                                        <td class="pld-col-name">
+                                            <div class="pld-rule-name"><t t-esc="regla.name"/></div>
+                                            <div t-if="regla.category_name" class="pld-rule-cat-small">
+                                                <t t-esc="regla.category_name"/>
+                                            </div>
+                                            <div t-if="regla.nota" style="font-size: 9px; color: #0891B2; font-style: italic; margin-top: 2px;">
+                                                <i class="fa fa-info-circle"/> <t t-esc="regla.nota"/>
+                                            </div>
+                                        </td>
+                                        <td class="pld-col-amount text-right pld-money-small">
+                                            <t t-esc="formatCurrency(regla.amount || 0)"/>
+                                        </td>
+                                        <td class="pld-col-qty text-right">
+                                            <t t-esc="regla.quantity || 0"/>
+                                        </td>
+                                        <td class="pld-col-rate text-right">
+                                            <t t-esc="(regla.rate || 0) + '%'"/>
+                                        </td>
+                                        <td class="pld-col-total text-right pld-money">
+                                            <strong><t t-esc="formatCurrency(regla.total)"/></strong>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <!-- Subtotales y Total en tfoot -->
+                            <tfoot>
+                                <!-- Subtotal Devengos Salariales -->
+                                <tr t-if="subtotalDevSalarial > 0" class="pld-row-subtotal">
+                                    <td colspan="3" class="pld-subtotal-label">
+                                        Subtotal Devengos Salariales
+                                    </td>
+                                    <td class="pld-col-amount pld-value-subtotal">
+                                        <t t-esc="formatCurrency(subtotalDevSalarial)"/>
+                                    </td>
+                                    <td t-if="hasAusenciasConIbc" class="pld-col-ibc">-</td>
+                                </tr>
+                                <!-- Subtotal Ausencias/Incapacidades -->
+                                <tr t-if="subtotalAusencias > 0" class="pld-row-subtotal pld-row-subtotal-aus">
+                                    <td colspan="3" class="pld-subtotal-label">
+                                        Subtotal Ausencias (Pago / IBC)
+                                    </td>
+                                    <td class="pld-col-amount pld-value-subtotal">
+                                        <t t-esc="formatCurrency(subtotalAusencias)"/>
+                                    </td>
+                                    <td t-if="hasAusenciasConIbc" class="pld-col-ibc pld-value-subtotal-ibc">
+                                        <t t-esc="formatCurrency(totalIbcAusencias)"/>
+                                    </td>
+                                </tr>
+                                <!-- Subtotal No Salariales -->
+                                <tr t-if="subtotalNoSalarial > 0" class="pld-row-subtotal">
+                                    <td colspan="3" class="pld-subtotal-label">
+                                        Subtotal No Salariales
+                                    </td>
+                                    <td class="pld-col-amount pld-value-subtotal">
+                                        <t t-esc="formatCurrency(subtotalNoSalarial)"/>
+                                    </td>
+                                    <td t-if="hasAusenciasConIbc" class="pld-col-ibc">-</td>
+                                </tr>
+                                <!-- TOTAL GENERAL -->
+                                <tr class="pld-row-total-rules">
+                                    <td colspan="3" class="pld-total-label">
+                                        <i class="fa fa-calculator"/> TOTAL BASE IBD
+                                    </td>
+                                    <td class="pld-col-amount pld-value-total">
+                                        <t t-esc="formatCurrency(totalReglasUsadas)"/>
+                                    </td>
+                                    <td t-if="hasAusenciasConIbc" class="pld-col-ibc pld-value-total">
+                                        <t t-esc="formatCurrency(totalIbcAusencias)"/>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <!-- Nota explicativa si hay diferencia entre pago e IBC -->
+                        <div t-if="hasAusenciasConIbc and ibcDiffMessage" class="pld-ibc-nota">
+                            <i class="fa fa-info-circle"/> <t t-esc="ibcDiffMessage"/>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <!-- ========================================== -->
+            <!-- SECCION COMUN: INFORMACION                -->
+            <!-- ========================================== -->
+            <div class="pld-widget-section">
+                <div class="pld-section-header pld-section-header-clickable pld-section-header-info"
+                     t-on-click="() => this.toggleSection('info')">
+                    <div class="pld-header-left">
+                        <i class="fa fa-info-circle" style="color: #6B7280;"/>
+                        <span class="pld-header-title-dark">INFORMACIÓN</span>
+                    </div>
+                    <div class="pld-header-right">
+                        <i t-att-class="'fa fa-chevron-' + (state.sections.info ? 'up' : 'down')" style="color: #6B7280;"/>
+                    </div>
+                </div>
+                <div t-if="state.sections.info" class="pld-section-content">
+                    <table class="pld-table">
+                        <tbody>
+                            <tr>
+                                <td class="pld-col-label">Código</td>
+                                <td class="pld-col-value pld-code">
+                                    <t t-esc="line.code"/>
+                                </td>
+                            </tr>
+                            <tr t-if="line.salary_rule_id" class="pld-row-alt">
+                                <td class="pld-col-label">Regla Salarial</td>
+                                <td class="pld-col-value">
+                                    <a href="#" class="pld-link" t-on-click.prevent="openSalaryRule">
+                                        <t t-esc="line.salary_rule_id[1]"/>
+                                        <i class="fa fa-external-link" style="margin-left: 4px; font-size: 10px;"/>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr t-if="line.category_id">
+                                <td class="pld-col-label">Categoría</td>
+                                <td class="pld-col-value">
+                                    <span class="pld-badge pld-badge-category">
+                                        <t t-esc="line.category_id[1]"/>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr t-if="ruleConfig.baseLegal" class="pld-row-alt">
+                                <td class="pld-col-label">Base Legal</td>
+                                <td class="pld-col-value pld-text-muted">
+                                    <t t-esc="ruleConfig.baseLegal"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pld-col-label">Tipo Visualización</td>
+                                <td class="pld-col-value">
+                                    <span class="pld-badge pld-badge-category">
+                                        <t t-esc="visualizationType"/>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Estado vacio -->
+        <div t-else="" class="pld-empty">
+            <i class="fa fa-exclamation-circle"/>
+            <span>No hay datos disponibles</span>
+        </div>
+    </t>
+
+</templates>

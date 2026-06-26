@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Extender vista tree de hr.electronic.payroll.detail -->
+        <record id="view_hr_electronic_payroll_detail_tree_inherit_dian" model="ir.ui.view">
+            <field name="name">hr.electronic.payroll.detail.tree.inherit.dian</field>
+            <field name="model">hr.electronic.payroll.detail</field>
+            <field name="inherit_id" ref="lavish_hr_payroll.hr_electronic_payroll_detail_list"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='status']" position="after">
+                    <field name="transaction_id"/>
+                    <field name="cune"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Crear vista form para hr.electronic.payroll.detail -->
+        <record id="view_hr_electronic_payroll_detail_form" model="ir.ui.view">
+            <field name="name">hr.electronic.payroll.detail.form</field>
+            <field name="model">hr.electronic.payroll.detail</field>
+            <field name="arch" type="xml">
+                <form string="Detalle Nómina Electrónica">
+                    <header>
+                        <button name="action_diagnose_dian_configuration" type="object" string="Diagnosticar Configuración" 
+                                class="btn-warning" 
+                                invisible="is_software_propio == False"/>
+                        <button name="action_inspect_xml_structure" type="object" string="Inspeccionar XML" 
+                                class="btn-info" 
+                                invisible="is_software_propio == False"/>
+                        <button name="action_validate_xml_before_send" type="object" string="Validar XML" 
+                                class="btn-info" 
+                                invisible="is_software_propio == False"/>
+                        <button name="send_to_dian_direct" type="object" string="Enviar a DIAN Directo" 
+                                class="btn-primary" 
+                                invisible="xml_file == False or (is_software_propio == False and status not in ['XML_GENERADO', False])"/>
+                        <button name="check_dian_status" type="object" string="Consultar Estado DIAN" 
+                                class="btn-secondary" 
+                                invisible="transaction_id == False"/>
+                    </header>
+                    <sheet>
+                        <!-- Campos invisibles necesarios para las condiciones de visibilidad -->
+                        <field name="electronic_payroll_id" invisible="1"/>
+                        <field name="is_software_propio" invisible="1"/>
+                        
+                        <group>
+                            <group name="main_info" string="Información Principal">
+                                <field name="employee_id"/>
+                                <field name="contract_id"/>
+                                <field name="item"/>
+                                <field name="sequence"/>
+                                <field name="electronic_payroll_id"/>
+                            </group>
+                            <group string="Estado">
+                                <field name="status"/>
+                                <field name="result_upload_xml"/>
+                                <field name="result_status"/>
+                            </group>
+                        </group>
+                        
+                        <group string="Información DIAN" name="dian_info" 
+                               invisible="is_software_propio == False">
+                            <field name="transaction_id"/>
+                            <field name="cune"/>
+                            <field name="nonce"/>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Archivos">
+                                <group>
+                                    <group string="XML">
+                                        <field name="xml_file" filename="xml_file_name"/>
+                                        <field name="xml_file_name"/>
+                                    </group>
+                                    <group string="Archivos DIAN">
+                                        <field name="return_file_dian"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Nóminas Relacionadas">
+                                <field name="payslip_ids"/>
+                            </page>
+                            <page string="Configuración DIAN" name="dian_config" 
+                                  invisible="is_software_propio == False">
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Integración Directa con DIAN (Software Propio)</strong><br/>
+                                    Esta función permite enviar documentos de nómina electrónica directamente a la DIAN
+                                    sin intermediarios, utilizando su propio software autorizado.
+                                </div>
+                                
+                                <group>
+                                    <group string="Estado Actual">
+                                        <field name="status" readonly="1"/>
+                                        <field name="result_upload_xml" readonly="1"/>
+                                        <field name="result_status" readonly="1"/>
+                                    </group>
+                                    <group string="Información de Envío">
+                                        <field name="transaction_id" readonly="1"/>
+                                        <field name="cune" readonly="1"/>
+                                        <field name="nonce" readonly="1"/>
+                                    </group>
+                                </group>
+                                
+                                <separator string="Diagnóstico de Configuración"/>
+                                <button name="action_configuration_diagnosis" type="object" 
+                                        string="Ejecutar Diagnóstico" class="btn-info"/>
+                                
+                                <separator string="Archivos Relacionados"/>
+                                <group>
+                                    <field name="return_file_dian"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

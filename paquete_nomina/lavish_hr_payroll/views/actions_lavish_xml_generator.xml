@@ -1,0 +1,65 @@
+<odoo>
+    <data>
+        <!-- Acción para Generador XML Header -->
+        <record model="ir.actions.act_window" id="action_lavish_xml_generator_header">
+            <field name="name">Generadores XML</field>
+            <field name="res_model">lavish.xml.generator.header</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Vista Tree para Header -->
+        <record model="ir.ui.view" id="lavish_xml_generator_header_tree">
+            <field name="name">lavish.xml.generator.header.tree</field>
+            <field name="model">lavish.xml.generator.header</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista Form para Header -->
+        <record model="ir.ui.view" id="lavish_xml_generator_header_form">
+            <field name="name">lavish.xml.generator.header.form</field>
+            <field name="model">lavish.xml.generator.header</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Template XML">
+                                <field name="xml_template" widget="ace" options="{'mode': 'xml'}"/>
+                            </page>
+                            <page string="Detalles">
+                                <field name="details_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="code_python"/>
+                                        <field name="attributes_code_python"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Menú -->
+        <menuitem name="Generadores XML" 
+                  id="menu_lavish_xml_generator" 
+                  parent="hr_work_entry_enterprise.menu_hr_payroll_configuration" 
+                  action="action_lavish_xml_generator_header" 
+                  sequence="100"/>
+
+    </data>
+</odoo>

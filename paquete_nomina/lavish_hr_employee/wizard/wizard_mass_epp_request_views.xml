@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista del Wizard de Solicitud Masiva -->
+    <record id="view_wizard_mass_epp_request_form" model="ir.ui.view">
+        <field name="name">wizard.mass.epp.request.form</field>
+        <field name="model">wizard.mass.epp.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud Masiva de EPP/Dotación">
+                <sheet>
+                    <group>
+                        <group string="Información General">
+                            <field name="name"/>
+                            <field name="type"/>
+                            <field name="configuration_id"/>
+                        </group>
+                        <group string="Lugar de Entrega">
+                            <field name="delivery_location"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Selección de Empleados">
+                            <group>
+                                <group string="Filtros por Departamento/Puesto">
+                                    <field name="department_ids" widget="many2many_tags"/>
+                                    <field name="job_ids" widget="many2many_tags"/>
+                                </group>
+                                <group string="Selección Manual">
+                                    <field name="employee_ids" widget="many2many_tags"
+                                           placeholder="Seleccione empleados específicos..."/>
+                                </group>
+                            </group>
+
+                            <group>
+                                <group string="Opciones de Filtrado">
+                                    <field name="only_need_renewal"/>
+                                    <field name="exclude_with_pending"/>
+                                </group>
+                                <group string="Resumen">
+                                    <field name="employee_count" class="oe_inline"/>
+                                    <button name="action_preview_employees" string="Vista Previa de Empleados"
+                                            type="object" class="btn-secondary"
+                                            icon="fa-eye"/>
+                                </group>
+                            </group>
+
+                            <field name="delivery_notes" placeholder="Notas generales para todas las solicitudes..."/>
+                        </page>
+
+                        <page string="Vista Previa" invisible="not preview_line_ids">
+                            <field name="preview_line_ids" nolabel="1">
+                                <list string="Empleados que Recibirán Solicitud" create="0" edit="0" delete="0">
+                                    <field name="employee_id"/>
+                                    <field name="department_id"/>
+                                    <field name="job_id"/>
+                                    <field name="last_delivery"/>
+                                    <field name="items_preview" widget="text"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+
+                <footer>
+                    <button name="action_create_requests" string="Crear Solicitudes" type="object"
+                            class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir el wizard -->
+    <record id="action_wizard_mass_epp_request" model="ir.actions.act_window">
+        <field name="name">Solicitud Masiva EPP/Dotación</field>
+        <field name="res_model">wizard.mass.epp.request</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_hr_employee"/>
+        <field name="binding_view_types">list</field>
+    </record>
+</odoo>

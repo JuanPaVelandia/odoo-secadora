@@ -1,0 +1,1072 @@
+/* ============================================
+   PAYSLIP RUN SUMMARY — CSS DEDICADO
+   Widget: o_field_payslip_run_summary
+   Módulo: lavish_hr_payroll
+   ============================================ */
+
+/* ============================================
+   1. VARIABLES CSS — PALETA DEL WIDGET NÓMINA
+   ============================================ */
+.payslip_run_summary {
+    --prn-primary:          #3949AB;
+    --prn-primary-light:    #5C6BC0;
+    --prn-primary-bg:       #E8EAF6;
+    --prn-success:          #4CAF50;
+    --prn-success-light:    #90EE90;
+    --prn-success-bg:       #E8F5E9;
+    --prn-danger:           #F44336;
+    --prn-danger-light:     #FFB6C1;
+    --prn-danger-bg:        #FFEBEE;
+    --prn-danger-dark:      #C62828;
+    --prn-warning-bg:       #FFF3E0;
+    --prn-warning-text:     #E65100;
+    --prn-warning-total:    #FF5722;
+    --prn-text-primary:     #212121;
+    --prn-text-secondary:   #757575;
+    --prn-text-muted:       #9E9E9E;
+    --prn-text-detail:      #424242;
+    --prn-bg-white:         #FFFFFF;
+    --prn-bg-light:         #FAFAFA;
+    --prn-bg-toolbar:       #F5F5F5;
+    --prn-border-light:     #EEEEEE;
+    --prn-border-toolbar:   #E0E0E0;
+    --prn-radius-lg:        10px;
+    --prn-radius-md:        8px;
+    --prn-success-text-dark:#2E7D32;
+}
+
+
+/* ============================================
+   2. CONTENEDOR PRINCIPAL Y ESTADOS
+   ============================================ */
+
+/* BUG 1 FIX: Forzar ancho completo del widget field */
+.o_field_payslip_run_summary {
+    display: block !important;
+    width: 100% !important;
+}
+
+.prn-summary-container {
+    width: 100%;
+    min-height: 500px;
+    padding: 0 10px;
+}
+
+.payslips-container {
+    width: 100%;
+}
+
+.prn-employee-card {
+    width: 100%;
+}
+
+.prn-inner-padding {
+    padding: 15px;
+}
+
+.prn-loading-spinner {
+    color: var(--prn-primary-light);
+}
+
+.prn-loading-text {
+    color: var(--prn-text-secondary);
+}
+
+.prn-no-data {
+    color: var(--prn-text-muted);
+}
+
+
+/* ============================================
+   3. DASHBOARD HEADER (fila azul con totales)
+   ============================================ */
+
+.prn-dashboard-header {
+    background: var(--prn-primary);
+    border-radius: var(--prn-radius-lg);
+    padding: 20px;
+    margin-bottom: 15px;
+    color: white;
+}
+
+.prn-dashboard-col-divider {
+    border-right: 1px solid rgba(255,255,255,0.3);
+}
+
+.prn-dashboard-label {
+    font-size: 0.8125rem;
+    opacity: 0.9;
+}
+
+.prn-dashboard-amount-main {
+    font-size: 1.75rem;
+    font-weight: bold;
+}
+
+.prn-dashboard-amount-devengos {
+    font-size: 1.375rem;
+    font-weight: bold;
+    color: var(--prn-success-light);
+}
+
+.prn-dashboard-amount-deducciones {
+    font-size: 1.375rem;
+    font-weight: bold;
+    color: var(--prn-danger-light);
+}
+
+.prn-dashboard-subtext {
+    font-size: 0.6875rem;
+    opacity: 0.8;
+}
+
+.prn-dashboard-detail {
+    font-size: 0.625rem;
+    opacity: 0.8;
+}
+
+
+/* ============================================
+   4. SECCIÓN PROVISIONES
+   ============================================ */
+
+.prn-provisions-box {
+    background: var(--prn-primary-bg);
+    border-radius: var(--prn-radius-md);
+    padding: 15px;
+    height: 100%;
+}
+
+.prn-section-title-primary {
+    font-size: 0.8125rem;
+    font-weight: bold;
+    color: var(--prn-primary);
+    margin-bottom: 10px;
+}
+
+.prn-detail-row {
+    font-size: 0.6875rem;
+    color: var(--prn-text-detail);
+}
+
+.prn-total-primary {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: var(--prn-primary);
+    margin-top: 8px;
+    text-align: right;
+}
+
+
+/* ============================================
+   5. SECCIÓN APORTES EMPRESA
+   ============================================ */
+
+.prn-aportes-box {
+    background: var(--prn-warning-bg);
+    border-radius: var(--prn-radius-md);
+    padding: 15px;
+    height: 100%;
+}
+
+.prn-section-title-warning {
+    font-size: 0.8125rem;
+    font-weight: bold;
+    color: var(--prn-warning-text);
+    margin-bottom: 10px;
+}
+
+.prn-total-warning {
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: var(--prn-warning-total);
+    margin-top: 8px;
+    text-align: right;
+}
+
+
+/* ============================================
+   6. TOOLBAR DE FILTROS
+   ============================================ */
+
+.prn-toolbar {
+    background: var(--prn-bg-toolbar);
+    border: 1px solid var(--prn-border-toolbar);
+}
+
+.prn-toolbar-input {
+    border-color: var(--prn-border-toolbar);
+}
+
+.prn-select-department {
+    width: 200px;
+    border-color: var(--prn-border-toolbar);
+}
+
+.prn-search-group {
+    width: 220px;
+}
+
+.prn-search-icon {
+    color: var(--prn-text-secondary);
+}
+
+.prn-search-addon {
+    background: white;
+    border-color: var(--prn-border-toolbar);
+}
+
+.prn-select-page-size {
+    width: 70px;
+    border-color: var(--prn-border-toolbar);
+}
+
+.prn-toolbar-btn {
+    background: white;
+    border-color: var(--prn-border-toolbar);
+    color: var(--prn-text-secondary);
+}
+
+.prn-toolbar-btn:hover {
+    background: var(--prn-bg-toolbar);
+    border-color: #BDBDBD;
+}
+
+.prn-toolbar-btn-primary {
+    background: var(--prn-primary-light);
+    border-color: var(--prn-primary-light);
+    color: white;
+}
+
+.prn-toolbar-btn-primary:hover {
+    background: var(--prn-primary);
+    border-color: var(--prn-primary);
+    color: white;
+}
+
+.prn-pagination-text {
+    color: var(--prn-text-secondary);
+}
+
+
+/* ============================================
+   7. BADGES DE RESUMEN (barra bajo toolbar)
+   ============================================ */
+
+.prn-badge-count {
+    background: var(--prn-primary-light);
+    color: white;
+    font-size: 0.8125rem;
+}
+
+.prn-badge-devengos {
+    background: var(--prn-success-bg);
+    color: var(--prn-success-text-dark);
+    font-size: 0.75rem;
+}
+
+.prn-badge-deducciones {
+    background: var(--prn-danger-bg);
+    color: var(--prn-danger-dark);
+    font-size: 0.75rem;
+}
+
+.prn-badge-neto {
+    background: var(--prn-primary-bg);
+    color: var(--prn-primary);
+    font-size: 0.75rem;
+}
+
+
+/* ============================================
+   8. TARJETAS DE EMPLEADOS
+   ============================================ */
+
+.prn-employee-card {
+    border-left: 5px solid var(--prn-primary-light);
+    background: var(--prn-bg-white);
+}
+
+.prn-employee-header {
+    cursor: pointer;
+    background: var(--prn-bg-light);
+    border-bottom: 1px solid var(--prn-border-light);
+}
+
+.prn-employee-header:hover {
+    background: #F0F0F0;
+}
+
+.prn-chevron {
+    width: 20px;
+    color: var(--prn-text-muted);
+}
+
+.prn-avatar {
+    width: 42px;
+    height: 42px;
+    font-size: 0.875rem;
+    background: var(--prn-primary-light);
+}
+
+.prn-employee-name {
+    color: var(--prn-text-primary);
+}
+
+.prn-employee-detail {
+    color: var(--prn-text-secondary);
+}
+
+.prn-amount-devengo {
+    color: var(--prn-success);
+}
+
+.prn-amount-separator {
+    color: var(--prn-text-muted);
+}
+
+.prn-amount-deduccion {
+    color: var(--prn-danger);
+}
+
+.prn-amount-neto {
+    color: var(--prn-primary);
+}
+
+.prn-badge-verify {
+    background: var(--prn-primary-bg);
+    color: var(--prn-primary);
+}
+
+/* State-based card border colors */
+.prn-state-draft { border-left-color: #9E9E9E; }
+.prn-state-verify { border-left-color: #5C6BC0; }
+.prn-state-done { border-left-color: #4CAF50; }
+.prn-state-paid { border-left-color: #0288D1; }
+.prn-state-cancel { border-left-color: #E53935; }
+
+/* State-based badge styles */
+.prn-badge-state-draft { background: #EEEEEE; color: #757575; }
+.prn-badge-state-verify { background: #E8EAF6; color: #3949AB; }
+.prn-badge-state-done { background: #E8F5E9; color: #2E7D32; }
+.prn-badge-state-paid { background: #E1F5FE; color: #0277BD; }
+.prn-badge-state-cancel { background: #FFEBEE; color: #C62828; }
+
+
+/* ============================================
+   9. CONTENIDO EXPANDIDO — BARRA DE ACCIONES
+   ============================================ */
+
+.prn-action-bar {
+    background: var(--prn-bg-light);
+    border-bottom: 1px solid var(--prn-border-light);
+}
+
+.prn-action-btn {
+    background: white;
+    border-color: var(--prn-border-toolbar);
+    color: #616161;
+}
+
+.prn-action-btn:hover {
+    background: var(--prn-bg-toolbar);
+}
+
+.prn-action-btn-compute {
+    background: var(--prn-primary-bg);
+    border-color: #C5CAE9;
+    color: var(--prn-primary);
+}
+
+.prn-action-btn-compute:hover {
+    background: #D1D5EA;
+    color: var(--prn-primary);
+}
+
+.prn-action-btn-novelty {
+    background: var(--prn-primary-light);
+    border-color: var(--prn-primary-light);
+    color: white;
+}
+
+.prn-action-btn-novelty:hover {
+    background: var(--prn-primary);
+    color: white;
+}
+
+.prn-action-btn-overtime {
+    background: #7986CB;
+    border-color: #7986CB;
+    color: white;
+}
+
+.prn-action-btn-overtime:hover {
+    background: #5C6BC0;
+    color: white;
+}
+
+.prn-action-btn-leave {
+    background: #9FA8DA;
+    border-color: #9FA8DA;
+    color: white;
+}
+
+.prn-action-btn-leave:hover {
+    background: #7986CB;
+    color: white;
+}
+
+.prn-action-btn-loan {
+    background: #C5CAE9;
+    border-color: #C5CAE9;
+    color: var(--prn-primary);
+}
+
+.prn-action-btn-loan:hover {
+    background: #9FA8DA;
+    color: var(--prn-primary);
+}
+
+.prn-action-btn-list {
+    background: var(--prn-primary-bg);
+    border-color: #C5CAE9;
+    color: var(--prn-primary);
+}
+
+.prn-action-btn-list:hover {
+    background: #D1D5EA;
+    color: var(--prn-primary);
+}
+
+
+/* ============================================
+   10. CONTENIDO EXPANDIDO — ENCABEZADOS SECCIÓN
+   ============================================ */
+
+.prn-expanded-min-height {
+    min-height: 250px;
+}
+
+.prn-col-divider {
+    border-right: 1px solid var(--prn-border-light);
+}
+
+/* Devengos */
+.prn-devengos-header {
+    border-bottom: 2px solid var(--prn-success);
+}
+
+.prn-icon-earnings {
+    color: var(--prn-success);
+}
+
+.prn-devengos-title {
+    color: var(--prn-success-text-dark);
+    font-size: 0.875rem;
+}
+
+.prn-devengos-total {
+    border-top: 2px solid var(--prn-success);
+    background: var(--prn-success-bg);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.prn-devengos-total-text {
+    color: var(--prn-success-text-dark);
+}
+
+.prn-devengos-total-amount {
+    color: var(--prn-success-text-dark);
+    font-size: 0.9375rem;
+}
+
+/* Deducciones */
+.prn-deducciones-header {
+    border-bottom: 2px solid #EF5350;
+}
+
+.prn-icon-deductions {
+    color: #EF5350;
+}
+
+.prn-deducciones-title {
+    color: var(--prn-danger-dark);
+    font-size: 0.875rem;
+}
+
+.prn-deducciones-total {
+    border-top: 2px solid #EF5350;
+    background: var(--prn-danger-bg);
+    padding: 8px;
+    border-radius: 4px;
+}
+
+.prn-deducciones-total-text {
+    color: var(--prn-danger-dark);
+}
+
+.prn-deducciones-total-amount {
+    color: var(--prn-danger-dark);
+    font-size: 0.9375rem;
+}
+
+/* Section border dashed (subsections) */
+.prn-section-border-dashed {
+    border-bottom: 1px dashed var(--prn-border-toolbar);
+}
+
+/* Section label (category name) */
+.prn-section-label {
+    color: var(--prn-text-detail);
+}
+
+
+/* ============================================
+   11. CONTENIDO EXPANDIDO — ICONOS DE CATEGORÍA
+   ============================================ */
+
+.prn-icon-basic       { color: #43A047; }
+.prn-icon-transport   { color: #66BB6A; }
+.prn-icon-overtime    { color: #26A69A; }
+.prn-icon-absence     { color: #42A5F5; }
+.prn-icon-non-salary  { color: #7E57C2; }
+.prn-icon-ibd         { color: #0097A7; }
+.prn-icon-ibc-prev    { color: #607D8B; }
+.prn-icon-other-earn  { color: #81C784; }
+.prn-icon-health      { color: #EF5350; }
+.prn-icon-pension     { color: var(--prn-danger); }
+.prn-icon-solidarity  { color: #E57373; }
+.prn-icon-retention   { color: #FF7043; }
+.prn-icon-loans       { color: #7986CB; }
+.prn-icon-other-ded   { color: #EF9A9A; }
+.prn-icon-benefits    { color: #FF9800; }
+.prn-icon-provisions  { color: #9C27B0; }
+
+
+/* ============================================
+   12. CONTENIDO EXPANDIDO — BADGES DE CONTEO
+   ============================================ */
+
+.prn-badge-overtime-count    { background: #E0F2F1; color: #00796B; font-size: 0.625rem; }
+.prn-badge-absence-count     { background: #E3F2FD; color: #1565C0; font-size: 0.625rem; }
+.prn-badge-non-salary-count  { background: #EDE7F6; color: #5E35B1; font-size: 0.625rem; }
+.prn-badge-ibd-count         { background: #E0F7FA; color: #00838F; font-size: 0.625rem; }
+.prn-badge-ibc-prev-count    { background: #ECEFF1; color: #455A64; font-size: 0.625rem; }
+.prn-badge-benefits-count    { background: var(--prn-warning-bg); color: var(--prn-warning-text); font-size: 0.625rem; }
+.prn-badge-provisions-count  { background: #F3E5F5; color: #7B1FA2; font-size: 0.625rem; }
+
+
+/* ============================================
+   13. CONTENIDO EXPANDIDO — SECCIONES ESPECIALES
+   ============================================ */
+
+/* Prestaciones Sociales */
+.prn-benefits-border {
+    border-top: 2px dashed #FF9800;
+}
+
+.prn-benefits-title {
+    color: var(--prn-warning-text);
+}
+
+/* Provisiones (dentro de expandido) */
+.prn-provisions-border {
+    border-top: 2px dashed #9C27B0;
+}
+
+.prn-provisions-title {
+    color: #7B1FA2;
+}
+
+
+/* ============================================
+   14. CONTENIDO EXPANDIDO — REGISTROS
+       (Horas Extra y Ausencias)
+   ============================================ */
+
+.prn-records-area {
+    border-top: 1px solid var(--prn-border-light);
+    background: var(--prn-bg-light);
+}
+
+.prn-record-row {
+    background: white;
+    font-size: 0.6875rem;
+    border: 1px solid var(--prn-border-toolbar);
+}
+
+.prn-record-text {
+    color: var(--prn-text-detail);
+}
+
+.prn-record-date {
+    color: var(--prn-text-muted);
+}
+
+.prn-record-info-icon {
+    color: var(--prn-text-muted);
+    cursor: pointer;
+}
+
+.prn-record-info-icon:hover {
+    color: var(--prn-text-secondary);
+}
+
+.prn-overtime-header-icon {
+    color: #26A69A;
+}
+
+.prn-overtime-header-text {
+    color: #00796B;
+}
+
+.prn-overtime-badge {
+    background: #E0F2F1;
+    color: #00796B;
+}
+
+.prn-leave-header-icon {
+    color: #42A5F5;
+}
+
+.prn-leave-header-text {
+    color: #1565C0;
+}
+
+.prn-leave-badge {
+    background: #E3F2FD;
+    color: #1565C0;
+}
+
+
+/* ============================================
+   15. CONTENIDO EXPANDIDO — NOVEDADES
+   ============================================ */
+
+.prn-novelties-area {
+    border-top: 1px solid var(--prn-border-light);
+}
+
+.prn-novelties-bg {
+    background: var(--prn-primary-bg);
+}
+
+.prn-novelty-icon {
+    color: var(--prn-primary);
+}
+
+.prn-novelty-title {
+    color: var(--prn-primary);
+}
+
+.prn-novelty-badge {
+    background: #C5CAE9;
+    color: #283593;
+    font-size: 0.6875rem;
+}
+
+.prn-novelty-date {
+    opacity: 0.7;
+}
+
+
+/* ============================================
+   16. CONTENIDO EXPANDIDO — NETO A PAGAR FOOTER
+   ============================================ */
+
+.prn-net-footer {
+    background: var(--prn-primary);
+    color: white;
+}
+
+.prn-net-footer-title {
+    color: white;
+    margin: 0;
+    padding: 0;
+    line-height: inherit;
+}
+
+
+/* ============================================
+   17. SUB-TEMPLATE — LÍNEA DE NÓMINA
+   ============================================ */
+
+.prn-line-row {
+    font-size: 0.75rem;
+    background: var(--prn-bg-light);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.prn-line-row:hover {
+    background: var(--prn-bg-toolbar);
+}
+
+.prn-line-content {
+    max-width: 55%;
+}
+
+.prn-line-id-badge {
+    background: var(--prn-primary-bg);
+    color: var(--prn-primary);
+    font-size: 0.5625rem;
+    padding: 2px 4px;
+}
+
+.prn-line-name {
+    color: #616161;
+}
+
+.prn-line-code {
+    color: var(--prn-text-muted);
+    font-size: 0.625rem;
+    font-family: monospace;
+}
+
+.prn-line-info-icon {
+    color: #BDBDBD;
+    cursor: pointer;
+    font-size: 0.6875rem;
+}
+
+.prn-line-info-icon:hover {
+    color: var(--prn-text-secondary);
+}
+
+.prn-line-category-badge {
+    background: var(--prn-bg-toolbar);
+    color: var(--prn-text-secondary);
+    font-size: 0.5625rem;
+}
+
+.prn-line-qty-badge {
+    background: var(--prn-border-light);
+    color: var(--prn-text-secondary);
+    font-size: 0.5625rem;
+}
+
+.prn-line-external-icon {
+    color: #BDBDBD;
+    font-size: 0.625rem;
+}
+
+
+/* ============================================
+   18. COLORES DE MONTO POR CATEGORÍA
+       (Reemplazan t-att-style lineColor dinámico)
+   ============================================ */
+
+.prn-line-color-basic       { color: #43A047; }
+.prn-line-color-transport   { color: #66BB6A; }
+.prn-line-color-overtime    { color: #26A69A; }
+.prn-line-color-absence     { color: #42A5F5; }
+.prn-line-color-non-salary  { color: #7E57C2; }
+.prn-line-color-ibd         { color: #0097A7; }
+.prn-line-color-ibc-prev    { color: #607D8B; }
+.prn-line-color-other-earn  { color: #81C784; }
+.prn-line-color-health      { color: #EF5350; }
+.prn-line-color-pension     { color: #F44336; }
+.prn-line-color-solidarity  { color: #E57373; }
+.prn-line-color-retention   { color: #FF7043; }
+.prn-line-color-loans       { color: #7986CB; }
+.prn-line-color-other-ded   { color: #EF9A9A; }
+.prn-line-color-benefits    { color: #FF9800; }
+.prn-line-color-provisions  { color: #9C27B0; }
+
+
+/* ============================================
+   19. RESET SEMÁNTICO PARA H3
+   ============================================ */
+
+.prn-dashboard-label,
+.prn-section-title-primary,
+.prn-section-title-warning,
+.prn-devengos-title,
+.prn-deducciones-title,
+.prn-benefits-title,
+.prn-provisions-title,
+.prn-net-footer-title {
+    margin: 0;
+    padding: 0;
+    line-height: inherit;
+}
+
+
+/* ============================================
+   20. CONSOLIDACIÓN COMPACTA — EMPLOYEE CARD
+   ============================================ */
+
+.prn-employee-card {
+    margin-bottom: 6px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.prn-employee-card .card-header {
+    padding: 6px 12px;
+}
+
+.prn-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+    min-width: 32px;
+}
+
+.prn-employee-name {
+    font-size: 13px;
+}
+
+.prn-employee-detail {
+    font-size: 10px;
+}
+
+.prn-amount-devengo,
+.prn-amount-deduccion,
+.prn-amount-neto {
+    font-size: 12px;
+}
+
+.prn-chevron {
+    font-size: 14px;
+}
+
+
+/* ============================================
+   21. CONSOLIDACIÓN COMPACTA — ACTION BAR
+   ============================================ */
+
+.prn-action-bar {
+    padding: 4px 10px;
+}
+
+.prn-action-btn {
+    font-size: 10px;
+    padding: 2px 8px;
+}
+
+
+/* ============================================
+   22. CONSOLIDACIÓN COMPACTA — HEADERS SECCIÓN
+   ============================================ */
+
+.prn-section-label {
+    font-size: 11px;
+}
+
+.prn-badge-count,
+.prn-badge-ibd-count,
+.prn-badge-benefits-count,
+.prn-badge-provisions-count {
+    font-size: 9px;
+    padding: 0 4px;
+}
+
+.prn-icon-basic,
+.prn-icon-transport,
+.prn-icon-ibd,
+.prn-icon-other-earn,
+.prn-icon-health,
+.prn-icon-pension,
+.prn-icon-other-ded,
+.prn-icon-benefits,
+.prn-icon-provisions {
+    font-size: 12px;
+}
+
+
+/* ============================================
+   23. CONSOLIDACIÓN COMPACTA — LÍNEAS ULTRA
+   ============================================ */
+
+.prn-line-row {
+    padding: 3px 8px;
+    margin-bottom: 1px;
+    font-size: 11px;
+}
+
+.prn-line-id-badge {
+    font-size: 8px;
+    padding: 1px 4px;
+    opacity: 0.5;
+}
+
+.prn-line-code {
+    font-size: 8px;
+    opacity: 0.5;
+}
+
+.prn-line-name {
+    font-size: 11px;
+    max-width: 200px;
+}
+
+.prn-line-category-badge {
+    font-size: 8px;
+    padding: 1px 5px;
+}
+
+.prn-line-info-icon,
+.prn-line-external-icon {
+    font-size: 10px;
+    opacity: 0.3;
+}
+
+.prn-line-qty-badge {
+    font-size: 8px;
+    padding: 1px 4px;
+}
+
+
+/* ============================================
+   24. CONSOLIDACIÓN COMPACTA — SPACING GRUPOS
+   ============================================ */
+
+/* Reducir margin entre grupos */
+.prn-employee-card .card-body .row.g-0 .col-6 > div > div.mb-3 {
+    margin-bottom: 6px !important;
+}
+
+/* Section header within group */
+.prn-employee-card .card-body .mb-3 > div.d-flex.align-items-center.mb-2 {
+    margin-bottom: 4px !important;
+    padding-bottom: 2px !important;
+}
+
+/* Min height auto */
+.prn-expanded-min-height {
+    min-height: auto;
+}
+
+
+/* ============================================
+   25. CONSOLIDACIÓN COMPACTA — TOTALES Y EXTRAS
+   ============================================ */
+
+.prn-devengos-total,
+.prn-deducciones-total {
+    padding: 4px 10px;
+    margin-top: 6px;
+    font-size: 12px;
+}
+
+.prn-devengos-header,
+.prn-deducciones-header {
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+}
+
+.prn-devengos-title,
+.prn-deducciones-title {
+    font-size: 13px;
+}
+
+.prn-benefits-border {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top-width: 1px;
+}
+
+.prn-benefits-title {
+    font-size: 12px;
+}
+
+.prn-provisions-border {
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top-width: 1px;
+}
+
+.prn-provisions-title {
+    font-size: 12px;
+}
+
+.prn-net-footer {
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.prn-section-border-dashed {
+    border-width: 1px;
+    opacity: 0.4;
+}
+
+
+/* ============================================
+   26. INDICADOR DE LÍNEA DUPLICADA
+   ============================================ */
+
+.prn-line-duplicate {
+    opacity: 0.35;
+    font-style: italic;
+    position: relative;
+}
+
+.prn-line-duplicate::after {
+    content: "\2192  Ver en Prestaciones";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 8px;
+    color: #f57f17;
+    font-style: italic;
+    font-weight: normal;
+    opacity: 0.7;
+}
+
+
+/* ============================================
+   27. CONSOLIDACIÓN COMPACTA — TOOLBAR
+   ============================================ */
+
+.prn-toolbar .badge {
+    font-size: 10px;
+}
+
+.prn-pagination-text {
+    font-size: 10px;
+}
+
+
+/* ============================================
+   28. MEDIA QUERIES — RESPONSIVIDAD
+   ============================================ */
+
+@media (max-width: 992px) {
+    .prn-dashboard-header .col-md-4 {
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+    }
+    .prn-dashboard-header .col-md-4:last-child {
+        border-bottom: none;
+    }
+    .prn-select-department {
+        width: 100%;
+    }
+    .prn-search-group {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .prn-dashboard-amount-main {
+        font-size: 1.25rem;
+    }
+    .prn-dashboard-amount-devengos,
+    .prn-dashboard-amount-deducciones {
+        font-size: 1rem;
+    }
+    .prn-avatar {
+        width: 34px;
+        height: 34px;
+        font-size: 0.75rem;
+    }
+    .prn-select-department,
+    .prn-search-group {
+        width: 100%;
+    }
+}

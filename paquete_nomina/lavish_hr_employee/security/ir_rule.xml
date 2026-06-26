@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================================ -->
+        <!-- REGLAS DE SEGURIDAD PARA EMPLEADOS -->
+        <!-- ============================================================ -->
+
+        <!-- Empleados: Acceso completo para HR Manager -->
+        <record id="hr_employee_rule_manager" model="ir.rule">
+            <field name="name">HR Employee: Manager acceso completo</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Empleados: Usuario HR ve todos los empleados -->
+        <record id="hr_employee_rule_user" model="ir.rule">
+            <field name="name">HR Employee: Usuario HR ve todos</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Empleados: Portal ve solo su propio registro -->
+        <record id="hr_employee_rule_portal" model="ir.rule">
+            <field name="name">HR Employee: Portal acceso propio</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- REGLAS DE SEGURIDAD PARA CONTRATOS -->
+        <!-- ============================================================ -->
+
+        <!-- Contratos: Manager acceso completo -->
+        <record id="hr_contract_rule_manager" model="ir.rule">
+            <field name="name">HR Contract: Manager acceso completo</field>
+            <field name="model_id" ref="hr_contract.model_hr_contract"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Contratos: Usuario HR ve todos -->
+        <record id="hr_contract_rule_user" model="ir.rule">
+            <field name="name">HR Contract: Usuario HR ve todos</field>
+            <field name="model_id" ref="hr_contract.model_hr_contract"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- REGLAS PARA CERTIFICADOS MÉDICOS -->
+        <!-- ============================================================ -->
+
+        <!-- Certificados médicos: Manager acceso completo -->
+        <record id="hr_medical_certificate_rule_manager" model="ir.rule">
+            <field name="name">Medical Certificate: Manager acceso completo</field>
+            <field name="model_id" ref="model_hr_medical_certificate"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Certificados médicos: Usuario ve todos -->
+        <record id="hr_medical_certificate_rule_user" model="ir.rule">
+            <field name="name">Medical Certificate: Usuario ve todos</field>
+            <field name="model_id" ref="model_hr_medical_certificate"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Certificados médicos: Portal ve solo propios -->
+        <record id="hr_medical_certificate_rule_portal" model="ir.rule">
+            <field name="name">Medical Certificate: Portal acceso propio</field>
+            <field name="model_id" ref="model_hr_medical_certificate"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- REGLAS PARA EPP/DOTACIÓN -->
+        <!-- ============================================================ -->
+
+        <!-- Solicitudes EPP: Manager acceso completo -->
+        <record id="hr_epp_request_rule_manager" model="ir.rule">
+            <field name="name">EPP Request: Manager acceso completo</field>
+            <field name="model_id" ref="model_hr_epp_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Solicitudes EPP: Usuario ve todos -->
+        <record id="hr_epp_request_rule_user" model="ir.rule">
+            <field name="name">EPP Request: Usuario ve todos</field>
+            <field name="model_id" ref="model_hr_epp_request"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Solicitudes EPP: Portal ve solo propios -->
+        <record id="hr_epp_request_rule_portal" model="ir.rule">
+            <field name="name">EPP Request: Portal acceso propio</field>
+            <field name="model_id" ref="model_hr_epp_request"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- REGLAS PARA CERTIFICADOS LABORALES -->
+        <!-- ============================================================ -->
+
+        <!-- Historial certificados: Manager acceso completo -->
+        <record id="hr_labor_certificate_history_rule_manager" model="ir.rule">
+            <field name="name">Labor Certificate History: Manager acceso completo</field>
+            <field name="model_id" ref="model_hr_labor_certificate_history"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Historial certificados: Usuario ve todos -->
+        <record id="hr_labor_certificate_history_rule_user" model="ir.rule">
+            <field name="name">Labor Certificate History: Usuario ve todos</field>
+            <field name="model_id" ref="model_hr_labor_certificate_history"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Historial certificados: Portal ve solo propios -->
+        <record id="hr_labor_certificate_history_rule_portal" model="ir.rule">
+            <field name="name">Labor Certificate History: Portal acceso propio</field>
+            <field name="model_id" ref="model_hr_labor_certificate_history"/>
+            <field name="domain_force">[('contract_id.employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- REGLAS PARA AUSENCIAS/PERMISOS -->
+        <!-- ============================================================ -->
+
+        <!-- Ausencias: Portal solo puede ver/editar propias -->
+        <record id="hr_leave_rule_portal" model="ir.rule">
+            <field name="name">HR Leave: Portal acceso propio</field>
+            <field name="model_id" ref="hr_holidays.model_hr_leave"/>
+            <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- REGLAS PARA PARÁMETROS Y CONFIGURACIÓN -->
+        <!-- ============================================================ -->
+
+        <!-- Parámetros anuales: Solo lectura para usuario HR -->
+        <record id="hr_annual_parameters_rule_user" model="ir.rule">
+            <field name="name">Annual Parameters: Usuario HR solo lectura</field>
+            <field name="model_id" ref="model_hr_annual_parameters"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <!-- Parámetros anuales: Manager acceso completo -->
+        <record id="hr_annual_parameters_rule_manager" model="ir.rule">
+            <field name="name">Annual Parameters: Manager acceso completo</field>
+            <field name="model_id" ref="model_hr_annual_parameters"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Parámetros anuales: Multicompañía (similar a account.account.company_ids) -->
+        <record id="hr_annual_parameters_rule_multicompany" model="ir.rule">
+            <field name="name">Annual Parameters: Multicompañía</field>
+            <field name="model_id" ref="model_hr_annual_parameters"/>
+            <field name="domain_force">[('company_ids', 'parent_of', company_ids)]</field>
+        </record>
+
+        <!-- ============================================================ -->
+        <!-- REGLAS PARA CONCEPTOS DE CONTRATO -->
+        <!-- ============================================================ -->
+
+        <!-- Conceptos de contrato: Usuario HR ve de su compañía -->
+        <record id="hr_contract_concepts_rule_user" model="ir.rule">
+            <field name="name">Contract Concepts: Usuario compañía propia</field>
+            <field name="model_id" ref="model_hr_contract_concepts"/>
+            <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user'))]"/>
+        </record>
+
+        <!-- Conceptos de contrato: Manager acceso completo -->
+        <record id="hr_contract_concepts_rule_manager" model="ir.rule">
+            <field name="name">Contract Concepts: Manager acceso completo</field>
+            <field name="model_id" ref="model_hr_contract_concepts"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Cambios salariales: Solo de su compañía -->
+        <record id="hr_contract_change_wage_rule_multicompany" model="ir.rule">
+            <field name="name">Contract Change Wage: Multicompañía</field>
+            <field name="model_id" ref="model_hr_contract_change_wage"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user')), (4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+        <!-- Entidades del empleado: Solo de su compañía -->
+        <record id="hr_employee_entities_rule_multicompany" model="ir.rule">
+            <field name="name">Employee Entities: Multicompañía</field>
+            <field name="model_id" ref="model_hr_employee_entities"/>
+            <field name="groups" eval="[(4, ref('hr.group_hr_user')), (4, ref('hr.group_hr_manager'))]"/>
+        </record>
+
+    </data>
+</odoo>

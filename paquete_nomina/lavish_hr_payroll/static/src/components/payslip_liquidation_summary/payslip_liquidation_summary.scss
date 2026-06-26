@@ -1,0 +1,238 @@
+/**
+ * PayslipLiquidationSummary - Estilos del widget de resumen de liquidacion
+ */
+
+.payslip-liquidation-summary {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+    // Header Section
+    .liquidation-header {
+        h5 {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .btn-group {
+            .btn {
+                &.active {
+                    background-color: #007bff;
+                    color: white;
+                    border-color: #007bff;
+                }
+            }
+        }
+    }
+
+    // KPI Cards
+    .kpi-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .kpi-icon {
+            opacity: 0.9;
+        }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+    }
+
+    // Category Groups - Cards View
+    .category-group {
+        .category-header {
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                filter: brightness(0.98);
+                transform: translateX(2px);
+            }
+
+            i {
+                font-size: 1.1rem;
+            }
+        }
+
+        .category-lines {
+            animation: fadeIn 0.3s ease;
+        }
+    }
+
+    // Line Cards
+    .line-card {
+        transition: all 0.2s ease;
+        min-height: 70px;
+
+        &:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .badge {
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+
+        .line-name {
+            color: #495057;
+            line-height: 1.3;
+        }
+
+        .line-details {
+            border-top: 1px dashed #dee2e6;
+            padding-top: 4px;
+        }
+    }
+
+    // Total Line Cards
+    .total-line-card {
+        transition: transform 0.2s ease;
+
+        &:hover {
+            transform: scale(1.02);
+        }
+    }
+
+    // Table View
+    .table-group {
+        .table-group-header {
+            transition: filter 0.2s ease;
+
+            &:hover {
+                filter: brightness(0.98);
+            }
+        }
+
+        .table {
+            font-size: 0.875rem;
+
+            thead th {
+                font-weight: 600;
+                text-transform: uppercase;
+                font-size: 0.7rem;
+                letter-spacing: 0.5px;
+                color: #6c757d;
+                padding: 0.5rem;
+            }
+
+            tbody td {
+                padding: 0.5rem;
+                vertical-align: middle;
+            }
+
+            .badge {
+                font-size: 0.65rem;
+            }
+        }
+    }
+
+    // Empty State
+    .text-muted {
+        i.fa-inbox {
+            opacity: 0.3;
+        }
+    }
+
+    // Animations
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    // Print Styles
+    @media print {
+        .btn-group {
+            display: none !important;
+        }
+
+        .kpi-card {
+            break-inside: avoid;
+        }
+
+        .category-group,
+        .table-group {
+            break-inside: avoid;
+        }
+
+        .line-card:hover,
+        .kpi-card:hover {
+            transform: none !important;
+            box-shadow: none !important;
+        }
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        .kpi-card {
+            .kpi-icon {
+                i {
+                    font-size: 1.5rem !important;
+                }
+            }
+
+            .kpi-value {
+                font-size: 1rem !important;
+            }
+        }
+
+        .line-card {
+            .line-details {
+                display: block !important;
+            }
+        }
+
+        .table {
+            font-size: 0.75rem;
+        }
+    }
+}
+
+// Estilos adicionales para el form view
+.o_form_view {
+    .payslip-liquidation-summary {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #fafafa;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+    }
+}
+
+// Modo oscuro (si aplica)
+.o_dark_mode {
+    .payslip-liquidation-summary {
+        .line-card {
+            background: #2d3748 !important;
+            border-color: #4a5568 !important;
+
+            .line-name {
+                color: #e2e8f0;
+            }
+        }
+
+        .table {
+            color: #e2e8f0;
+
+            &.table-striped tbody tr:nth-of-type(odd) {
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+        }
+    }
+}

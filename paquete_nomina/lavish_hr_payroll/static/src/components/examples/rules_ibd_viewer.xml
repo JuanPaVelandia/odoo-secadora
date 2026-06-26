@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.RulesIBDViewer">
+        <div class="rules-ibd-viewer">
+            <!-- Loading State -->
+            <div t-if="state.loading" class="text-center p-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div t-else="" class="rules-ibd-viewer__content">
+                <!-- KPIs Row -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <GenericKPI
+                            label="'Total Reglas'"
+                            value="state.kpis.totalRules"
+                            formatter="'number'"
+                            icon="'fa-list'"
+                            color="'#3949AB'"
+                            bgColor="'#E8EAF6'"
+                        />
+                    </div>
+                    <div class="col-md-4">
+                        <GenericKPI
+                            label="'Reglas con IBD 40%'"
+                            value="state.kpis.rulesWithIBD"
+                            formatter="'number'"
+                            icon="'fa-check-circle'"
+                            color="'#2E7D32'"
+                            bgColor="'#E8F5E9'"
+                            trend="{ value: ibdPercentage, direction: 'up' }"
+                        />
+                    </div>
+                    <div class="col-md-4">
+                        <GenericKPI
+                            label="'Reglas Excluidas'"
+                            value="state.kpis.rulesExcluded"
+                            formatter="'number'"
+                            icon="'fa-times-circle'"
+                            color="'#C62828'"
+                            bgColor="'#FFEBEE'"
+                        />
+                    </div>
+                </div>
+
+                <!-- Tabla Jerárquica -->
+                <GenericHierarchicalTable
+                    data="state.rulesData"
+                    config="state.tableConfig"
+                    title="'Reglas de Nómina por Categoría'"
+                    searchable="true"
+                    expandedByDefault="false"
+                    onRowClick.bind="onRowClick"
+                />
+            </div>
+        </div>
+    </t>
+
+</templates>

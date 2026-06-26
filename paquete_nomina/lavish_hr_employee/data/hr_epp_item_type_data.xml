@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- =================================================================
+        TIPOS DE ITEMS EPP/DOTACIÓN - Datos Iniciales
+        ================================================================= -->
+
+        <!-- ===================== TIPOS PRINCIPALES ===================== -->
+
+        <record id="item_type_epp" model="hr.epp.item.type">
+            <field name="name">EPP</field>
+            <field name="code">EPP</field>
+            <field name="classification">epp</field>
+            <field name="sequence">10</field>
+            <field name="icon">fa-shield</field>
+            <field name="description">Elementos de Protección Personal</field>
+        </record>
+
+        <record id="item_type_dotacion" model="hr.epp.item.type">
+            <field name="name">Dotación</field>
+            <field name="code">DOT</field>
+            <field name="classification">dotacion</field>
+            <field name="sequence">20</field>
+            <field name="icon">fa-tshirt</field>
+            <field name="description">Uniformes y ropa de trabajo</field>
+        </record>
+
+        <!-- ===================== SUBTIPOS EPP ===================== -->
+
+        <!-- Protección Cabeza -->
+        <record id="item_subtype_head" model="hr.epp.item.type">
+            <field name="name">Protección Cabeza</field>
+            <field name="code">EPP-HEAD</field>
+            <field name="parent_id" ref="item_type_epp"/>
+            <field name="classification">epp</field>
+            <field name="requires_size">True</field>
+            <field name="size_type">helmet</field>
+            <field name="sequence">10</field>
+            <field name="icon">fa-hard-hat</field>
+        </record>
+
+        <!-- Protección Visual -->
+        <record id="item_subtype_eyes" model="hr.epp.item.type">
+            <field name="name">Protección Visual</field>
+            <field name="code">EPP-EYES</field>
+            <field name="parent_id" ref="item_type_epp"/>
+            <field name="classification">epp</field>
+            <field name="requires_size">False</field>
+            <field name="sequence">20</field>
+            <field name="icon">fa-glasses</field>
+        </record>
+
+        <!-- Protección Respiratoria -->
+        <record id="item_subtype_respiratory" model="hr.epp.item.type">
+            <field name="name">Protección Respiratoria</field>
+            <field name="code">EPP-RESP</field>
+            <field name="parent_id" ref="item_type_epp"/>
+            <field name="classification">epp</field>
+            <field name="requires_size">False</field>
+            <field name="sequence">30</field>
+            <field name="icon">fa-head-side-mask</field>
+        </record>
+
+        <!-- Protección Manos -->
+        <record id="item_subtype_hands" model="hr.epp.item.type">
+            <field name="name">Protección Manos</field>
+            <field name="code">EPP-HANDS</field>
+            <field name="parent_id" ref="item_type_epp"/>
+            <field name="classification">epp</field>
+            <field name="requires_size">True</field>
+            <field name="size_type">gloves</field>
+            <field name="sequence">40</field>
+            <field name="icon">fa-hand-paper</field>
+        </record>
+
+        <!-- Protección Pies -->
+        <record id="item_subtype_feet" model="hr.epp.item.type">
+            <field name="name">Protección Pies</field>
+            <field name="code">EPP-FEET</field>
+            <field name="parent_id" ref="item_type_epp"/>
+            <field name="classification">epp</field>
+            <field name="requires_size">True</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">50</field>
+            <field name="icon">fa-shoe-prints</field>
+        </record>
+
+        <!-- Protección Corporal -->
+        <record id="item_subtype_body" model="hr.epp.item.type">
+            <field name="name">Protección Corporal</field>
+            <field name="code">EPP-BODY</field>
+            <field name="parent_id" ref="item_type_epp"/>
+            <field name="classification">epp</field>
+            <field name="requires_size">True</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">60</field>
+            <field name="icon">fa-vest</field>
+        </record>
+
+        <!-- ===================== SUBTIPOS DOTACIÓN ===================== -->
+
+        <!-- Ropa Superior -->
+        <record id="item_subtype_upper" model="hr.epp.item.type">
+            <field name="name">Ropa Superior</field>
+            <field name="code">DOT-UPPER</field>
+            <field name="parent_id" ref="item_type_dotacion"/>
+            <field name="classification">dotacion</field>
+            <field name="requires_size">True</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">10</field>
+            <field name="icon">fa-tshirt</field>
+        </record>
+
+        <!-- Ropa Inferior -->
+        <record id="item_subtype_lower" model="hr.epp.item.type">
+            <field name="name">Ropa Inferior</field>
+            <field name="code">DOT-LOWER</field>
+            <field name="parent_id" ref="item_type_dotacion"/>
+            <field name="classification">dotacion</field>
+            <field name="requires_size">True</field>
+            <field name="size_type">clothing</field>
+            <field name="sequence">20</field>
+            <field name="icon">fa-socks</field>
+        </record>
+
+        <!-- Calzado -->
+        <record id="item_subtype_footwear" model="hr.epp.item.type">
+            <field name="name">Calzado</field>
+            <field name="code">DOT-FOOT</field>
+            <field name="parent_id" ref="item_type_dotacion"/>
+            <field name="classification">dotacion</field>
+            <field name="requires_size">True</field>
+            <field name="size_type">shoes</field>
+            <field name="sequence">30</field>
+            <field name="icon">fa-shoe-prints</field>
+        </record>
+
+        <!-- Accesorios -->
+        <record id="item_subtype_accessories" model="hr.epp.item.type">
+            <field name="name">Accesorios</field>
+            <field name="code">DOT-ACC</field>
+            <field name="parent_id" ref="item_type_dotacion"/>
+            <field name="classification">dotacion</field>
+            <field name="requires_size">False</field>
+            <field name="sequence">40</field>
+            <field name="icon">fa-hat-cowboy</field>
+        </record>
+
+    </data>
+</odoo>

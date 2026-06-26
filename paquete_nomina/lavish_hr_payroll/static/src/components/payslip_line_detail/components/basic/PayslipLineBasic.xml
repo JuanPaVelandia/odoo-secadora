@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineBasic">
+        <div class="pld-basic-container">
+            <!-- Header con modalidad -->
+            <div class="pld-basic-header d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa fa-money text-primary"/>
+                    <span class="fw-bold">Salario Basico</span>
+                    <span t-attf-class="badge bg-#{modalidadColor}" t-esc="modalidad"/>
+                </div>
+                <small class="text-muted" t-esc="baseLegal"/>
+            </div>
+
+            <!-- KPIs en fila -->
+            <div class="pld-basic-kpis d-flex flex-wrap gap-3 mb-3">
+                <t t-foreach="kpis" t-as="kpi" t-key="kpi.id">
+                    <div t-attf-class="pld-kpi-card p-2 rounded border #{kpi.highlight ? 'border-warning bg-warning-subtle' : 'bg-light'}">
+                        <div class="d-flex align-items-center gap-1 mb-1">
+                            <i t-attf-class="fa #{kpi.icon} text-#{kpi.color}" style="font-size: 12px;"/>
+                            <small class="text-muted" t-esc="kpi.label"/>
+                        </div>
+                        <div t-attf-class="fw-bold #{kpi.highlight ? 'text-warning fs-5' : ''}">
+                            <t t-if="kpi.format === 'currency'">
+                                <t t-esc="props.formatCurrency(kpi.value)"/>
+                            </t>
+                            <t t-else="">
+                                <t t-esc="props.formatValue(kpi.value, kpi.format)"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Formula -->
+            <div class="pld-basic-formula bg-light p-2 rounded mb-3 d-flex align-items-center gap-2">
+                <i class="fa fa-calculator text-secondary"/>
+                <code t-esc="formula"/>
+            </div>
+
+            <!-- Cambios de salario (si hay) -->
+            <t t-if="hasCambiosSalario">
+                <div class="pld-basic-cambios mb-3">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-warning-subtle rounded"
+                         t-on-click="toggleCambiosSalario">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-exchange text-warning"/>
+                            <span class="fw-medium">Cambios de Salario en el Periodo</span>
+                            <span class="badge bg-warning text-dark" t-esc="cambiosSalario.length"/>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showCambiosSalario ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showCambiosSalario">
+                        <div class="pld-cambios-list mt-2 ps-3">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Desde</th>
+                                        <th>Hasta</th>
+                                        <th>Salario</th>
+                                        <th>Dias</th>
+                                        <th>Proporcional</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="cambiosSalario" t-as="cambio" t-key="cambio_index">
+                                        <tr>
+                                            <td t-esc="cambio.fecha_desde || cambio.date_from"/>
+                                            <td t-esc="cambio.fecha_hasta || cambio.date_to"/>
+                                            <td t-esc="props.formatCurrency(cambio.salario || cambio.wage)"/>
+                                            <td t-esc="cambio.dias || cambio.days"/>
+                                            <td class="fw-bold" t-esc="props.formatCurrency(cambio.proporcional || cambio.amount)"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+            <!-- Detalle del calculo (si hay pasos) -->
+            <t t-if="hasPasos">
+                <div class="pld-basic-detalle">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                         t-on-click="toggleDetalleCalculo">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-list-ol text-secondary"/>
+                            <span class="fw-medium">Detalle del Calculo</span>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showDetalleCalculo ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showDetalleCalculo">
+                        <div class="pld-pasos-list mt-2 ps-3">
+                            <t t-foreach="pasos" t-as="paso" t-key="paso_index">
+                                <div t-attf-class="d-flex justify-content-between py-1 #{paso.highlight ? 'fw-bold text-success' : ''}">
+                                    <span t-esc="paso.label"/>
+                                    <span t-esc="formatPasoValue(paso)"/>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

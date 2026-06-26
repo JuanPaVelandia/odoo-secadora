@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- CONFIG VIEWS -->
+
+        <!-- ═══════════════════════════════════════════════════════════════════════════
+             RES.CONFIG.SETTINGS - Vista base de Nómina CO
+             Esta vista es heredada por lavish_hr_payroll para agregar más opciones
+             ═══════════════════════════════════════════════════════════════════════════ -->
+        <record id="res_config_settings_view_form_nomina_co" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.nomina.co</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="45"/>
+            <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//app[@name='hr_payroll']" position="inside">
+                    <!-- Sección Nómina Colombia -->
+                    <block title="Nómina Colombia" name="nomina_co_settings">
+                        <!-- Toggle para mostrar opciones avanzadas -->
+                        <setting string="Opciones Avanzadas" help="Habilite para ver todas las opciones de configuración de nómina colombiana">
+                            <field name="nomina_show_advanced"/>
+                        </setting>
+                    </block>
+
+                    <!-- Sección Certificados Laborales -->
+                    <block title="Certificados Laborales" name="labor_certificate_settings">
+                        <setting string="Plantilla de Certificado Laboral" help="Configure la plantilla para generar certificados laborales">
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <button name="action_create_labor_certificate_template"
+                                            type="object"
+                                            string="Crear/Editar Plantilla"
+                                            class="btn-primary"
+                                            icon="fa-file-text-o"/>
+                                    <button name="action_open_labor_certificate_templates"
+                                            type="object"
+                                            string="Ver Todas las Plantillas"
+                                            class="btn-secondary ms-2"
+                                            icon="fa-list"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <!-- Sección Carta de Retiro de Cesantías -->
+                    <block title="Carta de Retiro de Cesantías" name="severance_letter_settings">
+                        <setting string="Carta de Retiro de Cesantías" help="Genere cartas de retiro de cesantías para empleados (terminación o parcial)">
+                            <div class="content-group">
+                                <div class="mt16">
+                                    <button name="action_open_severance_withdrawal_letter"
+                                            type="object"
+                                            string="Generar Carta de Retiro"
+                                            class="btn-primary"
+                                            icon="fa-file-pdf-o"/>
+                                </div>
+                                <div class="mt8 text-muted small">
+                                    <span>Estilos disponibles: Clásico, Moderno, Formal, Minimalista, Corporativo</span>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+
+                    <!-- Punto de extensión para lavish_hr_payroll -->
+                    <div id="nomina_co_extension_point"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_hr_salary_rule_accounting_tree" model="ir.ui.view">
+                    <field name="name">hr.salary.rule.accounting.tree</field>
+                    <field name="model">hr.salary.rule.accounting</field>
+                    <field name="arch" type="xml">
+                        <list string="Configuraciones Contables">
+                            <field name="salary_rule" string="Regla Salarial"/>
+                            <field name="department_id" optional="hide"/>
+                            <field name="work_location_id" optional="hide"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="debit_account_id"/>
+                            <field name="credit_account_id"/>
+                            <field name="third_debit"/>
+                            <field name="third_credit"/>
+                        </list>
+                    </field>
+                </record>
+
+        <record id="view_hr_salary_rule_accounting_form" model="ir.ui.view">
+                    <field name="name">hr.salary.rule.accounting.form</field>
+                    <field name="model">hr.salary.rule.accounting</field>
+                    <field name="arch" type="xml">
+                        <form string="Configuración Contable">
+                            <sheet>
+                                <group>
+                                    <group name="main_config" string="Configuración Principal">
+                                        <field name="salary_rule" options="{'no_create': True}"/>
+                                        <field name="company_id" groups="base.group_multi_company"
+                                               options="{'no_create': True}"/>
+                                    </group>
+                                    <group name="filters" string="Filtros de Aplicación">
+                                        <field name="department_id" options="{'no_create': True}"/>
+                                        <field name="work_location_id" string="Ubicación de Trabajo"
+                                               options="{'no_create': True}"/>
+                                    </group>
+                                </group>
+
+                                <group>
+                                    <group name="debit_config" string="Configuración Débito">
+                                        <field name="debit_account_id" options="{'no_create': True}"/>
+                                        <field name="third_debit"/>
+                                    </group>
+                                    <group name="credit_config" string="Configuración Crédito">
+                                        <field name="credit_account_id" options="{'no_create': True}"/>
+                                        <field name="third_credit"/>
+                                    </group>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </record>
+
+        <record id="view_hr_salary_rule_accounting_search" model="ir.ui.view">
+                    <field name="name">hr.salary.rule.accounting.search</field>
+                    <field name="model">hr.salary.rule.accounting</field>
+                    <field name="arch" type="xml">
+                        <search string="Buscar Configuraciones Contables">
+                            <field name="salary_rule"/>
+                            <field name="department_id"/>
+                            <field name="company_id"/>
+                            <filter string="Regla Salarial" name="group_rule" context="{'group_by': 'salary_rule'}"/>
+                            <filter string="Departamento" name="group_dept" context="{'group_by': 'department_id'}"/>
+                            <filter string="Compañía" name="group_company" context="{'group_by': 'company_id'}"/>
+
+                        </search>
+                    </field>
+                </record>
+
+    </data>
+</odoo>

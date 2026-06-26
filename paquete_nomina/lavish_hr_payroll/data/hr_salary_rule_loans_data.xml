@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- ================================================================== -->
+        <!-- REGLAS SALARIALES PARA PRÉSTAMOS                                  -->
+        <!-- ================================================================== -->
+
+        <!-- Regla 1: Descuento de Préstamos (Capital) -->
+        <record id="hr_salary_rule_loan_discount" model="hr.salary.rule">
+            <field name="name">Descuento de Préstamos</field>
+            <field name="code">LOAN_DISCOUNT</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">200</field>
+            <field name="amount_select">concept</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">novedad</field>
+            <field name="process">nomina</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Regla 2: Intereses de Préstamos -->
+        <record id="hr_salary_rule_loan_interest" model="hr.salary.rule">
+            <field name="name">Intereses de Préstamos</field>
+            <field name="code">LOAN_INTEREST</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">201</field>
+            <field name="amount_select">concept</field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">novedad</field>
+            <field name="process">nomina</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- REGLAS ALTERNATIVAS CON CÓDIGO PYTHON                             -->
+        <!-- (Para casos donde se necesite más flexibilidad)                   -->
+        <!-- ================================================================== -->
+
+        <!-- Regla 3: Descuento de Préstamos con Código Python -->
+        <record id="hr_salary_rule_loan_discount_code" model="hr.salary.rule">
+            <field name="name">Descuento de Préstamos (Código)</field>
+            <field name="code">LOAN_DISCOUNT_CODE</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">202</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+# Obtener objeto de reglas salariales
+rule_obj = env['hr.salary.rule']
+
+# Calcular descuento de préstamos
+result = rule_obj.get_loan_discount_for_payslip(payslip)
+result_qty = 1.0
+result_rate = 100.0
+
+# Log para debugging
+if result > 0:
+    _logger.info(f"[LOAN_DISCOUNT_CODE] Descuento calculado: ${result:,.2f}")
+            </field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">novedad</field>
+            <field name="process">nomina</field>
+            <field name="active" eval="False"/>  <!-- Desactivada por defecto -->
+        </record>
+
+        <!-- Regla 4: Total Préstamos (Capital + Intereses) -->
+        <record id="hr_salary_rule_loan_total" model="hr.salary.rule">
+            <field name="name">Total Préstamos (Capital + Intereses)</field>
+            <field name="code">LOAN_TOTAL</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">203</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+# Obtener total de préstamos usando helper de payslip
+result = payslip.get_total_loans()
+result_qty = 1.0
+result_rate = 100.0
+
+# Log para debugging
+if result > 0:
+    _logger.info(f"[LOAN_TOTAL] Total préstamos (capital + intereses): ${result:,.2f}")
+            </field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">novedad</field>
+            <field name="process">nomina</field>
+            <field name="active" eval="False"/>  <!-- Desactivada por defecto -->
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- REGLAS ESPECÍFICAS POR ESTRUCTURA                                 -->
+        <!-- ================================================================== -->
+
+        <!-- Regla 5: Anticipo de Prima (Descuento en Prima) -->
+        <record id="hr_salary_rule_loan_advance_prima" model="hr.salary.rule">
+            <field name="name">Anticipo de Prima</field>
+            <field name="code">LOAN_ADVANCE_PRIMA</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">204</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+# Obtener préstamos específicos para prima
+result = payslip.get_structure_specific_loans('prima')
+result_qty = 1.0
+result_rate = 100.0
+
+# Log
+if result > 0:
+    _logger.info(f"[ADVANCE_PRIMA] Anticipo de prima descontado: ${result:,.2f}")
+            </field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">prestacion</field>
+            <field name="process">prima</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Regla 6: Anticipo de Cesantías (Descuento en Cesantías) -->
+        <record id="hr_salary_rule_loan_advance_cesantias" model="hr.salary.rule">
+            <field name="name">Anticipo de Cesantías</field>
+            <field name="code">LOAN_ADVANCE_CESANTIAS</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">205</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+# Obtener préstamos específicos para cesantías
+result = payslip.get_structure_specific_loans('cesantias')
+result_qty = 1.0
+result_rate = 100.0
+
+# Log
+if result > 0:
+    _logger.info(f"[ADVANCE_CESANTIAS] Anticipo de cesantías descontado: ${result:,.2f}")
+            </field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">prestacion</field>
+            <field name="process">cesantias</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- Regla 7: Saldo de Préstamos en Liquidación -->
+        <record id="hr_salary_rule_loan_settlement" model="hr.salary.rule">
+            <field name="name">Saldo de Préstamos (Liquidación)</field>
+            <field name="code">LOAN_SETTLEMENT</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">206</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+# Obtener préstamos de liquidación
+result = payslip.get_structure_specific_loans('liquidacion')
+result_qty = 1.0
+result_rate = 100.0
+
+# Verificar si es liquidación y hay préstamos marcados para descuento
+if payslip.struct_id.process == 'contrato' and payslip.has_settlement_loans():
+    # Agregar todos los préstamos marcados para liquidación
+    settlement_installments = payslip.loan_installment_ids.filtered(
+        lambda x: x.loan_id.deduct_on_settlement and not x.paid and not x.skip
+    )
+    result = sum(settlement_installments.mapped('amount'))
+
+    _logger.info(f"[LOAN_SETTLEMENT] Saldo en liquidación: ${result:,.2f}")
+            </field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">novedad</field>
+            <field name="process">contrato</field>
+            <field name="active" eval="True"/>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- REGLAS POR CATEGORÍA DE PRÉSTAMO                                  -->
+        <!-- ================================================================== -->
+
+        <!-- Regla 8: Libranzas (Ejemplo de préstamo por categoría) -->
+        <record id="hr_salary_rule_loan_libranza" model="hr.salary.rule">
+            <field name="name">Libranzas</field>
+            <field name="code">LOAN_LIBRANZA</field>
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="sequence">207</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+# Obtener préstamos de categoría LIBRANZA
+result = payslip.get_loan_by_category('LIBRANZA')
+result_qty = 1.0
+result_rate = 100.0
+
+# Log
+if result > 0:
+    _logger.info(f"[LIBRANZA] Descuento libranza: ${result:,.2f}")
+            </field>
+            <field name="appears_on_payslip" eval="True"/>
+            <field name="appears_on_payroll_report" eval="True"/>
+            <field name="dev_or_ded">deduccion</field>
+            <field name="type_concepts">novedad</field>
+            <field name="process">nomina</field>
+            <field name="active" eval="False"/>  <!-- Desactivada, solo ejemplo -->
+        </record>
+
+    </data>
+</odoo>

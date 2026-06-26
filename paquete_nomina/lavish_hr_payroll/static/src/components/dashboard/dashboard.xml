@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.Dashboard">
+        <div class="lavish_hr_payroll_dashboard">
+            <!-- Header with Period Selector and Actions -->
+            <div class="dashboard-header">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h2 class="mb-0">Dashboard de Nómina</h2>
+                        <p class="text-muted mb-0">
+                            <t t-if="!state.loading and period.name">
+                                Período: <strong><t t-esc="period.name"/></strong>
+                            </t>
+                        </p>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-wrap align-items-center">
+                        <!-- Period Type Selector -->
+                        <select class="form-select" t-on-change="onPeriodTypeChange" t-model="state.periodType" style="width: 200px;">
+                            <option value="payroll_period">Período Nómina</option>
+                            <option value="today">Hoy</option>
+                            <option value="week">Esta Semana</option>
+                            <option value="month">Este Mes</option>
+                            <option value="prev_month">Mes Anterior</option>
+                            <option value="quarter">Este Trimestre</option>
+                            <option value="prev_quarter">Trimestre Anterior</option>
+                            <option value="year">Este Año</option>
+                            <option value="prev_year">Año Anterior</option>
+                            <option value="custom">Rango Personalizado</option>
+                        </select>
+
+                        <!-- Payroll Period Selector (shown when periodType = 'payroll_period') -->
+                        <select t-if="state.periodType === 'payroll_period'" class="form-select" t-on-change="onPeriodChange" style="width: 200px;">
+                            <option value="">Período Actual</option>
+                            <t t-foreach="periods || []" t-as="p" t-key="p.id">
+                                <option t-att-value="p.id" t-att-selected="state.selectedPeriodId == p.id">
+                                    <t t-esc="p.name"/>
+                                </option>
+                            </t>
+                        </select>
+
+                        <!-- Custom Date Range (shown when periodType = 'custom') -->
+                        <t t-if="state.periodType === 'custom'">
+                            <input type="date"
+                                   class="form-control"
+                                   t-model="state.customDateFrom"
+                                   t-on-change="(ev) => this.onCustomDateChange(ev, 'customDateFrom')"
+                                   style="width: 150px;"
+                                   placeholder="Desde"/>
+                            <input type="date"
+                                   class="form-control"
+                                   t-model="state.customDateTo"
+                                   t-on-change="(ev) => this.onCustomDateChange(ev, 'customDateTo')"
+                                   style="width: 150px;"
+                                   placeholder="Hasta"/>
+                        </t>
+
+                        <!-- Department Filter -->
+                        <select class="form-select" t-on-change="onDepartmentChange" style="width: 200px;">
+                            <option value="">Todos los Departamentos</option>
+                            <t t-foreach="departments || []" t-as="dept" t-key="dept.id">
+                                <option t-att-value="dept.id" t-att-selected="state.selectedDepartmentId == dept.id">
+                                    <t t-esc="dept.name"/>
+                                </option>
+                            </t>
+                        </select>
+
+                        <!-- Generate Batch Button -->
+                        <button class="btn btn-primary" t-on-click="onGenerateBatch" t-if="!state.loading">
+                            <i class="fa fa-plus-circle me-1"/> Generar Lote
+                            <t t-if="period.is_prima_month">
+                                <span class="badge bg-warning text-dark ms-1">Prima</span>
+                            </t>
+                        </button>
+
+                        <!-- Refresh Button -->
+                        <button class="btn btn-light" t-on-click="onRefresh" t-if="!state.loading">
+                            <i class="fa fa-refresh"/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div t-if="state.loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-3 text-muted">Cargando datos del dashboard...</p>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div t-else="">
+                <!-- Tabs Navigation -->
+                <div class="dashboard-tabs-navigation mb-4">
+                    <ul class="nav nav-tabs dashboard-nav-tabs">
+                        <li class="nav-item" t-foreach="tabs" t-as="tab" t-key="tab.id">
+                            <a
+                                href="#"
+                                class="nav-link"
+                                t-att-class="{'active': state.activeTab === tab.id}"
+                                t-on-click.prevent="() => this.onTabChange(tab.id)">
+                                <i class="fa me-2" t-att-class="tab.icon"/>
+                                <span><t t-esc="tab.name"/></span>
+                                <span t-if="getTabBadge(tab)" class="badge bg-white text-dark border rounded-pill ms-2">
+                                    <t t-esc="getTabBadge(tab)"/>
+                                </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Tab: Resumen -->
+                <div t-if="state.activeTab === 'resumen'" class="tab-pane-content">
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <SummaryHeroCard
+                                company="company"
+                                period="period"
+                                kpis="kpis"
+                                trendData="payrollTrend"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-7">
+                            <PayrollSummaryCard
+                                summaryData="payrollSummary"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                        <div class="col-lg-5">
+                            <SocialSecurityChart
+                                socialSecurity="socialSecurity"
+                                period="period"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <IncomeDeductionsChart
+                                chartData="charts.income_deductions"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Total Empleados'"
+                                value="kpis.total_employees?.value || 0"
+                                icon="'fa-users'"
+                                color="'primary'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/dxoycpzg.json'"
+                                onClick="() => this.handleAction('view_employees', {period_id: period?.id})"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Total Devengado'"
+                                value="kpis.total_devengado?.formatted || '$0'"
+                                icon="'fa-money'"
+                                color="'success'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/qhviklyi.json'"
+                                onClick="() => this.handleAction('view_payslips', {period_id: period?.id})"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Promedio Horas Extras'"
+                                value="(kpis.avg_overtime_hours?.value || 0) + 'h'"
+                                subtitle="'Por empleado/mes'"
+                                icon="'fa-clock'"
+                                color="'warning'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/kbtmbyzy.json'"
+                                onClick="() => this.handleAction('view_payslips', {period_id: period?.id})"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Nóminas del Período'"
+                                value="kpis.payslips_month?.formatted || '$0'"
+                                subtitle="(kpis.payslips_month?.count || 0) + ' nóminas'"
+                                icon="'fa-file-invoice-dollar'"
+                                color="'purple'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/iltqorsz.json'"
+                                onClick="() => this.handleAction('view_payslips', {period_id: period?.id})"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Nomina -->
+                <div t-if="state.activeTab === 'nomina'" class="tab-pane-content">
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-6">
+                            <BatchList
+                                batches="batches"
+                                period="period"
+                            />
+                        </div>
+                        <div class="col-lg-6">
+                            <PaymentScheduleCard
+                                scheduleData="paymentSchedule"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <PayslipList
+                                payslips="payslips"
+                                period="period"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Talento -->
+                <div t-if="state.activeTab === 'talento'" class="tab-pane-content">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Accidentes Laborales'"
+                                value="kpis.accidents?.value || 0"
+                                icon="'fa-ambulance'"
+                                color="'danger'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/yrxnwkni.json'"
+                                onClick="() => this.handleAction('view_disabilities', {period_id: period?.id, disability_type: 'AT'})"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Ausencias en Período'"
+                                value="kpis.absences?.value || 0"
+                                subtitle="(kpis.absences?.days || 0) + ' días totales'"
+                                icon="'fa-user-times'"
+                                color="'info'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/hrqwmutt.json'"
+                                onClick="() => this.handleAction('view_disabilities', {period_id: period?.id})"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Solicitudes Pendientes'"
+                                value="kpis.pending_requests?.value || 0"
+                                icon="'fa-clock'"
+                                color="'pink'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/abfverha.json'"
+                                onClick="() => this.handleAction('view_pending_leaves', {period_id: period?.id})"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Nuevos Empleados'"
+                                value="kpis.new_employees?.value || 0"
+                                icon="'fa-user-plus'"
+                                color="'success'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/kdduutaw.json'"
+                                onClick="() => this.handleAction('view_new_employees', {period_id: period?.id})"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-6">
+                            <ExpiringContractsCard
+                                contractsData="expiringContracts"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                        <div class="col-lg-6">
+                            <PendingLeavesCard
+                                leavesData="pendingLeaves"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <CityMapCard
+                                cityData="employeesByCity"
+                                period="period"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <NewEmployeesCard
+                                employeesData="newEmployees"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Analitica -->
+                <div t-if="state.activeTab === 'analitica'" class="tab-pane-content">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Horas Extras Totales'"
+                                value="overtimeTotalLabel"
+                                subtitle="'Acumulado por departamento'"
+                                icon="'fa-clock'"
+                                color="'primary'"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Días de Ausencia'"
+                                value="absencesTotalLabel"
+                                subtitle="'Total por tipos'"
+                                icon="'fa-user-times'"
+                                color="'info'"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Accidentes'"
+                                value="accidentsTotalLabel"
+                                subtitle="'Últimos 6 meses'"
+                                icon="'fa-ambulance'"
+                                color="'danger'"
+                            />
+                        </div>
+                        <div class="col-md-3">
+                            <KPICard
+                                title="'Incidentes'"
+                                value="incidentsTotalLabel"
+                                subtitle="'Últimos 6 meses'"
+                                icon="'fa-exclamation-circle'"
+                                color="'warning'"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <KPICard
+                                title="'Base Retención en la Fuente'"
+                                value="kpis.retention_base?.formatted || '$0'"
+                                subtitle="'Mes anterior: ' + (kpis.retention_base?.prev_formatted || '$0') + ' (' + (kpis.retention_base?.change > 0 ? '+' : '') + (kpis.retention_base?.change || 0) + '%)'"
+                                icon="'fa-calculator'"
+                                color="'info'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/nizfqlnq.json'"
+                            />
+                        </div>
+                        <div class="col-md-6">
+                            <KPICard
+                                title="'Total Retenido'"
+                                value="kpis.retention_total?.formatted || '$0'"
+                                subtitle="'Mes anterior: ' + (kpis.retention_total?.prev_formatted || '$0') + ' (' + (kpis.retention_total?.change > 0 ? '+' : '') + (kpis.retention_total?.change || 0) + '%)'"
+                                icon="'fa-percent'"
+                                color="'primary'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/wyqtxzeh.json'"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12">
+                            <IncomeDeductionsChart
+                                chartData="charts.income_deductions"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-lg-4">
+                            <OvertimeDepartmentChart
+                                chartData="charts.overtime_by_department"
+                                period="period"
+                            />
+                        </div>
+                        <div class="col-lg-4">
+                            <AbsencesByTypeChart
+                                chartData="charts.absences_by_type"
+                                period="period"
+                            />
+                        </div>
+                        <div class="col-lg-4">
+                            <AccidentsTrendChart
+                                chartData="charts.accidents_chart"
+                                period="period"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <SocialSecurityChart
+                                socialSecurity="socialSecurity"
+                                period="period"
+                            />
+                        </div>
+                        <div class="col-lg-6">
+                            <DisabilityChart
+                                chartData="charts.disability_by_type"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Alertas -->
+                <div t-if="state.activeTab === 'alertas'" class="tab-pane-content">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <KPICard
+                                title="'Sin Seguridad Social'"
+                                value="kpis.employees_without_ss?.value || 0"
+                                subtitle="'Empleados no incluidos en SS'"
+                                icon="'fa-shield'"
+                                color="kpis.employees_without_ss?.severity || 'success'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/nocovwne.json'"
+                                onClick="() => this.handleAction('view_employees_without_ss', {employee_ids: kpis.employees_without_ss?.employee_ids || []})"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <KPICard
+                                title="'Sin Nómina en Período'"
+                                value="kpis.employees_without_payslip?.value || 0"
+                                subtitle="'Empleados activos sin nómina'"
+                                icon="'fa-file-alt'"
+                                color="kpis.employees_without_payslip?.severity || 'success'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/rmkpgtpt.json'"
+                                onClick="() => this.handleAction('view_employees_without_payslip', {employee_ids: kpis.employees_without_payslip?.employee_ids || []})"
+                            />
+                        </div>
+                        <div class="col-md-4">
+                            <KPICard
+                                title="'Sin Liquidación'"
+                                value="kpis.employees_without_settlement?.value || 0"
+                                subtitle="'Empleados terminados sin liquidar'"
+                                icon="'fa-exclamation-triangle'"
+                                color="kpis.employees_without_settlement?.severity || 'success'"
+                                animatedIcon="'/lavish_hr_payroll/static/src/lib/lottie/icons/tdrtiskw.json'"
+                                onClick="() => this.handleAction('view_employees_without_settlement', {employee_ids: kpis.employees_without_settlement?.employee_ids || []})"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-lg-4">
+                            <AlertsBreakdownChart
+                                counts="alertsBreakdown"
+                                period="period"
+                            />
+                        </div>
+                        <div class="col-lg-8">
+                            <AlertsDetailCard
+                                kpis="kpis"
+                                period="period"
+                                onAction="(action, kwargs) => this.handleAction(action, kwargs)"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate Batch Modal -->
+            <t t-if="state.showGenerateBatchModal">
+                <GenerateBatchModal
+                    period="period"
+                    onClose="() => this.onCloseModal()"
+                    onGenerated="() => this.onBatchGenerated()"
+                />
+            </t>
+        </div>
+    </t>
+
+</templates>

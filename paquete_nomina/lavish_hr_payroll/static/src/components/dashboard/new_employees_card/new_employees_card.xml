@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.NewEmployeesCard">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fa fa-user-plus me-2"/>
+                    Nuevos Empleados
+                </h5>
+                <button class="btn btn-sm btn-light" t-on-click="onViewAllEmployees" t-if="hasData">
+                    <i class="fa fa-external-link"/>
+                </button>
+            </div>
+            <div class="card-body">
+                <t t-if="!hasData">
+                    <div class="text-center text-muted py-4">
+                        <i class="fa fa-info-circle fa-2x mb-2"/>
+                        <p>No hay nuevos empleados en el período</p>
+                    </div>
+                </t>
+                <t t-else="">
+                    <!-- Summary Badge -->
+                    <div class="text-center mb-3">
+                        <span class="badge bg-success rounded-pill px-3 py-2">
+                            <i class="fa fa-users me-1"/>
+                            <t t-esc="totalEmployees"/> nuevo(s) empleado(s)
+                        </span>
+                    </div>
+
+                    <!-- Employees List -->
+                    <div class="list-group list-group-flush">
+                        <t t-foreach="employees" t-as="employee" t-key="employee.id">
+                            <div class="list-group-item px-2 py-2 cursor-pointer"
+                                 t-on-click="() => this.onViewEmployee(employee.id)">
+                                <div class="d-flex align-items-start gap-2">
+                                    <!-- Avatar or Icon -->
+                                    <div class="flex-shrink-0">
+                                        <div class="rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center"
+                                             style="width: 40px; height: 40px;">
+                                            <i class="fa fa-user text-success"/>
+                                        </div>
+                                    </div>
+
+                                    <!-- Employee Info -->
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong class="d-block" t-esc="employee.name"/>
+                                                <small class="text-muted d-block">
+                                                    <i class="fa fa-briefcase me-1"/>
+                                                    <t t-esc="employee.job"/>
+                                                </small>
+                                                <small class="text-muted d-block">
+                                                    <i class="fa fa-building me-1"/>
+                                                    <t t-esc="employee.department"/>
+                                                </small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge bg-success">
+                                                    <t t-esc="getHiringText(employee.hire_date)"/>
+                                                </span>
+                                                <small class="text-muted d-block mt-1">
+                                                    <t t-esc="employee.hire_date"/>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Show more indicator -->
+                    <div class="mt-2 text-center" t-if="totalEmployees > 5">
+                        <button class="btn btn-sm btn-link" t-on-click="onViewAllEmployees">
+                            Ver todos (<t t-esc="totalEmployees"/> empleados)
+                            <i class="fa fa-arrow-right ms-1"/>
+                        </button>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

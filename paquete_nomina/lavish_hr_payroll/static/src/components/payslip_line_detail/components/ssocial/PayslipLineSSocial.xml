@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineSSocial">
+        <div class="pld-ssocial-container">
+            <!-- Header -->
+            <div class="pld-ssocial-header d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i t-attf-class="fa #{tipoIcon} text-#{tipoColor}"/>
+                    <span class="fw-bold" t-esc="tipoAporte"/>
+                    <span t-attf-class="badge bg-#{tipoColor}">
+                        <t t-esc="porcentajeEmpleado"/>%
+                    </span>
+                </div>
+                <small class="text-muted" t-esc="baseLegal"/>
+            </div>
+
+            <!-- KPIs -->
+            <div class="pld-ssocial-kpis d-flex flex-wrap gap-3 mb-3">
+                <t t-foreach="kpis" t-as="kpi" t-key="kpi.id">
+                    <div t-attf-class="pld-kpi-card p-2 rounded border #{kpi.highlight ? 'border-2' : ''} bg-light"
+                         t-attf-style="#{kpi.highlight ? 'border-color: var(--bs-' + kpi.color + ') !important;' : ''}">
+                        <div class="d-flex align-items-center gap-1 mb-1">
+                            <i t-attf-class="fa #{kpi.icon} text-#{kpi.color}" style="font-size: 12px;"/>
+                            <small class="text-muted" t-esc="kpi.label"/>
+                        </div>
+                        <div t-attf-class="fw-bold #{kpi.highlight ? 'fs-5' : ''}">
+                            <t t-if="kpi.format === 'currency'">
+                                <t t-esc="props.formatCurrency(kpi.value)"/>
+                            </t>
+                            <t t-elif="kpi.format === 'percent'">
+                                <t t-esc="kpi.value"/>%
+                            </t>
+                            <t t-else="">
+                                <t t-esc="props.formatValue(kpi.value, kpi.format)"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Formula -->
+            <div class="pld-ssocial-formula bg-light p-2 rounded mb-3 d-flex align-items-center gap-2">
+                <i class="fa fa-calculator text-secondary"/>
+                <code t-esc="formula"/>
+                <span class="ms-auto text-muted small">
+                    <t t-esc="smmlvAplicado"/> SMMLV
+                </span>
+            </div>
+
+            <!-- Distribucion Empleado/Empleador -->
+            <t t-if="hasDistribucion">
+                <div class="pld-ssocial-distribucion mb-3">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                         t-on-click="toggleDistribucion">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-pie-chart text-secondary"/>
+                            <span class="fw-medium">Distribucion del Aporte</span>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showDistribucion ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showDistribucion">
+                        <div class="pld-distribucion-content mt-2 ps-3">
+                            <!-- Barra visual -->
+                            <div class="progress mb-2" style="height: 24px;">
+                                <div class="progress-bar bg-primary"
+                                     role="progressbar"
+                                     t-attf-style="width: #{(distribucion.empleado.porcentaje / distribucion.total.porcentaje) * 100}%"
+                                     t-att-aria-valuenow="distribucion.empleado.porcentaje"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    Empleado <t t-esc="distribucion.empleado.porcentaje"/>%
+                                </div>
+                                <div class="progress-bar bg-info"
+                                     role="progressbar"
+                                     t-attf-style="width: #{(distribucion.empleador.porcentaje / distribucion.total.porcentaje) * 100}%"
+                                     t-att-aria-valuenow="distribucion.empleador.porcentaje"
+                                     aria-valuemin="0"
+                                     aria-valuemax="100">
+                                    Empleador <t t-esc="distribucion.empleador.porcentaje"/>%
+                                </div>
+                            </div>
+                            <!-- Tabla de valores -->
+                            <table class="table table-sm table-borderless mb-0">
+                                <tbody>
+                                    <tr>
+                                        <td><i class="fa fa-user text-primary me-1"/> Empleado</td>
+                                        <td class="text-end"><t t-esc="distribucion.empleado.porcentaje"/>%</td>
+                                        <td class="text-end fw-medium" t-esc="props.formatCurrency(distribucion.empleado.valor)"/>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="fa fa-building text-info me-1"/> Empleador</td>
+                                        <td class="text-end"><t t-esc="distribucion.empleador.porcentaje"/>%</td>
+                                        <td class="text-end fw-medium" t-esc="props.formatCurrency(distribucion.empleador.valor)"/>
+                                    </tr>
+                                    <tr class="border-top">
+                                        <td class="fw-bold">Total</td>
+                                        <td class="text-end fw-bold"><t t-esc="distribucion.total.porcentaje"/>%</td>
+                                        <td class="text-end fw-bold" t-esc="props.formatCurrency(distribucion.total.valor)"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+            <!-- Tabla de rangos (FSP y Subsistencia) -->
+            <t t-if="hasTablaRangos">
+                <div class="pld-ssocial-rangos">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                         t-on-click="toggleTablaRangos">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-table text-secondary"/>
+                            <span class="fw-medium">Tabla de Rangos</span>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showTablaRangos ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showTablaRangos">
+                        <div class="pld-rangos-content mt-2">
+                            <table class="table table-sm table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Rango</th>
+                                        <th>Porcentaje</th>
+                                        <th class="text-center">Aplica</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="tablaRangos" t-as="rango" t-key="rango_index">
+                                        <tr t-attf-class="#{rango.aplica ? 'table-success' : ''}">
+                                            <td t-esc="rango.rango"/>
+                                            <td t-esc="rango.porcentaje"/>
+                                            <td class="text-center">
+                                                <t t-if="rango.aplica">
+                                                    <i class="fa fa-check-circle text-success"/>
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

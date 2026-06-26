@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         TEMPLATE: ICONO SVG ANIMADO
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <t t-name="lavish_hr_payroll.AnimatedIcon">
+        <div class="animated-icon-wrapper" t-att-style="props.style">
+            <t t-if="props.name === 'money'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <circle class="icon-path" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path class="icon-path" d="M12 6v12M9 9h6M9 15h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'shield'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <path class="icon-path" d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="icon-path" d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'percent'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <circle class="icon-path" cx="7" cy="7" r="2" stroke="currentColor" stroke-width="2"/>
+                    <circle class="icon-path" cx="17" cy="17" r="2" stroke="currentColor" stroke-width="2"/>
+                    <path class="icon-path" d="M19 5L5 19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'gift'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <rect class="icon-path" x="3" y="10" width="18" height="10" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path class="icon-path" d="M12 10V20M3 14h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path class="icon-path" d="M12 10c0-2 1-4 3-4s2 2 0 4M12 10c0-2-1-4-3-4s-2 2 0 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'calendar'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <rect class="icon-path" x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path class="icon-path" d="M3 10h18M8 2v4M16 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <circle class="icon-path" cx="8" cy="14" r="1" fill="currentColor"/>
+                    <circle class="icon-path" cx="12" cy="14" r="1" fill="currentColor"/>
+                    <circle class="icon-path" cx="16" cy="14" r="1" fill="currentColor"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'chart'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <path class="icon-path" d="M3 20l6-6 4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle class="icon-path" cx="3" cy="20" r="2" fill="currentColor"/>
+                    <circle class="icon-path" cx="9" cy="14" r="2" fill="currentColor"/>
+                    <circle class="icon-path" cx="13" cy="18" r="2" fill="currentColor"/>
+                    <circle class="icon-path" cx="21" cy="10" r="2" fill="currentColor"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'alert'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <path class="icon-path" d="M12 2L2 20h20L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path class="icon-path" d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'building'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <rect class="icon-path" x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <path class="icon-path" d="M8 6h2M14 6h2M8 10h2M14 10h2M8 14h2M14 14h2M10 18h4v4h-4z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </t>
+            <t t-elif="props.name === 'calculator'">
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <rect class="icon-path" x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="2"/>
+                    <rect class="icon-path" x="7" y="5" width="10" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+                    <circle class="icon-path" cx="8" cy="13" r="1" fill="currentColor"/>
+                    <circle class="icon-path" cx="12" cy="13" r="1" fill="currentColor"/>
+                    <circle class="icon-path" cx="16" cy="13" r="1" fill="currentColor"/>
+                    <circle class="icon-path" cx="8" cy="17" r="1" fill="currentColor"/>
+                    <circle class="icon-path" cx="12" cy="17" r="1" fill="currentColor"/>
+                    <circle class="icon-path" cx="16" cy="17" r="1" fill="currentColor"/>
+                </svg>
+            </t>
+            <t t-else="">
+                <!-- Check icon as fallback -->
+                <svg class="animated-icon" viewBox="0 0 24 24" fill="none">
+                    <circle class="icon-path" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                    <path class="icon-path" d="M8 12l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </t>
+        </div>
+    </t>
+
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         TEMPLATE PRINCIPAL: CATALOGO DE REGLAS
+         ══════════════════════════════════════════════════════════════════════ -->
+
+    <t t-name="lavish_hr_payroll.PayrollCatalog">
+        <div class="payroll-catalog">
+
+            <!-- HEADER -->
+            <div class="catalog-header">
+                <div class="header-content">
+                    <AnimatedIcon name="'building'" style="'width:64px;height:64px;color:white;'"/>
+                    <div class="header-text">
+                        <h1>CATALOGO DE REGLAS DE NOMINA</h1>
+                        <p>Sistema Integral Colombiano - 100% Local</p>
+                    </div>
+                </div>
+
+                <div class="params-badges">
+                    <div class="param-badge">
+                        <AnimatedIcon name="'money'" style="'width:24px;height:24px;'"/>
+                        <span>SMMLV: <strong><t t-esc="formatCurrency(SMMLV)"/></strong></span>
+                    </div>
+                    <div class="param-badge">
+                        <AnimatedIcon name="'calculator'" style="'width:24px;height:24px;'"/>
+                        <span>UVT: <strong><t t-esc="formatCurrency(UVT)"/></strong></span>
+                    </div>
+                    <div class="param-badge">
+                        <i class="fa fa-bus"></i>
+                        <span>Aux: <strong><t t-esc="formatCurrency(AUX_TRANSPORTE)"/></strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NAVEGACION -->
+            <div class="tabs-navigation">
+                <t t-foreach="secciones" t-as="seccion" t-key="seccion.id">
+                    <button
+                        t-att-class="'tab-button tab-' + seccion.color + (state.seccionActiva === seccion.id ? ' active' : '')"
+                        t-on-click="() => this.onSeccionClick(seccion.id)">
+                        <AnimatedIcon name="seccion.icono" style="'width:32px;height:32px;'"/>
+                        <div>
+                            <span class="tab-title"><t t-esc="seccion.nombre"/></span>
+                        </div>
+                    </button>
+                </t>
+            </div>
+
+            <!-- CONTENIDO DE SECCIONES -->
+            <div class="catalog-content">
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECCION: IBC
+                     ════════════════════════════════════════════════════════ -->
+                <t t-if="state.seccionActiva === 'ibc'">
+                    <div class="section-ibc">
+                        <!-- Marco Legal -->
+                        <div class="legal-box blue">
+                            <h3><i class="fa fa-gavel"></i> Marco Legal del IBC</h3>
+                            <div class="normas-grid">
+                                <t t-foreach="REGLAS.ibc.fundamentoLegal.normas" t-as="norma" t-key="norma.id">
+                                    <div class="norma-card">
+                                        <div class="norma-header">
+                                            <span class="norma-id"><t t-esc="norma.id"/></span>
+                                            <span class="norma-nombre"><t t-esc="norma.nombre"/></span>
+                                        </div>
+                                        <div class="norma-articulo"><t t-esc="norma.articulo"/></div>
+                                        <div class="norma-desc"><t t-esc="norma.descripcion"/></div>
+                                    </div>
+                                </t>
+                            </div>
+                            <p class="explicacion"><t t-esc="REGLAS.ibc.fundamentoLegal.explicacion"/></p>
+                        </div>
+
+                        <!-- Simulador IBC -->
+                        <div class="simulator">
+                            <div class="simulator-header">
+                                <AnimatedIcon name="'calculator'" style="'width:48px;height:48px;'"/>
+                                <h3>SIMULADOR DE CALCULO IBC</h3>
+                            </div>
+
+                            <div class="simulator-inputs">
+                                <div class="input-group">
+                                    <label>Salario Basico</label>
+                                    <input
+                                        type="number"
+                                        t-att-value="state.simulador.salarioBasico"
+                                        t-on-change="(ev) => this.onInputChange('salarioBasico', ev)"
+                                        class="input-field"/>
+                                </div>
+                                <div class="input-group">
+                                    <label>Devengos No Salariales</label>
+                                    <input
+                                        type="number"
+                                        t-att-value="state.simulador.devengosNoSalariales"
+                                        t-on-change="(ev) => this.onInputChange('devengosNoSalariales', ev)"
+                                        class="input-field"/>
+                                </div>
+                            </div>
+
+                            <div class="simulator-results">
+                                <div class="result-row">
+                                    <span>Remuneracion Total:</span>
+                                    <span class="value"><t t-esc="formatCurrency(remuneracionTotal)"/></span>
+                                </div>
+                                <div class="result-row">
+                                    <span>Limite 40%:</span>
+                                    <span class="value"><t t-esc="formatCurrency(limite40)"/></span>
+                                </div>
+                                <div class="result-row">
+                                    <span>Exceso a incluir:</span>
+                                    <span class="value warning"><t t-esc="formatCurrency(excesoNoSalarial)"/></span>
+                                </div>
+                                <div class="result-row final">
+                                    <span>IBC FINAL:</span>
+                                    <span class="value final">
+                                        <AnimatedIcon name="'check'" style="'width:24px;height:24px;color:#22c55e;'"/>
+                                        <t t-esc="formatCurrency(ibcCalculado)"/>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Reglas IBC -->
+                        <div class="rules-table-container">
+                            <h4>Reglas de IBC</h4>
+                            <table class="rules-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Codigo</th>
+                                        <th>Nombre</th>
+                                        <th>Sec.</th>
+                                        <th>Formula</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="REGLAS.ibc.reglas" t-as="regla" t-key="regla.id">
+                                        <tr>
+                                            <td class="id"><t t-esc="regla.id"/></td>
+                                            <td class="code"><t t-esc="regla.codigo"/></td>
+                                            <td><t t-esc="regla.nombre"/></td>
+                                            <td class="seq"><t t-esc="regla.secuencia"/></td>
+                                            <td class="formula"><t t-esc="regla.formula"/></td>
+                                            <td><span class="badge success"><t t-esc="regla.estado"/></span></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECCION: SEGURIDAD SOCIAL
+                     ════════════════════════════════════════════════════════ -->
+                <t t-if="state.seccionActiva === 'seguridad'">
+                    <div class="section-ss">
+                        <!-- Marco Legal -->
+                        <div class="legal-box green">
+                            <h3><i class="fa fa-medkit"></i> Marco Legal Seguridad Social</h3>
+                            <div class="normas-grid">
+                                <t t-foreach="REGLAS.seguridadSocial.fundamentoLegal.normas" t-as="norma" t-key="norma.id">
+                                    <div class="norma-card">
+                                        <div class="norma-header">
+                                            <span class="norma-id"><t t-esc="norma.id"/></span>
+                                            <span class="norma-nombre"><t t-esc="norma.nombre"/></span>
+                                        </div>
+                                        <div class="norma-articulo"><t t-esc="norma.articulo"/></div>
+                                        <div class="norma-desc"><t t-esc="norma.descripcion"/></div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Cards de SS -->
+                        <div class="ss-grid">
+                            <div class="ss-card salud">
+                                <div class="ss-icon">
+                                    <AnimatedIcon name="'shield'" style="'width:48px;height:48px;'"/>
+                                </div>
+                                <div class="ss-content">
+                                    <h4>Salud (EPS)</h4>
+                                    <div class="ss-percentage">12.5%</div>
+                                    <div class="ss-detail">Empleador: 8.5% | Trabajador: 4%</div>
+                                    <div class="ss-legal">Ley 1122/2007</div>
+                                    <div class="ss-value">
+                                        Emp: <t t-esc="formatCurrency(saludEmpleador)"/> |
+                                        Trab: <t t-esc="formatCurrency(saludTrabajador)"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ss-card pension">
+                                <div class="ss-icon">
+                                    <AnimatedIcon name="'building'" style="'width:48px;height:48px;'"/>
+                                </div>
+                                <div class="ss-content">
+                                    <h4>Pension (AFP)</h4>
+                                    <div class="ss-percentage">16%</div>
+                                    <div class="ss-detail">Empleador: 12% | Trabajador: 4%</div>
+                                    <div class="ss-legal">Ley 797/2003</div>
+                                    <div class="ss-value">
+                                        Emp: <t t-esc="formatCurrency(pensionEmpleador)"/> |
+                                        Trab: <t t-esc="formatCurrency(pensionTrabajador)"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ss-card fsp">
+                                <div class="ss-icon">
+                                    <AnimatedIcon name="'shield'" style="'width:48px;height:48px;'"/>
+                                </div>
+                                <div class="ss-content">
+                                    <h4>Fondo Solidaridad</h4>
+                                    <div class="ss-percentage">1-2%</div>
+                                    <div class="ss-detail">Solo si IBC > 4 SMMLV</div>
+                                    <div class="ss-legal">Ley 797/2003</div>
+                                    <div class="ss-value"><t t-esc="formatCurrency(fsp)"/></div>
+                                </div>
+                            </div>
+
+                            <div class="ss-card arl">
+                                <div class="ss-icon">
+                                    <AnimatedIcon name="'alert'" style="'width:48px;height:48px;'"/>
+                                </div>
+                                <div class="ss-content">
+                                    <h4>ARL</h4>
+                                    <div class="ss-percentage">Variable</div>
+                                    <div class="ss-detail">Segun nivel de riesgo</div>
+                                    <div class="ss-legal">Dec. 1295/1994</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tablas FSP y ARL -->
+                        <div class="tables-row">
+                            <div class="table-container">
+                                <h4>Tabla FSP (Fondo de Solidaridad Pensional)</h4>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Rango Salarial</th>
+                                            <th>Adicional</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="REGLAS.seguridadSocial.tablaFSP" t-as="fila" t-key="fila_index">
+                                            <tr>
+                                                <td><t t-esc="fila.rango"/></td>
+                                                <td><t t-esc="fila.adicional"/></td>
+                                                <td class="bold"><t t-esc="fila.total"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="table-container">
+                                <h4>Tabla ARL (Riesgos Laborales)</h4>
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nivel</th>
+                                            <th>Tarifa</th>
+                                            <th>Descripcion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="REGLAS.seguridadSocial.tablaARL" t-as="fila" t-key="fila_index">
+                                            <tr>
+                                                <td class="bold"><t t-esc="fila.nivel"/></td>
+                                                <td><t t-esc="fila.tarifa"/></td>
+                                                <td class="small"><t t-esc="fila.descripcion"/></td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECCION: RETENCIONES
+                     ════════════════════════════════════════════════════════ -->
+                <t t-if="state.seccionActiva === 'retenciones'">
+                    <div class="section-ret">
+                        <!-- Marco Legal -->
+                        <div class="legal-box red">
+                            <h3><i class="fa fa-percent"></i> Marco Legal Retencion en la Fuente</h3>
+                            <div class="normas-grid">
+                                <t t-foreach="REGLAS.retenciones.fundamentoLegal.normas" t-as="norma" t-key="norma.id">
+                                    <div class="norma-card">
+                                        <div class="norma-header">
+                                            <span class="norma-id"><t t-esc="norma.id"/></span>
+                                            <span class="norma-nombre"><t t-esc="norma.nombre"/></span>
+                                        </div>
+                                        <div class="norma-articulo"><t t-esc="norma.articulo"/></div>
+                                        <div class="norma-desc"><t t-esc="norma.descripcion"/></div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- UVT Display -->
+                        <div class="uvt-display">
+                            <AnimatedIcon name="'calculator'" style="'width:80px;height:80px;'"/>
+                            <div>
+                                <div class="uvt-label">Valor UVT 2025</div>
+                                <div class="uvt-value"><t t-esc="formatCurrency(UVT)"/></div>
+                                <div class="uvt-note">Unidad de Valor Tributario</div>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Retencion -->
+                        <div class="table-container">
+                            <h4>Tabla de Retencion Art. 383 E.T.</h4>
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rango (UVT)</th>
+                                        <th>Tarifa</th>
+                                        <th>Formula</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="REGLAS.retenciones.tablaRetencion" t-as="fila" t-key="fila_index">
+                                        <tr>
+                                            <td><t t-esc="fila.rangoDesde"/> - <t t-esc="fila.rangoHasta === 99999 ? 'Infinito' : fila.rangoHasta"/></td>
+                                            <td class="bold red"><t t-esc="fila.tarifa"/></td>
+                                            <td class="formula"><t t-esc="fila.formula"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Depuracion -->
+                        <div class="depuracion-container">
+                            <h4>Proceso de Depuracion Base Gravable</h4>
+                            <div class="depuracion-list">
+                                <t t-foreach="REGLAS.retenciones.depuracion" t-as="item" t-key="item_index">
+                                    <div t-att-class="'depuracion-item ' + (item.tipo === '+' ? 'add' : item.tipo === '-' ? 'subtract' : 'result')">
+                                        <span><t t-esc="item.concepto"/></span>
+                                        <span class="tipo"><t t-esc="item.tipo"/></span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECCION: PRESTACIONES
+                     ════════════════════════════════════════════════════════ -->
+                <t t-if="state.seccionActiva === 'prestaciones'">
+                    <div class="section-prest">
+                        <!-- Marco Legal -->
+                        <div class="legal-box amber">
+                            <h3><i class="fa fa-gift"></i> Marco Legal Prestaciones Sociales</h3>
+                            <div class="normas-grid">
+                                <t t-foreach="REGLAS.prestaciones.fundamentoLegal.normas" t-as="norma" t-key="norma.id">
+                                    <div class="norma-card">
+                                        <div class="norma-header">
+                                            <span class="norma-id"><t t-esc="norma.id"/></span>
+                                            <span class="norma-nombre"><t t-esc="norma.nombre"/></span>
+                                        </div>
+                                        <div class="norma-articulo"><t t-esc="norma.articulo"/></div>
+                                        <div class="norma-desc"><t t-esc="norma.descripcion"/></div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Cards de Prestaciones -->
+                        <div class="prestaciones-grid">
+                            <div class="prestacion-card prima">
+                                <div class="prestacion-icon">
+                                    <AnimatedIcon name="'gift'" style="'width:64px;height:64px;'"/>
+                                </div>
+                                <h3>PRIMA DE SERVICIOS</h3>
+                                <div class="prestacion-formula">(Salario + Aux) x Dias / 360</div>
+                                <div class="prestacion-badge success">
+                                    <i class="fa fa-check"></i> Incluye Aux. Transporte
+                                </div>
+                                <div class="prestacion-value"><t t-esc="formatCurrency(primaCalculada)"/></div>
+                                <div class="prestacion-legal">Art. 306-308 CST</div>
+                            </div>
+
+                            <div class="prestacion-card cesantias">
+                                <div class="prestacion-icon">
+                                    <AnimatedIcon name="'building'" style="'width:64px;height:64px;'"/>
+                                </div>
+                                <h3>CESANTIAS</h3>
+                                <div class="prestacion-formula">(Salario + Aux) x Dias / 360</div>
+                                <div class="prestacion-badge success">
+                                    <i class="fa fa-check"></i> Incluye Aux. Transporte
+                                </div>
+                                <div class="prestacion-value"><t t-esc="formatCurrency(cesantiasCalculadas)"/></div>
+                                <div class="prestacion-legal">Art. 249-258 CST</div>
+                            </div>
+
+                            <div class="prestacion-card intereses">
+                                <div class="prestacion-icon">
+                                    <AnimatedIcon name="'percent'" style="'width:64px;height:64px;'"/>
+                                </div>
+                                <h3>INTERESES</h3>
+                                <div class="prestacion-formula">Cesantias x 12% x Dias / 360</div>
+                                <div class="prestacion-badge info">
+                                    <i class="fa fa-info-circle"></i> 12% anual
+                                </div>
+                                <div class="prestacion-value"><t t-esc="formatCurrency(interesesCalculados)"/></div>
+                                <div class="prestacion-legal">Ley 52/1975</div>
+                            </div>
+
+                            <div class="prestacion-card vacaciones">
+                                <div class="prestacion-icon">
+                                    <AnimatedIcon name="'calendar'" style="'width:64px;height:64px;'"/>
+                                </div>
+                                <h3>VACACIONES</h3>
+                                <div class="prestacion-formula">Salario x Dias / 720</div>
+                                <div class="prestacion-badge warning">
+                                    <i class="fa fa-times"></i> NO incluye Aux. Transporte
+                                </div>
+                                <div class="prestacion-value"><t t-esc="formatCurrency(vacacionesCalculadas)"/></div>
+                                <div class="prestacion-legal">Art. 186-192 CST</div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     SECCION: PARAFISCALES
+                     ════════════════════════════════════════════════════════ -->
+                <t t-if="state.seccionActiva === 'parafiscales'">
+                    <div class="section-parf">
+                        <!-- Marco Legal -->
+                        <div class="legal-box violet">
+                            <h3><i class="fa fa-institution"></i> Marco Legal Aportes Parafiscales</h3>
+                            <div class="normas-grid">
+                                <t t-foreach="REGLAS.parafiscales.fundamentoLegal.normas" t-as="norma" t-key="norma.id">
+                                    <div class="norma-card">
+                                        <div class="norma-header">
+                                            <span class="norma-id"><t t-esc="norma.id"/></span>
+                                            <span class="norma-nombre"><t t-esc="norma.nombre"/></span>
+                                        </div>
+                                        <div class="norma-articulo"><t t-esc="norma.articulo"/></div>
+                                        <div class="norma-desc"><t t-esc="norma.descripcion"/></div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Tabla de Reglas -->
+                        <div class="table-container">
+                            <h4>Reglas de Aportes Parafiscales</h4>
+                            <table class="rules-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Codigo</th>
+                                        <th>Concepto</th>
+                                        <th>Porcentaje</th>
+                                        <th>Formula</th>
+                                        <th>Exonerable</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="REGLAS.parafiscales.reglas" t-as="regla" t-key="regla.id">
+                                        <tr>
+                                            <td class="id"><t t-esc="regla.id"/></td>
+                                            <td class="code"><t t-esc="regla.codigo"/></td>
+                                            <td><t t-esc="regla.nombre"/></td>
+                                            <td class="bold"><t t-esc="regla.porcentaje"/>%</td>
+                                            <td class="formula"><t t-esc="regla.formula"/></td>
+                                            <td>
+                                                <t t-if="regla.exonerable">
+                                                    <span class="badge warning">Si (Ley 1607)</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="badge secondary">No</span>
+                                                </t>
+                                            </td>
+                                            <td><span class="badge success"><t t-esc="regla.estado"/></span></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </t>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="catalog-footer">
+                <AnimatedIcon name="'check'" style="'width:32px;height:32px;color:#22c55e;'"/>
+                <p class="footer-main">Sistema 100% Local - Sin Dependencias CDN</p>
+                <p class="footer-sub">Iconos SVG con animaciones CSS puras</p>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

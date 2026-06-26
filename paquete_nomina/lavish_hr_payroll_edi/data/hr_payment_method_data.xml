@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <record id="hr_payment_method_10" model="hr.payment.method.dian">
+        <field name="code">10</field>
+        <field name="name">Efectivo</field>
+    </record>
+    <record id="hr_payment_method_42" model="hr.payment.method.dian">
+        <field name="code">42</field>
+        <field name="name">Consignacion Bancaria</field>
+    </record>
+    <record id="hr_payment_method_47" model="hr.payment.method.dian">
+        <field name="code">47</field>
+        <field name="name">Transferencia Debito Interbancaria</field>
+    </record>
+    <record id="hr_payment_method_48" model="hr.payment.method.dian">
+        <field name="code">48</field>
+        <field name="name">Tarjeta Credito</field>
+    </record>
+    <record id="hr_payment_method_49" model="hr.payment.method.dian">
+        <field name="code">49</field>
+        <field name="name">Tarjeta Debito</field>
+    </record>
+</odoo>

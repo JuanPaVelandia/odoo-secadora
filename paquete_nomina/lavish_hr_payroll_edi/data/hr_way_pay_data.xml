@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <record id="hr_way_pay_1" model="hr.way.pay">
+        <field name="code">1</field>
+        <field name="name">Contado</field>
+    </record>
+    <record id="hr_way_pay_2" model="hr.way.pay">
+        <field name="code">2</field>
+        <field name="name">Credito</field>
+    </record>
+</odoo>

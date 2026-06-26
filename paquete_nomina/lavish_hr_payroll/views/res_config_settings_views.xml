@@ -1,0 +1,669 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hr.payroll.lavish</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="46"/>
+        <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='hr_payroll_accountant']" position="after">
+                <h2>Vacaciones</h2>
+                <div class="row mt16 o_settings_container" id="attributes_vacations">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="pay_vacations_in_payroll"/>
+                            <field name="pay_primas_in_payroll"/>
+                            <field name="prst_wo_susp"/>
+                            <field name="pay_cesantias_in_payroll"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">¿Liquidar vacaciones en nómina?</span>
+                             <br/>
+                             <span class="o_form_label">¿Liquidar Primas en nómina?</span>
+                             <br/>
+                            <span class="o_form_label">No descontar suspensiones de prima</span>
+                            <br/>
+                            <span class="o_form_label">¿Liquidar Cesantias en nómina?</span>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <div class="content-group">
+                                <span class="o_form_label">Días de vacaciones para calcular deducciones</span>
+                                <field name="vacation_days_calculate_absences" class="o_light_label mt16"/>
+                            </div>
+                            <div class="text-muted">
+                                Calcular deducciones en liquidación de vacaciones cuando estas superen la cantidad de
+                                días indicados
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h2>Cesantías</h2>
+                <div class="row mt16 o_settings_container" id="attributes_cesantias">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="cesantias_salary_take"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Promediar salario</span>
+                            <div class="text-muted">
+                                Si NO esta marcado:
+                                    Se tomara el salario vigente del empleado.
+                                <br/>
+                                Si esta marcado:
+                                    Se promedia el salario de los últimos 3 meses.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h2>Prima</h2>
+                <div class="row mt16 o_settings_container" id="attributes_prima">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="prima_salary_take"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Promediar salario</span>
+                            <div class="text-muted">
+                                Si NO esta marcado:
+                                    Se tomara el salario vigente del empleado.
+                                <br/>
+                                Si esta marcado:
+                                    Se promedia el salario de los últimos 6 meses.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Auxilio de Transporte</h2>
+                <div class="row mt16 o_settings_container" id="attributes_aux_transport">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="validate_distance_aux_transport"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="validate_distance_aux_transport"/>
+                            <div class="text-muted">
+                                Segun Decreto 1258/1959, el auxilio de transporte no aplica para empleados
+                                que vivan a menos de 1km del lugar de trabajo.
+                            </div>
+                            <div class="content-group mt-2" invisible="not validate_distance_aux_transport">
+                                <div class="row">
+                                    <label for="distance_threshold_km" class="col-lg-3 o_light_label"/>
+                                    <field name="distance_threshold_km" class="col-lg-3"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Configuracion Completa de Nomina</h2>
+                <div class="row mt16 o_settings_container" id="attributes_setup_all">
+                    <div class="col-12 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-rocket fa-2x text-danger" title="Acción"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label fw-bold fs-5">Configurar TODO el Modulo de Nomina</span>
+                            <div class="text-muted mb-2">
+                                Ejecuta TODOS los pasos de configuracion en orden logico para la empresa actual:
+                                <ol class="mt-2 mb-2">
+                                    <li><strong>Tipos de Cotizante</strong> - 01 Dependiente, 02 Domestico, 03 Independiente, etc.</li>
+                                    <li><strong>Subtipos de Cotizante</strong> - 00 Sin subtipo, 01 Pensionado vejez, etc.</li>
+                                    <li><strong>Parametrizaciones SS</strong> - Matriz de aportes por tipo/subtipo</li>
+                                    <li><strong>Tipos Horas Extras</strong> - 9 tipos segun legislacion colombiana</li>
+                                    <li><strong>Asignar Empleados</strong> - Tipo Dependiente a empleados sin configuracion</li>
+                                    <li><strong>Secciones de Estructura</strong> - Devengos, Deducciones, IBC, Totales, Neto, Provisiones</li>
+                                </ol>
+                                <span class="badge bg-info">Crea si no existe, Actualiza si ya existe</span>
+                                <span class="badge bg-secondary">Progreso en vivo</span>
+                            </div>
+                            <div class="content-group mt-3">
+                                <button name="action_setup_all_payroll"
+                                        type="object"
+                                        string="Configurar TODO"
+                                        class="btn btn-danger btn-lg"
+                                        icon="fa-rocket"
+                                        confirm="Esto creara o actualizara TODA la configuracion de nomina para la empresa actual. Continuar?"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Estructura de Nomina</h2>
+                <div class="row mt16 o_settings_container" id="attributes_structure_sections">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-sitemap fa-2x text-warning" title="Estructura"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label fw-bold">Crear Secciones de Estructura Salarial</span>
+                            <div class="text-muted mb-2">
+                                Crea las secciones de la estructura salarial con sus dependencias y flujo de ejecucion:
+                                <ul class="mt-2 mb-2">
+                                    <li><strong>DEVENGOS</strong> - Ingresos: Salario, auxilios, horas extras, bonificaciones</li>
+                                    <li><strong>DEDUCCIONES</strong> - Descuentos: Aportes, retenciones, prestamos</li>
+                                    <li><strong>IBC</strong> - Ingreso Base de Cotizacion para seguridad social</li>
+                                    <li><strong>TOTALDEV</strong> - Suma total de devengos</li>
+                                    <li><strong>TOTALDED</strong> - Suma total de deducciones</li>
+                                    <li><strong>NET</strong> - Neto a pagar (Devengos - Deducciones)</li>
+                                    <li><strong>PROVISIONES</strong> - Cesantias, Prima, Vacaciones</li>
+                                </ul>
+                                Flujo: DEVENGOS + IBC -> TOTALDEV | DEDUCCIONES + IBC -> TOTALDED | TOTALDEV + TOTALDED -> NET -> PROVISIONES
+                            </div>
+                            <div class="content-group mt-3">
+                                <button name="action_setup_structure_sections"
+                                        type="object"
+                                        string="Crear Secciones de Estructura"
+                                        class="btn btn-warning"
+                                        icon="fa-sitemap"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Configuracion Individual</h2>
+                <div class="row mt16 o_settings_container" id="attributes_tipo_cotizante">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-database fa-2x text-primary" title="Datos"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label fw-bold">Crear TODAS las Parametrizaciones</span>
+                            <div class="text-muted mb-2">
+                                Crea todos los tipos de cotizante (01-Dependiente, 02-Domestico, 03-Independiente, 12-Aprendiz Lectiva, 19-Aprendiz Productiva, 20-Estudiante, 21-Independiente Contrato, 22-Campesino, 23-Tiempo Parcial, 51-Medio Tiempo), subtipos (00 al 07) y sus parametrizaciones segun legislacion colombiana.
+                            </div>
+                            <div class="content-group mt-3">
+                                <button name="action_create_default_parameterization"
+                                        type="object"
+                                        string="Crear Tipos, Subtipos y Parametrizaciones"
+                                        class="btn btn-primary"
+                                        icon="fa-database"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-user-plus fa-2x text-success" title="Empleado"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label fw-bold">Asignar Tipo Cotizante a Empleados</span>
+                            <div class="text-muted mb-2">
+                                Asigna automaticamente el tipo "01 - Dependiente" y subtipo "00 - Sin subtipo" a todos los empleados activos que no tengan configuracion.
+                            </div>
+                            <div class="content-group mt-3">
+                                <button name="action_assign_default_tipo_cotizante"
+                                        type="object"
+                                        string="Asignar Dependiente a Empleados"
+                                        class="btn btn-success"
+                                        icon="fa-check-circle"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2>Configuracion Horas Extras</h2>
+                <div class="row mt16 o_settings_container" id="attributes_overtime">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-clock-o fa-2x text-info" title="Tiempo"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label fw-bold">Crear Tipos de Horas Extras</span>
+                            <div class="text-muted mb-2">
+                                Crea los 9 tipos de horas extras segun legislacion colombiana: RN (35%), EXT-D (125%), EXT-N (175%), E-D-D/F (200%), E-N-D/F (250%), D o F (175%), RN-D/F (110%), R-D/F (75%), RN-F (210%). Los vincula a las reglas salariales HEYREC correspondientes.
+                            </div>
+                            <div class="content-group mt-3">
+                                <button name="action_create_default_overtime_types"
+                                        type="object"
+                                        string="Crear Tipos Horas Extras"
+                                        class="btn btn-info"
+                                        icon="fa-clock-o"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         EXTENSION VISTA NOMINA CO (lavish_hr_employee)
+         Añade bloques de Liquidacion y Configuracion a la vista unificada
+         ═══════════════════════════════════════════════════════════════════════════ -->
+    <record id="res_config_settings_view_form_nomina_co_extension" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.nomina.co.extension.payroll</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="50"/>
+        <field name="inherit_id" ref="lavish_hr_employee.res_config_settings_view_form_nomina_co"/>
+        <field name="arch" type="xml">
+            <!-- Insertar en el punto de extension -->
+            <xpath expr="//div[@id='nomina_co_extension_point']" position="before">
+
+                <!-- LIQUIDACIÓN DE PRESTACIONES -->
+                <block title="Liquidacion de Prestaciones" name="nomina_liquidacion_prestaciones" invisible="not nomina_show_advanced">
+
+                    <!-- Vacaciones y Prestaciones en Nómina -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-file-text-o fa-lg text-primary" title="Documento"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold">Liquidar en Nomina</strong>
+                            <div class="text-muted mb-2">Opciones para liquidar prestaciones sociales directamente en la nomina</div>
+                            <div class="content-group">
+                                <div class="row g-3">
+                                    <div class="col-lg-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="pay_vacations_in_payroll" class="form-check-input"/>
+                                                <label for="pay_vacations_in_payroll" class="form-check-label">
+                                                    <i class="fa fa-plane me-1 text-info" title="Vacaciones"/>
+                                                    Liquidar Vacaciones
+                                                </label>
+                                            </div>
+                                            <!-- Ejemplo visual -->
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Vacaciones en nomina<br/>
+                                                <span class="badge bg-secondary">OFF</span> Solo en liquidacion
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="pay_primas_in_payroll" class="form-check-input"/>
+                                                <label for="pay_primas_in_payroll" class="form-check-label">
+                                                    <i class="fa fa-gift me-1 text-success" title="Prima"/>
+                                                    Liquidar Primas
+                                                </label>
+                                            </div>
+                                            <!-- Ejemplo visual -->
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Prima en nomina Jun/Dic<br/>
+                                                <span class="badge bg-secondary">OFF</span> Solo en liquidacion
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="pay_cesantias_in_payroll" class="form-check-input"/>
+                                                <label for="pay_cesantias_in_payroll" class="form-check-label">
+                                                    <i class="fa fa-bank me-1 text-warning" title="Cesantías"/>
+                                                    Liquidar Cesantias
+                                                </label>
+                                            </div>
+                                            <!-- Ejemplo visual -->
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Cesantias en nomina Feb<br/>
+                                                <span class="badge bg-secondary">OFF</span> Solo en liquidacion
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Promedio de Salario -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-calculator fa-lg text-warning" title="Cálculo"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold">Calculo de Base Salarial</strong>
+                            <div class="text-muted mb-2">Metodo para calcular el salario base de prestaciones</div>
+                            <div class="content-group">
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="cesantias_salary_take" class="form-check-input"/>
+                                                <label for="cesantias_salary_take" class="form-check-label">
+                                                    <i class="fa fa-bank me-1 text-info" title="Cesantías"/>
+                                                    Promediar Salario Cesantias
+                                                </label>
+                                            </div>
+                                            <!-- Ejemplo visual -->
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Promedio ultimos 3 meses<br/>
+                                                <span class="badge bg-secondary">OFF</span> Salario vigente actual
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="prima_salary_take" class="form-check-input"/>
+                                                <label for="prima_salary_take" class="form-check-label">
+                                                    <i class="fa fa-gift me-1 text-success" title="Prima"/>
+                                                    Promediar Salario Prima
+                                                </label>
+                                            </div>
+                                            <!-- Ejemplo visual -->
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Promedio ultimos 6 meses<br/>
+                                                <span class="badge bg-secondary">OFF</span> Salario vigente actual
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auxilio Transporte -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-bus fa-lg text-info" title="Transporte"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold">Auxilio de Transporte</strong>
+                            <div class="text-muted mb-2">Validacion de distancia segun Decreto 1258/1959</div>
+                            <div class="content-group">
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="validate_distance_aux_transport" class="form-check-input"/>
+                                                <label for="validate_distance_aux_transport" class="form-check-label">
+                                                    <i class="fa fa-map-marker me-1 text-danger" title="Ubicación"/>
+                                                    Validar Distancia
+                                                </label>
+                                            </div>
+                                            <div class="text-muted small ps-4">
+                                                No aplica auxilio si vive a menos de 1km del trabajo
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6" invisible="not validate_distance_aux_transport">
+                                        <div class="border rounded p-3">
+                                            <div class="text-muted small mb-1">Umbral de Distancia (km)</div>
+                                            <field name="distance_threshold_km" class="w-50"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auxilio en Prestaciones Sociales -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-bus fa-lg text-success" title="Transporte"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold">Auxilio en Prestaciones Sociales</strong>
+                            <div class="text-muted mb-2">Incluir auxilio de transporte en la base de cada prestacion (si salario &lt; 2 SMMLV)</div>
+                            <div class="content-group">
+                                <div class="row g-3">
+                                    <div class="col-lg-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="prima_incluye_auxilio" class="form-check-input"/>
+                                                <label for="prima_incluye_auxilio" class="form-check-label">
+                                                    <i class="fa fa-gift me-1 text-success" title="Prima"/>
+                                                    Prima incluye Auxilio
+                                                </label>
+                                            </div>
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Base = Salario + Auxilio<br/>
+                                                <span class="badge bg-secondary">OFF</span> Base = Solo Salario
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="cesantias_incluye_auxilio" class="form-check-input"/>
+                                                <label for="cesantias_incluye_auxilio" class="form-check-label">
+                                                    <i class="fa fa-bank me-1 text-warning" title="Cesantías"/>
+                                                    Cesantias incluye Auxilio
+                                                </label>
+                                            </div>
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Base = Salario + Auxilio<br/>
+                                                <span class="badge bg-secondary">OFF</span> Base = Solo Salario
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="vacaciones_incluye_auxilio" class="form-check-input"/>
+                                                <label for="vacaciones_incluye_auxilio" class="form-check-label">
+                                                    <i class="fa fa-plane me-1 text-info" title="Vacaciones"/>
+                                                    Vacaciones incluye Auxilio
+                                                </label>
+                                            </div>
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-warning text-dark">OFF</span> NO por ley (Art. 192 CST)<br/>
+                                                <span class="badge bg-danger">ON</span> Solo casos especiales
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info mt-3 small" role="status">
+                                    <i class="fa fa-info-circle me-1" title="Información"/>
+                                    <strong>Nota Legal:</strong> El auxilio de transporte solo aplica si el salario es menor a 2 SMMLV.
+                                    Por ley, vacaciones NO incluye auxilio (Art. 192 CST). Los intereses sobre cesantias
+                                    se calculan sobre el valor de las cesantias (que ya incluyen auxilio si aplica).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Provisiones y Ausencias -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-university fa-lg text-secondary" title="Provisiones"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold">Provisiones</strong>
+                            <div class="text-muted mb-2">Controla si las ausencias afectan el cálculo de provisiones</div>
+                            <div class="content-group">
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="prst_wo_absences" class="form-check-input"/>
+                                                <label for="prst_wo_absences" class="form-check-label">
+                                                    <i class="fa fa-ban me-1 text-danger" title="Excluir"/>
+                                                    Ignorar ausencias en provisiones
+                                                </label>
+                                            </div>
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> No descuenta ausencias<br/>
+                                                <span class="badge bg-secondary">OFF</span> Descuenta ausencias
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contabilizacion -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-book fa-lg text-dark" title="Contabilización"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold">Contabilizacion de Nomina</strong>
+                            <div class="text-muted mb-2">Opciones de contabilizacion</div>
+                            <div class="content-group">
+                                <div class="row g-3">
+                                    <div class="col-lg-6">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="round_payroll" class="form-check-input"/>
+                                                <label for="round_payroll" class="form-check-label">
+                                                    <i class="fa fa-sort-numeric-asc me-1" title="Ordenar"/>
+                                                    NO Redondear Decimales
+                                                </label>
+                                            </div>
+                                            <!-- Ejemplo visual -->
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Mantiene decimales exactos<br/>
+                                                <span class="badge bg-secondary">OFF</span> Redondea a enteros
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="border rounded p-3">
+                                            <div class="form-check">
+                                                <field name="addref_work_address_account_moves" class="form-check-input"/>
+                                                <label for="addref_work_address_account_moves" class="form-check-label">
+                                                    <i class="fa fa-building me-1" title="Empresa"/>
+                                                    Ref. Ubicacion Laboral
+                                                </label>
+                                            </div>
+                                            <!-- Ejemplo visual -->
+                                            <div class="mt-2 p-2 bg-light rounded small">
+                                                <span class="badge bg-success">ON</span> Agrega direccion en asiento<br/>
+                                                <span class="badge bg-secondary">OFF</span> Sin referencia ubicacion
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </block>
+
+                <!-- CONFIGURACIÓN RÁPIDA -->
+                <block title="Configuracion Rapida" name="nomina_setup" invisible="not nomina_show_advanced">
+
+                    <!-- Configurar TODO -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-rocket fa-2x text-danger" title="Acción"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold fs-5">Configurar TODO el Modulo de Nomina</strong>
+                            <div class="text-muted mb-2">
+                                Ejecuta TODOS los pasos de configuracion en orden logico:
+                                Tipos Cotizante -> Subtipos -> Parametrizaciones SS -> Horas Extras -> Asignar Empleados -> Secciones Estructura
+                            </div>
+                            <div class="content-group mt-3">
+                                <button name="action_setup_all_payroll"
+                                        type="object"
+                                        string="Configurar TODO"
+                                        class="btn btn-danger btn-lg"
+                                        icon="fa-rocket"
+                                        confirm="Esto creara o actualizara TODA la configuracion de nomina. Continuar?"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones individuales en orden logico -->
+                    <div class="o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <i class="fa fa-cogs fa-lg text-secondary" title="Configuración"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <strong class="fw-bold">Configuracion Individual</strong>
+                            <div class="text-muted mb-2">Ejecutar pasos de configuracion en orden logico (1 al 6)</div>
+                            <div class="content-group">
+                                <!-- Fila 1: Estructura, Categorias, Secciones -->
+                                <div class="row g-2 mt-2">
+                                    <div class="col-auto">
+                                        <span class="badge bg-dark me-1">1</span>
+                                        <button name="action_create_structures"
+                                                type="object"
+                                                string="Estructura"
+                                                class="btn btn-outline-primary btn-sm"
+                                                icon="fa-building"/>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge bg-dark me-1">2</span>
+                                        <button name="action_setup_salary_categories"
+                                                type="object"
+                                                string="Categorias"
+                                                class="btn btn-outline-secondary btn-sm"
+                                                icon="fa-folder"/>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge bg-dark me-1">3</span>
+                                        <button name="action_setup_structure_sections"
+                                                type="object"
+                                                string="Secciones"
+                                                class="btn btn-outline-warning btn-sm"
+                                                icon="fa-sitemap"/>
+                                    </div>
+                                </div>
+                                <!-- Fila 2: Reglas, Horas Extras, Ausencias -->
+                                <div class="row g-2 mt-2">
+                                    <div class="col-auto">
+                                        <span class="badge bg-dark me-1">4</span>
+                                        <button name="action_create_salary_rules"
+                                                type="object"
+                                                string="Reglas"
+                                                class="btn btn-outline-success btn-sm"
+                                                icon="fa-list-alt"/>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge bg-dark me-1">5</span>
+                                        <button name="action_create_default_overtime_types"
+                                                type="object"
+                                                string="Horas Extras"
+                                                class="btn btn-outline-info btn-sm"
+                                                icon="fa-clock-o"/>
+                                    </div>
+                                    <div class="col-auto">
+                                        <span class="badge bg-dark me-1">6</span>
+                                        <button name="action_setup_leave_types"
+                                                type="object"
+                                                string="Ausencias"
+                                                class="btn btn-outline-danger btn-sm"
+                                                icon="fa-calendar-times-o"/>
+                                    </div>
+                                </div>
+                                <!-- Separador y botones adicionales -->
+                                <hr class="my-3"/>
+                                <div class="text-muted small mb-2">Configuracion adicional</div>
+                                <div class="row g-2">
+                                    <div class="col-auto">
+                                        <button name="action_create_default_parameterization"
+                                                type="object"
+                                                string="Tipos Cotizante"
+                                                class="btn btn-primary btn-sm"
+                                                icon="fa-database"/>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button name="action_assign_default_tipo_cotizante"
+                                                type="object"
+                                                string="Asignar Empleados"
+                                                class="btn btn-success btn-sm"
+                                                icon="fa-user-plus"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </block>
+
+            </xpath>
+        </field>
+    </record>
+
+    <!--    Documentos Nomina-->
+    <!-- <record id="res_config_settings_view_form_documents" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hr.payroll.documents.lavish</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="46"/>
+        <field name="inherit_id" ref="documents_hr_payroll.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='documents_hr_payslips_tags']" position="after">
+                <label for="validated_certificate" class="col-sm-3 o_light_label"/>
+                    <field name="validated_certificate" domain="[('folder_id','=', documents_hr_folder)]"/>
+                </xpath>
+        </field>
+    </record> -->
+
+</odoo>

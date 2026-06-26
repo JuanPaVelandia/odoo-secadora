@@ -1,0 +1,765 @@
+// ============================================================================
+// LAVISH HR PAYROLL DASHBOARD STYLES
+// ============================================================================
+
+.lavish_hr_payroll_dashboard {
+    padding: 24px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-bottom: 96px;
+
+    // Header
+    .dashboard-header {
+        h2 {
+            color: #212529;
+            font-weight: 600;
+        }
+
+        .text-muted {
+            font-size: 0.9rem;
+        }
+
+        .form-select {
+            border-color: #dee2e6;
+
+            &:focus {
+                border-color: #0d6efd;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+
+            i {
+                font-size: 0.9rem;
+            }
+        }
+    }
+
+    // Tabs
+    .dashboard-tabs-navigation {
+        .dashboard-nav-tabs {
+            border-bottom: none;
+            gap: 0.5rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+            scrollbar-width: thin;
+
+            &::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background: #ced4da;
+                border-radius: 999px;
+            }
+        }
+
+        .nav-link {
+            border: 1px solid #dee2e6;
+            border-radius: 999px;
+            color: #495057;
+            background: #ffffff;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+
+            &:hover {
+                border-color: #0d6efd;
+                color: #0d6efd;
+                box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+            }
+
+            &.active {
+                background: #0d6efd;
+                border-color: #0d6efd;
+                color: #ffffff;
+                box-shadow: 0 6px 16px rgba(13, 110, 253, 0.25);
+
+                .badge {
+                    background: rgba(255, 255, 255, 0.9);
+                    color: #0d6efd;
+                }
+            }
+        }
+    }
+
+    .tab-pane-content {
+        animation: dashboardFadeIn 0.2s ease;
+        padding-bottom: 2.5rem;
+    }
+
+    // KPI Cards
+    .kpi-card {
+        border-top: 3px solid;
+        transition: all 0.2s ease;
+
+        &.border-primary { border-top-color: #0d6efd !important; }
+        &.border-success { border-top-color: #198754 !important; }
+        &.border-info { border-top-color: #0dcaf0 !important; }
+        &.border-warning { border-top-color: #ffc107 !important; }
+        &.border-danger { border-top-color: #dc3545 !important; }
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-box {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+
+            i {
+                opacity: 0.8;
+            }
+        }
+
+        h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        h6 {
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    // Cards
+    .card {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: box-shadow 0.2s ease;
+
+        &:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            border-bottom: 1px solid #dee2e6;
+            padding: 1rem 1.25rem;
+
+            h5 {
+                font-weight: 600;
+                font-size: 1.1rem;
+
+                i {
+                    font-size: 1rem;
+                }
+            }
+        }
+
+        .card-body {
+            padding: 1.25rem;
+        }
+
+        .card-footer {
+            border-top: 1px solid #dee2e6;
+            padding: 0.75rem 1.25rem;
+            font-size: 0.875rem;
+        }
+    }
+
+    // List Groups
+    .list-group-item {
+        border-left: none;
+        border-right: none;
+        transition: background-color 0.15s ease;
+
+        &:first-child {
+            border-top: none;
+        }
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background-color: #f8f9fa;
+        }
+
+        h6 {
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .badge {
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+    }
+
+    // Tables
+    .table {
+        thead {
+            th {
+                font-weight: 600;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #6c757d;
+                border-bottom: 2px solid #dee2e6;
+                white-space: nowrap;
+            }
+        }
+
+        tbody {
+            tr {
+                transition: background-color 0.15s ease;
+
+                &.cursor-pointer {
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #f8f9fa;
+                    }
+                }
+
+                td {
+                    vertical-align: middle;
+                    font-size: 0.9rem;
+                }
+            }
+        }
+    }
+
+    // Scrollable containers - Override Odoo's hidden scrollbars
+    // Odoo hides scrollbars on desktop by default, we force them visible
+    .scrollable-list,
+    .scrollable-table,
+    .card-body-scroll,
+    .table-responsive {
+        // Override Odoo's scrollbar hiding
+        -ms-overflow-style: scrollbar !important;
+        scrollbar-width: thin !important;
+
+        &::-webkit-scrollbar {
+            display: block !important;
+            width: 8px !important;
+            height: 8px !important;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+            border-radius: 4px !important;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #adb5bd !important;
+            border-radius: 4px !important;
+            border: 2px solid #f1f1f1 !important;
+
+            &:hover {
+                background: #6c757d !important;
+            }
+        }
+    }
+
+    .scrollable-list {
+        max-height: 350px;
+        overflow-y: auto !important;
+        overflow-x: hidden;
+        scrollbar-color: #c1c1c1 #f1f1f1;
+    }
+
+    .scrollable-table {
+        max-height: 450px;
+        overflow-y: auto !important;
+        overflow-x: auto;
+        scrollbar-color: #dee2e6 #f8f9fa;
+
+        &::-webkit-scrollbar-track {
+            background: #f8f9fa !important;
+            border-left: 1px solid #dee2e6 !important;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    }
+
+    .card-body-scroll {
+        max-height: 400px;
+        overflow-y: auto !important;
+        overflow-x: hidden;
+        scrollbar-color: #c1c1c1 #f1f1f1;
+    }
+
+    // Force table-responsive to show scrollbar
+    .table-responsive {
+        max-height: 400px;
+        overflow: auto !important;
+        scrollbar-color: #dee2e6 #f8f9fa;
+    }
+
+    // State filter buttons
+    .state-filter-btn {
+        padding: 0.25rem 0.75rem;
+        font-size: 0.8rem;
+        border-radius: 20px;
+        transition: all 0.2s ease;
+
+        &.active {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+    }
+
+    // Animated icons
+    lord-icon {
+        display: inline-block;
+    }
+
+    // Badges
+    .badge {
+        padding: 0.35em 0.65em;
+        font-weight: 500;
+    }
+
+    // Alerts
+    .alert {
+        border-radius: 6px;
+
+        i {
+            vertical-align: middle;
+        }
+
+        .alert-heading {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    // Accordion
+    .accordion {
+        .accordion-button {
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+
+            &:not(.collapsed) {
+                background-color: #f8f9fa;
+                color: #212529;
+            }
+
+            &:focus {
+                box-shadow: none;
+                border-color: #dee2e6;
+            }
+        }
+
+        .accordion-body {
+            padding: 0;
+        }
+    }
+
+    // Loading State
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    // Utilities
+    .gap-2 {
+        gap: 0.5rem;
+    }
+
+    .gap-3 {
+        gap: 1rem;
+    }
+
+    // Background subtle variants (Bootstrap 5.3+)
+    .bg-primary-subtle {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+    }
+
+    .bg-success-subtle {
+        background-color: rgba(25, 135, 84, 0.1) !important;
+    }
+
+    .bg-info-subtle {
+        background-color: rgba(13, 202, 240, 0.1) !important;
+    }
+
+    .bg-warning-subtle {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+
+    .bg-danger-subtle {
+        background-color: rgba(220, 53, 69, 0.1) !important;
+    }
+
+    // Payroll Summary Card
+    .payroll-summary-card {
+        &.fullscreen-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1050;
+        }
+
+        .nav-tabs {
+            .nav-link {
+                font-size: 0.9rem;
+                font-weight: 500;
+                color: #6c757d;
+                border: none;
+                border-bottom: 2px solid transparent;
+                padding: 0.5rem 1rem;
+
+                &:hover {
+                    color: #0d6efd;
+                    border-bottom-color: #0d6efd;
+                }
+
+                &.active {
+                    color: #0d6efd;
+                    border-bottom-color: #0d6efd;
+                    background: transparent;
+                }
+            }
+        }
+
+        .list-group-item {
+            &:hover {
+                background-color: rgba(13, 110, 253, 0.05);
+            }
+        }
+    }
+
+    // Summary hero card
+    .summary-hero-card {
+        border: none;
+        background: linear-gradient(135deg, #ffffff 0%, #f3f6ff 55%, #ffffff 100%);
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.08);
+
+        .summary-hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .summary-hero-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .summary-hero-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: #ffffff;
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+
+            img {
+                max-width: 48px;
+                max-height: 48px;
+                object-fit: contain;
+            }
+
+            i {
+                font-size: 1.8rem;
+                color: #2563eb;
+            }
+        }
+
+        .summary-hero-title {
+            h4 {
+                font-weight: 600;
+                color: #0f172a;
+            }
+        }
+
+        .summary-hero-metrics {
+            margin-top: 1.25rem;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem 1.5rem;
+        }
+
+        .summary-hero-metric {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+
+            .label {
+                font-size: 0.78rem;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+                color: #64748b;
+            }
+
+            .value {
+                font-weight: 600;
+                font-size: 1.05rem;
+                color: #0f172a;
+            }
+        }
+
+        .summary-hero-chart {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 1rem 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .summary-hero-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .summary-hero-total {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .summary-hero-change {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 600;
+        }
+
+        .summary-hero-chart-canvas {
+            height: 180px;
+        }
+
+        .summary-hero-empty {
+            font-size: 0.85rem;
+            padding: 1.25rem 0;
+            text-align: center;
+        }
+    }
+
+    // Alerts detail card
+    .alerts-detail-card {
+        .alerts-detail-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .alerts-detail-section {
+            background: #ffffff;
+        }
+
+        .alerts-detail-list {
+            max-height: 220px;
+            overflow-y: auto;
+            scrollbar-color: #cbd5f5 #f8fafc;
+        }
+    }
+
+    // City map card
+    .city-map-card {
+        .city-map-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+            gap: 1.5rem;
+            align-items: stretch;
+        }
+
+        .city-map-area {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .city-map-canvas {
+            position: relative;
+            height: 260px;
+            border-radius: 16px;
+            background: radial-gradient(circle at 20% 20%, rgba(13, 110, 253, 0.18), transparent 55%),
+                        radial-gradient(circle at 70% 30%, rgba(32, 201, 151, 0.2), transparent 55%),
+                        linear-gradient(135deg, #f7f9ff 0%, #eef3ff 45%, #f9fbff 100%);
+            overflow: hidden;
+            border: 1px solid #dee2e6;
+        }
+
+        .city-map-grid {
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(transparent 95%, rgba(13, 110, 253, 0.08)),
+                              linear-gradient(90deg, transparent 95%, rgba(13, 110, 253, 0.08));
+            background-size: 32px 32px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .city-map-glow {
+            position: absolute;
+            inset: 12% 14%;
+            background: radial-gradient(circle, rgba(13, 110, 253, 0.12), transparent 70%);
+            filter: blur(10px);
+            pointer-events: none;
+        }
+
+        .city-map-shape {
+            position: absolute;
+            inset: 10% 18% 10% 14%;
+            background: linear-gradient(120deg, rgba(13, 110, 253, 0.22), rgba(32, 201, 151, 0.18));
+            clip-path: polygon(38% 2%, 54% 10%, 70% 20%, 82% 32%, 88% 48%, 82% 64%, 70% 78%, 56% 92%, 42% 96%, 26% 84%, 16% 68%, 10% 48%, 16% 30%, 28% 16%);
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .city-map-pin {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: #0d6efd;
+            font-weight: 600;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            pointer-events: none;
+
+            &.is-highlight .city-map-pin__dot {
+                background: #0d6efd;
+                box-shadow: 0 0 0 6px rgba(13, 110, 253, 0.18);
+            }
+        }
+
+        .city-map-pin__dot {
+            width: var(--pin-size, 18px);
+            height: var(--pin-size, 18px);
+            border-radius: 50%;
+            background: #198754;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.18);
+        }
+
+        .city-map-pin__label {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 999px;
+            padding: 0.15rem 0.5rem;
+            border: 1px solid rgba(13, 110, 253, 0.15);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .city-map-footnote {
+            font-size: 0.8rem;
+        }
+
+        .city-map-list {
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+    }
+
+    // Additional color utilities
+    .text-purple {
+        color: #6f42c1 !important;
+    }
+
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+
+    .text-pink {
+        color: #d63384 !important;
+    }
+
+    .bg-pink {
+        background-color: #d63384 !important;
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+        padding: 16px;
+
+        .dashboard-header {
+            .d-flex {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 1rem;
+
+                > div {
+                    width: 100%;
+                }
+            }
+
+            .form-select,
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .kpi-card {
+            .icon-box {
+                width: 50px;
+                height: 50px;
+
+                i {
+                    font-size: 1.5rem !important;
+                }
+            }
+
+            h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+        .city-map-card {
+            .city-map-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .city-map-canvas {
+                height: 220px;
+            }
+        }
+
+        .summary-hero-card {
+            .summary-hero-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-hero-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    }
+}
+
+@keyframes dashboardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

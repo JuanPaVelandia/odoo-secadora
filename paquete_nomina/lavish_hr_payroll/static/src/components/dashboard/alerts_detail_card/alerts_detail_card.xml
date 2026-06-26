@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.AlertsDetailCard">
+        <div class="card alerts-detail-card h-100">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fa fa-list-alt text-primary me-2"/>
+                        Detalle de alertas
+                    </h5>
+                </div>
+            </div>
+            <div class="card-body alerts-detail-body">
+                <t t-foreach="sections" t-as="section" t-key="section.key">
+                    <div class="alerts-detail-section border rounded-3 p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="badge" t-att-class="'bg-' + section.color">
+                                    <i class="fa me-1" t-att-class="section.icon"/>
+                                    <t t-esc="section.title"/>
+                                </span>
+                                <div class="text-muted small mt-1">
+                                    <t t-esc="section.subtitle"/>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-primary"
+                                    t-on-click="() => this.onViewSection(section)"
+                                    t-if="section.employeeIds.length">
+                                Ver todos
+                            </button>
+                        </div>
+
+                        <t t-if="section.employees.length === 0">
+                            <div class="text-muted small">
+                                Sin registros para esta alerta.
+                            </div>
+                        </t>
+                        <t t-else="">
+                            <div class="list-group list-group-flush alerts-detail-list">
+                                <t t-foreach="getVisibleEmployees(section.employees)" t-as="employee" t-key="employee.id">
+                                    <div class="list-group-item px-0 py-2">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <div class="fw-semibold"><t t-esc="employee.name"/></div>
+                                                <small class="text-muted">
+                                                    <t t-esc="employee.identification"/>
+                                                    <t t-if="employee.department"> - <t t-esc="employee.department"/></t>
+                                                </small>
+                                            </div>
+                                            <small class="text-muted"><t t-esc="employee.job_title"/></small>
+                                        </div>
+                                    </div>
+                                </t>
+                                <div class="list-group-item px-0 py-2 text-muted small" t-if="hasMore(section.employees)">
+                                    +<t t-esc="getTotalEmployees(section.employees) - 8"/> empleados adicionales
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

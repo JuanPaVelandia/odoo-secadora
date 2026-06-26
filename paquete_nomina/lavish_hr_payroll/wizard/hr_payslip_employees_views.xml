@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    <!--
+        Vista primaria del wizard "Generar recibos de nómina" estilo v18.
+        En v18 heredaba de hr_payroll.view_hr_payslip_by_employees pero esa
+        vista no existe en v19 enterprise. La definimos desde cero con los
+        mismos campos y layout para conservar la UX de COLOMBIA CHEF v18.
+    -->
+    <record id="view_lavish_hr_payslip_employees_form" model="ir.ui.view">
+        <field name="name">hr.payslip.employees.lavish.form</field>
+        <field name="model">hr.payslip.employees</field>
+        <field name="arch" type="xml">
+            <form string="Generar recibos de nómina">
+                <p>
+                    Este asistente generará recibos de nómina para todos los
+                    empleados seleccionados, según las fechas y notas de crédito
+                    que se especificaron en la ejecución de los recibos.
+                </p>
+
+                <div invisible="not vacation_count"
+                     class="alert alert-warning text-center fw-bold" role="alert">
+                    <field name="vacation_count" nolabel="1" readonly="1"/>
+                </div>
+
+                <separator string="Selección de Empleados"/>
+                <group>
+                    <field name="department_id" options="{'no_create': True}"/>
+                    <field name="struct_process" invisible="1"/>
+                </group>
+
+                <separator string="Generación de un recibo de nómina"/>
+                <group>
+                    <field name="structure_id" options="{'no_create': True}"/>
+                </group>
+
+                <separator string="Opciones"/>
+                <group>
+                    <group>
+                        <field name="pay_primas_in_payroll"/>
+                        <field name="pay_cesantias_in_payroll"/>
+                        <field name="date_prima" invisible="not pay_primas_in_payroll"/>
+                        <field name="date_cesantias" invisible="not pay_cesantias_in_payroll"/>
+                        <field name="date_liquidacion" invisible="not liquidate_contract"/>
+                        <field name="liquidate_contract"/>
+                        <field name="pay_vacations_in_payroll"/>
+                    </group>
+                    <group>
+                        <field name="method_schedule_pay" widget="radio"/>
+                        <field name="analytic_account_ids" widget="many2many_tags"
+                               options="{'no_create': True}"/>
+                        <field name="state_contract" widget="radio"/>
+                    </group>
+                </group>
+
+                <group invisible="struct_process != 'prima'">
+                    <field name="prima_run_reverse_id" options="{'no_create': True}"/>
+                </group>
+                <group invisible="struct_process != 'contrato'">
+                    <field name="settle_payroll_concepts"/>
+                    <field name="novelties_payroll_concepts"/>
+                </group>
+
+                <button string="Limpiar" name="clean_employees" type="object"
+                        class="btn-secondary"/>
+
+                <field name="employee_ids" nolabel="1">
+                    <list>
+                        <field name="name" string="Nombre del empleado"/>
+                        <field name="company_id" string="Empresa"/>
+                        <field name="department_id" string="Departamento"/>
+                        <field name="job_id" string="Puesto de trabajo"/>
+                        <field name="work_email" string="Correo de trabajo"/>
+                    </list>
+                </field>
+
+                <footer>
+                    <button string="Generar" name="compute_sheet" type="object"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_lavish_hr_payslip_employees" model="ir.actions.act_window">
+        <field name="name">Generar recibos de nómina</field>
+        <field name="res_model">hr.payslip.employees</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_lavish_hr_payslip_employees_form"/>
+        <field name="target">new</field>
+    </record>
+
+    </data>
+</odoo>

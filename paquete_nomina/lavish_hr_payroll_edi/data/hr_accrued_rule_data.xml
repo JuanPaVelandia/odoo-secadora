@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <!-- ============================================================ -->
+    <!-- REGLAS DE DEVENGADOS DIAN - Nómina Electrónica Colombia      -->
+    <!-- ============================================================ -->
+
+    <!-- BASICOS -->
+    <record id="accrued_sueldo" model="hr.accrued.rule">
+        <field name="name">Sueldo Trabajado</field>
+        <field name="code">Sueldo</field>
+        <field name="description">Salario básico del trabajador</field>
+    </record>
+
+    <!-- HORAS EXTRAS -->
+    <record id="accrued_hed" model="hr.accrued.rule">
+        <field name="name">Hora Extra Diurna</field>
+        <field name="code">HED</field>
+        <field name="description">Horas extras diurnas (25% adicional)</field>
+    </record>
+    <record id="accrued_hen" model="hr.accrued.rule">
+        <field name="name">Hora Extra Nocturna</field>
+        <field name="code">HEN</field>
+        <field name="description">Horas extras nocturnas (75% adicional)</field>
+    </record>
+    <record id="accrued_hrn" model="hr.accrued.rule">
+        <field name="name">Hora Recargo Nocturno</field>
+        <field name="code">HRN</field>
+        <field name="description">Recargo nocturno (35% adicional)</field>
+    </record>
+    <record id="accrued_heddf" model="hr.accrued.rule">
+        <field name="name">Hora Extra Diurna Dominical/Festivo</field>
+        <field name="code">HEDDF</field>
+        <field name="description">Hora extra diurna en dominical o festivo</field>
+    </record>
+    <record id="accrued_hendf" model="hr.accrued.rule">
+        <field name="name">Hora Extra Nocturna Dominical/Festivo</field>
+        <field name="code">HENDF</field>
+        <field name="description">Hora extra nocturna en dominical o festivo</field>
+    </record>
+    <record id="accrued_hrndf" model="hr.accrued.rule">
+        <field name="name">Hora Recargo Nocturno Dominical/Festivo</field>
+        <field name="code">HRNDF</field>
+        <field name="description">Recargo nocturno en dominical o festivo</field>
+    </record>
+    <record id="accrued_hrddf" model="hr.accrued.rule">
+        <field name="name">Hora Recargo Diurno Dominical/Festivo</field>
+        <field name="code">HRDDF</field>
+        <field name="description">Recargo diurno en dominical o festivo</field>
+    </record>
+
+    <!-- VACACIONES -->
+    <record id="accrued_vacaciones" model="hr.accrued.rule">
+        <field name="name">Vacaciones Comunes</field>
+        <field name="code">VacacionesComunes</field>
+        <field name="description">Pago de vacaciones disfrutadas</field>
+    </record>
+    <record id="accrued_vacaciones_comp" model="hr.accrued.rule">
+        <field name="name">Vacaciones Compensadas</field>
+        <field name="code">VacacionesCompensadas</field>
+        <field name="description">Pago de vacaciones compensadas en dinero</field>
+    </record>
+
+    <!-- PRIMAS -->
+    <record id="accrued_primas" model="hr.accrued.rule">
+        <field name="name">Prima de Servicios</field>
+        <field name="code">Primas</field>
+        <field name="description">Prima de servicios semestral</field>
+    </record>
+
+    <!-- CESANTIAS -->
+    <record id="accrued_cesantias" model="hr.accrued.rule">
+        <field name="name">Cesantías</field>
+        <field name="code">Cesantias</field>
+        <field name="description">Auxilio de cesantías</field>
+    </record>
+    <record id="accrued_int_cesantias" model="hr.accrued.rule">
+        <field name="name">Intereses de Cesantías</field>
+        <field name="code">IntCesantias</field>
+        <field name="description">Intereses sobre cesantías (12% anual)</field>
+    </record>
+
+    <!-- INCAPACIDADES -->
+    <record id="accrued_incapacidad" model="hr.accrued.rule">
+        <field name="name">Incapacidad Común</field>
+        <field name="code">IncapacidadComun</field>
+        <field name="description">Pago por incapacidad enfermedad general</field>
+    </record>
+    <record id="accrued_incapacidad_laboral" model="hr.accrued.rule">
+        <field name="name">Incapacidad Laboral</field>
+        <field name="code">IncapacidadLaboral</field>
+        <field name="description">Pago por accidente de trabajo</field>
+    </record>
+
+    <!-- LICENCIAS -->
+    <record id="accrued_licencia_mp" model="hr.accrued.rule">
+        <field name="name">Licencia de Maternidad/Paternidad</field>
+        <field name="code">LicenciaMP</field>
+        <field name="description">Licencia por maternidad o paternidad</field>
+    </record>
+    <record id="accrued_licencia_r" model="hr.accrued.rule">
+        <field name="name">Licencia Remunerada</field>
+        <field name="code">LicenciaR</field>
+        <field name="description">Licencia con pago (luto, calamidad, etc.)</field>
+    </record>
+    <record id="accrued_licencia_nr" model="hr.accrued.rule">
+        <field name="name">Licencia No Remunerada</field>
+        <field name="code">LicenciaNR</field>
+        <field name="description">Licencia sin pago</field>
+    </record>
+
+    <!-- BONIFICACIONES -->
+    <record id="accrued_bonificacion" model="hr.accrued.rule">
+        <field name="name">Bonificación</field>
+        <field name="code">Bonificacion</field>
+        <field name="description">Bonificaciones salariales</field>
+    </record>
+    <record id="accrued_bonificacion_ns" model="hr.accrued.rule">
+        <field name="name">Bonificación No Salarial</field>
+        <field name="code">BonificacionNS</field>
+        <field name="description">Bonificaciones no constitutivas de salario</field>
+    </record>
+
+    <!-- AUXILIOS -->
+    <record id="accrued_aux_transporte" model="hr.accrued.rule">
+        <field name="name">Auxilio de Transporte</field>
+        <field name="code">Transporte</field>
+        <field name="description">Auxilio de transporte legal</field>
+    </record>
+    <record id="accrued_aux_alimentacion" model="hr.accrued.rule">
+        <field name="name">Auxilio de Alimentación</field>
+        <field name="code">Alimentacion</field>
+        <field name="description">Auxilio de alimentación</field>
+    </record>
+
+    <!-- COMISIONES -->
+    <record id="accrued_comision" model="hr.accrued.rule">
+        <field name="name">Comisión</field>
+        <field name="code">Comision</field>
+        <field name="description">Comisiones por ventas o gestión</field>
+    </record>
+
+    <!-- OTROS -->
+    <record id="accrued_viaticos" model="hr.accrued.rule">
+        <field name="name">Viáticos</field>
+        <field name="code">Viaticos</field>
+        <field name="description">Viáticos salariales</field>
+    </record>
+    <record id="accrued_viaticos_ns" model="hr.accrued.rule">
+        <field name="name">Viáticos No Salariales</field>
+        <field name="code">ViaticosNS</field>
+        <field name="description">Viáticos no constitutivos de salario</field>
+    </record>
+    <record id="accrued_dotacion" model="hr.accrued.rule">
+        <field name="name">Dotación</field>
+        <field name="code">Dotacion</field>
+        <field name="description">Dotación en dinero</field>
+    </record>
+    <record id="accrued_apoyo_sost" model="hr.accrued.rule">
+        <field name="name">Apoyo de Sostenimiento</field>
+        <field name="code">ApoyoSost</field>
+        <field name="description">Apoyo de sostenimiento (aprendices SENA)</field>
+    </record>
+    <record id="accrued_teletrabajo" model="hr.accrued.rule">
+        <field name="name">Teletrabajo</field>
+        <field name="code">Teletrabajo</field>
+        <field name="description">Auxilio de teletrabajo</field>
+    </record>
+    <record id="accrued_bonif_retiro" model="hr.accrued.rule">
+        <field name="name">Bonificación por Retiro</field>
+        <field name="code">BonifRetiro</field>
+        <field name="description">Bonificación por retiro voluntario</field>
+    </record>
+    <record id="accrued_indemnizacion" model="hr.accrued.rule">
+        <field name="name">Indemnización</field>
+        <field name="code">Indemnizacion</field>
+        <field name="description">Indemnización por despido</field>
+    </record>
+    <record id="accrued_reintegro" model="hr.accrued.rule">
+        <field name="name">Reintegro</field>
+        <field name="code">Reintegro</field>
+        <field name="description">Pagos por reintegro</field>
+    </record>
+    <record id="accrued_anticipo" model="hr.accrued.rule">
+        <field name="name">Anticipo</field>
+        <field name="code">Anticipo</field>
+        <field name="description">Anticipo de nómina</field>
+    </record>
+    <record id="accrued_pago_tercero" model="hr.accrued.rule">
+        <field name="name">Pago a Terceros</field>
+        <field name="code">PagoTercero</field>
+        <field name="description">Pagos realizados a terceros</field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- CÓDIGOS AGREGADOS PARA DIAN V1.0.6                           -->
+    <!-- ============================================================ -->
+
+    <!-- HUELGAS LEGALES -->
+    <record id="accrued_huelga_legal" model="hr.accrued.rule">
+        <field name="name">Huelga Legal</field>
+        <field name="code">HuelgaLegal</field>
+        <field name="description">Pago por huelga legal (XSD: HuelgasLegales/HuelgaLegal)</field>
+    </record>
+
+    <!-- OTROS CONCEPTOS -->
+    <record id="accrued_otro_concepto" model="hr.accrued.rule">
+        <field name="name">Otro Concepto</field>
+        <field name="code">OtroConcepto</field>
+        <field name="description">Otros conceptos (XSD: OtrosConceptos/OtroConcepto con atributos PagoS y PagoNS)</field>
+    </record>
+
+    <!-- COMPENSACIONES (XSD: Compensaciones/Compensacion con atributos CompensacionO/CompensacionE) -->
+    <record id="accrued_compensacion_ordinaria" model="hr.accrued.rule">
+        <field name="name">Compensación Ordinaria</field>
+        <field name="code">CompensacionO</field>
+        <field name="description">Compensación ordinaria (atributo CompensacionO del nodo Compensacion)</field>
+    </record>
+    <record id="accrued_compensacion_extraordinaria" model="hr.accrued.rule">
+        <field name="name">Compensación Extraordinaria</field>
+        <field name="code">CompensacionE</field>
+        <field name="description">Compensación extraordinaria (atributo CompensacionE del nodo Compensacion)</field>
+    </record>
+
+    <!-- BONOS EPCTV (XSD: BonoEPCTVs/BonoEPCTV con atributos PagoS, PagoNS, PagoAlimentacionS, PagoAlimentacionNS) -->
+    <record id="accrued_bono_epctv_s" model="hr.accrued.rule">
+        <field name="name">Bono EPCTV Salarial</field>
+        <field name="code">BonoEPCTVS</field>
+        <field name="description">Bono EPCTV salarial (atributo PagoS del nodo BonoEPCTV)</field>
+    </record>
+    <record id="accrued_bono_epctv_ns" model="hr.accrued.rule">
+        <field name="name">Bono EPCTV No Salarial</field>
+        <field name="code">BonoEPCTVNS</field>
+        <field name="description">Bono EPCTV no salarial (atributo PagoNS del nodo BonoEPCTV)</field>
+    </record>
+    <record id="accrued_bono_epctv_alim_s" model="hr.accrued.rule">
+        <field name="name">Bono EPCTV Alimentación Salarial</field>
+        <field name="code">BonoEPCTVAlimentacionS</field>
+        <field name="description">Bono EPCTV alimentación salarial (atributo PagoAlimentacionS)</field>
+    </record>
+    <record id="accrued_bono_epctv_alim_ns" model="hr.accrued.rule">
+        <field name="name">Bono EPCTV Alimentación No Salarial</field>
+        <field name="code">BonoEPCTVAlimentacionNS</field>
+        <field name="description">Bono EPCTV alimentación no salarial (atributo PagoAlimentacionNS)</field>
+    </record>
+</odoo>

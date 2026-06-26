@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============ VISTAS DE MODIFICACIONES CONTRACTUALES ============ -->
+
+    <!-- Vista Tree/List -->
+    <record id="view_hr_contractual_modifications_tree" model="ir.ui.view">
+        <field name="name">hr.contractual.modifications.tree</field>
+        <field name="model">hr.contractual.modifications</field>
+        <field name="arch" type="xml">
+            <list string="Modificaciones Contractuales"
+                  default_order="date desc"
+                  decoration-info="prorroga == True"
+                  multi_edit="1">
+
+                <field name="contract_id" string="Contrato"/>
+                <field name="date" string="Fecha"/>
+                <field name="prorroga" string="Prorroga" widget="boolean_toggle"/>
+                <field name="sequence" string="# Prorroga" optional="show"/>
+                <field name="date_from" string="Desde" optional="show"/>
+                <field name="date_to" string="Hasta" optional="show"/>
+                <field name="wage" string="Salario" optional="show"/>
+                <field name="description" string="Descripcion"/>
+                <field name="attached" string="Adjunto" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Form -->
+    <record id="view_hr_contractual_modifications_form" model="ir.ui.view">
+        <field name="name">hr.contractual.modifications.form</field>
+        <field name="model">hr.contractual.modifications</field>
+        <field name="arch" type="xml">
+            <form string="Modificacion Contractual">
+                <sheet>
+                    <widget name="web_ribbon" title="Prorroga" bg_color="bg-info"
+                            invisible="not prorroga"/>
+
+                    <group>
+                        <group string="Informacion General">
+                            <field name="contract_id"
+                                   domain="[('state', 'in', ['open', 'pending'])]"
+                                   options="{'no_create': True}"/>
+                            <field name="date" required="1"/>
+                            <field name="description" required="1"/>
+                        </group>
+
+                        <group string="Documento">
+                            <field name="attached"/>
+                        </group>
+                    </group>
+
+                    <group>
+                        <group string="Prorroga" invisible="not prorroga">
+                            <field name="prorroga" widget="boolean_toggle"/>
+                            <field name="sequence" readonly="1"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+
+                        <group string="Cambio Salarial" invisible="wage == 0">
+                            <field name="wage"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_hr_contractual_modifications_search" model="ir.ui.view">
+        <field name="name">hr.contractual.modifications.search</field>
+        <field name="model">hr.contractual.modifications</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Modificaciones">
+                <field name="contract_id" string="Contrato"/>
+                <field name="description" string="Descripcion"/>
+
+                <separator/>
+
+                <filter name="filter_prorroga" string="Prorrogas"
+                        domain="[('prorroga', '=', True)]"/>
+                <filter name="filter_with_wage" string="Con Cambio Salarial"
+                        domain="[('wage', '!=', 0)]"/>
+
+                <separator/>
+
+                <filter name="current_month" string="Este Mes"
+                        domain="[('date', '&gt;=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                ('date', '&lt;', (context_today() + relativedelta(months=1, day=1)).strftime('%Y-%m-%d'))]"/>
+                <filter name="current_year" string="Este Ano"
+                        domain="[('date', '&gt;=', (context_today() + relativedelta(month=1, day=1)).strftime('%Y-%m-%d')),
+                                ('date', '&lt;', (context_today() + relativedelta(years=1, month=1, day=1)).strftime('%Y-%m-%d'))]"/>
+
+                <group name="group_by">
+                    <filter name="group_contract" string="Contrato" context="{'group_by': 'contract_id'}"/>
+                    <filter name="group_prorroga" string="Prorroga" context="{'group_by': 'prorroga'}"/>
+                    <filter name="group_date" string="Fecha" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Accion principal -->
+    <record id="action_hr_contractual_modifications" model="ir.actions.act_window">
+        <field name="name">Modificaciones Contractuales</field>
+        <field name="res_model">hr.contractual.modifications</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_hr_contractual_modifications_search"/>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registrar una modificacion contractual
+            </p>
+            <p>
+                Gestione las modificaciones a los contratos de trabajo,
+                incluyendo prorrogas, cambios salariales y otros ajustes.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu bajo Nomina > Empleados > Cambios Salariales -->
+    <menuitem id="menu_hr_contractual_modifications"
+              name="Modificaciones Contractuales"
+              parent="lavish_hr_employee.menu_hr_contract_change_wage_root"
+              action="action_hr_contractual_modifications"
+              sequence="20"/>
+
+</odoo>

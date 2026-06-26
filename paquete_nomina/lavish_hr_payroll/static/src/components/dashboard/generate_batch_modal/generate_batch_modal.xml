@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.GenerateBatchModal">
+        <!-- Modal Backdrop -->
+        <div class="modal-backdrop fade show" t-on-click="props.onClose"/>
+
+        <!-- Modal -->
+        <div class="modal fade show d-block" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <!-- Header -->
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fa fa-plus-circle me-2"/>
+                            Generar Lote de Nómina
+                        </h5>
+                        <button type="button" class="btn-close" t-on-click="props.onClose"/>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="modal-body">
+                        <!-- Period Info -->
+                        <div class="alert alert-info mb-3">
+                            <strong>Período seleccionado:</strong> <t t-esc="props.period.name"/>
+                        </div>
+
+                        <!-- Prima Warning if applicable -->
+                        <t t-if="isPrimaPeriod">
+                            <div class="alert alert-warning">
+                                <h6 class="alert-heading">
+                                    <i class="fa fa-exclamation-triangle me-2"/>
+                                    ¡Período de Prima!
+                                </h6>
+                                <p class="mb-0">
+                                    Has seleccionado el mes de <strong><t t-esc="primaMonth"/></strong>,
+                                    período correspondiente al pago de Prima de Servicios.
+                                </p>
+                            </div>
+
+                            <!-- Prima Checkbox -->
+                            <div class="form-check mb-3">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    id="includePrimaCheck"
+                                    t-model="state.includePrima"
+                                />
+                                <label class="form-check-label" for="includePrimaCheck">
+                                    <strong>Incluir Prima de Servicios en este lote</strong>
+                                </label>
+                                <div class="form-text">
+                                    Si activas esta opción, se liquidará la prima de servicios
+                                    correspondiente al semestre junto con la nómina regular.
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Additional Info -->
+                        <div class="card bg-light">
+                            <div class="card-body small">
+                                <p class="mb-2">
+                                    <strong>Información:</strong>
+                                </p>
+                                <ul class="mb-0">
+                                    <li>Se generarán nóminas para todos los empleados activos del período</li>
+                                    <li>Las nóminas se crearán en estado <span class="badge bg-secondary">Borrador</span></li>
+                                    <li>Podrás revisarlas y modificarlas antes de confirmarlas</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            t-on-click="props.onClose"
+                            t-att-disabled="state.generating"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-primary"
+                            t-on-click="() => this.generateBatch()"
+                            t-att-disabled="state.generating"
+                        >
+                            <t t-if="state.generating">
+                                <span class="spinner-border spinner-border-sm me-2"/>
+                                Generando...
+                            </t>
+                            <t t-else="">
+                                <i class="fa fa-check me-2"/>
+                                Generar Lote
+                                <t t-if="state.includePrima and isPrimaPeriod">
+                                    (con Prima)
+                                </t>
+                            </t>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

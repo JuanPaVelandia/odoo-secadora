@@ -1,0 +1,138 @@
+// Estilos compartidos con el constructor de direccion de res.partner
+// Las clases CSS son las mismas (.o_address_builder_btn, .o_address_builder_dialog)
+// Este archivo solo se necesita si lavish_erp no esta instalado
+
+.o_address_builder_btn {
+    display: inline-block;
+    margin-left: 8px;
+    cursor: pointer;
+    vertical-align: middle;
+
+    i {
+        font-size: 16px;
+        color: #714B67;
+
+        &:hover {
+            color: #5d3d56;
+        }
+    }
+}
+
+.o_address_builder_dialog {
+    background-color: #f4f5f7;
+    min-height: 400px;
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        background: #fff;
+        overflow: hidden;
+
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #edf2f7;
+            padding: 14px 18px;
+            font-weight: 600;
+
+            strong {
+                font-size: 13px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                color: #4a5568;
+            }
+        }
+
+        .card-body {
+            padding: 18px;
+            background: #fff;
+
+            label.form-label {
+                display: block;
+                margin-bottom: 6px;
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+                color: #718096;
+                font-weight: 600;
+            }
+
+            .form-control,
+            .form-select {
+                font-size: 13px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 8px 12px;
+                color: #2d3748;
+                background-color: #fff;
+                transition: border-color 0.15s, box-shadow 0.15s;
+
+                &:focus {
+                    border-color: #714B67;
+                    box-shadow: 0 0 0 3px rgba(113, 75, 103, 0.1);
+                    outline: none;
+                }
+
+                &::placeholder {
+                    color: #a0aec0;
+                }
+            }
+
+            .form-control-sm,
+            .form-select-sm {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+        }
+    }
+
+    .alert-info {
+        background-color: #fff;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        padding: 18px;
+        color: #4a5568;
+
+        .fa-map-marker {
+            color: #714B67;
+        }
+
+        strong {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #718096;
+        }
+
+        .fs-5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #714B67;
+            line-height: 1.5;
+        }
+
+        .font-monospace {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
+        }
+    }
+
+    .form-text {
+        display: block;
+        margin-top: 6px;
+        font-size: 11px;
+        color: #a0aec0;
+    }
+}
+
+@media (max-width: 768px) {
+    .o_address_builder_dialog {
+        .card-body {
+            padding: 14px;
+        }
+
+        .alert-info .fs-5 {
+            font-size: 14px;
+        }
+    }
+}

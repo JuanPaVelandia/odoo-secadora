@@ -1,0 +1,57 @@
+<odoo>
+<data>
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MENUS RAIZ - Lavish HR Payroll
+     Menus contenedores (sin acciones) que deben cargarse ANTES de los archivos
+     que los referencian.
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SECCION: Liquidaciones (parent: hr_payroll.menu_hr_payroll_payslips)
+     ───────────────────────────────────────────────────────────────────────── -->
+<menuitem id="lavish_hr_payroll.menu_payroll_initial"
+          name="Liquidaciones"
+          parent="hr_payroll.menu_hr_payroll_payslips"
+          sequence="0"/>
+
+<menuitem id="lavish_hr_payroll.menu_payroll_history"
+          name="Historicos"
+          parent="hr_payroll.menu_hr_payroll_payslips"
+          sequence="1"/>
+
+<menuitem id="lavish_hr_payroll.menu_payroll_payment"
+          name="Pagos"
+          parent="hr_payroll.menu_hr_payroll_payslips"
+          sequence="2"/>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SECCION: Ausencias
+     ───────────────────────────────────────────────────────────────────────── -->
+<menuitem id="lavish_hr_payroll.menu_hr_holidays_root"
+          name="Ausencias"
+          parent="hr_payroll.menu_hr_payroll_payslips"
+          sequence="6"/>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SECCION: Novedades y Prestamos
+     ───────────────────────────────────────────────────────────────────────── -->
+<menuitem id="lavish_hr_payroll.menu_payroll_lavish_novelties"
+          name="Novedades"
+          parent="hr_payroll.menu_hr_payroll_payslips"
+          sequence="60"/>
+
+<menuitem id="lavish_hr_payroll.menu_hr_loans_root"
+          name="Prestamos"
+          parent="lavish_hr_payroll.menu_payroll_lavish_novelties"
+          sequence="10"/>
+
+<!-- ─────────────────────────────────────────────────────────────────────────
+     SECCION: Contabilidad
+     ───────────────────────────────────────────────────────────────────────── -->
+<menuitem id="lavish_hr_payroll.menu_payroll_payment_account"
+          name="Pagos Nomina"
+          parent="account.menu_finance_payables"
+          sequence="35"/>
+
+</data>
+</odoo>

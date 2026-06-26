@@ -1,0 +1,282 @@
+/**
+ * Estilos para Grid de Nomina - Vista Horizontal Pivot
+ * Esquema de colores: Escala de grises (blanco y negro)
+ */
+
+.o_payslip_line_grid {
+    background-color: #fafafa;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    // Wrapper del grid con scroll
+    .o_grid_wrapper {
+        overflow: auto;
+        flex: 1;
+    }
+
+    // Tabla principal tipo pivot
+    table.table {
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0;
+
+        th, td {
+            white-space: nowrap;
+            vertical-align: middle;
+            border: 1px solid #ccc;
+        }
+
+        // Header fijo superior
+        thead {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+
+            th {
+                background-color: #1a1a1a;
+                color: #fff;
+                font-weight: 600;
+                padding: 8px 10px;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+
+                &.sticky-start {
+                    position: sticky;
+                    z-index: 25;
+                }
+
+                &.sticky-end {
+                    position: sticky;
+                    right: 0;
+                    z-index: 25;
+                }
+            }
+        }
+
+        // Footer fijo inferior
+        tfoot {
+            position: sticky;
+            bottom: 0;
+            z-index: 20;
+
+            td {
+                background-color: #333;
+                color: #fff;
+                font-weight: 600;
+                padding: 8px 10px;
+                font-size: 0.8rem;
+
+                &.sticky-start {
+                    position: sticky;
+                    z-index: 25;
+                }
+
+                &.sticky-end {
+                    position: sticky;
+                    right: 0;
+                    z-index: 25;
+                    background-color: #000 !important;
+                }
+            }
+        }
+
+        // Body
+        tbody {
+            tr {
+                transition: background-color 0.15s ease;
+
+                &:hover td {
+                    background-color: #e5e5e5 !important;
+                }
+
+                &:nth-child(even) td {
+                    background-color: #f5f5f5;
+                }
+
+                &:nth-child(even):hover td {
+                    background-color: #e5e5e5 !important;
+                }
+            }
+
+            td {
+                padding: 6px 8px;
+                background-color: #fff;
+                font-size: 0.8rem;
+
+                // Columnas sticky del lado izquierdo
+                &.sticky-start {
+                    position: sticky;
+                    z-index: 10;
+                    background-color: #fff;
+                    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+                }
+
+                // Columna sticky del lado derecho (total)
+                &.sticky-end {
+                    position: sticky;
+                    right: 0;
+                    z-index: 10;
+                    background-color: #f0f0f0;
+                    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+                    font-weight: 600;
+                }
+
+                // Valores positivos (negro bold)
+                &.value-positive {
+                    color: #000 !important;
+                    font-weight: 600;
+                }
+
+                // Valores negativos (gris oscuro con parentesis)
+                &.value-negative {
+                    color: #333 !important;
+                    font-weight: 600;
+                }
+
+                // Sin valor
+                &.text-muted {
+                    color: #999 !important;
+                }
+            }
+        }
+    }
+
+    // Header del componente
+    .bg-white {
+        background-color: #fff !important;
+    }
+
+    .bg-light {
+        background-color: #f5f5f5 !important;
+    }
+
+    // Badges
+    .badge {
+        &.bg-secondary {
+            background-color: #666 !important;
+        }
+        &.bg-info {
+            background-color: #444 !important;
+        }
+    }
+
+    // Estilos para filtros
+    .form-select-sm, .form-control-sm {
+        font-size: 0.8rem;
+        border-radius: 4px;
+        border-color: #ccc;
+    }
+
+    // Botones de estado (tags) - escala de grises
+    .btn-sm {
+        border-radius: 4px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &:hover {
+            transform: translateY(-1px);
+        }
+    }
+
+    // Estados en escala de grises
+    .btn-secondary, .btn-outline-secondary {
+        --bs-btn-bg: #6c757d;
+        --bs-btn-border-color: #6c757d;
+    }
+
+    .btn-warning, .btn-outline-warning {
+        --bs-btn-bg: #888;
+        --bs-btn-border-color: #888;
+        --bs-btn-color: #fff;
+    }
+
+    .btn-success, .btn-outline-success {
+        --bs-btn-bg: #444;
+        --bs-btn-border-color: #444;
+    }
+
+    .btn-info, .btn-outline-info {
+        --bs-btn-bg: #555;
+        --bs-btn-border-color: #555;
+    }
+
+    .btn-danger, .btn-outline-danger {
+        --bs-btn-bg: #333;
+        --bs-btn-border-color: #333;
+    }
+
+    // Loading state
+    .fa-spinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .o_payslip_line_grid {
+        table.table {
+            font-size: 0.7rem;
+
+            th, td {
+                padding: 4px 6px;
+                min-width: 70px;
+            }
+
+            .sticky-start, .sticky-end {
+                position: static !important;
+            }
+        }
+    }
+}
+
+// Print styles - blanco y negro optimizado
+@media print {
+    .o_payslip_line_grid {
+        height: auto !important;
+        background-color: #fff !important;
+
+        .bg-white, .bg-light {
+            display: none !important;
+        }
+
+        .o_grid_wrapper {
+            overflow: visible !important;
+        }
+
+        table.table {
+            font-size: 8pt;
+            border: 1px solid #000;
+
+            th {
+                background-color: #000 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            td {
+                background-color: #fff !important;
+                border-color: #000 !important;
+            }
+
+            .sticky-start, .sticky-end {
+                position: static !important;
+                box-shadow: none !important;
+            }
+
+            tfoot td {
+                background-color: #333 !important;
+                color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    }
+}

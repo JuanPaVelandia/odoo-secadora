@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================= -->
+    <!-- VISTAS PARA hr.contract.type - Ley 2466/2025                  -->
+    <!-- Hereda de las vistas base de hr_contract                      -->
+    <!-- ============================================================= -->
+
+    <!-- Vista List - Hereda de la base (hr module) -->
+    <record id="view_hr_contract_type_tree_inherit" model="ir.ui.view">
+        <field name="name">hr.contract.type.list.inherit.lavish</field>
+        <field name="model">hr.contract.type</field>
+        <field name="inherit_id" ref="hr.hr_contract_type_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+            </xpath>
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="contract_category" widget="badge"
+                       decoration-info="contract_category == 'indefinido'"
+                       decoration-success="contract_category == 'fijo'"
+                       decoration-warning="contract_category == 'aprendizaje'"
+                       decoration-danger="contract_category == 'ocasional'"/>
+                <field name="max_duration_months"/>
+                <field name="max_renewals"/>
+                <field name="has_prima" widget="boolean_toggle"/>
+                <field name="has_cesantias" widget="boolean_toggle"/>
+                <field name="has_vacaciones" widget="boolean_toggle"/>
+                <field name="has_pension" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista Form - Hereda de la base (hr module) -->
+    <record id="view_hr_contract_type_form_inherit" model="ir.ui.view">
+        <field name="name">hr.contract.type.form.inherit.lavish</field>
+        <field name="model">hr.contract.type</field>
+        <field name="inherit_id" ref="hr.hr_contract_type_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Reemplazar el form completo -->
+            <xpath expr="//form" position="replace">
+                <form string="Tipo de Contrato">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box"/>
+                        <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1>
+                                <field name="name" placeholder="Nombre del tipo de contrato"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Informacion General">
+                                <field name="code" help="Codigo unico para identificar el tipo de contrato en el sistema"/>
+                                <field name="contract_category" widget="radio" options="{'horizontal': true}"
+                                       help="INDEFINIDO: Modalidad preferente, sin fecha fin. FIJO: Max 4 anios, requiere fecha fin. OBRA: Termina al completar la labor. APRENDIZAJE: SENA, 75-100% SMMLV. OCASIONAL: Max 30 dias. AGROPECUARIO: Sector rural."/>
+                                <field name="country_id" help="Pais donde aplica este tipo de contrato. Filtra los tipos disponibles en los contratos."/>
+                                <field name="sequence" help="Orden de visualizacion en listas desplegables"/>
+                                <field name="active" invisible="1"/>
+                            </group>
+                            <group string="Duracion y Renovacion">
+                                <field name="requires_end_date" help="Marcar si el contrato DEBE tener fecha de finalizacion (Fijo, Aprendizaje, Ocasional)"/>
+                                <field name="max_duration_months" invisible="max_duration_days > 0" help="Duracion maxima en meses. Ley 2466: Fijo max 48 meses, Aprendizaje max 24 meses"/>
+                                <field name="max_duration_days" invisible="max_duration_months > 0" help="Duracion maxima en dias. Ocasional: maximo 30 dias"/>
+                                <field name="max_renewals" help="Numero maximo de renovaciones permitidas antes de conversion a indefinido"/>
+                                <field name="auto_renewal" help="El contrato se renueva automaticamente si no hay preaviso de terminacion"/>
+                                <field name="renewal_notice_days" help="Dias de anticipacion para notificar no renovacion. Art. 46 CST: 30 dias para fijo"/>
+                                <field name="auto_convert_indefinite" help="Convierte automaticamente a indefinido si supera duracion o renovaciones maximas"/>
+                            </group>
+                        </group>
+
+                        <!-- Descripcion legal del tipo de contrato -->
+                        <group>
+                            <field name="description" widget="text" placeholder="Descripcion legal del tipo de contrato..."
+                                   help="Descripcion detallada del tipo de contrato, incluyendo referencias legales (Ley 2466/2025, CST, etc.)"/>
+                        </group>
+
+                        <notebook>
+                            <page string="Prestaciones Sociales" name="benefits">
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Ley 2466 de 2025:</strong> Define las prestaciones segun el tipo de contrato.
+                                    Los aprendices ahora tienen derecho a prestaciones sociales y pension.
+                                </div>
+                                <group>
+                                    <group string="Prestaciones">
+                                        <field name="has_prima" help="Prima de servicios: 1 mes de salario al anio (mitad en junio, mitad en diciembre)"/>
+                                        <field name="has_cesantias" help="Cesantias: 1 mes de salario por anio trabajado, depositadas en fondo"/>
+                                        <field name="has_intereses_cesantias" help="Intereses sobre cesantias: 12% anual sobre el saldo"/>
+                                        <field name="has_vacaciones" help="Vacaciones: 15 dias habiles remunerados por anio trabajado"/>
+                                        <field name="has_dotacion" help="Dotacion: Vestido y calzado de labor 3 veces al anio (si salario menor a 2 SMMLV)"/>
+                                        <field name="has_auxilio_transporte" help="Auxilio de transporte: Aplica si salario menor o igual a 2 SMMLV"/>
+                                    </group>
+                                    <group string="Seguridad Social">
+                                        <field name="has_salud" help="Afiliacion a EPS: 12.5% (8.5% empleador + 4% trabajador)"/>
+                                        <field name="has_pension" help="Afiliacion a pension: 16% (12% empleador + 4% trabajador)"/>
+                                        <field name="has_riesgos" help="ARL: 0.522% a 6.96% segun nivel de riesgo (100% empleador)"/>
+                                        <field name="has_caja_compensacion" help="Caja de compensacion familiar: 4% sobre nomina (100% empleador)"/>
+                                        <field name="has_parafiscales" help="SENA 2% + ICBF 3% sobre nomina (exonerados si empresa aporta a salud)"/>
+                                    </group>
+                                </group>
+                            </page>
+
+                            <page string="Aprendizaje" name="apprenticeship" invisible="contract_category != 'aprendizaje'">
+                                <div class="alert alert-warning" role="alert">
+                                    <strong>Contrato de Aprendizaje - Ley 2466 de 2025</strong><br/>
+                                    Cuota de sostenimiento segun etapa del programa de formacion SENA.
+                                </div>
+                                <group>
+                                    <group string="Configuracion Aprendizaje">
+                                        <field name="is_apprenticeship" help="Marcar para activar las reglas especiales de aprendizaje"/>
+                                        <field name="apprentice_wage_pct_lectiva" widget="percentage" help="Porcentaje del SMMLV en etapa lectiva (teorica). Ley 2466: 75%"/>
+                                        <field name="apprentice_wage_pct_productiva" widget="percentage" help="Porcentaje del SMMLV en etapa productiva (practica). Ley 2466: 100%"/>
+                                        <field name="apprentice_max_duration_months" help="Duracion maxima del contrato de aprendizaje. Normalmente 24 meses (lectiva + productiva)"/>
+                                        <field name="has_social_benefits_aprendiz" help="Si esta activo, el aprendiz tiene derecho a prestaciones sociales en etapa lectiva (Ley 2466/2025). Si no, solo aplican en etapa productiva."/>
+                                    </group>
+                                </group>
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Cambios Ley 2466 de 2025:</strong>
+                                    <ul>
+                                        <li>Derecho a prestaciones sociales (prima, cesantias, vacaciones)</li>
+                                        <li>Afiliacion obligatoria a pension</li>
+                                        <li>Derecho a sindicalizacion</li>
+                                        <li>Tipo cotizante: 12 (lectiva) o 19 (productiva)</li>
+                                    </ul>
+                                </div>
+                            </page>
+
+                            <page string="Agropecuario" name="agricultural" invisible="contract_category != 'agropecuario'">
+                                <div class="alert alert-success" role="alert">
+                                    <strong>Contrato Agropecuario - NUEVO Ley 2466 de 2025</strong><br/>
+                                    Tipo de contrato especifico para formalizar el empleo rural.
+                                </div>
+                                <group>
+                                    <group string="Configuracion Agropecuaria">
+                                        <field name="is_agricultural" help="Marcar para activar las reglas especiales del sector agropecuario"/>
+                                        <field name="agricultural_special_rules" help="Aplicar reglas especiales de jornada, descanso y seguridad social para el sector rural"/>
+                                    </group>
+                                </group>
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Caracteristicas del Contrato Agropecuario:</strong>
+                                    <ul>
+                                        <li>Jornada laboral adaptada al sector rural</li>
+                                        <li>Reglas especiales de descanso</li>
+                                        <li>No aplica auxilio de transporte (vivienda en finca)</li>
+                                        <li>Afiliacion a seguridad social completa</li>
+                                    </ul>
+                                </div>
+                            </page>
+
+                            <page string="Indemnizacion" name="indemnization">
+                                <div class="alert alert-danger" role="alert">
+                                    <strong>Art. 64 del Codigo Sustantivo del Trabajo</strong><br/>
+                                    Indemnizacion por terminacion unilateral sin justa causa.
+                                </div>
+                                <group>
+                                    <group string="Configuracion Indemnizacion">
+                                        <field name="indemnization_type" widget="radio"
+                                               help="TABLA ANTIGUEDAD: Indefinido (30+20 o 20+15 dias segun salario). DIAS FALTANTES: Fijo/Obra (tiempo restante). NO APLICA: Ocasional/Aprendizaje"/>
+                                        <field name="indemnization_min_days" invisible="indemnization_type != 'dias_faltantes'"
+                                               help="Minimo de dias de indemnizacion. Obra o labor: 15 dias minimo"/>
+                                    </group>
+                                    <group string="Derechos Laborales">
+                                        <field name="has_union_rights" help="Derecho a sindicalizacion y negociacion colectiva. Ley 2466: Aplica a aprendices"/>
+                                    </group>
+                                </group>
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Tabla de Indemnizacion (Termino Indefinido):</strong>
+                                    <ul>
+                                        <li><b>Salario menor a 10 SMMLV:</b> 30 dias primer anio + 20 dias por anio adicional</li>
+                                        <li><b>Salario igual o mayor a 10 SMMLV:</b> 20 dias primer anio + 15 dias por anio adicional</li>
+                                    </ul>
+                                    <strong>Termino Fijo / Obra:</strong> Salarios por tiempo restante del contrato.
+                                </div>
+                            </page>
+
+                            <page string="Notas" name="notes">
+                                <group>
+                                    <field name="notes" nolabel="1" placeholder="Notas adicionales sobre este tipo de contrato..."
+                                           help="Notas internas o aclaraciones adicionales sobre el uso de este tipo de contrato"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_hr_contract_type_search" model="ir.ui.view">
+        <field name="name">hr.contract.type.search</field>
+        <field name="model">hr.contract.type</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <search string="Tipos de Contrato">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="contract_category"/>
+                <separator/>
+                <filter string="Archivados" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Termino Fijo" name="fijo" domain="[('contract_category', '=', 'fijo')]"/>
+                <filter string="Termino Indefinido" name="indefinido" domain="[('contract_category', '=', 'indefinido')]"/>
+                <filter string="Obra o Labor" name="obra" domain="[('contract_category', '=', 'obra')]"/>
+                <filter string="Aprendizaje" name="aprendizaje" domain="[('contract_category', '=', 'aprendizaje')]"/>
+                <filter string="Ocasional" name="ocasional" domain="[('contract_category', '=', 'ocasional')]"/>
+                <filter string="Agropecuario" name="agropecuario" domain="[('contract_category', '=', 'agropecuario')]"/>
+                <separator/>
+                <filter string="Con Prestaciones" name="has_benefits" domain="[('has_prima', '=', True), ('has_cesantias', '=', True)]"/>
+                <group name="group_by">
+                    <filter string="Categoria" name="group_category" context="{'group_by': 'contract_category'}"/>
+                    <filter string="Pais" name="group_country" context="{'group_by': 'country_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Accion -->
+    <record id="action_hr_contract_type" model="ir.actions.act_window">
+        <field name="name">Tipos de Contrato</field>
+        <field name="res_model">hr.contract.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_hr_contract_type_search"/>
+        <field name="context">{'search_default_group_category': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo tipo de contrato
+            </p>
+            <p>
+                Configure los tipos de contrato segun la Ley 2466 de 2025 (Reforma Laboral Colombia).
+                Defina las prestaciones sociales, duracion maxima, renovaciones y mas.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Item -->
+    <menuitem
+        id="menu_hr_contract_type"
+        name="Tipos de Contrato"
+        parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
+        action="action_hr_contract_type"
+        sequence="5"/>
+
+</odoo>

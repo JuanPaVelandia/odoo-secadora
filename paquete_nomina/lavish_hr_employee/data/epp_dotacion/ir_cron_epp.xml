@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Cron para generar solicitudes de EPP/Dotación -->
+        <record id="ir_cron_generate_epp_requests" model="ir.cron">
+            <field name="name">Generar Solicitudes EPP/Dotación</field>
+            <field name="model_id" ref="model_hr_epp_configuration"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_generate_epp_requests()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">months</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+        <!-- Cron para verificar certificados médicos por vencer -->
+        <record id="ir_cron_check_medical_certificates" model="ir.cron">
+            <field name="name">Verificar Certificados Médicos</field>
+            <field name="model_id" ref="model_hr_medical_certificate"/>
+            <field name="state">code</field>
+            <field name="code">model.check_expiring_certificates()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active" eval="True"/>
+        </record>
+        
+        <!-- Secuencias -->
+        <record id="seq_hr_epp_request" model="ir.sequence">
+            <field name="name">EPP Request</field>
+            <field name="code">hr.epp.request</field>
+            <field name="prefix">EPP/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_hr_dotacion_request" model="ir.sequence">
+            <field name="name">Dotación Request</field>
+            <field name="code">hr.dotacion.request</field>
+            <field name="prefix">DOT/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="seq_hr_medical_certificate" model="ir.sequence">
+            <field name="name">Medical Certificate</field>
+            <field name="code">hr.medical.certificate</field>
+            <field name="prefix">MED/%(year)s/</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

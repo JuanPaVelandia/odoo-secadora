@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_liquidacion_vacaciones_document">
+        <t t-set="o" t-value="o.with_context(lang=o.employee_id.work_contact_id.lang or o.env.lang)"/>
+
+        <div class="page" style="font-family: 'Helvetica', Arial, sans-serif;">
+
+            <!-- Encabezado -->
+            <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%); border-radius: 8px;">
+                <h2 style="color: white; margin: 0; font-size: 18px; letter-spacing: 1px;">
+                    LIQUIDACION DE VACACIONES
+                </h2>
+            </div>
+
+            <!-- Informacion del empleado -->
+            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                <table style="width: 100%; font-size: 11px;">
+                    <tr>
+                        <td style="width: 50%; padding: 5px; vertical-align: top;">
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Empleado:</strong>
+                                <span t-field="o.employee_id.name"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Tipo contrato:</strong>
+                                <span t-field="o.contract_id.contract_type"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Cargo:</strong>
+                                <span t-field="o.employee_id.job_id.name"/>
+                            </div>
+                            <div style="background: #e8f5e9; padding: 8px; border-radius: 5px; margin-bottom: 5px; border-left: 3px solid #27ae60;">
+                                <strong style="color: #27ae60;">Salario basico:</strong>
+                                <span t-field="o.contract_id.wage"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px;">
+                                <strong style="color: #2c3e50;">Fecha ingreso:</strong>
+                                <span t-field="o.contract_id.date_start"/>
+                            </div>
+                        </td>
+                        <td style="width: 50%; padding: 5px; vertical-align: top;">
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Nit/Ced:</strong>
+                                <span t-field="o.employee_id.identification_id"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Centro:</strong>
+                                <span t-field="o.employee_id.analytic_account_id.name"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Departamento:</strong>
+                                <span t-field="o.employee_id.department_id.name"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Cuenta:</strong>
+                                <span t-field="o.employee_id.work_contact_id.bank_ids.filtered(lambda bank: bank.is_main == True and bank.company_id == o.employee_id.company_id).acc_number"/>
+                            </div>
+                            <t t-if="o.get_pay_vacations_in_payroll() == False">
+                                <div style="background: #fff3e0; padding: 8px; border-radius: 5px; border-left: 3px solid #e67e22;">
+                                    <strong style="color: #e67e22;">Reintegro:</strong>
+                                    <span t-field="o.refund_date"/>
+                                </div>
+                            </t>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Tabla de conceptos -->
+            <div style="margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);">
+                            <th style="padding: 8px; color: white; text-align: left;">Concepto</th>
+                            <t t-if="cp_template.hide_vacation_dates != True">
+                                <th style="padding: 8px; color: white; text-align: center;">Desde</th>
+                                <th style="padding: 8px; color: white; text-align: center;">Hasta</th>
+                            </t>
+                            <th style="padding: 8px; color: white; text-align: center;">Dias</th>
+                            <th style="padding: 8px; color: white; text-align: right;">Base</th>
+                            <th style="padding: 8px; color: white; text-align: center;">Causacion Inicio</th>
+                            <th style="padding: 8px; color: white; text-align: center;">Causacion Fin</th>
+                            <th style="padding: 8px; color: white; text-align: right;">Devengos</th>
+                            <th style="padding: 8px; color: white; text-align: right;">Deducciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="o.line_ids" t-as="l">
+                            <t t-if="not l.category_id.name in ['Neto','Bruto']">
+                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                    <td style="padding: 6px;"><span t-field="l.name"/></td>
+                                    <t t-if="cp_template.hide_vacation_dates != True">
+                                        <td style="padding: 6px; text-align: center;"><span t-field="o.date_from"/></td>
+                                        <td style="padding: 6px; text-align: center;"><span t-field="o.date_to"/></td>
+                                    </t>
+                                    <td style="padding: 6px; text-align: center; background: #f8f9fa;">
+                                        <t t-if="l.salary_rule_id.display_days_worked">
+                                            <span t-out="sum([i.number_of_days for i in o.worked_days_line_ids.filtered(lambda x: x.code == 'WORK100')])"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-field="l.quantity"/>
+                                        </t>
+                                    </td>
+                                    <td style="padding: 6px; text-align: right;"><span t-field="l.amount_base"/></td>
+                                    <td style="padding: 6px; text-align: center;"><span t-field="l.initial_accrual_date"/></td>
+                                    <td style="padding: 6px; text-align: center;"><span t-field="l.final_accrual_date"/></td>
+                                    <t t-if="l.salary_rule_id.dev_or_ded == 'devengo'">
+                                        <td style="padding: 6px; text-align: right; background: #e8f5e9;">
+                                            <span t-out="l.total" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                        </td>
+                                        <td style="padding: 6px;"></td>
+                                    </t>
+                                    <t t-if="l.salary_rule_id.dev_or_ded == 'deduccion'">
+                                        <td style="padding: 6px;"></td>
+                                        <td style="padding: 6px; text-align: right; background: #ffebee;">
+                                            <span t-out="l.total" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                        </td>
+                                    </t>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Resumen de totales -->
+            <div style="margin-top: 20px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 60%; vertical-align: top;">
+                            <t t-if="cp_template.caption">
+                                <div style="padding: 12px; background: #f8f9fa; border-radius: 8px; font-size: 11px;">
+                                    <span t-out="cp_template.caption"/>
+                                </div>
+                            </t>
+                        </td>
+                        <td style="width: 40%; vertical-align: top;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                    <td style="padding: 8px;"><strong>Devengos</strong></td>
+                                    <td style="padding: 8px; text-align: right; color: #27ae60;">
+                                        <span t-field="o.line_ids.filtered(lambda line: line.code == 'TOTALDEV').total"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                    <td style="padding: 8px;"><strong>Deducciones</strong></td>
+                                    <td style="padding: 8px; text-align: right; color: #e74c3c;">
+                                        <span t-field="o.line_ids.filtered(lambda line: line.code == 'TOTALDED').total"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr style="background: linear-gradient(135deg, #1abc9c 0%, #16a085 100%);">
+                                    <td style="padding: 10px; color: white;"><strong>Total</strong></td>
+                                    <td style="padding: 10px; text-align: right; color: white; font-size: 14px;">
+                                        <strong>
+                                            <span t-field="o.line_ids.filtered(lambda line: line.code == 'NET').total"
+                                                  t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="padding: 8px; font-size: 10px; font-style: italic; color: #666;">
+                                        <span t-out="o.contract_id.get_amount_text(o.line_ids.filtered(lambda line: line.code == 'NET').total).lower().capitalize()"/> pesos
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </template>
+
+
+    <template id="report_liquidacion_vacaciones">
+        <t t-foreach="docs" t-as="o">
+            <t t-set="inside_foreach_docs" t-value="o"/>
+            <t t-call="lavish_hr_payroll.report_liquidacion_vacaciones_document"
+               t-lang="o.employee_id.work_contact_id.lang"/>
+        </t>
+    </template>
+
+
+</odoo>

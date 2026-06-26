@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_hr_payslip_edi_xml_preview_form" model="ir.ui.view">
+        <field name="name">hr.payslip.edi.xml.preview.form</field>
+        <field name="model">hr.payslip.edi.xml.preview</field>
+        <field name="arch" type="xml">
+            <form string="Test XML - Nómina Electrónica">
+                <!-- Campos invisibles para modifiers -->
+                <field name="has_errors" invisible="1"/>
+                <field name="cune" invisible="1"/>
+                <field name="xml_content" invisible="1"/>
+                <field name="payslip_edi_id" invisible="1"/>
+
+                <!-- Banner de errores -->
+                <div class="alert alert-danger" role="alert" invisible="not has_errors">
+                    <strong><i class="fa fa-exclamation-triangle"/> Errores de Validación:</strong>
+                    <pre style="margin-top:10px; white-space:pre-wrap;"><field name="validation_errors" nolabel="1"/></pre>
+                </div>
+
+                <!-- Banner de éxito -->
+                <div class="alert alert-success" role="alert" invisible="has_errors or not xml_content">
+                    <i class="fa fa-check-circle"/> XML generado correctamente. Listo para enviar a DIAN.
+                </div>
+
+                <group>
+                    <group string="Documento">
+                        <field name="employee_name"/>
+                        <field name="period"/>
+                    </group>
+                    <group string="Totales">
+                        <field name="total_devengos" widget="monetary"/>
+                        <field name="total_deducciones" widget="monetary"/>
+                        <field name="total_paid" widget="monetary"/>
+                    </group>
+                </group>
+
+                <group invisible="not cune">
+                    <field name="cune" string="CUNE Generado"/>
+                </group>
+
+                <notebook>
+                    <page string="Conceptos" name="conceptos">
+                        <!-- Devengos -->
+                        <separator string="Devengos"/>
+                        <field name="earnings_ids" nolabel="1">
+                            <list string="Devengos" create="0" delete="0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="quantity"/>
+                                <field name="amount"/>
+                                <field name="total" sum="Total Devengos"/>
+                            </list>
+                        </field>
+
+                        <!-- Deducciones -->
+                        <separator string="Deducciones"/>
+                        <field name="deductions_ids" nolabel="1">
+                            <list string="Deducciones" create="0" delete="0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="quantity"/>
+                                <field name="amount"/>
+                                <field name="total" sum="Total Deducciones"/>
+                            </list>
+                        </field>
+
+                        <!-- Seguridad Social -->
+                        <separator string="Seguridad Social"/>
+                        <field name="social_security_ids" nolabel="1">
+                            <list string="Seguridad Social" create="0" delete="0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="quantity"/>
+                                <field name="amount"/>
+                                <field name="total" sum="Total Seguridad Social"/>
+                            </list>
+                        </field>
+
+                        <!-- Provisiones -->
+                        <separator string="Provisiones"/>
+                        <field name="provisions_ids" nolabel="1">
+                            <list string="Provisiones" create="0" delete="0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="quantity"/>
+                                <field name="amount"/>
+                                <field name="total" sum="Total Provisiones"/>
+                            </list>
+                        </field>
+
+                        <!-- Bases -->
+                        <separator string="Bases"/>
+                        <field name="bases_ids" nolabel="1">
+                            <list string="Bases" create="0" delete="0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="quantity"/>
+                                <field name="amount"/>
+                                <field name="total" sum="Total Bases"/>
+                            </list>
+                        </field>
+
+                        <!-- Neto -->
+                        <separator string="Neto"/>
+                        <field name="outcome_ids" nolabel="1">
+                            <list string="Neto" create="0" delete="0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="quantity"/>
+                                <field name="amount"/>
+                                <field name="total" sum="Total Neto" decoration-bf="1"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- Informativos -->
+                    <page string="Informativos" name="informativos">
+                        <field name="line_informativos_ids" nolabel="1">
+                            <list string="Informativos" create="0" delete="0">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="info_type"/>
+                                <field name="info_value"/>
+                                <field name="info_code"/>
+                                <field name="info_percentage"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- XML Formateado -->
+                    <page string="XML Formateado" name="formatted">
+                        <field name="xml_formatted" nolabel="1"/>
+                    </page>
+
+                    <!-- XML Raw -->
+                    <page string="XML Raw" name="raw">
+                        <field name="xml_content" nolabel="1" readonly="1"
+                               widget="ace" options="{'mode': 'xml'}"/>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button name="action_download_xml" type="object"
+                            string="Descargar XML" class="btn-primary"
+                            icon="fa-download"
+                            invisible="not xml_content"/>
+                    <button name="action_regenerate" type="object"
+                            string="Regenerar" class="btn-secondary"
+                            icon="fa-refresh"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_payslip_edi_xml_preview" model="ir.actions.act_window">
+        <field name="name">Test XML</field>
+        <field name="res_model">hr.payslip.edi.xml.preview</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

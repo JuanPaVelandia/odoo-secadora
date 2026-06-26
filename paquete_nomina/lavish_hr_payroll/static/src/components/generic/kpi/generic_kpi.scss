@@ -1,0 +1,171 @@
+/**
+ * Generic KPI Component Styles
+ * =============================
+ */
+
+.generic-kpi {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    min-height: 80px;
+
+    &--clickable {
+        cursor: pointer;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        &:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    }
+
+    // Tamaños
+    &--small {
+        min-height: 60px;
+        padding: 0.75rem;
+
+        .generic-kpi__icon-container {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+
+        .generic-kpi__label {
+            font-size: 0.75rem;
+        }
+
+        .generic-kpi__value {
+            font-size: 1.25rem;
+        }
+    }
+
+    &--medium {
+        min-height: 80px;
+        padding: 1rem;
+
+        .generic-kpi__icon-container {
+            font-size: 2rem;
+            margin-right: 1rem;
+        }
+
+        .generic-kpi__label {
+            font-size: 0.875rem;
+        }
+
+        .generic-kpi__value {
+            font-size: 1.75rem;
+        }
+    }
+
+    &--large {
+        min-height: 100px;
+        padding: 1.5rem;
+
+        .generic-kpi__icon-container {
+            font-size: 2.5rem;
+            margin-right: 1.25rem;
+        }
+
+        .generic-kpi__label {
+            font-size: 1rem;
+        }
+
+        .generic-kpi__value {
+            font-size: 2.25rem;
+        }
+    }
+
+    // Icono
+    &__icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+
+        i {
+            transition: transform 0.3s ease;
+        }
+    }
+
+    &:hover &__icon-container i {
+        transform: scale(1.1);
+    }
+
+    // Contenido
+    &__content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    // Label
+    &__label {
+        color: #616161;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+    }
+
+    // Valor
+    &__value {
+        color: #212121;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    // Tendencia
+    &__trend {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin-top: 0.25rem;
+
+        &--up {
+            color: #2E7D32;  // Verde
+        }
+
+        &--down {
+            color: #C62828;  // Rojo
+        }
+
+        &--neutral {
+            color: #757575;  // Gris
+        }
+
+        i {
+            font-size: 0.75rem;
+        }
+    }
+
+    &__trend-value {
+        font-size: 0.875rem;
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .generic-kpi {
+        &--large {
+            min-height: 80px;
+            padding: 1rem;
+
+            .generic-kpi__icon-container {
+                font-size: 2rem;
+            }
+
+            .generic-kpi__value {
+                font-size: 1.75rem;
+            }
+        }
+    }
+}

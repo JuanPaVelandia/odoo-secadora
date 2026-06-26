@@ -1,0 +1,993 @@
+<odoo>
+    <data>
+
+        <template id="report_loan_document">
+            <t t-call="web.basic_layout">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="company" t-value="doc.company_id"/>
+                    <!-- Encabezado con estilos inline -->
+                    <div class="header" style="background-color: #ffffff; border-bottom: 4px solid #1e3c72; padding: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div class="row">
+                            <div class="col-3">
+                                <img t-if="doc.company_id.logo" t-att-src="image_data_uri(doc.company_id.logo)" style="max-height: 80px;" alt="Logo"/>
+                            </div>
+                            <div class="col-5 text-center">
+                                <div style="font-size: 20px;             font-weight: 600;             margin-bottom: 6px;" t-field="company.name"/>
+                                <div style="font-size: 13px;  font-weight: 500;">
+                                    <i class="fa fa-building me-1" title="Dirección"/>
+                                    <span t-field="company.street"/>
+                                </div>
+                                <div style="font-size: 13px;  font-weight: 500;">
+                                    <span t-field="company.city"/>
+, 
+                                            
+                                            
+                                            
+                                    
+                                    <span t-field="company.state_id.name"/>
+,
+                                            
+                                    
+                                    <span t-field="company.zip"/>
+                                </div>
+                                <div style="font-size: 13px;  font-weight: 500;">
+                                    <i class="fa fa-phone me-1" title="Teléfono"/>
+                                    <span t-field="company.mobile"/>
+,
+                                            
+                                    
+                                    <span t-field="company.phone"/>
+                                </div>
+                                <div style="font-size: 13px;  font-weight: 500;">
+                                    <i class="fa fa-envelope me-1" title="Email"/>
+                                    <span t-field="company.email"/>
+                                </div>
+                            </div>
+                            <div class="col-4 text-end">
+                                <h2 style="margin:0; font-size: 18px; font-weight: bold;">
+                                    <span t-if="doc.loan_type == 'advance'">SOL. ANTICIPO No.</span>
+                                    <span t-else="">SOL. PRÉSTAMO No. </span>
+                                </h2>
+                                <div style="font-size: 16px;">
+                                    <span t-field="doc.name"/>
+                                </div>
+                                <div style="background-color: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
+                                    <span style="font-size: 13px;">Fecha Documento:</span>
+                                    <br/>
+                                    <span t-field="doc.date" style="font-size: 16px; font-weight: bold;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Estado del Préstamo y Medio de Pago -->
+                    <!-- Información del Empleado -->
+                    <div class="row">
+                        <div class="col-4">
+                            <div style="padding: 10px; border-radius: 8px; background-color: #f8f9fa; border-left: 4px solid #1e3c72;">
+                                <span style="font-weight: bold;">Estado del Préstamo:</span>
+                                <br/>
+                                <span t-if="doc.state == 'paid'" style="background-color: #4CAF50; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: 5px;">
+                                    PAGADO
+                                </span>
+                                <span t-else="" style="background-color: #FFA726; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-top: 5px;">
+                                    <span t-field="doc.state"/>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-8" t-if="doc.payment_id">
+                            <div style="padding: 15px; background-color: #e8f5e9; border-radius: 8px; border: 1px solid #c8e6c9;">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span style="font-weight: bold;">Pagado mediante:</span>
+                                        <br/>
+                                        <span t-field="doc.payment_id.journal_id.name" style="font-size: 11px;"/>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <span style="font-weight: bold;">Fecha de Pago:</span>
+                                        <br/>
+                                        <span t-field="doc.payment_id.date" style="font-size: 11px;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                        <div class="row">
+                            <div class="col-6" style="font-size: 11px;">
+                                <h5 style="border-left: 4px solid #1e3c72; padding-left: 10px; color: #1e3c72;">
+                                    Información del Empleado
+                                </h5>
+                                <table class="table table-sm table-borderless" style="margin-bottom: 0;">
+                                    <tr>
+                                        <td style="width: 40%; font-weight: bold;">Nombre:</td>
+                                        <td>
+                                            <span t-field="doc.employee_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold;">Identificación:</td>
+                                        <td>
+                                            <span t-field="doc.employee_id.identification_id"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold;">Departamento:</td>
+                                        <td>
+                                            <span t-field="doc.department_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold;">Puesto de trabajo:</td>
+                                        <td>
+                                            <span t-field="doc.employee_id.job_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-weight: bold;">Contrato:</td>
+                                        <td>
+                                            <span t-field="doc.contract_id.sequence"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <h5 style="border-left: 4px solid #1e3c72; padding-left: 10px; color: #1e3c72; margin-bottom: 15px;">
+                                    Plazos y Estados
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr class="text-start">
+                                        <th style="width: 40%;">Periodo</th>
+                                        <td style="width: 60%;">
+                                            <span t-field="doc.payment_start_date"/>
+ a <span t-field="doc.payment_end_date"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th>Total Períodos</th>
+                                        <td>
+                                            <span t-out="len(doc.installment_ids.filtered(lambda x: not x.paid))"/>
+/                                            <span t-out="len(doc.installment_ids)"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th>Períodos Pagados</th>
+                                        <td>
+                                            <span t-out="len(doc.installment_ids.filtered(lambda x: x.paid))"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-6" style="font-size: 11px;">
+                                <h5 style="border-left: 4px solid #1e3c72; padding-left: 10px; color: #1e3c72;  margin-bottom: 15px;">
+                                    Información del Préstamo
+                                </h5>
+                                <table class="table table-sm table-borderless">
+                                    <tr>
+                                        <th class="text-start" style="width: 40%;">Categoría</th>
+                                        <td style="width: 60%;">
+                                            <span t-field="doc.category_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-start">Tipo de Cálculo</th>
+                                        <td>
+                                            <t t-if="doc.calculation_type == 'period'">Por Períodos</t>
+                                            <t t-if="doc.calculation_type == 'custom'">Cuotas Personalizadas</t>
+                                        </td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th class="text-start">Fecha Solicitud</th>
+                                        <td>
+                                            <span t-field="doc.date"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th class="text-start">Entidad</th>
+                                        <td>
+                                            <span t-field="doc.entity_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr class="text-start">
+                                        <th class="text-start">Aplicar en</th>
+                                        <td>
+                                            <t t-if="doc.apply_on == '15'">Primera Quincena</t>
+                                            <t t-if="doc.apply_on == '30'">Segunda Quincena</t>
+                                            <t t-if="doc.apply_on == 'both'">Ambas Quincenas</t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-start">Deducir en Finiquito</th>
+                                        <td>
+                                            <span t-if="doc.deduct_on_settlement" style="color: #4CAF50; font-weight: bold;">Sí</span>
+                                            <span t-else="" style="color: #f44336; font-weight: bold;">No</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <h5 style="border-left: 4px solid #1e3c72; padding-left: 10px; color: #1e3c72;">
+                                    Detalles Contables
+                                </h5>
+                                <div class="mt-2">
+                                    <strong>Asiento Contable:</strong>
+                                    <span t-field="doc.move_id.name"/>
+                                </div>
+                                <div>
+                                    <strong>Diario:</strong>
+                                    <span t-field="doc.journal_id.name"/>
+                                </div>
+                                <div>
+                                    <strong style="font-weight: bold;">Fecha Contable:</strong>
+                                    <span t-field="doc.date_account" style="font-size: 11px;"/>
+                                </div>
+                                <div t-if="doc.refund_move_id">
+                                    <strong>Asiento de Reembolso:</strong>
+                                    <span t-field="doc.refund_move_id.name"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Resumen Financiero -->
+                    <div>
+                        <h5 style="border-left: 4px solid #1e3c72; padding-left: 10px; color: #1e3c72">
+                            Resumen Financiero
+                        </h5>
+                        <table class="table" style="border: 1px solid #dee2e6; border-radius: 8px; overflow: hidden;">
+                            <thead>
+                                <tr style="background-color: #f8f9fa;font-size: 11px;">
+                                    <th class="text-center" style="border-bottom: 2px solid #1e3c72;">Monto Original</th>
+                                    <th class="text-center" style="border-bottom: 2px solid #1e3c72;">Monto Préstamo</th>
+                                    <th class="text-center" style="border-bottom: 2px solid #1e3c72;">Total Pagado</th>
+                                    <th class="text-center" style="border-bottom: 2px solid #1e3c72;">Monto Restante</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="text-center">
+                                    <td style="font-size: 11px;">
+                                        <span t-field="doc.original_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                    </td>
+                                    <td style="font-size: 11px;">
+                                        <span t-field="doc.loan_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                    </td>
+                                    <td style="font-size: 11px; color: #4CAF50;">
+                                        <span t-field="doc.total_paid" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                    </td>
+                                    <td style="font-size: 11px; color: #f44336;">
+                                        <span t-field="doc.remaining_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Plan de Pagos -->
+                    <div t-if="doc.installment_ids">
+                        <h5 style="border-left: 4px solid #1e3c72; padding-left: 10px; color: #1e3c72;">
+                            Plan de Pagos
+                        </h5>
+                        <table class="table table-sm  table-striped" style="border: 1px solid #dee2e6;font-size: 12px;">
+                            <thead>
+                                <tr style="background-color: #f8f9fa;">
+                                    <th style="border-bottom: 2px solid #1e3c72;">No.</th>
+                                    <th style="border-bottom: 2px solid #1e3c72;">Fecha</th>
+                                    <th style="border-bottom: 2px solid #1e3c72;" class="text-right">Monto</th>
+                                    <th style="border-bottom: 2px solid #1e3c72;" class="text-center">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.installment_ids" t-as="installment">
+                                    <tr>
+                                        <td>
+                                            <span t-field="installment.sequence"/>
+                                        </td>
+                                        <td>
+                                            <span t-field="installment.date"/>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-field="installment.amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                        </td>
+                                        <td class="text-center">
+                                            <span t-if="installment.paid" style="background-color: #4CAF50; color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px;">
+                                                        Pagada
+                                            </span>
+                                            <span t-else="" style="background-color: #FFA726; color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px;">
+                                                        Pendiente
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: #f8f9fa;">
+                                    <td colspan="2" class="text-start">
+                                        <strong>Total:</strong>
+                                    </td>
+                                    <td class="text-start">
+                                        <strong>
+                                            <span t-out="sum(doc.installment_ids.mapped('amount'))" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                    <td/>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <!-- Firmas -->
+                    <div style="margin-top: 50px; padding-top: 20px; border-top: 1px dashed #ccc;">
+                        <div class="row">
+                            <div class="col-4 text-center">
+                                <div style="border-bottom: 1px solid #000; margin: 20px 40px;"/>
+                                <strong>Empleado</strong>
+                                <br/>
+                                <span t-field="doc.employee_id.name"/>
+                                <br/>
+                                <span t-field="doc.employee_id.identification_id"/>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="border-bottom: 1px solid #000; margin: 20px 40px;"/>
+                                <strong>Recursos Humanos</strong>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="border-bottom: 1px solid #000; margin: 20px 40px;"/>
+                                <strong>Autorización</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-attf-class="footer o_standard_footer">
+                        <div style="padding: 1rem; background-color: #fafafa; font-size: 10px; color: #666;">
+                            <div class="row align-items-center">
+                                <!-- Información del creador -->
+                                <div class="col-4 text-start">
+                                    <div>
+                                        <i class="fa fa-user me-1" title="Usuario"/>
+                                        <span>Documento creado por: </span>
+                                        <span t-field="doc.create_uid.name" style="color: #444;"/>
+                                    </div>
+                                </div>
+                                <!-- Marca de software -->
+                                <div class="col-4 text-center">
+                                    <div style="font-size: 11px;">
+                                        <i class="fa fa-code me-1" title="Código"/>
+Odoo - LavishSoft
+                                    </div>
+                                </div>
+                                <br/>
+                                <!-- Numeración de páginas -->
+                                <div class="col-4 text-end" t-if="report_type == 'pdf'">
+                                    <div>
+                                        <i class="fa fa-file me-1" title="Archivo"/>
+                                        <span>Página </span>
+                                        <span class="page" style="color: #444;"/>
+                                        <span> de </span>
+                                        <span class="topage" style="color: #444;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </template>
+        <record id="action_report_loan" model="ir.actions.report">
+            <field name="name">Informe de Préstamo</field>
+            <field name="model">hr.loan</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">lavish_hr_payroll.report_loan_document</field>
+            <field name="report_file">lavish_hr_payroll.report_loan_document</field>
+            <field name="print_report_name">'Préstamo - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_hr_loan"/>
+            <field name="binding_type">report</field>
+        </record>
+        <!-- Sequence prestamos para el campo name -->
+        <record id="ir_seq_hr_loans" model="ir.sequence">
+            <field name="name">RRHH Préstamos Empleados</field>
+            <field name="code">hr.loans.seq</field>
+            <field name="prefix">RHPR/%(range_year)s/</field>
+            <field name="padding">6</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+            <field name="number_next_actual">1</field>
+            <field name="implementation">standard</field>
+        </record>
+        <record id="seq_advance_number" model="ir.sequence">
+            <field name="name">Numero Anticipo</field>
+            <field name="code">payroll.advance.number</field>
+            <field name="prefix">ANT-</field>
+            <field name="padding">6</field>
+            <field name="number_increment">1</field>
+            <field name="use_date_range">True</field>
+            <field name="number_next_actual">1</field>
+            <field name="implementation">standard</field>
+        </record>
+        <!-- Loan Category Views -->
+        <record id="view_loan_category_tree" model="ir.ui.view">
+            <field name="name">hr.loan.category.list</field>
+            <field name="model">hr.loan.category</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="salary_rule_id"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+        <record id="rule_hr_loans" model="ir.rule">
+            <field name="name">Permisos compañia prestamos</field>
+            <field name="model_id" ref="model_hr_loan"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in',company_ids)]
+            </field>
+        </record>
+
+        <record id="view_loan_category_form" model="ir.ui.view">
+            <field name="name">hr.loan.category.form</field>
+            <field name="model">hr.loan.category</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group string="Información General">
+                                <field name="name"/>
+                                <field name="code"/>
+                                <field name="salary_rule_id"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                            <group string="Configuración Contable">
+                                <field name="journal_id" options="{'no_create': True}" domain="[('type', 'in', ['bank', 'cash'])]"/>
+                                <field name="description"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Loan Views -->
+        <record id="view_loan_tree" model="ir.ui.view">
+            <field name="name">hr.loan.list</field>
+            <field name="model">hr.loan</field>
+            <field name="arch" type="xml">
+                <list decoration-info="state == 'draft'" decoration-muted="state == 'cancelled'" decoration-success="state == 'paid'" decoration-warning="state in ('waiting_approval','approved')">
+                    <field name="name"/>
+                    <field name="date_account"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="loan_type"/>
+                    <field name="loan_amount" sum="Total"/>
+                    <field name="total_interest" sum="Total Intereses" optional="show"/>
+                    <field name="total_manual_payments" sum="Total Abonos" optional="show"/>
+                    <field name="remaining_amount" sum="Total Pendiente"/>
+                    <field name="payment_start_date"/>
+                    <field name="apply_interest" optional="hide" widget="boolean_toggle"/>
+                    <field name="deduct_in_structure" optional="hide" widget="boolean_toggle"/>
+                    <field name="structure_type" optional="hide"/>
+                    <field name="state"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Vista de búsqueda para abonos manuales (debe estar antes de la acción que la referencia) -->
+        <record id="view_loan_manual_payment_search" model="ir.ui.view">
+            <field name="name">hr.loan.manual.payment.search</field>
+            <field name="model">hr.loan.manual.payment</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="loan_id"/>
+                    <separator/>
+                    <filter string="Borrador" name="draft" domain="[('state','=','draft')]"/>
+                    <filter string="Aplicado" name="done" domain="[('state','=','done')]"/>
+                    <filter string="Cancelado" name="cancelled" domain="[('state','=','cancelled')]"/>
+                    <group name="group_by">
+                        <filter string="Préstamo" name="loan" context="{'group_by':'loan_id'}"/>
+                        <filter string="Estado" name="state" context="{'group_by':'state'}"/>
+                        <filter string="Tipo" name="type" context="{'group_by':'payment_type'}"/>
+                        <filter string="Fecha" name="date" context="{'group_by':'date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción para abonos manuales (debe estar antes de view_loan_form que la usa) -->
+        <record id="action_hr_loan_manual_payment" model="ir.actions.act_window">
+            <field name="name">Abonos Manuales</field>
+            <field name="res_model">hr.loan.manual.payment</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_loan_manual_payment_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    ¡Crea tu primer abono manual!
+                </p>
+                <p>
+                    Los abonos manuales permiten a los empleados pagar anticipadamente parte del préstamo fuera de la nómina.
+                </p>
+            </field>
+        </record>
+
+        <record id="view_loan_form" model="ir.ui.view">
+            <field name="name">hr.loan.form</field>
+            <field name="model">hr.loan</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_submit" type="object" string="Enviar a Aprobación" class="btn-primary" icon="fa-paper-plane" help="Enviar solicitud de préstamo para aprobación" invisible="state != 'draft'"/>
+                        <button name="action_approve" type="object" string="Aprobar Préstamo" class="btn-success" icon="fa-check" help="Aprobar la solicitud de préstamo" invisible="state != 'waiting_approval'"/>
+                        <button name="action_refuse" type="object" string="Rechazar Solicitud" class="btn-danger" icon="fa-times" help="Rechazar la solicitud de préstamo" invisible="state not in ('waiting_approval','approved')"/>
+                        <button name="action_generate_installments" type="object" string="Generar Cuotas" class="btn-primary" icon="fa-calculator" help="Generar el plan de pagos del préstamo" invisible="state not in ('draft','waiting_approval','approved')"/>
+                        <button name="action_register_payment" type="object" string="Registrar Pago" class="btn-success" icon="fa-money" help="Registrar un pago para este préstamo" invisible="state != 'approved' or payment_state == 'paid'"/>
+                        <button name="action_modify_amount" type="object" string="Modificar Monto" class="btn-warning" icon="fa-edit" help="Modificar el monto del préstamo" invisible="state not in ('approved','to_pay')"/>
+                        <button name="action_refund" type="object" string="Recharzar Pago" class="btn-warning" icon="fa-edit" help="Modificar el monto del préstamo" invisible="state not in ('approved','to_pay')"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,waiting_approval,approved,paid"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-info" role="alert" invisible="state != 'draft' or loan_type != 'advance'">
+                            <i class="fa fa-info-circle" title="Información"/>
+ Los anticipos se cobrarán en una sola cuota. La fecha de cobro puede ser modificada.
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="remaining_amount == 0">
+                            <i class="fa fa-exclamation-triangle" title="Advertencia"/>
+ Monto pendiente por pagar: <field name="remaining_amount" class="text-danger"/>
+                        </div>
+                        <div class="alert alert-success" role="alert" invisible="payment_state != 'paid' or state != 'approved'">
+                            <i class="fa fa-check-circle" title="Pagado"/>
+ Préstamo completamente pagado
+                        </div>
+
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_moves" type="object" class="oe_stat_button" icon="fa-book" help="Ver los asientos contables relacionados" invisible="move_count == 0">
+                                <field name="move_count" widget="statinfo" string="Asientos Contables"/>
+                            </button>
+                            <button name="%(lavish_hr_payroll.action_hr_loan_manual_payment)d" type="action" class="oe_stat_button" icon="fa-hand-holding-usd" help="Ver abonos manuales realizados" invisible="not manual_payment_ids" context="{'default_loan_id': id}">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="total_manual_payments" widget="monetary"/>
+                                    </span>
+                                    <span class="o_stat_text">Abonos</span>
+                                </div>
+                            </button>
+                            <button name="action_view_interest_summary" type="object" class="oe_stat_button" icon="fa-percent" help="Resumen de intereses" invisible="not apply_interest">
+                                <div class="o_field_widget o_stat_info">
+                                    <span class="o_stat_value">
+                                        <field name="pending_interest" widget="monetary"/>
+                                    </span>
+                                    <span class="o_stat_text">Int. Pendiente</span>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1" class="text-primary"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Información del Empleado">
+                                <field name="loan_type" widget="radio" readonly="state != 'draft'" options="{'horizontal': true}" help="Tipo de operación: Anticipo, Préstamo, Anticipo de Prima o Anticipo de Cesantías"/>
+                                <field name="employee_id" widget="many2one_avatar_employee" readonly="state != 'draft'" help="Empleado que solicita el préstamo"/>
+                                <field name="department_id" readonly="1" help="Departamento al que pertenece el empleado"/>
+                                <field name="contract_id" readonly="state != 'draft'" domain="[('employee_id','=',employee_id),('state','=','open')]" options="{'no_create': true}" help="Contrato activo del empleado"/>
+                                <field name="category_id" readonly="state != 'draft'" options="{'no_create': true}" help="Categoría del préstamo"/>
+                                <field name="date" readonly="state != 'draft'" help="Fecha de solicitud del préstamo"/>
+                            </group>
+                            <group string="Información del Préstamo">
+                                <label for="original_amount" string="Monto Solicitado"/>
+                                <div class="row">
+                                    <field name="original_amount" class="text-primary" readonly="state != 'draft'" help="Monto original solicitado"/>
+                                    <field name="currency_id" readonly="1" options="{'no_open': true}"/>
+                                </div>
+                                <label for="loan_amount" string="Monto Aprobado"/>
+                                <div class="row">
+                                    <field name="loan_amount" readonly="state != 'draft'"/>
+                                    <span>| Pagado: </span>
+                                    <field name="total_paid" class="text-success" readonly="1"/>
+                                </div>
+                                <field name="remaining_amount" readonly="1" class="text-danger fw-bold" help="Monto pendiente por pagar" decoration-danger="remaining_amount > 0" widget="monetary"/>
+                                <field name="date_account"/>
+                                <field name="journal_id" readonly="state != 'draft'" domain="[('type','in',['bank','cash'])]" options="{'no_create': true}" help="Diario contable para registrar los movimientos"/>
+                                <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                            </group>
+                        </group>
+
+                        <!-- Configuración de Anticipos y Descuentos -->
+                        <group string="Configuración de Descuento" invisible="loan_type not in ['advance_prima', 'advance_cesantias']">
+                            <group>
+                                <field name="deduct_in_structure" widget="boolean_toggle" help="Activar para descontar en la estructura específica (Prima/Cesantías/Liquidación)"/>
+                                <field name="structure_type" invisible="not deduct_in_structure" required="deduct_in_structure" help="Seleccione en qué estructura se descontará automáticamente"/>
+                            </group>
+                            <group>
+                                <div class="alert alert-info" role="alert" invisible="not deduct_in_structure">
+                                    <i class="fa fa-info-circle" title="Información"/>
+                                    <strong> Descuento Automático:</strong> Este anticipo se descontará automáticamente al procesar la
+                                    <span invisible="structure_type != 'prima'">Prima de Servicios</span>
+                                    <span invisible="structure_type != 'cesantias'">Cesantías</span>
+                                    <span invisible="structure_type != 'liquidacion'">Liquidación de Contrato</span>
+                                </div>
+                            </group>
+                        </group>
+
+                        <notebook>
+                            <page string="Plan de Pagos" name="payment_info">
+                                <group>
+                                    <group string="Configuración de Cuotas">
+                                        <field name="calculation_type" widget="radio" readonly="state != 'draft' or loan_type == 'advance'" invisible="loan_type == 'advance'" options="{'horizontal': true}" help="Método de cálculo: por número de meses o por número de cuotas específicas"/>
+                                        <field name="num_periods" invisible="calculation_type != 'period' or loan_type == 'advance'" required="calculation_type == 'period'" readonly="state != 'draft'" help="Número de meses en los que se distribuirá el préstamo"/>
+                                        <field name="num_custom_installments" invisible="calculation_type != 'custom' or loan_type == 'advance'" required="calculation_type == 'custom'" readonly="state != 'draft'" help="Número total de cuotas en las que se dividirá el préstamo"/>
+                                    </group>
+                                    <group string="Fechas de Pago">
+                                        <field name="payment_start_date" readonly="state != 'draft'" required="loan_type in ['loan', 'advance']" help="Fecha de inicio de los pagos"/>
+                                        <field name="payment_end_date" readonly="1" help="Fecha estimada del último pago"/>
+                                        <field name="apply_on" widget="radio" readonly="state != 'draft' or loan_type == 'advance'" invisible="loan_type == 'advance'" options="{'horizontal': true}" help="Quincena(s) en la(s) que se aplicará el descuento"/>
+                                        <field name="deduct_on_settlement" help="Deducir del finiquito si aplica"/>
+                                    </group>
+                                </group>
+                                <field name="installment_ids" readonly="state == 'cancelled'">
+                                    <list editable="bottom" decoration-success="paid" decoration-muted="skip" decoration-danger="not paid and date &lt; current_date">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="date" string="Fecha de Pago"/>
+                                        <field name="amount" sum="Total Capital" string="Capital" decoration-bf="1"/>
+                                        <field name="interest_amount" sum="Total Intereses" string="Intereses" optional="show" column_invisible="parent.apply_interest == False"/>
+                                        <field name="total_amount" sum="Total General" string="Total Cuota" optional="show" column_invisible="parent.apply_interest == False" decoration-bf="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="paid" string="Pagado" widget="boolean_toggle"/>
+                                        <field name="interest_charged" string="Int. Cobrado" widget="boolean_toggle" optional="show" column_invisible="parent.apply_interest == False" readonly="1"/>
+                                        <field name="skip" string="Omitido" widget="boolean_toggle"/>
+                                        <field name="skip_reason" string="Razón de Omisión" optional="hide"/>
+                                        <field name="move_id" string="Asiento Contable" optional="hide"/>
+                                        <field name="payslip_id" string="Nómina Capital" optional="show"/>
+                                        <field name="interest_payslip_id" string="Nómina Intereses" optional="show" column_invisible="parent.apply_interest == False"/>
+                                        <field name="payment_state" optional="hide"/>
+                                        <button name="action_skip_installment" type="object" icon="fa-ban" string="Omitir Cuota" class="btn btn-link" help="Marcar esta cuota como omitida" invisible="paid or skip"/>
+                                    </list>
+                                </field>
+                                <div class="alert alert-info mt-3" role="alert" invisible="installment_ids">
+                                    <i class="fa fa-info-circle" title="Información"/>
+ Use el botón "Generar Cuotas" para crear el plan de pagos
+                                </div>
+                            </page>
+                            <page string="Intereses" name="interests" invisible="loan_type == 'advance'">
+                                <group>
+                                    <group string="Configuración de Intereses">
+                                        <field name="apply_interest" widget="boolean_toggle" help="Activar para aplicar intereses sobre el saldo del préstamo"/>
+                                        <field name="interest_rate" invisible="not apply_interest" required="apply_interest" help="Tasa de interés mensual en porcentaje"/>
+                                        <field name="interest_type" invisible="not apply_interest" required="apply_interest" widget="radio" options="{'horizontal': true}" help="Interés Simple: sobre saldo. Interés Compuesto: sobre saldo + intereses"/>
+                                        <field name="interest_rule_id" invisible="not apply_interest" domain="[('category_id.code', '=', 'DED')]" options="{'no_create': true}" help="Regla salarial que cobrará los intereses en nómina"/>
+                                    </group>
+                                    <group string="Resumen de Intereses" invisible="not apply_interest">
+                                        <field name="total_interest" readonly="1" widget="monetary" decoration-bf="1" help="Total de intereses generados"/>
+                                        <field name="interest_generated" readonly="1" widget="monetary" help="Intereses calculados hasta ahora"/>
+                                        <field name="interest_charged" readonly="1" widget="monetary" help="Intereses ya cobrados en nómina"/>
+                                        <field name="pending_interest" readonly="1" widget="monetary" class="text-danger" decoration-danger="pending_interest > 0" help="Intereses pendientes de cobro"/>
+                                    </group>
+                                </group>
+                                <div class="alert alert-warning mt-3" role="alert" invisible="not apply_interest or interest_rule_id">
+                                    <i class="fa fa-exclamation-triangle" title="Advertencia"/>
+                                    <strong> Atención:</strong> Debe configurar una regla salarial para cobrar los intereses en nómina.
+                                </div>
+                                <div class="alert alert-info mt-3" role="alert" invisible="not apply_interest">
+                                    <i class="fa fa-info-circle" title="Información"/>
+                                    <strong> Información:</strong> Los intereses se calculan automáticamente al generar cuotas y se cobran en nómina mediante la regla salarial configurada. El sistema evita automáticamente cobros duplicados.
+                                </div>
+                            </page>
+                            <page string="Pagos Manuales" name="manual_payments">
+                                <group>
+                                    <group string="Resumen de Pagos Manuales">
+                                        <field name="total_manual_payments" readonly="1" widget="monetary" decoration-bf="1" help="Total de abonos manuales aplicados"/>
+                                    </group>
+                                </group>
+                                <field name="manual_payment_ids" readonly="state in ['cancelled', 'paid']">
+                                    <list editable="bottom" decoration-success="state == 'done'" decoration-muted="state == 'cancelled'">
+                                        <field name="name" string="Referencia"/>
+                                        <field name="date" string="Fecha"/>
+                                        <field name="amount" sum="Total Abonado" decoration-bf="1"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="payment_type" string="Tipo"/>
+                                        <field name="journal_id" string="Diario" domain="[('type', 'in', ['bank', 'cash'])]" options="{'no_create': true}"/>
+                                        <field name="move_id" string="Asiento" readonly="1"/>
+                                        <field name="state" widget="badge" decoration-warning="state == 'draft'" decoration-success="state == 'done'" decoration-muted="state == 'cancelled'"/>
+                                        <field name="description" optional="hide"/>
+                                        <button name="action_apply" type="object" string="Aplicar" class="btn btn-primary btn-sm" icon="fa-check" invisible="state != 'draft'" help="Aplicar el abono al préstamo"/>
+                                        <button name="action_cancel" type="object" string="Cancelar" class="btn btn-secondary btn-sm" icon="fa-times" invisible="state != 'done'" help="Revertir el abono"/>
+                                    </list>
+                                </field>
+                                <div class="alert alert-info mt-3" role="alert">
+                                    <i class="fa fa-info-circle" title="Información"/>
+                                    <strong> Abonos Manuales:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li><strong>Reducir Saldo:</strong> Disminuye el saldo pendiente sin afectar las cuotas programadas en nómina.</li>
+                                        <li><strong>Pago Anticipado:</strong> Marca cuotas futuras como pagadas, evitando que se descuenten en nómina.</li>
+                                    </ul>
+                                </div>
+                            </page>
+                            <page string="Información Contable" name="accounting">
+                                <group>
+                                    <group string="Documentos Contables">
+                                        <field name="move_id" readonly="1"/>
+                                        <field name="payment_id" readonly="1"/>
+                                        <field name="refund_move_id" readonly="1"/>
+                                        <field name="payment_state" widget="badge" decoration-danger="payment_state == 'not_paid'" decoration-warning="payment_state == 'in_payment'" decoration-success="payment_state == 'paid'"/>
+                                    </group>
+                                    <group string="Información Adicional">
+                                        <field name="entity_id" options="{'no_create': true}"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Notas y Comentarios" name="notes">
+                                <field name="description" placeholder="Ingrese aquí cualquier nota adicional sobre el préstamo..." class="text-muted"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter />
+                </form>
+            </field>
+        </record>
+
+        <record id="view_loan_search" model="ir.ui.view">
+            <field name="name">hr.loan.search</field>
+            <field name="model">hr.loan</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <separator/>
+                    <filter string="Borrador" name="draft" domain="[('state','=','draft')]"/>
+                    <filter string="En Aprobación" name="waiting" domain="[('state','=','waiting_approval')]"/>
+                    <filter string="Aprobado" name="approved" domain="[('state','=','approved')]"/>
+                    <filter string="Pagado" name="paid" domain="[('state','=','paid')]"/>
+                    <group name="group_by">
+                        <filter string="Empleado" name="employee" context="{'group_by':'employee_id'}"/>
+                        <filter string="Departamento" name="department" context="{'group_by':'department_id'}"/>
+                        <filter string="Estado" name="state" context="{'group_by':'state'}"/>
+                        <filter string="Tipo" name="type" context="{'group_by':'loan_type'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Wizard Modificar Monto -->
+        <record id="view_loan_modify_amount_form" model="ir.ui.view">
+            <field name="name">wizard.loan.modify.amount.form</field>
+            <field name="model">wizard.loan.modify.amount</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="loan_id" invisible="1"/>
+                                <field name="current_amount"/>
+                                <field name="new_amount"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="adjustment_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="reason" placeholder="Indique el motivo del ajuste..."/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Modificar" name="action_modify" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard Saltar Cuota -->
+        <record id="view_loan_skip_installment_form" model="ir.ui.view">
+            <field name="name">wizard.loan.skip.installment.form</field>
+            <field name="model">wizard.loan.skip.installment</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="installment_id" invisible="1"/>
+                            <field name="reason" placeholder="Indique el motivo para saltar esta cuota..."/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Confirmar" name="action_confirm" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard Pago -->
+        <record id="view_payment_register_form" model="ir.ui.view">
+            <field name="name">wizard.loan.payment.register.form</field>
+            <field name="model">wizard.loan.payment.register</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="loan_id" invisible="1"/>
+                                <field name="amount"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="payment_date"/>
+                            </group>
+                            <group>
+                                <field name="journal_id" domain="[('type','in',['bank','cash'])]"/>
+                                <field name="payment_method_id"/>
+                                <field name="communication" placeholder="Referencia del pago..."/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Registrar Pago" name="action_register_payment" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard Reconciliación -->
+        <record id="view_reconcile_form" model="ir.ui.view">
+            <field name="name">wizard.loan.reconcile.form</field>
+            <field name="model">wizard.loan.reconcile</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="loan_id" invisible="1"/>
+                                <field name="partner_id" invisible="1"/>
+                                <field name="amount"/>
+                                <field name="currency_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <field name="move_line_ids">
+                            <list>
+                                <field name="date"/>
+                                <field name="ref"/>
+                                <field name="name"/>
+                                <field name="account_id"/>
+                                <field name="debit" sum="Total Débito"/>
+                                <field name="credit" sum="Total Crédito"/>
+                                <field name="balance"/>
+                            </list>
+                        </field>
+                    </sheet>
+                    <footer>
+                        <button string="Conciliar" name="action_reconcile" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+ <record id="view_loan_form_inherit_request" model="ir.ui.view">
+        <field name="name">hr.loan.form.inherit.request</field>
+        <field name="model">hr.loan</field>
+        <field name="inherit_id" ref="view_loan_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar smartbutton para ver solicitud de préstamo -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_loan_request" type="object"
+                        class="oe_stat_button" icon="fa-file-alt"
+                        invisible="not loan_request_id">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Ver Solicitud</span>
+                        <span class="o_stat_text">Original</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Agregar campo loan_request_id en el formulario -->
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="loan_request_id" readonly="1"
+                       options="{'no_open': False}"
+                       invisible="not loan_request_id"/>
+            </xpath>
+        </field>
+    </record>
+        <!-- Actions -->
+        <record id="action_hr_prestamo_request" model="ir.actions.act_window">
+            <field name="name">Préstamos</field>
+            <field name="res_model">hr.loan</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_loan_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    ¡Crea tu primer préstamo!
+                </p>
+            </field>
+        </record>
+
+        <record id="action_loan_category" model="ir.actions.act_window">
+            <field name="name">Categorías de Préstamo</field>
+            <field name="res_model">hr.loan.category</field>
+            <field name="view_mode">list,form</field>
+        </record>
+        <record id="action_loan_modify_amount" model="ir.actions.act_window">
+            <field name="name">Modificar Monto</field>
+            <field name="res_model">wizard.loan.modify.amount</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="action_loan_skip_installment" model="ir.actions.act_window">
+            <field name="name">Saltar Cuota</field>
+            <field name="res_model">wizard.loan.skip.installment</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="action_loan_payment_register" model="ir.actions.act_window">
+            <field name="name">Registrar Pago</field>
+            <field name="res_model">wizard.loan.payment.register</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="action_loan_reconcile" model="ir.actions.act_window">
+            <field name="name">Conciliar Préstamo</field>
+            <field name="res_model">wizard.loan.reconcile</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <!-- Manual Payment Views -->
+        <record id="view_loan_manual_payment_form" model="ir.ui.view">
+            <field name="name">hr.loan.manual.payment.form</field>
+            <field name="model">hr.loan.manual.payment</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_apply" type="object" string="Aplicar Abono" class="btn-primary" icon="fa-check" invisible="state != 'draft'" help="Aplicar el abono al préstamo"/>
+                        <button name="action_cancel" type="object" string="Cancelar Abono" class="btn-warning" icon="fa-undo" invisible="state != 'done'" confirm="¿Está seguro de cancelar este abono? Se revertirá el asiento contable." help="Revertir el abono aplicado"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Referencia del abono..." readonly="state != 'draft'"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Información del Abono">
+                                <field name="loan_id" readonly="state != 'draft'" options="{'no_create': true}" domain="[('state', '=', 'approved')]"/>
+                                <field name="date" readonly="state != 'draft'"/>
+                                <field name="amount" readonly="state != 'draft'"/>
+                                <field name="currency_id" readonly="1" options="{'no_open': true}"/>
+                                <field name="payment_type" widget="radio" readonly="state != 'draft'" help="Tipo de abono a realizar"/>
+                            </group>
+                            <group string="Información Contable">
+                                <field name="journal_id" readonly="state != 'draft'" domain="[('type', 'in', ['bank', 'cash'])]" options="{'no_create': true}" help="Diario para registrar el movimiento contable"/>
+                                <field name="move_id" readonly="1"/>
+                                <field name="company_id" groups="base.group_multi_company" readonly="1"/>
+                            </group>
+                        </group>
+                        <group string="Descripción">
+                            <field name="description" placeholder="Motivo o descripción del abono..." nolabel="1" readonly="state != 'draft'"/>
+                        </group>
+                        <div class="alert alert-info" role="alert" invisible="state != 'draft'">
+                            <i class="fa fa-info-circle" title="Información"/>
+                            <strong> Tipos de Abono:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li><strong>Reducir Saldo:</strong> El abono disminuye el saldo pendiente del préstamo pero NO afecta las cuotas programadas en nómina. Las cuotas seguirán descontándose normalmente.</li>
+                                <li><strong>Pago Anticipado de Cuotas:</strong> El abono se aplica a cuotas futuras, marcándolas como pagadas. Estas cuotas NO se descontarán en nómina.</li>
+                            </ul>
+                        </div>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_loan_manual_payment_tree" model="ir.ui.view">
+            <field name="name">hr.loan.manual.payment.list</field>
+            <field name="model">hr.loan.manual.payment</field>
+            <field name="arch" type="xml">
+                <list decoration-success="state == 'done'" decoration-muted="state == 'cancelled'">
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="loan_id"/>
+                    <field name="amount" sum="Total"/>
+                    <field name="payment_type"/>
+                    <field name="journal_id"/>
+                    <field name="state" widget="badge" decoration-warning="state == 'draft'" decoration-success="state == 'done'" decoration-muted="state == 'cancelled'"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+    </data>
+</odoo>

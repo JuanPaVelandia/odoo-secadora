@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.IncomeDeductionsChart">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fa fa-bar-chart me-2"/>
+                    Ingresos vs Deducciones
+                </h5>
+                <div class="d-flex gap-2" t-if="hasData">
+                    <button class="btn btn-sm btn-light" t-on-click="toggleCollapse" title="Ocultar/Mostrar">
+                        <i t-att-class="'fa ' + (state.collapsed ? 'fa-eye' : 'fa-eye-slash')"/>
+                    </button>
+                    <button class="btn btn-sm btn-light" t-on-click="onViewDetails">
+                        <i class="fa fa-external-link"/>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body" t-if="!state.collapsed">
+                <t t-if="!hasData">
+                    <div class="text-center text-muted py-4">
+                        <i class="fa fa-info-circle fa-2x mb-2"/>
+                        <p>No hay datos disponibles</p>
+                    </div>
+                </t>
+                <t t-else="">
+                    <!-- Summary Cards -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-4">
+                            <div class="card bg-success border-success">
+                                <div class="card-body p-2 text-center">
+                                    <small class="text-white d-block">Ingresos</small>
+                                    <strong class="text-white" t-esc="totalIncome.formatted"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card bg-danger border-danger">
+                                <div class="card-body p-2 text-center">
+                                    <small class="text-white d-block">Deducciones</small>
+                                    <strong class="text-white" t-esc="totalDeductions.formatted"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="card bg-primary border-primary">
+                                <div class="card-body p-2 text-center">
+                                    <small class="text-white d-block">Neto</small>
+                                    <strong class="text-white" t-esc="netAmount.formatted"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Filter -->
+                    <div class="mb-3">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">
+                                <i class="fa fa-search"/>
+                            </span>
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="Buscar por categoría o código..."
+                                   t-model="state.searchText"
+                                   t-on-input="onSearchChange"/>
+                            <button class="btn btn-outline-secondary"
+                                    t-if="state.searchText"
+                                    t-on-click="() => this.state.searchText = ''"
+                                    type="button">
+                                <i class="fa fa-times"/>
+                            </button>
+                        </div>
+                        <small class="text-muted" t-if="state.searchText">
+                            Mostrando <t t-esc="incomeItems.length"/> ingresos y <t t-esc="deductionItems.length"/> deducciones
+                        </small>
+                    </div>
+
+                    <!-- Income Items -->
+                    <div class="mb-3">
+                        <h6 class="text-success mb-2">
+                            <i class="fa fa-arrow-up me-1"/> Ingresos
+                            <span class="badge bg-success text-white ms-2" t-esc="incomeItems.length"/>
+                        </h6>
+                        <div class="list-group list-group-flush">
+                            <t t-if="incomeItems.length > 0">
+                                <t t-foreach="incomeItems" t-as="item" t-key="item_index">
+                                    <!-- Category Header -->
+                                    <div class="list-group-item py-1 px-2" style="background-color: #f8f9fa;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button class="btn btn-sm btn-link p-0 text-success"
+                                                        t-on-click="() => this.toggleCategoryExpand(item.code)"
+                                                        style="min-width: 20px;">
+                                                    <i t-att-class="'fa ' + (isCategoryExpanded(item.code) ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                                                </button>
+                                                <i t-att-class="'fa ' + getCategoryIcon(item.code, item.name) + ' text-success me-1'"/>
+                                                <strong class="small" t-esc="item.name || item.label"/>
+                                                <span class="badge bg-secondary text-white small" t-if="item.employees"
+                                                      t-esc="item.employees.length + ' empleado(s)'"/>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-success text-white" style="min-width: 50px;">
+                                                    <t t-esc="getPercentage(item.value, totalIncome.total)"/>%
+                                                </span>
+                                                <strong class="text-success" t-esc="item.formatted"/>
+                                                <button class="btn btn-sm btn-link p-0 text-muted"
+                                                        t-on-click="() => this.onViewCategoryLines(item.code, item.name || item.label)"
+                                                        title="Ver detalles">
+                                                    <i class="fa fa-external-link small"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rules Detail (Expandable) - FIRST -->
+                                    <t t-if="isCategoryExpanded(item.code)">
+                                        <!-- Rules Header -->
+                                        <div class="list-group-item py-1 px-2 ps-3 bg-success bg-opacity-75">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <button class="btn btn-sm btn-link p-0 text-white"
+                                                            t-on-click="() => this.toggleRulesExpand(item.code)"
+                                                            style="min-width: 20px;">
+                                                        <i t-att-class="'fa ' + (isRulesExpanded(item.code) ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                                                    </button>
+                                                    <i class="fa fa-cogs text-white me-1"/>
+                                                    <strong class="small text-white">Reglas</strong>
+                                                    <span class="badge bg-white text-success small" t-if="item.rules"
+                                                          t-esc="item.rules.length + ' regla(s)'"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Rules List -->
+                                        <t t-if="isRulesExpanded(item.code) and item.rules and item.rules.length > 0">
+                                            <t t-foreach="item.rules" t-as="rule" t-key="rule_index">
+                                                <div class="list-group-item py-1 px-2 ps-5" style="background-color: #f1f8f4; border-left: 3px solid #28a745;">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="small text-dark">
+                                                            <i class="fa fa-cog text-success me-1"/>
+                                                            <t t-esc="rule.name"/>
+                                                        </span>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="badge bg-success text-white" style="min-width: 50px;">
+                                                                <t t-esc="rule.percentage"/>%
+                                                            </span>
+                                                            <span class="text-dark small fw-semibold" t-esc="rule.formatted"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </t>
+
+                                        <!-- Employees Header - SECOND -->
+                                        <div class="list-group-item py-1 px-2 ps-3 bg-success bg-opacity-50" t-if="item.employees">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="fa fa-users text-white me-1"/>
+                                                    <strong class="small text-white">Empleados</strong>
+                                                    <span class="badge bg-white text-success small" t-esc="item.employees.length + ' empleado(s)'"/>
+                                                </div>
+                                                <!-- Pagination Controls -->
+                                                <div class="d-flex align-items-center gap-1" t-if="this.getTotalEmployeesPages(item.employees) > 1">
+                                                    <button class="btn btn-sm btn-link p-0 text-white"
+                                                            t-on-click="() => this.prevEmployeesPage(item.code)"
+                                                            t-att-disabled="this.getEmployeesPage(item.code) === 1">
+                                                        <i class="fa fa-chevron-left"/>
+                                                    </button>
+                                                    <small class="text-white px-2">
+                                                        <t t-esc="this.getEmployeesPage(item.code)"/> / <t t-esc="this.getTotalEmployeesPages(item.employees)"/>
+                                                    </small>
+                                                    <button class="btn btn-sm btn-link p-0 text-white"
+                                                            t-on-click="() => this.nextEmployeesPage(item.code, this.getTotalEmployeesPages(item.employees))"
+                                                            t-att-disabled="this.getEmployeesPage(item.code) === this.getTotalEmployeesPages(item.employees)">
+                                                        <i class="fa fa-chevron-right"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Employees List -->
+                                        <t t-if="item.employees">
+                                            <t t-foreach="getPaginatedEmployees(item.employees, item.code)" t-as="employee" t-key="employee.id">
+                                                <!-- Employee Row -->
+                                                <div class="list-group-item py-1 px-2 ps-4 bg-light border-start border-success border-3">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button class="btn btn-sm btn-link p-0 text-success"
+                                                                    t-on-click="() => this.toggleEmployeeExpand(employee.id)"
+                                                                    style="min-width: 20px;">
+                                                                <i t-att-class="'fa ' + (isEmployeeExpanded(employee.id) ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                                                            </button>
+                                                            <i class="fa fa-user text-success me-1"/>
+                                                            <strong class="small text-dark" t-esc="employee.name"/>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="badge bg-success text-white" style="min-width: 50px;">
+                                                                <t t-esc="employee.percentage"/>%
+                                                            </span>
+                                                            <span class="text-dark small fw-semibold" t-esc="employee.formatted"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Employee Lines (Expandable) -->
+                                                <t t-if="isEmployeeExpanded(employee.id) and employee.lines">
+                                                    <t t-foreach="employee.lines" t-as="line" t-key="line.id">
+                                                        <div class="list-group-item py-1 px-2 ps-6" style="border-left: 4px solid #28a745; background-color: #f8f9fa;">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <span class="small text-dark">
+                                                                    <i class="fa fa-angle-double-right text-success me-1"/>
+                                                                    <t t-esc="line.name"/>
+                                                                </span>
+                                                                <span class="text-dark small" t-esc="line.formatted"/>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </t>
+                            </t>
+                            <div t-else="" class="list-group-item text-center text-muted py-2">
+                                <i class="fa fa-search me-1"/>
+                                No se encontraron ingresos
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deduction Items -->
+                    <div class="mb-2">
+                        <h6 class="text-danger mb-2">
+                            <i class="fa fa-arrow-down me-1"/> Deducciones
+                            <span class="badge bg-danger text-white ms-2" t-esc="deductionItems.length"/>
+                        </h6>
+                        <div class="list-group list-group-flush">
+                            <t t-if="deductionItems.length > 0">
+                                <t t-foreach="deductionItems" t-as="item" t-key="item_index">
+                                    <!-- Category Header -->
+                                    <div class="list-group-item py-1 px-2" style="background-color: #f8f9fa;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button class="btn btn-sm btn-link p-0 text-danger"
+                                                        t-on-click="() => this.toggleCategoryExpand(item.code)"
+                                                        style="min-width: 20px;">
+                                                    <i t-att-class="'fa ' + (isCategoryExpanded(item.code) ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                                                </button>
+                                                <i t-att-class="'fa ' + getCategoryIcon(item.code, item.name) + ' text-danger me-1'"/>
+                                                <strong class="small" t-esc="item.name || item.label"/>
+                                                <span class="badge bg-secondary text-white small" t-if="item.employees"
+                                                      t-esc="item.employees.length + ' empleado(s)'"/>
+                                            </div>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge bg-danger text-white" style="min-width: 50px;">
+                                                    <t t-esc="getPercentage(item.value, totalDeductions.total)"/>%
+                                                </span>
+                                                <strong class="text-danger" t-esc="item.formatted"/>
+                                                <button class="btn btn-sm btn-link p-0 text-muted"
+                                                        t-on-click="() => this.onViewCategoryLines(item.code, item.name || item.label)"
+                                                        title="Ver detalles">
+                                                    <i class="fa fa-external-link small"/>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Rules Detail (Expandable) - FIRST -->
+                                    <t t-if="isCategoryExpanded(item.code)">
+                                        <!-- Rules Header -->
+                                        <div class="list-group-item py-1 px-2 ps-3 bg-danger bg-opacity-75">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <button class="btn btn-sm btn-link p-0 text-white"
+                                                            t-on-click="() => this.toggleRulesExpand(item.code)"
+                                                            style="min-width: 20px;">
+                                                        <i t-att-class="'fa ' + (isRulesExpanded(item.code) ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                                                    </button>
+                                                    <i class="fa fa-cogs text-white me-1"/>
+                                                    <strong class="small text-white">Reglas</strong>
+                                                    <span class="badge bg-white text-danger small" t-if="item.rules"
+                                                          t-esc="item.rules.length + ' regla(s)'"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Rules List -->
+                                        <t t-if="isRulesExpanded(item.code) and item.rules and item.rules.length > 0">
+                                            <t t-foreach="item.rules" t-as="rule" t-key="rule_index">
+                                                <div class="list-group-item py-1 px-2 ps-5" style="background-color: #fef5f5; border-left: 3px solid #dc3545;">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <span class="small text-dark">
+                                                            <i class="fa fa-cog text-danger me-1"/>
+                                                            <t t-esc="rule.name"/>
+                                                        </span>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="badge bg-danger text-white" style="min-width: 50px;">
+                                                                <t t-esc="rule.percentage"/>%
+                                                            </span>
+                                                            <span class="text-dark small fw-semibold" t-esc="rule.formatted"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </t>
+
+                                        <!-- Employees Header - SECOND -->
+                                        <div class="list-group-item py-1 px-2 ps-3 bg-danger bg-opacity-50" t-if="item.employees">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <i class="fa fa-users text-white me-1"/>
+                                                    <strong class="small text-white">Empleados</strong>
+                                                    <span class="badge bg-white text-danger small" t-esc="item.employees.length + ' empleado(s)'"/>
+                                                </div>
+                                                <!-- Pagination Controls -->
+                                                <div class="d-flex align-items-center gap-1" t-if="this.getTotalEmployeesPages(item.employees) > 1">
+                                                    <button class="btn btn-sm btn-link p-0 text-white"
+                                                            t-on-click="() => this.prevEmployeesPage(item.code)"
+                                                            t-att-disabled="this.getEmployeesPage(item.code) === 1">
+                                                        <i class="fa fa-chevron-left"/>
+                                                    </button>
+                                                    <small class="text-white px-2">
+                                                        <t t-esc="this.getEmployeesPage(item.code)"/> / <t t-esc="this.getTotalEmployeesPages(item.employees)"/>
+                                                    </small>
+                                                    <button class="btn btn-sm btn-link p-0 text-white"
+                                                            t-on-click="() => this.nextEmployeesPage(item.code, this.getTotalEmployeesPages(item.employees))"
+                                                            t-att-disabled="this.getEmployeesPage(item.code) === this.getTotalEmployeesPages(item.employees)">
+                                                        <i class="fa fa-chevron-right"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Employees List -->
+                                        <t t-if="item.employees">
+                                            <t t-foreach="getPaginatedEmployees(item.employees, item.code)" t-as="employee" t-key="employee.id">
+                                                <!-- Employee Row -->
+                                                <div class="list-group-item py-1 px-2 ps-4 bg-light border-start border-danger border-3">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <button class="btn btn-sm btn-link p-0 text-danger"
+                                                                    t-on-click="() => this.toggleEmployeeExpand(employee.id)"
+                                                                    style="min-width: 20px;">
+                                                                <i t-att-class="'fa ' + (isEmployeeExpanded(employee.id) ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                                                            </button>
+                                                            <i class="fa fa-user text-danger me-1"/>
+                                                            <strong class="small text-dark" t-esc="employee.name"/>
+                                                        </div>
+                                                        <div class="d-flex align-items-center gap-2">
+                                                            <span class="badge bg-danger text-white" style="min-width: 50px;">
+                                                                <t t-esc="employee.percentage"/>%
+                                                            </span>
+                                                            <span class="text-dark small fw-semibold" t-esc="employee.formatted"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Employee Lines (Expandable) -->
+                                                <t t-if="isEmployeeExpanded(employee.id) and employee.lines">
+                                                    <t t-foreach="employee.lines" t-as="line" t-key="line.id">
+                                                        <div class="list-group-item py-1 px-2 ps-6" style="border-left: 4px solid #dc3545; background-color: #f8f9fa;">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <span class="small text-dark">
+                                                                    <i class="fa fa-angle-double-right text-danger me-1"/>
+                                                                    <t t-esc="line.name"/>
+                                                                </span>
+                                                                <span class="text-dark small" t-esc="line.formatted"/>
+                                                            </div>
+                                                        </div>
+                                                    </t>
+                                                </t>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </t>
+                            </t>
+                            <div t-else="" class="list-group-item text-center text-muted py-2">
+                                <i class="fa fa-search me-1"/>
+                                No se encontraron deducciones
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

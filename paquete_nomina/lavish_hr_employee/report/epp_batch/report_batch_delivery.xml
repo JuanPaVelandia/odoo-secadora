@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Accion de Reporte -->
+    <record id="action_report_batch_delivery" model="ir.actions.report">
+        <field name="name">Acta de Entrega Lote</field>
+        <field name="model">hr.epp.batch</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lavish_hr_employee.report_batch_delivery_template</field>
+        <field name="report_file">lavish_hr_employee.report_batch_delivery_template</field>
+        <field name="binding_model_id" ref="model_hr_epp_batch"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="base.paperformat_us"/>
+    </record>
+
+    <!-- Template del Reporte -->
+    <template id="report_batch_delivery_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="batch">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11pt;">
+
+                        <!-- ENCABEZADO -->
+                        <div class="row" style="border-bottom: 3px solid #2c3e50; padding-bottom: 15px; margin-bottom: 20px;">
+                            <div class="col-8">
+                                <h2 style="color: #2c3e50; font-weight: bold; margin: 0;">
+                                    ACTA DE ENTREGA - <t t-out="batch.batch_type.upper()"/>
+                                </h2>
+                                <h4 style="color: #7f8c8d; margin: 5px 0 0 0;">
+                                    <t t-out="batch.name"/>
+                                </h4>
+                            </div>
+                            <div class="col-4 text-end">
+                                <p style="margin: 0; font-size: 10pt;">
+                                    <strong>Fecha:</strong> <t t-out="batch.batch_date" t-options="{'widget': 'date'}"/><br/>
+                                    <strong>Empresa:</strong> <t t-out="batch.company_id.name"/>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- INFORMACION DEL LOTE -->
+                        <div class="row" style="margin-bottom: 20px;">
+                            <div class="col-6">
+                                <table class="table table-sm" style="font-size: 10pt;">
+                                    <tr>
+                                        <td style="width: 40%; padding: 5px;"><strong>Tipo de Lote:</strong></td>
+                                        <td style="padding: 5px;"><t t-out="batch.batch_type"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>Total Empleados:</strong></td>
+                                        <td style="padding: 5px;"><t t-out="batch.total_employees"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>Entregadas:</strong></td>
+                                        <td style="padding: 5px;">
+                                            <t t-out="batch.requests_delivered"/> / <t t-out="batch.total_employees"/>
+                                            (<t t-out="'%.1f' % batch.progress_percentage"/>%)
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-6">
+                                <table class="table table-sm" style="font-size: 10pt;">
+                                    <tr>
+                                        <td style="width: 40%; padding: 5px;"><strong>Fecha Planeada:</strong></td>
+                                        <td style="padding: 5px;">
+                                            <t t-out="batch.delivery_planned_date" t-options="{'widget': 'date'}"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>Control Stock:</strong></td>
+                                        <td style="padding: 5px;">
+                                            <t t-if="batch.use_stock_location">Si</t>
+                                            <t t-else="">No</t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 5px;"><strong>Estado:</strong></td>
+                                        <td style="padding: 5px;"><t t-out="batch.state"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- LISTADO DE ENTREGAS -->
+                        <h4 style="color: #2c3e50; border-bottom: 2px solid #95a5a6; padding-bottom: 5px; margin-top: 30px;">
+                            Detalle de Entregas
+                        </h4>
+
+                        <table class="table table-sm table-bordered" style="font-size: 9pt; margin-top: 15px;">
+                            <thead style="background-color: #34495e; color: white;">
+                                <tr>
+                                    <th style="padding: 8px; text-align: center; width: 5%;">No.</th>
+                                    <th style="padding: 8px; width: 25%;">Empleado</th>
+                                    <th style="padding: 8px; width: 15%;">Departamento</th>
+                                    <th style="padding: 8px; width: 30%;">Items</th>
+                                    <th style="padding: 8px; text-align: center; width: 10%;">Fecha</th>
+                                    <th style="padding: 8px; text-align: center; width: 15%;">Firma</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="counter" t-value="0"/>
+                                <t t-foreach="batch.request_ids" t-as="request">
+                                    <t t-set="counter" t-value="counter + 1"/>
+                                    <tr>
+                                        <td style="padding: 6px; text-align: center;">
+                                            <t t-out="counter"/>
+                                        </td>
+                                        <td style="padding: 6px;">
+                                            <strong><t t-out="request.employee_id.name"/></strong><br/>
+                                            <small style="color: #7f8c8d;">
+                                                <t t-out="request.employee_id.identification_id"/>
+                                            </small>
+                                        </td>
+                                        <td style="padding: 6px;">
+                                            <t t-out="request.department_id.name or '-'"/>
+                                        </td>
+                                        <td style="padding: 6px;">
+                                            <t t-foreach="request.line_ids" t-as="line">
+                                                <div>
+                                                    • <t t-out="line.quantity"/> x <t t-out="line.name"/>
+                                                    <t t-if="line.size">
+                                                        (Talla: <t t-out="line.size"/>)
+                                                    </t>
+                                                </div>
+                                            </t>
+                                        </td>
+                                        <td style="padding: 6px; text-align: center;">
+                                            <t t-if="request.delivered_date">
+                                                <t t-out="request.delivered_date" t-options="{'widget': 'date'}"/>
+                                            </t>
+                                            <t t-else="">
+                                                Pendiente
+                                            </t>
+                                        </td>
+                                        <td style="padding: 6px; height: 40px;">
+                                            <!-- Espacio para firma -->
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- FIRMAS -->
+                        <div class="row" style="margin-top: 80px;">
+                            <div class="col-6 text-center">
+                                <div style="border-top: 2px solid #2c3e50; padding-top: 5px; margin: 0 30px;">
+                                    <strong>Entregado por</strong><br/>
+                                    <small>Nombre y firma</small>
+                                </div>
+                            </div>
+                            <div class="col-6 text-center">
+                                <div style="border-top: 2px solid #2c3e50; padding-top: 5px; margin: 0 30px;">
+                                    <strong>Coordinador SST</strong><br/>
+                                    <small>Nombre y firma</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PIE DE PAGINA -->
+                        <div style="position: absolute; bottom: 30px; width: 100%; font-size: 8pt; color: #7f8c8d; text-align: center;">
+                            <p>
+                                Documento generado el <t t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/><br/>
+                                <t t-out="batch.company_id.name"/> - Sistema de Gestion SST
+                            </p>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

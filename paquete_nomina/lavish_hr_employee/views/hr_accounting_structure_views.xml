@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================
+         VISTAS DE CONFIGURACION DE ESTRUCTURA CONTABLE
+         Sistema Flexible de Construccion de Cuentas
+         ================================================================ -->
+
+    <!-- Form View -->
+    <record id="view_hr_accounting_structure_config_form" model="ir.ui.view">
+        <field name="name">hr.accounting.structure.config.form</field>
+        <field name="model">hr.accounting.structure.config</field>
+        <field name="arch" type="xml">
+            <form string="Configuracion de Estructura Contable">
+                <header>
+                    <button name="action_simulate"
+                            string="Simular Construccion"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-play"/>
+                    <button name="action_create_default_sections"
+                            string="Crear Secciones"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-plus"
+                            invisible="config_mode != 'sections'"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-archive">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-th-list"
+                                invisible="config_mode != 'sections'">
+                            <field name="section_count" widget="statinfo" string="Secciones"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Por Defecto" bg_color="text-bg-success"
+                            invisible="not is_default"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Nombre de la Configuracion"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="General">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="is_default"/>
+                            <field name="config_mode" widget="radio"/>
+                        </group>
+                        <group string="Patron de Construccion" invisible="config_mode == 'sections'">
+                            <field name="structure_pattern" widget="radio"/>
+                            <field name="custom_order"
+                                   invisible="structure_pattern != 'custom'"
+                                   placeholder="DEPT,LOC,RULE,JOB"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- PESTANA DE SECCIONES (solo en modo secciones) -->
+                        <page string="Secciones" name="sections"
+                              invisible="config_mode != 'sections'">
+                            <div class="alert alert-info" role="alert">
+                                <strong>Modo por Secciones:</strong>
+                                Cada seccion permite definir un patron de construccion diferente
+                                segun el tipo de regla salarial (TOTALDEV, TOTALDED, NET, etc.)
+                            </div>
+                            <field name="section_ids">
+                                <list string="Secciones" editable="bottom"
+                                      decoration-muted="not active"
+                                      decoration-bf="section_type in ('totaldev', 'totalded', 'net')">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="section_type"/>
+                                    <field name="name"/>
+                                    <field name="structure_pattern"/>
+                                    <field name="rule_category_codes" optional="hide"/>
+                                    <field name="rule_count" optional="show"/>
+                                    <field name="active" widget="boolean_toggle"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Opciones de Elementos" name="elements"
+                              invisible="config_mode == 'sections'">
+                            <group>
+                                <group string="Elementos Incluidos">
+                                    <field name="include_location"/>
+                                    <field name="include_job"/>
+                                    <field name="use_manual_mode"/>
+                                </group>
+                                <group string="Opciones de Busqueda">
+                                    <field name="use_wildcard_search"/>
+                                    <field name="fallback_to_parent_dept"/>
+                                    <field name="search_levels"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Longitud de Codigos" name="lengths"
+                              invisible="config_mode == 'sections'">
+                            <group>
+                                <group string="Longitud de Elementos">
+                                    <field name="dept_code_length"/>
+                                    <field name="rule_code_length"/>
+                                    <field name="loc_code_length"
+                                           invisible="not include_location"/>
+                                    <field name="job_code_length"
+                                           invisible="not include_job"/>
+                                </group>
+                                <group string="Separador">
+                                    <field name="use_separator"/>
+                                    <field name="separator"
+                                           invisible="not use_separator"
+                                           placeholder="Ej: - o _"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Guia de Uso" name="help">
+                            <div class="alert alert-info" role="alert">
+                                <h4 class="alert-heading">Sistema de Construccion de Cuentas</h4>
+                                <p>Este sistema permite construir codigos de cuenta contable
+                                   dinamicamente a partir de elementos del empleado y la regla salarial.</p>
+                                <hr/>
+                                <h5>Elementos Disponibles:</h5>
+                                <ul>
+                                    <li><strong>[DEPT]</strong> - Codigo del Departamento (hr.department.code_account)</li>
+                                    <li><strong>[RULE]</strong> - Codigo de la Regla Salarial</li>
+                                    <li><strong>[LOC]</strong> - Codigo de Ubicacion/Sucursal (res.partner.location_code)</li>
+                                    <li><strong>[JOB]</strong> - Codigo del Puesto (hr.job.code_account)</li>
+                                </ul>
+                                <h5>Patrones Predefinidos:</h5>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Patron</th>
+                                            <th>Ejemplo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>DEPT + RULE</td>
+                                            <td>0002BASI</td>
+                                        </tr>
+                                        <tr>
+                                            <td>DEPT + RULE + JOB</td>
+                                            <td>0002BASI02</td>
+                                        </tr>
+                                        <tr>
+                                            <td>DEPT + RULE + LOC + JOB</td>
+                                            <td>0002BASI0102</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <group>
+                                <field name="notes" placeholder="Notas adicionales sobre esta configuracion..."/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- List View -->
+    <record id="view_hr_accounting_structure_config_list" model="ir.ui.view">
+        <field name="name">hr.accounting.structure.config.list</field>
+        <field name="model">hr.accounting.structure.config</field>
+        <field name="arch" type="xml">
+            <list string="Configuraciones de Estructura Contable">
+                <field name="name"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="config_mode" widget="badge"
+                       decoration-info="config_mode == 'global'"
+                       decoration-success="config_mode == 'sections'"/>
+                <field name="structure_pattern" optional="show"/>
+                <field name="section_count" string="Secciones" optional="show"/>
+                <field name="is_default" widget="boolean_toggle"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         VISTAS DE SECCIONES
+         ================================================================ -->
+
+    <!-- Section Form View -->
+    <record id="view_hr_accounting_structure_section_form" model="ir.ui.view">
+        <field name="name">hr.accounting.structure.section.form</field>
+        <field name="model">hr.accounting.structure.section</field>
+        <field name="arch" type="xml">
+            <form string="Seccion de Estructura Contable">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-list-alt">
+                            <field name="rule_count" widget="statinfo" string="Reglas"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Nombre de la Seccion"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Configuracion">
+                            <field name="config_id" readonly="1"/>
+                            <field name="section_type"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group string="Patron de Construccion">
+                            <field name="structure_pattern" widget="radio"/>
+                            <field name="custom_order"
+                                   invisible="structure_pattern != 'custom'"
+                                   placeholder="DEPT,LOC,RULE,JOB"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Categorias de Reglas" name="categories">
+                            <group>
+                                <group string="Categorias Incluidas">
+                                    <field name="rule_category_codes"
+                                           placeholder="PROV_CES,PROV_VAC,CUSTOM"/>
+                                </group>
+                                <group string="Categorias Excluidas">
+                                    <field name="rule_codes_exclude"
+                                           placeholder="REGLA1,REGLA2"/>
+                                </group>
+                            </group>
+                            <separator string="Categorias por Defecto de Esta Seccion"/>
+                            <div class="alert alert-secondary" role="status">
+                                <p>Las siguientes categorias se incluyen automaticamente segun el tipo de seccion:</p>
+                                <ul>
+                                    <li><strong>TOTALDEV:</strong> TOTALDEV, GROSS</li>
+                                    <li><strong>TOTALDED:</strong> TOTALDED</li>
+                                    <li><strong>NET:</strong> NET, NETO</li>
+                                    <li><strong>PROVISIONES:</strong> PROVISIONES, PROV_CES, PROV_VAC, PROV_PRIMA, PROV_INT_CES</li>
+                                    <li><strong>IBD_SS:</strong> IBD, IBC, IBC_R, SSOCIAL, SSOCIAL001, SSOCIAL002</li>
+                                    <li><strong>REGLAS:</strong> BASIC, AUX, DEV, DED, DEDUCCIONES, etc.</li>
+                                </ul>
+                            </div>
+                        </page>
+
+                        <page string="Opciones de Busqueda" name="search_options">
+                            <group>
+                                <group string="Busqueda">
+                                    <field name="use_wildcard_search"/>
+                                    <field name="fallback_to_parent_dept"/>
+                                </group>
+                                <group string="Separador">
+                                    <field name="use_separator"/>
+                                    <field name="separator"
+                                           invisible="not use_separator"
+                                           placeholder="Ej: - o _"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Longitud de Codigos" name="lengths">
+                            <group>
+                                <group string="Longitud de Elementos">
+                                    <field name="dept_code_length"/>
+                                    <field name="rule_code_length"/>
+                                    <field name="loc_code_length"/>
+                                    <field name="job_code_length"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Notas" name="notes">
+                            <field name="notes" placeholder="Notas sobre esta seccion..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Section List View -->
+    <record id="view_hr_accounting_structure_section_list" model="ir.ui.view">
+        <field name="name">hr.accounting.structure.section.list</field>
+        <field name="model">hr.accounting.structure.section</field>
+        <field name="arch" type="xml">
+            <list string="Secciones de Estructura Contable"
+                  decoration-muted="not active"
+                  decoration-bf="section_type in ('totaldev', 'totalded', 'net')">
+                <field name="sequence" widget="handle"/>
+                <field name="config_id"/>
+                <field name="section_type" widget="badge"
+                       decoration-info="section_type == 'reglas_normales'"
+                       decoration-success="section_type in ('totaldev', 'net')"
+                       decoration-danger="section_type == 'totalded'"
+                       decoration-warning="section_type in ('provisiones', 'ibd_ss')"/>
+                <field name="name"/>
+                <field name="structure_pattern"/>
+                <field name="rule_count"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_hr_accounting_structure_config_search" model="ir.ui.view">
+        <field name="name">hr.accounting.structure.config.search</field>
+        <field name="model">hr.accounting.structure.config</field>
+        <field name="arch" type="xml">
+            <search string="Buscar Configuracion">
+                <field name="name"/>
+                <field name="company_id"/>
+                <separator/>
+                <filter string="Por Defecto" name="default" domain="[('is_default', '=', True)]"/>
+                <filter string="Con Ubicacion" name="with_location" domain="[('include_location', '=', True)]"/>
+                <filter string="Con Puesto" name="with_job" domain="[('include_job', '=', True)]"/>
+                <separator/>
+                <filter string="Archivados" name="archived" domain="[('active', '=', False)]"/>
+                <group name="group_by">
+                    <filter string="Compania" name="group_company" context="{'group_by': 'company_id'}"/>
+                    <filter string="Patron" name="group_pattern" context="{'group_by': 'structure_pattern'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_hr_accounting_structure_config" model="ir.actions.act_window">
+        <field name="name">Estructura Contable</field>
+        <field name="res_model">hr.accounting.structure.config</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_default': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear configuracion de estructura contable
+            </p>
+            <p>
+                Configure como se construyen los codigos de cuenta contable
+                basados en departamento, regla salarial, ubicacion y puesto.
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu (bajo Configuracion de Nomina) -->
+    <menuitem id="menu_hr_accounting_structure_config"
+              name="Estructura Contable"
+              parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
+              action="action_hr_accounting_structure_config"
+              sequence="85"/>
+
+    <!-- ================================================================
+         WIZARD DE SIMULACION
+         ================================================================ -->
+
+    <record id="view_hr_accounting_structure_simulate_wizard_form" model="ir.ui.view">
+        <field name="name">hr.accounting.structure.simulate.wizard.form</field>
+        <field name="model">hr.accounting.structure.simulate.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Simular Construccion de Cuentas">
+                <sheet>
+                    <!-- Estado: Configuracion -->
+                    <group invisible="state != 'config'">
+                        <group string="Configuracion">
+                            <field name="config_id" readonly="1"/>
+                        </group>
+                        <group string="Filtros">
+                            <field name="employee_ids" widget="many2many_tags"
+                                   placeholder="Todos los empleados activos (max 50)"/>
+                            <field name="salary_rule_ids" widget="many2many_tags"
+                                   placeholder="Todas las reglas con cuentas"/>
+                        </group>
+                    </group>
+
+                    <!-- Estado: Resultados -->
+                    <div invisible="state != 'result'">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <h5 class="card-title text-muted">Total</h5>
+                                        <h2><field name="total_combinations" readonly="1"/></h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-success text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Encontradas</h5>
+                                        <h2><field name="found_count" readonly="1"/></h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-danger text-white">
+                                    <div class="card-body">
+                                        <h5 class="card-title">No Encontradas</h5>
+                                        <h2><field name="not_found_count" readonly="1"/></h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card text-center bg-warning">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Por Comodin</h5>
+                                        <h2><field name="wildcard_count" readonly="1"/></h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <field name="result_ids" readonly="1">
+                            <list string="Resultados" decoration-success="status == 'found'"
+                                  decoration-danger="status == 'not_found'"
+                                  decoration-warning="status == 'wildcard'">
+                                <field name="status_icon" string=" " width="30px"/>
+                                <field name="employee_id"/>
+                                <field name="department_id"/>
+                                <field name="job_id" optional="show"/>
+                                <field name="work_location_id" optional="show"/>
+                                <field name="salary_rule_id"/>
+                                <field name="built_code"/>
+                                <field name="debit_account_id"/>
+                                <field name="credit_account_id"/>
+                                <field name="status" invisible="1"/>
+                            </list>
+                        </field>
+                    </div>
+
+                    <field name="state" invisible="1"/>
+                </sheet>
+                <footer>
+                    <button string="Simular" name="action_simulate" type="object"
+                            class="btn-primary" invisible="state != 'config'"/>
+                    <button string="Volver" name="action_back" type="object"
+                            class="btn-secondary" invisible="state != 'result'"/>
+                    <button string="Exportar Excel" name="action_export_excel" type="object"
+                            class="btn-secondary" invisible="state != 'result'"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         EXTENSION DE VISTAS EXISTENTES
+         ================================================================ -->
+
+    <!-- Extension de vista de Departamento -->
+    <record id="view_hr_department_form_accounting" model="ir.ui.view">
+        <field name="name">hr.department.form.accounting</field>
+        <field name="model">hr.department</field>
+        <field name="inherit_id" ref="hr.view_department_form"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="code_account" placeholder="Ej: 0001"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Extension de vista de Puesto -->
+    <record id="view_hr_job_form_accounting" model="ir.ui.view">
+        <field name="name">hr.job.form.accounting</field>
+        <field name="model">hr.job</field>
+        <field name="inherit_id" ref="hr.view_hr_job_form"/>
+        <field name="arch" type="xml">
+            <field name="department_id" position="after">
+                <field name="code_account" placeholder="Ej: 01"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Extension de vista de Contacto/Partner para ubicaciones -->
+    <record id="view_res_partner_form_location" model="ir.ui.view">
+        <field name="name">res.partner.form.location</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='internal_notes']" position="before">
+                <page string="Ubicacion de Trabajo" name="work_location"
+                      invisible="not is_work_location">
+                    <group>
+                        <group string="Configuracion de Ubicacion">
+                            <field name="is_work_location" invisible="1"/>
+                            <field name="location_code" placeholder="Ej: 01"/>
+                            <field name="location_type"/>
+                            <field name="accounting_code_prefix" placeholder="Ej: BOG"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <field name="company_type" position="after">
+                <field name="is_work_location"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

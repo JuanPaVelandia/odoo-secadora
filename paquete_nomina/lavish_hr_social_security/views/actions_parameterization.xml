@@ -1,0 +1,25 @@
+<odoo>
+    <data>
+
+        <record id="view_company_social_security_form" model="ir.ui.view">
+            <field name="name">res.company.lavish.hr.social.security.form.inherit</field>
+            <field name="model">res.company</field>
+            <field name="priority">50</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='social_media']" position="before">
+                    <group string="Nómina - Seguridad Social" name="social_security_payroll">
+                        <field name="exonerated_law_1607"/>
+                        <field name="entity_arp_id"/>
+                        <field name="type_contributor"/>
+                    </group>
+                    <group string="Configuración IBC y Provisiones" name="ibc_provisions_config">
+                        <field name="include_absences_1393"/>
+                        <field name="simple_provisions"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

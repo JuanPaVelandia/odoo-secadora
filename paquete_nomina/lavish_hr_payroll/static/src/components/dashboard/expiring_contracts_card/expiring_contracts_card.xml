@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.ExpiringContractsCard">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fa fa-file-alt me-2"/>
+                    Contratos por Vencer
+                </h5>
+                <button class="btn btn-sm btn-light" t-on-click="onViewAllContracts" t-if="hasData">
+                    <i class="fa fa-external-link"/>
+                </button>
+            </div>
+            <div class="card-body">
+                <t t-if="!hasData">
+                    <div class="text-center text-muted py-4">
+                        <i class="fa fa-check-circle fa-2x mb-2 text-success"/>
+                        <p>No hay contratos próximos a vencer</p>
+                    </div>
+                </t>
+                <t t-else="">
+                    <!-- Summary Badges -->
+                    <div class="d-flex justify-content-around mb-3">
+                        <div class="text-center" t-if="criticalCount > 0">
+                            <span class="badge bg-danger rounded-pill px-3 py-2">
+                                <i class="fa fa-exclamation-circle me-1"/>
+                                <t t-esc="criticalCount"/> Crítico
+                            </span>
+                            <small class="text-muted d-block mt-1">≤ 7 días</small>
+                        </div>
+                        <div class="text-center" t-if="highCount > 0">
+                            <span class="badge bg-warning rounded-pill px-3 py-2">
+                                <i class="fa fa-exclamation-triangle me-1"/>
+                                <t t-esc="highCount"/> Alto
+                            </span>
+                            <small class="text-muted d-block mt-1">≤ 15 días</small>
+                        </div>
+                        <div class="text-center" t-if="mediumCount > 0">
+                            <span class="badge bg-info rounded-pill px-3 py-2">
+                                <i class="fa fa-info-circle me-1"/>
+                                <t t-esc="mediumCount"/> Medio
+                            </span>
+                            <small class="text-muted d-block mt-1">≤ 30 días</small>
+                        </div>
+                    </div>
+
+                    <!-- Contracts List -->
+                    <div class="list-group list-group-flush">
+                        <t t-foreach="contracts" t-as="contract" t-key="contract.id">
+                            <div class="list-group-item px-2 py-2 cursor-pointer"
+                                 t-on-click="() => this.onViewContract(contract.id)">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <i t-att-class="'fa ' + getUrgencyIcon(contract.urgency) + ' text-' + getUrgencyClass(contract.urgency)"/>
+                                            <strong t-esc="contract.employee_name"/>
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            <i class="fa fa-building me-1"/>
+                                            <t t-esc="contract.department"/>
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fa fa-briefcase me-1"/>
+                                            <t t-esc="contract.job"/>
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span t-att-class="'badge bg-' + getUrgencyClass(contract.urgency)">
+                                            <t t-esc="contract.days_remaining"/> días
+                                        </span>
+                                        <small class="text-muted d-block mt-1">
+                                            <t t-esc="contract.date_end"/>
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Show more indicator -->
+                    <div class="mt-2 text-center" t-if="totalContracts > 5">
+                        <button class="btn btn-sm btn-link" t-on-click="onViewAllContracts">
+                            Ver todos (<t t-esc="totalContracts"/> contratos)
+                            <i class="fa fa-arrow-right ms-1"/>
+                        </button>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

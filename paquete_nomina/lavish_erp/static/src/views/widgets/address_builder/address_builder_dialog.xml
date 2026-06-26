@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="lavish_erp.AddressBuilderDialog">
+        <Dialog size="'lg'" title="'Constructor de Direccion Colombiana'">
+            <div class="o_address_builder_dialog">
+
+                <!-- Fila 1: Departamento y Ciudad -->
+                <div class="row g-2 mb-2">
+                    <!-- Departamento -->
+                    <div class="col-6">
+                        <label class="form-label small fw-bold mb-1">Departamento</label>
+                        <select class="form-select form-select-sm"
+                                t-on-change="onStateChange">
+                            <option value="">Seleccione...</option>
+                            <option t-foreach="state.state_options"
+                                    t-as="dept"
+                                    t-key="dept.id"
+                                    t-att-value="dept.id"
+                                    t-att-selected="state.state_id == dept.id"
+                                    t-esc="dept.name"/>
+                        </select>
+                    </div>
+
+                    <!-- Ciudad con autocompletar -->
+                    <div class="col-6">
+                        <label class="form-label small fw-bold mb-1">Ciudad</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               t-att-value="state.city_name"
+                               t-on-input="onCityInput"
+                               t-on-focus="onCityFocus"
+                               t-on-blur="onCityBlur"
+                               placeholder="Buscar ciudad..."/>
+                        <!-- Sugerencias de ciudad -->
+                        <div class="position-relative" t-if="state.showCitySuggestions and state.citySuggestions.length > 0">
+                            <ul class="list-group position-absolute w-100 shadow-sm" style="z-index:1060; max-height:150px; overflow-y:auto;">
+                                <li class="list-group-item list-group-item-action py-1 small"
+                                    t-foreach="state.citySuggestions"
+                                    t-as="city"
+                                    t-key="city.id"
+                                    t-on-click="(ev) => this.selectCityHandler(ev, city)">
+                                    <t t-esc="city.display_name"/>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fila 2: Barrio y Codigo Postal -->
+                <div class="row g-2 mb-2">
+                    <!-- Barrio con autocompletar -->
+                    <div class="col-8">
+                        <label class="form-label small fw-bold mb-1">Barrio</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               t-att-value="state.barrio_name"
+                               t-on-input="onBarrioInput"
+                               t-on-focus="onBarrioFocus"
+                               t-on-blur="onBarrioBlur"
+                               placeholder="Escriba el barrio..."/>
+                        <!-- Sugerencias de barrio -->
+                        <div class="position-relative" t-if="state.showBarrioSuggestions and state.barrioSuggestions.length > 0">
+                            <ul class="list-group position-absolute w-100 shadow-sm" style="z-index:1050; max-height:150px; overflow-y:auto;">
+                                <li class="list-group-item list-group-item-action py-1 small"
+                                    t-foreach="state.barrioSuggestions"
+                                    t-as="suggestion"
+                                    t-key="suggestion.id"
+                                    t-on-click="(ev) => this.selectBarrioHandler(ev, suggestion)">
+                                    <t t-esc="suggestion.name"/>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Codigo Postal -->
+                    <div class="col-4">
+                        <label class="form-label small fw-bold mb-1">C. Postal</label>
+                        <input type="text"
+                               class="form-control form-control-sm"
+                               t-att-value="state.zip_code"
+                               readonly="readonly"
+                               placeholder="Auto"/>
+                    </div>
+                </div>
+
+                <!-- Via Principal (compacta) -->
+                <div class="card mb-2">
+                    <div class="card-header py-1 px-2">
+                        <small class="fw-bold">Via Principal</small>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="row g-1">
+                            <div class="col-3">
+                                <select class="form-select form-select-sm"
+                                        t-on-change="onMainRoadChange">
+                                    <option value="">Tipo...</option>
+                                    <option t-foreach="state.main_road_options"
+                                            t-as="option"
+                                            t-key="option.id"
+                                            t-att-value="option.id"
+                                            t-att-selected="state.main_road[0] == option.id"
+                                            t-esc="option.abbreviation"/>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <input type="text"
+                                       class="form-control form-control-sm"
+                                       t-att-value="state.name_road"
+                                       t-on-input="onNameRoadInput"
+                                       placeholder="No."/>
+                            </div>
+                            <div class="col-2">
+                                <select class="form-select form-select-sm"
+                                        t-on-change="onMainLetterChange">
+                                    <option value="">Letra</option>
+                                    <option t-foreach="state.main_letter_options"
+                                            t-as="letter"
+                                            t-key="letter.id"
+                                            t-att-value="letter.id"
+                                            t-att-selected="state.main_letter_road[0] == letter.id"
+                                            t-esc="letter.abbreviation"/>
+                                </select>
+                            </div>
+                            <div class="col-2">
+                                <select class="form-select form-select-sm"
+                                        t-on-change="onPrefixChange">
+                                    <option value="">BIS</option>
+                                    <option t-foreach="state.prefix_options"
+                                            t-as="prefix"
+                                            t-key="prefix.id"
+                                            t-att-value="prefix.id"
+                                            t-att-selected="state.prefix_main_road[0] == prefix.id"
+                                            t-esc="prefix.abbreviation"/>
+                                </select>
+                            </div>
+                            <div class="col-3">
+                                <select class="form-select form-select-sm"
+                                        t-on-change="onSectorMainChange">
+                                    <option value="">Cuadrante</option>
+                                    <option t-foreach="state.sector_options"
+                                            t-as="sector"
+                                            t-key="sector.id"
+                                            t-att-value="sector.id"
+                                            t-att-selected="state.sector_main_road[0] == sector.id"
+                                            t-esc="sector.abbreviation"/>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Via Generadora y Placa en linea -->
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <div class="card h-100">
+                            <div class="card-header py-1 px-2">
+                                <small class="fw-bold"># Via Generadora</small>
+                            </div>
+                            <div class="card-body p-2">
+                                <div class="row g-1">
+                                    <div class="col-4">
+                                        <input type="number"
+                                               class="form-control form-control-sm"
+                                               t-att-value="state.generator_road_number || ''"
+                                               t-on-input="onGenRoadNumberInput"
+                                               placeholder="No."/>
+                                    </div>
+                                    <div class="col-4">
+                                        <select class="form-select form-select-sm"
+                                                t-on-change="onGenRoadLetterChange">
+                                            <option value="">Letra</option>
+                                            <option t-foreach="state.main_letter_options"
+                                                    t-as="letter"
+                                                    t-key="letter.id"
+                                                    t-att-value="letter.id"
+                                                    t-att-selected="state.generator_road_letter[0] == letter.id"
+                                                    t-esc="letter.abbreviation"/>
+                                        </select>
+                                    </div>
+                                    <div class="col-4">
+                                        <select class="form-select form-select-sm"
+                                                t-on-change="onGenRoadSectorChange">
+                                            <option value="">Cuad.</option>
+                                            <option t-foreach="state.sector_options"
+                                                    t-as="sector"
+                                                    t-key="sector.id"
+                                                    t-att-value="sector.id"
+                                                    t-att-selected="state.generator_road_sector[0] == sector.id"
+                                                    t-esc="sector.abbreviation"/>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card h-100">
+                            <div class="card-header py-1 px-2">
+                                <small class="fw-bold">- Placa</small>
+                            </div>
+                            <div class="card-body p-2">
+                                <div class="row g-1">
+                                    <div class="col-6">
+                                        <input type="number"
+                                               class="form-control form-control-sm"
+                                               t-att-value="state.generator_plate_number || ''"
+                                               t-on-input="onPlateNumberInput"
+                                               placeholder="No."/>
+                                    </div>
+                                    <div class="col-6">
+                                        <select class="form-select form-select-sm"
+                                                t-on-change="onPlateSectorChange">
+                                            <option value="">Cuad.</option>
+                                            <option t-foreach="state.sector_options"
+                                                    t-as="sector"
+                                                    t-key="sector.id"
+                                                    t-att-value="sector.id"
+                                                    t-att-selected="state.generator_plate_sector[0] == sector.id"
+                                                    t-esc="sector.abbreviation"/>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complementos (3 en linea, compactos) -->
+                <div class="card mb-2">
+                    <div class="card-header py-1 px-2">
+                        <small class="fw-bold">Complementos</small>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="row g-1">
+                            <div class="col-4">
+                                <div class="input-group input-group-sm">
+                                    <select class="form-select form-select-sm"
+                                            t-on-change="onCompANameChange"
+                                            style="max-width:70px;">
+                                        <option value="">...</option>
+                                        <option t-foreach="state.complement_options"
+                                                t-as="comp"
+                                                t-key="comp.id"
+                                                t-att-value="comp.id"
+                                                t-att-selected="state.complement_name_a[0] == comp.id"
+                                                t-esc="comp.abbreviation"/>
+                                    </select>
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           t-att-value="state.complement_number_a"
+                                           t-on-input="onCompANumInput"
+                                           placeholder="Val"/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group input-group-sm">
+                                    <select class="form-select form-select-sm"
+                                            t-on-change="onCompBNameChange"
+                                            style="max-width:70px;">
+                                        <option value="">...</option>
+                                        <option t-foreach="state.complement_options"
+                                                t-as="comp"
+                                                t-key="comp.id"
+                                                t-att-value="comp.id"
+                                                t-att-selected="state.complement_name_b[0] == comp.id"
+                                                t-esc="comp.abbreviation"/>
+                                    </select>
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           t-att-value="state.complement_number_b"
+                                           t-on-input="onCompBNumInput"
+                                           placeholder="Val"/>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="input-group input-group-sm">
+                                    <select class="form-select form-select-sm"
+                                            t-on-change="onCompCNameChange"
+                                            style="max-width:70px;">
+                                        <option value="">...</option>
+                                        <option t-foreach="state.complement_options"
+                                                t-as="comp"
+                                                t-key="comp.id"
+                                                t-att-value="comp.id"
+                                                t-att-selected="state.complement_name_c[0] == comp.id"
+                                                t-esc="comp.abbreviation"/>
+                                    </select>
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           t-att-value="state.complement_text_c"
+                                           t-on-input="onCompCTextInput"
+                                           placeholder="Texto"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview compacto con selector de formato -->
+                <div class="alert alert-info py-2 px-3 mb-0">
+                    <div class="d-flex align-items-center">
+                        <i class="fa fa-map-marker me-2"/>
+                        <div class="flex-grow-1">
+                            <small class="text-muted">Direccion:</small>
+                            <span class="ms-1 fw-bold font-monospace"
+                                  t-esc="state.previewAddress || 'Complete los campos...'"/>
+                        </div>
+                        <div class="ms-2">
+                            <select class="form-select form-select-sm"
+                                    t-on-change="onFormatChange"
+                                    style="width:auto;">
+                                <option value="short" t-att-selected="state.addressFormat == 'short'">Corto</option>
+                                <option value="long" t-att-selected="state.addressFormat == 'long'">Largo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <t t-set-slot="footer">
+                <button class="btn btn-sm btn-outline-warning" t-on-click="clearAll">
+                    <i class="fa fa-eraser"/> Limpiar
+                </button>
+                <button class="btn btn-sm btn-secondary" t-on-click="cancel">
+                    Cancelar
+                </button>
+                <button class="btn btn-sm btn-primary" t-on-click="apply">
+                    <i class="fa fa-check"/> Aplicar
+                </button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

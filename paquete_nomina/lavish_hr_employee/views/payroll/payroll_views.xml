@@ -1,0 +1,1811 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- PAYROLL VIEWS -->
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_types_entities">
+            <field name="name">lavish tree types entities</field>
+            <field name="model">hr.contribution.register</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="name" />
+                    <field name="type_entities" />
+                    <field name="note" />
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_employee_entities">
+            <field name="name">lavish tree employee entities</field>
+            <field name="model">hr.employee.entities</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="partner_id" />
+                    <field name="types_entities" />
+                    <field name="code_pila_eps" />
+                    <field name="code_pila_ccf" />
+                    <field name="code_pila_regimen" />
+                    <field name="code_pila_exterior" />
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.form_employee_entities">
+            <field name="name">lavish form employee entities</field>
+            <field name="model">hr.employee.entities</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet string="Entidades empleados">
+                        <group colspan="4">
+                            <group string="Entidades">
+                                <field name="partner_id" />
+                                <field name="types_entities" widget="many2many_checkboxes" />
+                            </group>
+                            <group string="Codigo de Entidades">
+                                <field name="code_pila_eps" />
+                                <field name="code_pila_ccf" />
+                                <field name="code_pila_regimen" />
+                                <field name="code_pila_exterior" />
+                            </group>
+                            <group string="Otros">
+                                <field name="order" widget="radio" />
+                                <field name="debit_account" />
+                                <field name="credit_account" />
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="hr_salary_history_report_form" model="ir.ui.view">
+            <field name="name">hr.salary.history.report.form</field>
+            <field name="model">hr.salary.history.report</field>
+            <field name="arch" type="xml">
+                <form string="Historico salarial">
+                    <sheet>
+                        <group string="Filtros">
+                            <group>
+                                <field name="date_start" />
+                            </group>
+                            <group>
+                                <field name="date_end" />
+                            </group>
+                        </group>
+                        <group>
+                            <field name="employee_ids" widget="many2many_tags" />
+                            <field name="contract_active" />
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="generate_excel" string="Generar Excel" type="object"
+                            class="oe_highlight" />
+                        <button string="Cancelar" class="btn-secondary" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="list_hr_tipo_cotizante">
+            <field name="name">hr.tipo.cotizante.tree</field>
+            <field name="model">hr.tipo.cotizante</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="code" string="Codigo" />
+                    <field name="name" string="Nombre" />
+                    <field name="description" string="Descripcion" optional="show" />
+                    <field name="aplicacion_practica" string="Aplicacion Practica" optional="show" />
+                    <field name="referencia_normativa" string="Normativa" optional="hide" />
+                    <field name="active" column_invisible="1" />
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="form_hr_tipo_cotizante">
+            <field name="name">hr.tipo.cotizante.form</field>
+            <field name="model">hr.tipo.cotizante</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <field name="active" widget="boolean_button"
+                                options="{'terminology': 'archive'}" />
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="code" placeholder="Codigo (ej: 01)" /> - <field
+                                    name="name" placeholder="Nombre del tipo" />
+                            </h1>
+                        </div>
+                        <group string="Descripcion PILA" colspan="2">
+                            <field name="description" nolabel="1" colspan="2"
+                                placeholder="Descripcion segun normativa PILA (ej: Extranjero no obligado a cotizar pension por convenio o normativa)" />
+                        </group>
+                        <group string="Aplicacion Practica" colspan="2">
+                            <field name="aplicacion_practica" nolabel="1" colspan="2"
+                                placeholder="Ejemplos de uso practico (ej: Trabajadores extranjeros con exencion de pension)" />
+                        </group>
+                        <group>
+                            <field name="referencia_normativa"
+                                placeholder="Ej: Decreto 1406 de 1999" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="list_hr_subtipo_cotizante">
+            <field name="name">hr.subtipo.cotizante.tree</field>
+            <field name="model">hr.subtipo.cotizante</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="code" string="Codigo" />
+                    <field name="name" string="Nombre" />
+                    <field name="description" string="Descripcion" optional="show" />
+                    <field name="aplicacion_practica" string="Aplicacion Practica" optional="show" />
+                    <field name="not_contribute_pension" string="No Aporta Pension" />
+                    <field name="not_contribute_eps" string="No Aporta Salud" />
+                    <field name="referencia_normativa" string="Normativa" optional="hide" />
+                    <field name="active" column_invisible="1" />
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="form_hr_subtipo_cotizante">
+            <field name="name">hr.subtipo.cotizante.form</field>
+            <field name="model">hr.subtipo.cotizante</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <field name="active" widget="boolean_button"
+                                options="{'terminology': 'archive'}" />
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="code" placeholder="Codigo (ej: 00)" /> - <field
+                                    name="name" placeholder="Nombre del subtipo" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Aportes">
+                                <field name="not_contribute_pension" />
+                                <field name="not_contribute_eps" />
+                            </group>
+                            <group string="Referencia">
+                                <field name="referencia_normativa"
+                                    placeholder="Ej: Resolucion 000467 de 2025" />
+                            </group>
+                        </group>
+                        <group string="Descripcion PILA" colspan="2">
+                            <field name="description" nolabel="1" colspan="2"
+                                placeholder="Descripcion segun normativa PILA (ej: Extranjero no obligado a cotizar pension por convenio o normativa)" />
+                        </group>
+                        <group string="Aplicacion Practica" colspan="2">
+                            <field name="aplicacion_practica" nolabel="1" colspan="2"
+                                placeholder="Ejemplos de uso practico (ej: Trabajadores extranjeros con exencion de pension)" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="list_hr_type_faults">
+            <field name="name">tree hr type faults</field>
+            <field name="model">hr.types.faults</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="name" required="1" />
+                    <field name="description" required="1" />
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_parameterization_of_contributors_list">
+            <field name="name">hr parameterization of contributors tree</field>
+            <field name="model">hr.parameterization.of.contributors</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="type_of_contributor" />
+                    <field name="contributor_subtype" />
+                </list>
+            </field>
+        </record>
+
+        <record id="hr_parameterization_of_contributors_form" model="ir.ui.view">
+            <field name="name">hr parameterization of contributors form</field>
+            <field name="model">hr.parameterization.of.contributors</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="type_of_contributor" />
+                            <field name="contributor_subtype" />
+                        </group>
+                        <group colspan="4">
+                            <group string="Requiere entidad EPS:">
+                                <field name="liquidates_eps_company" />
+                                <field name="liquidated_eps_employee" />
+                            </group>
+                            <group string="Requiere entidad pensión:">
+                                <field name="liquidated_company_pension" />
+                                <field name="liquidate_employee_pension" />
+                                <field name="liquidates_solidarity_fund" />
+                            </group>
+                            <group colspan="6">
+                                <group string="Requiere entidad ARL:">
+                                    <field name="liquidated_arl" />
+                                </group>
+                                <br />
+                                <br />
+                                <group string="Requiere entidad caja de compensación:">
+                                    <field name="liquidated_compensation_fund" />
+                                </group>
+                                <br />
+                                <br />
+                                <group
+                                    string="Las entidades se toman de forma automática en caso de ser necesario:">
+                                    <field name="liquidated_aux_transport" />
+                                    <field name="liquidated_sena" />
+                                    <field name="liquidated_icbf" />
+                                </group>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="hr_payroll_structure_form_inherit" model="ir.ui.view">
+            <field name="name">hr.payroll.structure.form.inherit</field>
+            <field name="model">hr.payroll.structure</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_employee_grade_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='schedule_pay']" position="after">
+                    <field name="regular_pay" string="Pago Estandar" />
+                    <field name="regular_31" string="Pago dia 31" />
+                    <field name="process" widget="radio" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="hr_salary_rule_category_form_inherit" model="ir.ui.view">
+            <field name="name">hr.salary.rule.category.form.inherit</field>
+            <field name="model">hr.salary.rule.category</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="hr_payroll.hr_salary_rule_category_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <field name="active" invisible="1" />
+                    </header>
+                </xpath>
+                <xpath expr="//field[@name='parent_id']" position="after">
+                    <field name="group_payroll_voucher" />
+                    <field name="sequence" />
+                    <field name="category_type" />
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_contract_risk">
+            <field name="name">lavish tree contract risk</field>
+            <field name="model">hr.contract.risk</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="code" />
+                    <field name="name" />
+                    <field name="percent" />
+                    <field name="date" />
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_lavish_economic_activity_level_risk">
+            <field name="name">Actividad económica por nivel de riesgo tree</field>
+            <field name="model">lavish.economic.activity.level.risk</field>
+            <field name="arch" type="xml">
+                <list editable="bottom">
+                    <field name="risk_class_id" />
+                    <field name="code_ciiu_id" />
+                    <field name="code" />
+                    <field name="name" />
+                </list>
+            </field>
+        </record>
+
+        <record id="view_lavish_hr_employee_form_leave_type" model="ir.ui.view">
+            <field name="name">hr.leave.type.lavish.hr.employee.form.inherit</field>
+            <field name="model">hr.leave.type</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="hr_holidays.edit_holiday_status_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='leave_validation_type']" position="before">
+                    <field name="code" required="1" />
+                </xpath>
+                <xpath expr="//form[1]/sheet[1]/group[1]" position="after">
+                    <notebook>
+                        <page string="Configuración" name="config_page">
+                            <!-- Sección: Configuración General -->
+                            <group>
+                                <group name="group_basic_config" string="Tipo de Ausencia">
+                                    <field name="unpaid_absences" />
+                                    <field name="is_vacation" />
+                                    <field name="is_vacation_money" />
+                                    <field name="novelty" />
+                                    <field name="liquidacion_value" />
+                                    <field name="eps_arl_input_id"
+                                        help="Regla salarial que se usará para esta ausencia"
+                                        invisible="rango_adicionales_enfermedad" />
+                                    <field name="obligatory_attachment" />
+                                </group>
+                                <group name="group_day_behavior" string="Comportamiento de Dias">
+                                    <field name="sub_wd" />
+                                    <field name="pay_transport_allowance" />
+                                    <field name="apply_day_31" />
+                                    <field name="discounting_bonus_days" />
+                                    <field name="evaluates_day_off" />
+                                    <field name="discount_rest_day" />
+                                </group>
+                            </group>
+                            <group>
+                                <group name="conf_eps_arl" string="Configuración EPS/ARL">
+                                    <field name="rango_adicionales_enfermedad"
+                                        help="Habilita rangos adicionales por días de enfermedad" />
+                                    <field name="num_days_no_assume"
+                                        invisible="rango_adicionales_enfermedad"
+                                        help="Días que no asume la EPS/ARL" />
+                                    <field name="recognizing_factor_eps_arl"
+                                        invisible="rango_adicionales_enfermedad"
+                                        help="Porcentaje que reconoce la EPS/ARL" />
+                                    <field name="periods_calculations_ibl"
+                                        invisible="rango_adicionales_enfermedad"
+                                        help="Períodos para cálculo de IBL" />
+                                    <field name="eps_arl_input_id"
+                                        invisible="rango_adicionales_enfermedad"
+                                        help="Regla salarial para incapacidad" />
+                                </group>
+                                <group name="conf_company" string="Configuración Empresa">
+                                    <field name="recognizing_factor_company"
+                                        help="Porcentaje que reconoce la empresa" />
+                                    <field name="periods_calculations_ibl_company"
+                                        help="Períodos para cálculo de IBL empresa" />
+                                    <field name="company_input_id"
+                                        invisible="rango_adicionales_enfermedad"
+                                        help="Regla salarial de incapacidad empresa" />
+                                </group>
+                            </group>
+                            <!-- Sección: Configuración Avanzada -->
+                            <group>
+                                <group string="Interrupciones">
+                                    <field name="allow_interruption"
+                                        help="Permite interrumpir este tipo de ausencia" />
+                                </group>
+                                <group string="Complemento Salario">
+                                    <field name="completar_salario" />
+                                    <field name="company_complement_input_id"
+                                        invisible="not completar_salario"
+                                        required="completar_salario" />
+                                </group>
+                                <group string="Entidad Asociada" invisible="novelty not in ('ige', 'irl')">
+                                    <field name="type_of_entity_association" />
+                                </group>
+                            </group>
+                            <!-- Sección: Rangos de Enfermedad (solo para incapacidades) -->
+                            <group invisible="not rango_adicionales_enfermedad">
+                                <group string="Rangos 1-2 días">
+                                    <field name="gi_b2" string="Porcentaje" />
+                                    <field name="company_input_id" string="Regla salarial" />
+                                </group>
+                                <group string="Rangos 3-90 días">
+                                    <field name="gi_b90" string="Porcentaje" />
+                                    <field name="eps_arl_input_id" string="Regla salarial" />
+                                </group>
+                                <group string="Rangos 91-180 días">
+                                    <field name="gi_b180" string="Porcentaje" />
+                                    <field name="gi_b180_eps_arl_input_id" string="Regla salarial" />
+                                </group>
+                                <group string="Rangos +180 días">
+                                    <field name="gi_a180" string="Porcentaje" />
+                                    <field name="gi_a180_eps_arl_input_id" string="Regla salarial" />
+                                </group>
+                            </group>
+                            <!-- Sección: Configuración IBC -->
+                            <separator string="Configuración IBC" />
+                            <group>
+                                <group string="Validaciones de Ley">
+                                    <field name="valida_minimo" help="El IBC no puede ser inferior a 1 SMMLV" />
+                                    <field name="ibc_tope_maximo" help="Limita el IBC a 25 SMMLV máximo" />
+                                    <field name="use_ibl_as_ibc" help="Para licencias usa el IBC del mes anterior" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.list_annual_parameters">
+            <field name="name">lavish tree annual parameters</field>
+            <field name="model">hr.annual.parameters</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="year" />
+                    <field name="company_ids" widget="many2many_tags"
+                        groups="base.group_multi_company" />
+                    <field name="smmlv_monthly" />
+                    <field name="transportation_assistance_monthly" />
+                    <field name="min_integral_salary" />
+                    <field name="hours_daily" />
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="lavish_hr_employee.form_annual_parameters">
+            <field name="name">lavish form annual parameters</field>
+            <field name="model">hr.annual.parameters</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_create_working_hours"
+                            string="Crear Distribución de Horas (Ley 2101)" type="object"
+                            class="oe_highlight" icon="fa-clock-o" groups="hr.group_hr_manager" />
+                    </header>
+                    <sheet string="Parametros anuales">
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="year" />
+                                <field name="company_ids" widget="many2many_tags"
+                                    options="{'no_create': True}" groups="base.group_multi_company" />
+                            </group>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="Básicos" autofocus="autofocus">
+                                <group>
+                                    <group string="Salario Minimo" name="smlv" priority="1">
+                                        <field name="smmlv_monthly" />
+                                        <field name="smmlv_daily" />
+                                        <field name="top_four_fsp_smmlv" />
+                                        <field name="top_twenty_five_smmlv" />
+                                        <field name="top_ten_smmlv" />
+                                    </group>
+                                    <group string="Auxilio de transporte" name="transportation"
+                                        priority="2">
+                                        <field name="transportation_assistance_monthly" />
+                                        <field name="transportation_assistance_daily" />
+                                        <field name="top_max_transportation_assistance" />
+                                    </group>
+                                    <group string="Salario Integral" name="integral_salary"
+                                        priority="3">
+                                        <field name="min_integral_salary" />
+                                        <field name="porc_integral_salary" />
+                                        <field name="value_factor_integral_salary" />
+                                        <field name="value_factor_integral_performance" />
+                                    </group>
+                                    <group string="Horas Laborales" name="hours" priority="4">
+                                        <field name="hours_daily" />
+                                        <field name="hours_weekly" />
+                                        <field name="hours_fortnightly" />
+                                        <field name="hours_monthly" />
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Seguridad Social">
+                                <group>
+                                    <group string="Salud" name="salud" priority="1">
+                                        <field name="value_porc_health_company" />
+                                        <field name="value_porc_health_employee" />
+                                        <field name="value_porc_health_total" />
+                                        <field name="value_porc_health_employee_foreign" />
+                                    </group>
+                                    <group string="Pensión" name="pension" priority="2">
+                                        <field name="value_porc_pension_company" />
+                                        <field name="value_porc_pension_employee" />
+                                        <field name="value_porc_pension_total" />
+                                    </group>
+                                    <group string="Aportes parafiscales" name="aportes_parafiscales"
+                                        priority="3">
+                                        <field name="value_porc_compensation_box_company" />
+                                        <field name="value_porc_sena_company" />
+                                        <field name="value_porc_icbf_company" />
+                                    </group>
+                                    <group string="Provisiones prestaciones"
+                                        name="provisiones_prestaciones" priority="4">
+                                        <field name="value_porc_provision_bonus" />
+                                        <field name="value_porc_provision_cesantias" />
+                                        <field name="value_porc_provision_intcesantias" />
+                                        <field name="value_porc_provision_vacation" />
+                                    </group>
+                                    <group string="Tope ley 1393" name="tope_ley_1393" priority="5">
+                                        <field name="value_porc_statute_1395" />
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Tributario">
+                                <group>
+                                    <group string="Retención en la fuente" name="retencion_fuente"
+                                        priority="1">
+                                        <field name="value_uvt" />
+                                        <field name="value_top_source_retention" />
+                                    </group>
+                                    <group string="Incrementos" name="incrementos" priority="2">
+                                        <field name="value_porc_increment_smlv" />
+                                        <field name="value_porc_ipc" />
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Políticas de Nómina">
+                                <group>
+                                    <group string="Cálculos de Nómina">
+                                        <field name="simple_provisions" />
+                                        <field name="simple_provision_fortnight_mode"
+                                            invisible="not simple_provisions" />
+                                        <field name="simple_provision_days_mode"
+                                            invisible="not simple_provisions" />
+                                        <field name="auxilio_days_mode" />
+                                        <field name="ded_round" />
+                                        <field name="rtf_round" />
+                                        <field name="aux_apr_prod" />
+                                        <field name="complete_february_to_30" />
+                                        <field name="month_change_policy" />
+                                        <field name="aux_prst" />
+                                        <field name="aus_prev" />
+                                        <field name="positive_net" />
+                                        <field name="nonprofit" />
+                                        <field name="prst_wo_susp" />
+                                    </group>
+                                    <group string="Contabilización">
+                                        <field name="accounting_method" />
+                                        <field name="default_accounting_date" />
+                                        <field name="overtime_calculation_method" />
+                                        <field name="severance_pay_calculation" />
+                                        <field name="store_payroll_history" />
+                                        <field name="ibc_history_months" />
+                                        <field name="use_ibl_as_ibc_global" widget="boolean_toggle" />
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Configuración de Horas Laborales">
+                                <group colspan="2">
+                                    <p class="text-muted" colspan="2"> La Ley 2101 de 2021 establece
+                                        una reducción gradual de la jornada laboral máxima en
+                                        Colombia: <ul>
+                                            <li>Julio 2024: De 48 a 46 horas semanales</li>
+                                            <li>Julio 2025: De 46 a 44 horas semanales</li>
+                                            <li>Julio 2026: De 44 a 42 horas semanales</li>
+                                        </ul>
+                                        El botón "Crear Distribución de Horas" genera
+                                        automáticamente la configuración para cada mes del año según
+                                        la normativa vigente. </p>
+                                </group>
+                                <field name="working_hours_ids" nolabel="1" colspan="4">
+                                    <list string="Configuración de Horas Laborales">
+                                        <field name="year" />
+                                        <field name="month" />
+                                        <field name="max_hours_per_week" />
+                                        <field name="hours_per_month" />
+                                        <field name="hours_to_pay" />
+                                        <field name="effective_date" />
+                                        <field name="notes" />
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Ley 2466/2025 - Reforma Laboral">
+                                <group>
+                                    <group string="Jornada Nocturna">
+                                        <field name="night_shift_start_hour" />
+                                        <field name="night_shift_end_hour" />
+                                        <field name="night_shift_surcharge" />
+                                    </group>
+                                    <group string="Recargos Dominicales/Festivos">
+                                        <field name="sunday_holiday_surcharge" />
+                                        <div class="alert alert-warning small" colspan="2">
+                                            <i class="fa fa-exclamation-triangle" /> Los porcentajes
+                                            detallados de recargos se configuran en <strong>Tipos de
+                                            Horas Extras</strong>
+                                        </div>
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Gradualidad Ley 2466:</strong>
+                                            <br /> Dom/Fest:
+                                            80% (2025), 90% (2026), 100% (2027) </p>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Formula Calculo Horas Extras">
+                                        <field name="overtime_formula_type" widget="radio" />
+                                        <field name="sync_working_hours_on_save" />
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Clasica:</strong> Salario / 240 (fijo)<br />
+                                        <strong>
+                                            Legal:</strong> Salario / Horas mes (220, 210...)<br />
+                                    <small>Ley
+                                            2101/2021 - Reduccion gradual jornada</small>
+                                        </p>
+                                    </group>
+                                    <group string="Porcentajes Horas Extras">
+                                        <div class="alert alert-info" colspan="2">
+                                            <p>
+                                                <i class="fa fa-info-circle" /> Los porcentajes de
+                                                horas extras y recargos se configuran en:</p>
+                                            <p>
+                                                <strong>Nomina &gt; Configuracion &gt; Tipos de
+                                                    Horas Extras</strong>
+                                            </p>
+                                            <p class="text-muted small mb-0">
+                                                Cada tipo de hora extra (HE Diurna, Recargo
+                                                Nocturno, etc.)
+                                                tiene su porcentaje configurable en el modelo
+                                                hr.type.overtime.
+                                            </p>
+                                        </div>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Licencias">
+                                        <field name="paternity_leave_days" />
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Licencia Paternidad:</strong>
+                                    <br /> - 2024: 14
+                                            días (2 sem)<br /> - 2025: 21 días (3 sem)<br /> - 2026:
+                                            28 días (4 sem) </p>
+                                    </group>
+                                    <group string="Contratos">
+                                        <field name="fixed_term_max_years" />
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Aprendices (Ley 2466)">
+                                        <field name="apprentice_full_social_security"
+                                            widget="boolean_toggle" />
+                                        <field name="apprentice_lectiva_salary_percent" />
+                                        <field name="apprentice_practica_salary_percent" />
+                                        <field name="aux_apr_lectiva" />
+                                        <p class="text-muted" colspan="2">
+                                            <strong>Contrato de Aprendizaje:</strong>
+                                <br /> Se
+                                            considera contrato laboral a término fijo con todas las
+                                            prestaciones sociales. </p>
+                                    </group>
+                                    <group string="Plataformas Digitales">
+                                        <field name="platform_worker_ibc_percent" />
+                                        <field name="platform_worker_health_platform_percent" />
+                                        <field name="platform_worker_pension_platform_percent" />
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Trabajo Doméstico">
+                                        <field name="domestic_worker_written_contract_required" />
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hr_company_working_hours_tree" model="ir.ui.view">
+            <field name="name">hr.company.working.hours.tree</field>
+            <field name="model">hr.company.working.hours</field>
+            <field name="arch" type="xml">
+                <list string="Horas Laborales por Empresa">
+                    <field name="name" />
+                    <field name="company_id" groups="base.group_multi_company" />
+                    <field name="year" />
+                    <field name="month" />
+                    <field name="max_hours_per_week" />
+                    <field name="hours_per_day" />
+                    <field name="hours_per_month" />
+                    <field name="hours_to_pay" />
+                    <field name="works_saturday" widget="boolean_toggle" />
+                    <field name="work_start_time" widget="float_time" optional="hide" />
+                    <field name="lunch_start_time" widget="float_time" optional="hide" />
+                    <field name="lunch_duration_hours" optional="hide" />
+                    <field name="work_end_time" widget="float_time" optional="hide" />
+                    <field name="effective_date" />
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hr_company_working_hours_kanban" model="ir.ui.view">
+            <field name="name">hr.company.working.hours.kanban</field>
+            <field name="model">hr.company.working.hours</field>
+            <field name="arch" type="xml">
+                <kanban class="o_kanban_mobile" create="false" sample="1">
+                    <field name="name" />
+                    <field name="year" />
+                    <field name="month" />
+                    <field name="max_hours_per_week" />
+                    <field name="hours_per_day" />
+                    <field name="hours_to_pay" />
+                    <field name="works_saturday" />
+                    <field name="work_start_time" />
+                    <field name="work_end_time" />
+                    <field name="lunch_start_time" />
+                    <field name="lunch_end_time" />
+                    <field name="lunch_duration_hours" />
+                    <field name="effective_date" />
+                    <field name="company_id" />
+
+                    <templates>
+                        <t t-name="kanban-box">
+                            <!-- Card con gradiente según si trabaja sábado -->
+                            <div
+                                t-attf-style="background: #{record.works_saturday.raw_value ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'}; border-radius: 12px; padding: 0; margin: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: relative; overflow: hidden; transition: all 0.3s ease;"
+                                onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.2)'"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'">
+
+                                <!-- Icono de fondo gigante -->
+                                <div
+                                    style="position: absolute; right: -30px; bottom: -30px; font-size: 180px; opacity: 0.1; color: white;">
+                                    <i class="fa fa-calendar" />
+                                </div>
+
+                                <!-- Header -->
+                                <div
+                                    style="background: rgba(0,0,0,0.2); padding: 16px; color: white; position: relative; z-index: 1;">
+                                    <div
+                                        style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <h4
+                                                style="margin: 0; font-weight: 600; font-size: 18px;">
+                                                <field name="name" />
+                                            </h4>
+                                            <p
+                                                style="margin: 4px 0 0 0; opacity: 0.9; font-size: 13px;">
+                                                <i class="fa fa-building-o" />
+                                                <field name="company_id" />
+                                            </p>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <span t-if="record.works_saturday.raw_value"
+                                                style="background: rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;">
+                                                <i class="fa fa-calendar-check-o" /> 6 DÍAS </span>
+                                            <span t-else=""
+                                                style="background: rgba(255,255,255,0.3); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold;">
+                                                <i class="fa fa-calendar-o" /> 5 DÍAS </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Body -->
+                                <div
+                                    style="padding: 20px; background: white; position: relative; z-index: 1;">
+                                    <!-- Horas semanales destacadas -->
+                                    <div style="text-align: center; margin-bottom: 20px;">
+                                        <div
+                                            style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px 30px; border-radius: 12px; box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);">
+                                            <div
+                                                style="font-size: 48px; font-weight: bold; line-height: 1;">
+                                                <field name="max_hours_per_week" />
+                                            </div>
+                                            <div
+                                                style="font-size: 14px; opacity: 0.9; margin-top: 4px; letter-spacing: 1px;">
+                                                HORAS/SEMANA
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Grid de información -->
+                                    <div
+                                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                                        <!-- Horas por día -->
+                                        <div
+                                            style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); padding: 12px; border-radius: 8px;">
+                                            <div
+                                                style="display: flex; align-items: center; margin-bottom: 4px;">
+                                                <i class="fa fa-clock-o"
+                                                    style="font-size: 18px; color: #667eea; margin-right: 8px;" />
+                                                <strong style="font-size: 12px; color: #555;">
+                                                    Horas/Día</strong>
+                                            </div>
+                                            <div
+                                                style="font-size: 24px; font-weight: bold; color: #333;">
+                                                <field name="hours_per_day" /> h </div>
+                                        </div>
+
+                                        <!-- Horas mensuales -->
+                                        <div
+                                            style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 12px; border-radius: 8px;">
+                                            <div
+                                                style="display: flex; align-items: center; margin-bottom: 4px;">
+                                                <i class="fa fa-calendar"
+                                                    style="font-size: 18px; color: #f5576c; margin-right: 8px;" />
+                                                <strong style="font-size: 12px; color: #555;">A
+                                                    Pagar</strong>
+                                            </div>
+                                            <div
+                                                style="font-size: 24px; font-weight: bold; color: #333;">
+                                                <field name="hours_to_pay" /> h </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Horario de trabajo -->
+                                    <div
+                                        style="background: #f8f9fa; padding: 14px; border-radius: 8px; border-left: 4px solid #667eea;">
+                                        <div style="margin-bottom: 8px;">
+                                            <strong style="color: #667eea; font-size: 13px;">
+                                                <i class="fa fa-sun-o" /> JORNADA LABORAL </strong>
+                                        </div>
+                                        <div
+                                            style="display: flex; align-items: center; justify-content: space-between; font-size: 16px; font-weight: 600; color: #333;">
+                                            <span>
+                                                <field name="work_start_time" widget="float_time" />
+                                            </span>
+                                            <span style="color: #999;">→</span>
+                                            <span style="color: #f5576c;">
+                                                <i class="fa fa-cutlery" style="font-size: 14px;" />
+                                                <field name="lunch_start_time" widget="float_time" />
+                                            </span>
+                                            <span style="color: #999;">→</span>
+                                            <span>
+                                                <field name="work_end_time" widget="float_time" />
+                                            </span>
+                                        </div>
+                                        <div
+                                            style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
+                                            <i class="fa fa-coffee" /> Almuerzo: <strong>
+                                                <field name="lunch_duration_hours" /> h</strong> ( <field
+                                                name="lunch_start_time" widget="float_time" /> - <field
+                                                name="lunch_end_time" widget="float_time" /> ) </div>
+                                    </div>
+
+                                    <!-- Fecha efectiva -->
+                                    <div
+                                        style="margin-top: 12px; text-align: center; padding-top: 12px; border-top: 1px solid #e0e0e0;">
+                                        <span style="font-size: 12px; color: #666;">
+                                            <i class="fa fa-check-circle" style="color: #28a745;" />
+                                            Vigente desde: <strong>
+                                                <field name="effective_date" />
+                                            </strong>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="view_hr_company_working_hours_form" model="ir.ui.view">
+            <field name="name">hr.company.working.hours.form</field>
+            <field name="model">hr.company.working.hours</field>
+            <field name="arch" type="xml">
+                <form string="Horas Laborales por Empresa">
+                    <header>
+                        <button name="action_create_resource_calendar"
+                            string="Generar Calendario de Trabajo" type="object"
+                            class="oe_highlight" icon="fa-calendar" groups="hr.group_hr_manager"
+                            help="Crea automáticamente un resource.calendar con los turnos de trabajo configurados" />
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1" />
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="company_id" options="{'no_create': True}"
+                                    groups="base.group_multi_company" />
+                                <field name="year" />
+                                <field name="month" />
+                                <field name="effective_date" />
+                            </group>
+                            <group>
+                                <field name="max_hours_per_week" />
+                                <field name="hours_per_month" />
+                                <field name="hours_to_pay" />
+                                <field name="annual_parameter_id" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Configuración de Horario Semanal" name="weekly_schedule">
+                                <div class="alert alert-info mb-3" role="alert">
+                                    <p>
+                                        <i class="fa fa-info-circle" />
+                    <strong>Información:</strong>
+                                        Configure el horario de trabajo diario incluyendo almuerzo y
+                                        días laborales.</p>
+                                </div>
+                                <group>
+                                    <group string="Horario de Trabajo">
+                                        <field name="work_start_time" widget="float_time" />
+                                        <field name="work_end_time" widget="float_time" />
+                                        <field name="hours_per_day" />
+                                    </group>
+                                    <group string="Horario de Almuerzo">
+                                        <field name="lunch_start_time" widget="float_time" />
+                                        <field name="lunch_end_time" widget="float_time" />
+                                        <field name="lunch_duration_hours" />
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Días Laborales">
+                                        <field name="works_saturday" />
+                                        <label for="works_saturday" string="" />
+                                        <div class="text-muted" colspan="2">
+                                            <small>
+                                                <ul>
+                                                    <li>
+                                                        <strong>Lunes a Viernes:</strong> Siempre
+                                                        laborales</li>
+                                                    <li>
+                                                        <strong>Sábado:</strong> Laboral solo si
+                                                        está marcado</li>
+                                                    <li>
+                                                        <strong>Domingo:</strong> Siempre descanso</li>
+                                                </ul>
+                                            </small>
+                                        </div>
+                                    </group>
+                                    <group string="Resumen Calculado">
+                                        <field name="works_saturday" />
+                                        <field name="hours_per_day" readonly="1" />
+                                    </group>
+                                </group>
+                                <separator string="Ejemplo de Jornada Diaria" />
+                                <group>
+                                    <div class="alert alert-primary" role="alert" colspan="2">
+                                        <h5>
+                                            <i class="fa fa-clock-o" /> Horario de trabajo:</h5>
+                                        <p style="font-size: 16px; line-height: 2;">
+                                            <strong>
+                                                <field name="work_start_time" widget="float_time"
+                                                    readonly="1" />
+                                            </strong>
+                                            → Trabajo → <strong>
+                                                <field name="lunch_start_time" widget="float_time"
+                                                    readonly="1" />
+                                            </strong>
+                        <br />
+                        <strong>
+                                                <field name="lunch_start_time" widget="float_time"
+                                                    readonly="1" />
+                                            </strong>
+                                            → Almuerzo (<field name="lunch_duration_hours"
+                                                readonly="1" /> horas) → <strong>
+                                                <field name="lunch_end_time" widget="float_time"
+                                                    readonly="1" />
+                                            </strong>
+                    <br />
+                    <strong>
+                                                <field name="lunch_end_time" widget="float_time"
+                                                    readonly="1" />
+                                            </strong>
+                                            → Trabajo → <strong>
+                                                <field name="work_end_time" widget="float_time"
+                                                    readonly="1" />
+                                            </strong>
+                                        </p>
+                                    </div>
+                                </group>
+                            </page>
+                            <page string="Notas" name="notes">
+                                <group>
+                                    <field name="notes" nolabel="1"
+                                        placeholder="Observaciones adicionales..." />
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="form_lavish_retirement_severance_pay" model="ir.ui.view">
+            <field name="name">Carta retiro de cesantías form</field>
+            <field name="model">lavish.retirement.severance.pay</field>
+            <field name="arch" type="xml">
+                <form string="Generar Carta para retiro de cesantías">
+                    <sheet>
+                        <group>
+                            <group string="Información del Contrato">
+                                <field name="contract_id" readonly="1" force_save="1" />
+                                <field name="contrib_id" invisible="1" />
+                                <field name="directed_to" />
+                            </group>
+                            <group string="Tipo de Retiro">
+                                <field name="withdrawal_type" widget="radio" />
+                                <field name="withdrawal_concept_partial"
+                                    invisible="withdrawal_type != 'partial'" />
+                                <field name="withdrawal_concept_total"
+                                    invisible="withdrawal_type != 'termination'" />
+                                <field name="withdrawal_value"
+                                    invisible="withdrawal_type != 'partial'" />
+                            </group>
+                        </group>
+                        <group string="Estilo del Documento">
+                            <group>
+                                <field name="document_style" widget="radio"
+                                    options="{'horizontal': true}" />
+                            </group>
+                            <group>
+                                <div class="alert alert-light small" role="alert">
+                                    <strong>Estilos:</strong> Clásico (azul), Moderno (púrpura),
+                                    Formal (dorado), Minimalista (B/N), Corporativo (azul inst.) </div>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button string="Generar Carta" name="generate_report_severance_pay"
+                            type="object" class="btn-primary" />
+                        <button string="Cancelar" class="btn-secondary" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_lavish_hr_employee_form_salary_rule" model="ir.ui.view">
+            <field name="name">hr.salary.rule.lavish.hr.employee.form.inherit</field>
+            <field name="model">hr.salary.rule</field>
+            <field name="priority">20</field>
+            <field name="inherit_id" ref="hr_payroll.hr_salary_rule_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='condition_python']" position="attributes">
+                    <attribute name="widget">ace</attribute>
+                    <attribute name="options">{'mode': 'python'}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount_python_compute']" position="attributes">
+                    <attribute name="widget">ace</attribute>
+                    <attribute name="options">{'mode': 'python'}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount_python_compute']" position="after">
+                    <div class="alert alert-info mt16" role="alert" style="margin-top:10px;">
+                        <h6>
+                            <i class="fa fa-info-circle" /> Variables Disponibles en Contexto Python</h6>
+                        <p style="margin-bottom:8px; font-size:12px;">Estas son las variables que
+                            puedes usar directamente en el código de la regla:</p>
+
+                        <table class="table table-sm table-bordered"
+                            style="font-size:11px; margin-bottom:0;">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:25%">Variable</th>
+                                    <th style="width:20%">Tipo</th>
+                                    <th>Ejemplo de Uso (Campos Reales)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <code>employee</code>
+                                    </td>
+                                    <td>hr.employee</td>
+                                    <td>
+                                        <code>employee.name</code> - Nombre completo<br />
+            <code>
+                                        employee.identification_id</code> - Cédula<br />
+        <code>
+                                        employee.work_email</code> - Email corporativo<br />
+    <code>employee._prima(localdict,
+                                        categories, date_from, date_to)</code>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>contract</code>
+                                    </td>
+                                    <td>hr.contract</td>
+                                    <td>
+                                        <code>contract.wage</code> - Salario básico<br />
+<code>
+                                        contract.transporte</code> - Auxilio transporte<br />
+<code>
+                                        contract.tipo_salario</code> - 'ordinario' o 'integral'<br />
+<code>
+                                        contract.date_start</code> - Fecha inicio contrato </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>payslip</code>
+                                    </td>
+                                    <td>hr.payslip</td>
+                                    <td>
+                                        <code>payslip.date_from</code> - Fecha inicio nómina<br />
+<code>
+                                        payslip.date_to</code> - Fecha fin nómina<br />
+<code>
+                                        payslip.struct_id.name</code> - Tipo de nómina<br />
+<code>
+                                        payslip.company_id.name</code> - Compañía </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>categories</code>
+                                    </td>
+                                    <td>CategoryCollection</td>
+                                    <td>
+                                        <code>categories.get('BASIC').total</code> - Total categoría
+                                        BASIC<br />
+<code>categories.get_total(['DEV_SALARIAL'])</code>
+                                        - Devengos salariales<br />
+<code>categories['HEYREC'].rules</code>
+                                        - Reglas de horas extra </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>rules</code>
+                                    </td>
+                                    <td>RulesCollection</td>
+                                    <td>
+                                        <code>rules.get('BASIC').total</code> - Total salario básico<br />
+<code>rules.get('IBD').extra_data.get('ibc_final',
+                                        0)</code> - IBC<br />
+<code>
+                                        rules.filter_rules(base_prima=True)</code> - Reglas base
+                                        prima </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>worked_days</code>
+                                    </td>
+                                    <td>dict</td>
+                                    <td>
+                                        <code>worked_days.get('WORK100').number_of_days</code> -
+                                        Días trabajados<br />
+<code>
+                                        worked_days.get('WORK100').number_of_hours</code> - Horas
+                                        trabajadas<br />
+<code>worked_days.get('VAC').number_of_days</code>
+                                        - Días de vacaciones </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>inputs</code>
+                                    </td>
+                                    <td>dict</td>
+                                    <td>
+                                        <code>inputs.get('COMISION').amount</code> - Comisiones<br />
+<code>
+                                        inputs.get('BONIFICACION').amount</code> - Bonificaciones<br />
+<code>
+                                        inputs.get('PRESTAMO').amount</code> - Descuento préstamo </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>annual_parameters</code>
+                                    </td>
+                                    <td>hr.annual.parameters</td>
+                                    <td>
+                                        <code>annual_parameters.smmlv_monthly</code> - Salario
+                                        mínimo<br />
+<code>
+                                        annual_parameters.transportation_assistance_monthly</code> -
+                                        Aux. transporte<br />
+<code>
+                                        annual_parameters.value_porc_health_employee</code> - %
+                                        Salud </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <code>localdict</code>
+                                    </td>
+                                    <td>dict</td>
+                                    <td> Diccionario completo con todas las variables: <code>
+                                        localdict['employee']</code>, <code>localdict['contract']</code>
+                                        ,<code>localdict['categories']</code>, etc. </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p style="margin:8px 0 0 0; font-size:11px;">
+                            <strong>Nota:</strong> El resultado debe asignarse a <code>result</code>
+                            ,<code>cantidad</code> y <code>rate</code>. </p>
+
+                        <details style="margin-top:10px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#e3f2fd; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-code" /> Ejemplo 1: Sumar total de categoría
+                                DEV_SALARIAL </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#aed581; padding:8px; border-radius:3px;">
+                                    # Obtener total de categoría DEV_SALARIAL
+                                    dev_salarial = categories.get_total('DEV_SALARIAL')
+
+                                    result = dev_salarial
+                                    cantidad = 30
+                                    rate = 100</code>
+                            </div>
+                        </details>
+
+                        <details style="margin-top:8px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#fff3e0; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-filter" /> Ejemplo 2: Sumar reglas específicas con
+                                filtros </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#81d4fa; padding:8px; border-radius:3px;">
+                                    # Sumar varias reglas filtrando por códigos
+                                    total, cant, rate_val, html =
+                                    employee._calculate_total_from_rules( localdict=localdict,
+                                    categories=categories, filters={
+                                    'rules': ['BASIC', 'HEYREC', 'COMIS'], # Solo estas reglas
+                                    'exclude_rules': ['PRESTAMO'] # Excluir préstamos
+                                    }
+                                    )
+
+                                    result = total
+                                    cantidad = cant
+                                    rate = rate_val</code>
+                            </div>
+                        </details>
+
+                        <details style="margin-top:8px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#e8f5e9; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-file-text-o" /> Ejemplo 3: Obtener datos del
+                                contrato </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#a5d6a7; padding:8px; border-radius:3px;">
+                                    # Salario básico del contrato
+                                    salario = contract.wage
+
+                                    # Auxilio de transporte
+                                    aux_transporte = contract.transporte
+
+                                    # Tipo de salario (ordinario o integral)
+                                    es_integral = contract.tipo_salario == 'integral'
+
+                                    # Usar en cálculo
+                                    if es_integral:
+                                    result = salario * 0.30 # 30% factor prestacional
+                                    else:
+                                    result = salario
+
+                                    cantidad = 30
+                                    rate = 100</code>
+                            </div>
+                        </details>
+
+                        <details style="margin-top:8px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#f3e5f5; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-calculator" /> Ejemplo 4: Usar datos de regla IBD ya
+                                calculada </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#ce93d8; padding:8px; border-radius:3px;">
+                                    # Obtener datos de la regla IBD (Ingreso Base Deducción)
+                                    ibd_rule = rules.get('IBD')
+
+                                    if ibd_rule:
+                                    # Total de IBD
+                                    total_ibd = ibd_rule.total
+
+                                    # Datos extra guardados por IBD
+                                    ibc_final = ibd_rule.extra_data.get('ibc_final', 0)
+                                    vac_monto = ibd_rule.extra_data.get('vac_monto', 0)
+                                    vac_dias = ibd_rule.extra_data.get('vac_dias', 0)
+
+                                    # Usar en cálculo (ejemplo: salud empleado)
+                                    result = total_ibd + ibc_final - vac_monto
+                                    cantidad = 30
+                                    rate = 4.0 # 4% salud empleado
+                                    else:
+                                    result = 0
+                                    cantidad = 0
+                                    rate = 0</code>
+                            </div>
+                        </details>
+
+                        <details style="margin-top:8px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#fff9c4; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-calendar" /> Ejemplo 5: Obtener valores del mes
+                                anterior </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#ffeb3b; padding:8px; border-radius:3px;">
+                                    # Obtener valor de regla IBC del mes anterior
+                                    ibc_anterior = employee._get_value_from_previous_month(
+                                    payslip=payslip, rule_code='IBC', months_back=1 # 1 mes atrás
+                                    )
+
+                                    # O total de categoría del mes anterior
+                                    dev_anterior = employee._get_value_from_previous_month(
+                                    payslip=payslip, category_code='DEV', months_back=1
+                                    )
+
+                                    result = ibc_anterior
+                                    cantidad = 30
+                                    rate = 100</code>
+                            </div>
+                        </details>
+
+                        <details style="margin-top:8px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#ffebee; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-clock-o" /> Ejemplo 6: Calcular días en rango de
+                                fechas </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#ef9a9a; padding:8px; border-radius:3px;">
+                                    # Calcular días entre dos fechas
+                                    from datetime import datetime
+
+                                    fecha_inicio = payslip.date_from
+                                    fecha_fin = payslip.date_to
+
+                                    # Días totales del período
+                                    dias_periodo = (fecha_fin - fecha_inicio).days + 1
+
+                                    # Calcular proporcional
+                                    result = (contract.wage / 30) * dias_periodo
+                                    cantidad = dias_periodo
+                                    rate = (dias_periodo / 30) * 100</code>
+                            </div>
+                        </details>
+
+                        <details style="margin-top:8px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#e0f7fa; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-tree" /> Ejemplo 7: Acceder a regla ya calculada </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#80deea; padding:8px; border-radius:3px;">
+                                    # Obtener regla BASIC ya calculada
+                                    basic_rule = rules.get('BASIC')
+
+                                    if basic_rule:
+                                    # Acceder a sus valores
+                                    valor_basic = basic_rule.total
+                                    dias_basic = basic_rule.quantity
+
+                                    # Calcular 15% del salario básico
+                                    result = valor_basic * 0.15
+                                    cantidad = dias_basic
+                                    rate = 15.0
+                                    else:
+                                    result = 0
+                                    cantidad = 0
+                                    rate = 0</code>
+                            </div>
+                        </details>
+
+                        <details style="margin-top:8px;">
+                            <summary
+                                style="cursor:pointer; padding:6px; background-color:#fce4ec; border-radius:3px; font-weight:bold; font-size:12px;">
+                                <i class="fa fa-briefcase" /> Ejemplo 8: Usar días trabajados
+                                (worked_days) </summary>
+                            <div
+                                style="padding:8px; background-color:#f5f5f5; margin-top:5px; font-size:11px;">
+                                <code
+                                    style="display:block; white-space:pre; font-family:monospace; background:#263238; color:#f48fb1; padding:8px; border-radius:3px;">
+                                    # Obtener días trabajados del registro WORK100
+                                    if 'WORK100' in worked_days:
+                                    dias = worked_days['WORK100'].number_of_days
+                                    else:
+                                    dias = 30
+
+                                    # Calcular salario proporcional
+                                    result = (contract.wage / 30) * dias
+                                    cantidad = dias
+                                    rate = (dias / 30) * 100</code>
+                            </div>
+                        </details>
+                    </div>
+                </xpath>
+
+                <xpath expr="//form[1]/sheet[1]/group[1]" position="attributes">
+                    <attribute name="row">8</attribute>
+                    <attribute name="string">Master</attribute>
+                </xpath>
+                <xpath expr="//form[1]/sheet[1]/group[1]" position="after">
+                    <group colspan="12">
+                        <group string="Naturaleza">
+                            <field name="dev_or_ded" widget="radio" />
+                            <field name="deduction_applies_bonus"
+                                invisible="dev_or_ded != 'deduccion'" />
+                            <field name="is_leave" />
+                            <field name="is_recargo" />
+                        </group>
+                        <group string="Tipos de conceptos">
+                            <field name="type_concepts" />
+                            <field name="account_tax_id" />
+                            <field name="aplicar_cobro"
+                                invisible="type_concepts not in ['ley','novedad','provision']" />
+                            <field name="provision_formula_mode"
+                                invisible="type_concepts != 'provision'" />
+                            <field name="modality_value" widget="radio" />
+                            <field name="novedad_ded" widget="radio" />
+                        </group>
+                        <group string="Tipos Detalle">
+                            <!-- employee_type_domain: lista separada por comas (ej:
+                            employee,contractor) -->
+                            <field name="employee_type_domain"
+                                placeholder="employee,contractor,freelance" />
+                            <field name="process" />
+                            <field name="proyectar_nom" />
+                            <field name="proyectar_ret" />
+                            <field name="deduct_deductions" widget="radio"
+                                invisible="is_leave ==  False" />
+                        </group>
+                    </group>
+                </xpath>
+                <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
+                    <page string="Conf. Adicional" name="conf_aditional">
+                        <group>
+                            <group name="base_prestaciones" string="Base de Prestaciones">
+                                <field name="base_prima" />
+                                <field name="base_cesantias" />
+                                <field name="base_intereses_cesantias" />
+                                <field name="base_vacaciones" />
+                                <field name="base_vacaciones_dinero" />
+                                <field name="vaccontrato_sin_factor_15"
+                                    invisible="code != 'VACCONTRATO'" />
+                                <field name="base_compensation" />
+                                <field name="base_auxtransporte_tope" />
+                                <field name="excluir_auxtransporte_tope" />
+                                <separator string="Clasificacion para Promedio" colspan="2" />
+                                <field name="es_auxilio_transporte" />
+                                <div colspan="2" class="alert alert-info" role="alert"
+                                    style="margin-top:5px; font-size:11px;">
+                                    <strong>Nota:</strong> Para el calculo de prestaciones con
+                                    auxilio variable:<br /> - Los conceptos de categoria <strong>AUX</strong>
+                                    seran tratados automaticamente como auxilio de transporte.<br />
+                                    - Los conceptos marcados como "Es Auxilio de Transporte" tambien
+                                    seran tratados como auxilio.<br /> - Los conceptos de categoria <strong>
+                                    BASIC</strong> se tratan como sueldo fijo.<br /> Cuando
+                                    modality_aux=variable, el auxilio se promedia como concepto
+                                    variable (igual que comisiones). </div>
+                            </group>
+                            <group name="base_seguridad_social" string="Seguridad Social">
+                                <field name="base_seguridad_social" />
+                                <field name="base_arl" />
+                                <field name="base_parafiscales" />
+                                <field name="base_horas_extras" />
+                                <field name="excluir_seguridad_social" />
+                                <field name="excluir_40_porciento_ss" />
+                                <separator string="Salario Integral" colspan="2" />
+                                <field name="aplica_factor_integral" />
+                                <div colspan="2" class="alert alert-warning" role="alert"
+                                    style="margin-top:5px; font-size:11px;">
+                                    <strong>Factor 70% Salario Integral (Art. 132 CST):</strong>
+<br />
+                                    - La categoría <strong>BASIC</strong> aplica el factor 70%
+                                    automáticamente.<br /> - Marcar este campo para otros conceptos
+                                    que también deben aplicar el 70%.<br /> -<strong>NO marcar</strong>
+                                    para: comisiones, bonificaciones, horas extras.<br />
+<em>Ejemplo:
+                                    Sal. Integral $10M (70%) + Comisiones $2M (100%) = IBC $9M</em>
+                                </div>
+                            </group>
+                        </group>
+                        <group>
+                            <group name="opciones_calculo" string="Opciones de Calculo">
+                                <field name="rounding_method" />
+                                <field name="descontar_suspensiones" />
+                                <field name="liquidar_con_base" />
+                            </group>
+                            <group name="opciones_retencion" string="Retencion y Proyeccion">
+                                <field name="excluir_ret" />
+                                <field name="is_projectable_rtf" />
+                            </group>
+                        </group>
+                        <group>
+                            <group name="reportes" string="Reportes y Archivos">
+                                <field name="short_name" />
+                                <field name="display_days_worked" />
+                                <field name="not_include_flat_payment_file" />
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='description']" position="after">
+                    <page string="Contabilidad" name="accounting-ext">
+                        <field name="salary_rule_accounting" nolabel="1">
+                            <list string="Configuracion" editable="bottom">
+                                <field name="department_id" />
+                                <field name="company_id" />
+                                <field name="work_location_id" />
+                                <field name="third_debit" />
+                                <field name="debit_account_id" />
+                                <field name="third_credit" />
+                                <field name="credit_account_id" />
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_lavish_hr_salary_rule_list" model="ir.ui.view">
+            <field name="name">hr.salary.rule.lavish.tree</field>
+            <field name="model">hr.salary.rule</field>
+            <field name="inherit_id" ref="hr_payroll.hr_salary_rule_list" />
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="decoration-info">type_concepts == 'novedad'</attribute>
+                    <attribute name="decoration-success">type_concepts == 'sueldo' or type_concepts == 'prestacion'</attribute>
+                    <attribute name="decoration-warning">type_concepts == 'provision'</attribute>
+                    <attribute name="decoration-danger">type_concepts == 'consolidacion' or type_concepts == 'tributaria'</attribute>
+                    <attribute name="decoration-muted">not active</attribute>
+                </xpath>
+                <xpath expr="//field[@name='sequence']" position="attributes">
+                    <attribute name="column_invisible">False</attribute>
+                    <attribute name="optional">show</attribute>
+                </xpath>
+                <xpath expr="//field[@name='struct_id']" position="attributes">
+                    <attribute name="column_invisible">False</attribute>
+                    <attribute name="optional">show</attribute>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="type_concepts" optional="show" />
+                    <field name="dev_or_ded" optional="show" />
+                    <field name="process" optional="hide" />
+                    <field name="modality_value" optional="hide" />
+                    <field name="aplicar_cobro" optional="hide" />
+                    <field name="condition_select" optional="hide" />
+                    <field name="amount_select" optional="hide" />
+                    <field name="is_leave" optional="hide" />
+                    <field name="is_recargo" optional="hide" />
+                    <field name="base_seguridad_social" optional="hide" />
+                    <field name="base_prima" optional="hide" />
+                    <field name="base_cesantias" optional="hide" />
+                    <field name="appears_on_payslip" optional="hide" />
+                    <field name="active" optional="hide" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_lavish_hr_salary_rule_search" model="ir.ui.view">
+            <field name="name">hr.salary.rule.lavish.search</field>
+            <field name="model">hr.salary.rule</field>
+            <field name="inherit_id" ref="hr_payroll.view_hr_rule_filter" />
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <!-- Campos de busqueda adicionales -->
+                <xpath expr="//field[@name='struct_id']" position="after">
+                    <field name="type_concepts" />
+                    <field name="dev_or_ded" />
+                    <field name="process" />
+                    <field name="short_name" />
+                </xpath>
+
+                <!-- Filtros rapidos -->
+                <xpath expr="//filter[@name='archived']" position="before">
+                    <separator />
+                    <!-- Naturaleza -->
+                    <filter string="Devengos" name="filter_devengos"
+                        domain="[('dev_or_ded', '=', 'devengo')]" />
+                    <filter string="Deducciones" name="filter_deducciones"
+                        domain="[('dev_or_ded', '=', 'deduccion')]" />
+                    <separator />
+                    <!-- Proceso -->
+                    <filter string="Nomina" name="filter_nomina"
+                        domain="[('process', '=', 'nomina')]" />
+                    <filter string="Vacaciones" name="filter_vacaciones"
+                        domain="[('process', '=', 'vacaciones')]" />
+                    <filter string="Prima" name="filter_prima_proc"
+                        domain="[('process', '=', 'prima')]" />
+                    <filter string="Cesantias" name="filter_cesantias_proc"
+                        domain="[('process', '=', 'cesantias')]" />
+                    <filter string="Liquidacion" name="filter_liquidacion"
+                        domain="[('process', '=', 'contrato')]" />
+                    <separator />
+                    <!-- Tipo concepto -->
+                    <filter string="Sueldo" name="filter_sueldo"
+                        domain="[('type_concepts', '=', 'sueldo')]" />
+                    <filter string="Fijo contrato" name="filter_contrato_type"
+                        domain="[('type_concepts', '=', 'contrato')]" />
+                    <filter string="Ley/Ausencias" name="filter_ley"
+                        domain="[('type_concepts', '=', 'ley')]" />
+                    <filter string="Novedad" name="filter_novedad"
+                        domain="[('type_concepts', '=', 'novedad')]" />
+                    <filter string="Prestacion" name="filter_prestacion"
+                        domain="[('type_concepts', '=', 'prestacion')]" />
+                    <filter string="Provision" name="filter_provision"
+                        domain="[('type_concepts', '=', 'provision')]" />
+                    <filter string="Totalizador" name="filter_totalizador"
+                        domain="[('type_concepts', '=', 'consolidacion')]" />
+                    <filter string="Seg. social" name="filter_ss"
+                        domain="[('type_concepts', '=', 'seguridad_social')]" />
+                    <filter string="Parafiscales" name="filter_parafiscal"
+                        domain="[('type_concepts', '=', 'parafiscal')]" />
+                    <filter string="Tributaria" name="filter_tributaria"
+                        domain="[('type_concepts', '=', 'tributaria')]" />
+                    <separator />
+                    <!-- Caracteristicas especiales -->
+                    <filter string="Ausencia" name="filter_leave" domain="[('is_leave', '=', True)]" />
+                    <filter string="Recargo/HE" name="filter_recargo"
+                        domain="[('is_recargo', '=', True)]" />
+                    <separator />
+                    <!-- Bases de calculo -->
+                    <filter string="Base SS" name="filter_base_ss"
+                        domain="[('base_seguridad_social', '=', True)]" />
+                    <filter string="Base Prima" name="filter_base_prima"
+                        domain="[('base_prima', '=', True)]" />
+                    <filter string="Base Cesantias" name="filter_base_cesantias"
+                        domain="[('base_cesantias', '=', True)]" />
+                    <filter string="Base Vacaciones" name="filter_base_vac"
+                        domain="[('base_vacaciones', '=', True)]" />
+                    <filter string="Base Parafiscales" name="filter_base_paraf"
+                        domain="[('base_parafiscales', '=', True)]" />
+                    <filter string="Base Horas Extras" name="filter_base_he"
+                        domain="[('base_horas_extras', '=', True)]" />
+                    <separator />
+                    <!-- Quincena -->
+                    <filter string="1ra Quincena" name="filter_q1"
+                        domain="[('aplicar_cobro', '=', '15')]" />
+                    <filter string="2da Quincena" name="filter_q2"
+                        domain="[('aplicar_cobro', '=', '30')]" />
+                    <filter string="Siempre" name="filter_siempre"
+                        domain="[('aplicar_cobro', '=', '0')]" />
+                    <separator />
+                    <!-- Visibilidad y config -->
+                    <filter string="Visible nomina" name="filter_appears"
+                        domain="[('appears_on_payslip', '=', True)]" />
+                    <filter string="Con contabilidad" name="filter_accounting"
+                        domain="[('salary_rule_accounting', '!=', False)]" />
+                    <separator />
+                </xpath>
+
+                <!-- Agrupaciones adicionales -->
+                <xpath expr="//filter[@name='group_by_struct_id']" position="after">
+                    <filter string="Tipo concepto" name="group_type_concepts"
+                        context="{'group_by': 'type_concepts'}" />
+                    <filter string="Devengo/Deduccion" name="group_dev_ded"
+                        context="{'group_by': 'dev_or_ded'}" />
+                    <filter string="Proceso" name="group_process" context="{'group_by': 'process'}" />
+                    <filter string="Modalidad" name="group_modality"
+                        context="{'group_by': 'modality_value'}" />
+                    <filter string="Quincena" name="group_quincena"
+                        context="{'group_by': 'aplicar_cobro'}" />
+                    <filter string="Categoria" name="group_category"
+                        context="{'group_by': 'category_id'}" />
+                    <filter string="Condicion" name="group_condition"
+                        context="{'group_by': 'condition_select'}" />
+                    <filter string="Calculo" name="group_amount"
+                        context="{'group_by': 'amount_select'}" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_hr_indicador_especial_pila_tree" model="ir.ui.view">
+            <field name="name">hr.indicador.especial.pila.tree</field>
+            <field name="model">hr.indicador.especial.pila</field>
+            <field name="arch" type="xml">
+                <list string="Indicadores Especiales PILA">
+                    <field name="code" />
+                    <field name="name" />
+                    <field name="porc_pension_total" />
+                    <field name="porc_salud_total" />
+                    <field name="dias_vacaciones" />
+                    <field name="dias_prima" />
+                    <field name="dias_cesantias" />
+                    <field name="base_dias_prestaciones" />
+                    <field name="aplica_fsp" />
+                    <field name="active" />
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hr_indicador_especial_pila_form" model="ir.ui.view">
+            <field name="name">hr.indicador.especial.pila.form</field>
+            <field name="model">hr.indicador.especial.pila</field>
+            <field name="arch" type="xml">
+                <form string="Indicador Especial PILA">
+                    <field name="active" invisible="1" />
+                    <sheet>
+                        <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger"
+                            invisible="active" />
+                        <div class="oe_button_box" name="button_box">
+</div>
+                        <group>
+                            <group string="Informacion General">
+                                <field name="code" />
+                                <field name="name" />
+                                <field name="normativa" />
+                            </group>
+                            <group string="Configuracion Especial">
+                                <field name="aplica_fsp" />
+                                <field name="es_subsidiado" />
+                                <field name="porc_subsidio" invisible="not es_subsidiado" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Tarifas Pension" name="pension">
+                                <group>
+                                    <group string="Tarifa Total">
+                                        <field name="porc_pension_total" />
+                                        <field name="porc_pension_adicional" />
+                                    </group>
+                                    <group string="Distribucion">
+                                        <field name="porc_pension_empleado" />
+                                        <field name="porc_pension_empresa" />
+                                    </group>
+                                </group>
+                                <div class="alert alert-info" role="alert">
+                                    <strong>Nota:</strong> La tarifa empresa se calcula
+                                    automaticamente como: Tarifa Total - Tarifa Empleado </div>
+                            </page>
+                            <page string="Tarifas Salud" name="salud">
+                                <group>
+                                    <group string="Tarifa Total">
+                                        <field name="porc_salud_total" />
+                                    </group>
+                                    <group string="Distribucion">
+                                        <field name="porc_salud_empleado" />
+                                        <field name="porc_salud_empresa" />
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Prestaciones Sociales" name="prestaciones">
+                                <group string="Configuracion General">
+                                    <group>
+                                        <field name="base_dias_prestaciones" />
+                                    </group>
+                                    <group>
+                                        <field name="paga_auxilio_transporte" />
+                                        <field name="incluye_aux_transporte_prestaciones" />
+                                    </group>
+                                </group>
+                                <group string="Vacaciones">
+                                    <group>
+                                        <field name="paga_vacaciones" />
+                                        <field name="dias_vacaciones"
+                                            invisible="not paga_vacaciones" />
+                                    </group>
+                                    <group>
+                                        <field name="base_dias_vacaciones"
+                                            invisible="not paga_vacaciones" />
+                                    </group>
+                                </group>
+                                <group string="Prima de Servicios">
+                                    <group>
+                                        <field name="paga_prima" />
+                                        <field name="dias_prima" invisible="not paga_prima" />
+                                    </group>
+                                    <group>
+                                        <field name="base_dias_prima" invisible="not paga_prima" />
+                                    </group>
+                                </group>
+                                <group string="Cesantias">
+                                    <group>
+                                        <field name="paga_cesantias" />
+                                        <field name="dias_cesantias" invisible="not paga_cesantias" />
+                                    </group>
+                                    <group>
+                                        <field name="base_dias_cesantias"
+                                            invisible="not paga_cesantias" />
+                                    </group>
+                                </group>
+                                <group string="Intereses de Cesantias">
+                                    <group>
+                                        <field name="paga_intereses_cesantias" />
+                                        <field name="porc_intereses_cesantias"
+                                            invisible="not paga_intereses_cesantias" />
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Descripcion" name="descripcion">
+                                <field name="descripcion"
+                                    placeholder="Descripcion detallada del indicador especial y su normativa aplicable..." />
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

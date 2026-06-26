@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="lavish_erp.AddressBuilderButton">
+        <button t-if="isVisible"
+                type="button"
+                class="btn btn-sm btn-secondary o_address_builder_btn ms-2"
+                t-on-click="openBuilder"
+                title="Constructor de Dirección Colombiana">
+            <i class="fa fa-map-marker"/> Construir Dirección
+        </button>
+    </t>
+</templates>

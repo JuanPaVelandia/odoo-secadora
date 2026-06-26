@@ -1,0 +1,492 @@
+/**
+ * Estilos para badges y elementos de nomina.
+ * Reemplaza estilos inline en payslip_run_summary.xml
+ */
+
+// === VARIABLES DE COLOR (Material Design) ===
+$color-basic: #43A047;
+$color-transport: #66BB6A;
+$color-overtime: #26A69A;
+$color-vacation: #42A5F5;
+$color-absence: #42A5F5;
+$color-disability: #FF7043;
+$color-earnings: #4CAF50;
+$color-deductions: #EF5350;
+$color-social-security: #EF5350;
+$color-retention: #FF7043;
+$color-provisions: #9C27B0;
+$color-benefits: #FF9800;
+$color-net: #3949AB;
+$color-muted: #9E9E9E;
+$color-border: #E0E0E0;
+$color-text-primary: #212121;
+$color-text-secondary: #757575;
+$color-indigo: #5C6BC0;
+
+// === BADGES DE ESTADO ===
+.payslip-state {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &--draft {
+        background: #EEEEEE;
+        color: #757575;
+    }
+
+    &--verify {
+        background: #E8EAF6;
+        color: #3949AB;
+    }
+
+    &--done {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    &--paid {
+        background: #E1F5FE;
+        color: #0277BD;
+    }
+
+    &--cancel {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+}
+
+// === BADGES DE CATEGORIA ===
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+
+    &--earnings {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    &--deductions {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+
+    &--net {
+        background: #E8EAF6;
+        color: #3949AB;
+    }
+
+    &--provisions {
+        background: #F3E5F5;
+        color: #7B1FA2;
+    }
+
+    &--benefits {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+
+    &--social-security {
+        background: #FFEBEE;
+        color: #C62828;
+    }
+
+    &--retention {
+        background: #FBE9E7;
+        color: #E64A19;
+    }
+
+    &--info {
+        background: #E0F7FA;
+        color: #00838F;
+    }
+
+    &--muted {
+        background: #F5F5F5;
+        color: #616161;
+    }
+}
+
+// === BADGES DE CONTEO ===
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+
+    &--primary {
+        background: $color-indigo;
+        color: white;
+    }
+
+    &--success {
+        background: $color-earnings;
+        color: white;
+    }
+
+    &--danger {
+        background: $color-deductions;
+        color: white;
+    }
+
+    &--info {
+        background: $color-vacation;
+        color: white;
+    }
+}
+
+// === TOTALES DE NOMINA ===
+.payslip-total {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+
+    &__value {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    &__label {
+        font-size: 12px;
+        color: $color-text-secondary;
+        margin-top: 4px;
+    }
+
+    &--earnings {
+        background: #E8F5E9;
+        .payslip-total__value { color: #2E7D32; }
+    }
+
+    &--deductions {
+        background: #FFEBEE;
+        .payslip-total__value { color: #C62828; }
+    }
+
+    &--net {
+        background: #E8EAF6;
+        .payslip-total__value { color: #1A237E; }
+    }
+}
+
+// === LINEAS DE NOMINA ===
+.payslip-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #FAFAFA;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: #F5F5F5;
+    }
+
+    &__icon {
+        width: 20px;
+        color: $color-muted;
+        margin-right: 8px;
+    }
+
+    &__name {
+        flex: 1;
+        color: $color-text-primary;
+        font-weight: 500;
+    }
+
+    &__code {
+        font-size: 10px;
+        color: $color-text-secondary;
+        margin-left: 4px;
+    }
+
+    &__qty {
+        color: $color-text-secondary;
+        font-size: 11px;
+        margin-right: 12px;
+    }
+
+    &__amount {
+        font-weight: 600;
+        min-width: 100px;
+        text-align: right;
+
+        &--positive { color: #2E7D32; }
+        &--negative { color: #C62828; }
+    }
+
+    &__actions {
+        margin-left: 8px;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+
+    &:hover &__actions {
+        opacity: 1;
+    }
+}
+
+// === SECCIONES DE NOMINA ===
+.payslip-section {
+    margin-bottom: 16px;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        padding-bottom: 4px;
+        border-bottom: 1px dashed $color-border;
+    }
+
+    &__icon {
+        margin-right: 8px;
+        font-size: 14px;
+    }
+
+    &__title {
+        font-weight: 600;
+        font-size: 14px;
+        color: $color-text-primary;
+    }
+
+    &__count {
+        margin-left: auto;
+        font-size: 12px;
+        color: $color-text-secondary;
+    }
+
+    &--basic .payslip-section__icon { color: $color-basic; }
+    &--transport .payslip-section__icon { color: $color-transport; }
+    &--overtime .payslip-section__icon { color: $color-overtime; }
+    &--vacation .payslip-section__icon { color: $color-vacation; }
+    &--absence .payslip-section__icon { color: $color-absence; }
+    &--disability .payslip-section__icon { color: $color-disability; }
+    &--deductions .payslip-section__icon { color: $color-deductions; }
+    &--social-security .payslip-section__icon { color: $color-social-security; }
+    &--retention .payslip-section__icon { color: $color-retention; }
+    &--provisions .payslip-section__icon { color: $color-provisions; }
+    &--benefits .payslip-section__icon { color: $color-benefits; }
+}
+
+// === CONTROLES DE FILTRO Y BUSQUEDA ===
+.payslip-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+
+    &__select {
+        width: 200px;
+        border-color: $color-border;
+
+        &:focus {
+            border-color: $color-indigo;
+            box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.2);
+        }
+    }
+
+    &__search {
+        flex: 1;
+        max-width: 300px;
+
+        .input-group-text {
+            background: white;
+            border-color: $color-border;
+        }
+
+        input {
+            border-color: $color-border;
+
+            &:focus {
+                border-color: $color-indigo;
+                box-shadow: 0 0 0 2px rgba(92, 107, 192, 0.2);
+            }
+        }
+    }
+
+    &__btn {
+        background: white;
+        border-color: $color-border;
+        color: $color-text-secondary;
+
+        &:hover {
+            background: #F5F5F5;
+            border-color: #BDBDBD;
+        }
+
+        &--primary {
+            background: $color-indigo;
+            border-color: $color-indigo;
+            color: white;
+
+            &:hover {
+                background: darken($color-indigo, 5%);
+            }
+        }
+    }
+}
+
+// === PAGINACION ===
+.payslip-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &__info {
+        font-size: 12px;
+        color: $color-text-secondary;
+        padding: 0 8px;
+    }
+
+    &__btn {
+        background: white;
+        border-color: $color-border;
+        color: $color-text-secondary;
+
+        &:hover:not(:disabled) {
+            background: #F5F5F5;
+        }
+
+        &:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    }
+}
+
+// === CARD DE EMPLEADO ===
+.employee-card {
+    border: 1px solid $color-border;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    overflow: hidden;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        background: white;
+        cursor: pointer;
+        transition: background 0.2s;
+
+        &:hover {
+            background: #FAFAFA;
+        }
+    }
+
+    &__avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        margin-right: 12px;
+        object-fit: cover;
+    }
+
+    &__info {
+        flex: 1;
+    }
+
+    &__name {
+        font-weight: 600;
+        font-size: 14px;
+        color: $color-text-primary;
+    }
+
+    &__id {
+        font-size: 12px;
+        color: $color-text-secondary;
+    }
+
+    &__totals {
+        display: flex;
+        gap: 16px;
+        margin-left: auto;
+    }
+
+    &__total {
+        text-align: right;
+
+        &-value {
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        &-label {
+            font-size: 10px;
+            color: $color-text-secondary;
+        }
+
+        &--earnings .employee-card__total-value { color: #2E7D32; }
+        &--deductions .employee-card__total-value { color: #C62828; }
+        &--net .employee-card__total-value { color: #3949AB; }
+    }
+
+    &__expand {
+        margin-left: 16px;
+        color: $color-text-secondary;
+        transition: transform 0.2s;
+
+        &.expanded {
+            transform: rotate(180deg);
+        }
+    }
+
+    &__body {
+        padding: 16px;
+        background: #FAFAFA;
+        border-top: 1px solid $color-border;
+    }
+}
+
+// === ESTADOS VACIOS Y CARGA ===
+.payslip-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    color: $color-muted;
+
+    &__icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    &__text {
+        font-size: 14px;
+    }
+}
+
+.payslip-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+
+    &__spinner {
+        font-size: 48px;
+        color: $color-indigo;
+        margin-bottom: 16px;
+    }
+
+    &__text {
+        font-size: 14px;
+        color: $color-text-secondary;
+    }
+}

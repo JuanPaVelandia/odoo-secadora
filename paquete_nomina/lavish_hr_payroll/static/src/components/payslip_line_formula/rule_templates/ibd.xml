@@ -1,0 +1,714 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TEMPLATE: IBD - INGRESO BASE DE COTIZACIÓN
+         Base Legal: Art. 18 Ley 100/1993, Ley 1393/2010
+         ═══════════════════════════════════════════════════════════════════════ -->
+
+    <t t-name="lavish_hr_payroll.RuleTemplate.IBD">
+        <div class="plf-widget">
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 HEADER PRINCIPAL
+                 ═══════════════════════════════════════════════════════════════ -->
+            <div style="background: linear-gradient(135deg, #0EA5E9 0%, #0369A1 100%); color: white; padding: 16px; border-radius: 12px 12px 0 0;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="plf-icon" style="background: rgba(255,255,255,0.2); color: white; width: 36px; height: 36px; font-size: 16px;">
+                            <i class="fa fa-building"></i>
+                        </div>
+                        <div style="margin-left: 12px;">
+                            <div style="font-size: 16px; font-weight: 700;">INGRESO BASE DE COTIZACIÓN (IBC)</div>
+                            <div style="font-size: 11px; opacity: 0.9;">Art. 18 Ley 100/1993</div>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 24px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">
+                            <t t-esc="widget.formatValue(data.ibc_final, 'currency')"/>
+                        </div>
+                        <div style="font-size: 11px; opacity: 0.9;">
+                            <t t-esc="data.dias_efectivos"/> días
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 CONTENIDO PRINCIPAL
+                 ═══════════════════════════════════════════════════════════════ -->
+            <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-top: none; border-radius: 0 0 12px 12px;">
+
+                <!-- ───────────────────────────────────────────────────────────
+                     CASO ESPECIAL: COTIZANTE TIPO 51
+                     Res. 2388/2016 - Tiempo Parcial Regimen Subsidiado
+                     ─────────────────────────────────────────────────────────── -->
+                <t t-if="data.es_cotizante_51">
+                    <div style="background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); padding: 16px; border-bottom: 2px solid #F59E0B;">
+                        <!-- Header con badge de periodo -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="plf-icon" style="background: #F59E0B; color: white; width: 40px; height: 40px; font-size: 18px;">
+                                    <i class="fa fa-clock-o"></i>
+                                </div>
+                                <div style="margin-left: 12px;">
+                                    <div style="font-weight: 700; color: #92400E; font-size: 14px;">
+                                        Cotizante Tipo 51 - Tiempo Parcial
+                                    </div>
+                                    <div style="font-size: 11px; color: #B45309;">
+                                        Res. 2388/2016 - Regimen Subsidiado
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Badge tipo periodo -->
+                            <div t-att-style="'padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; ' + (data.cotizante_51.es_quincenal ? 'background: #7C3AED; color: white;' : 'background: #0EA5E9; color: white;')">
+                                <i t-att-class="data.cotizante_51.es_quincenal ? 'fa fa-calendar-minus-o' : 'fa fa-calendar'" style="margin-right: 6px;"></i>
+                                <t t-esc="data.cotizante_51.tipo_periodo"/>
+                                <t t-if="data.cotizante_51.es_quincenal">
+                                    <span style="margin-left: 4px; opacity: 0.9;">(<t t-esc="data.cotizante_51.quincena_actual"/>)</span>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Cards IBC Tabla vs IBC Periodo -->
+                        <div class="row g-2" style="margin-top: 14px;">
+                            <div class="col-6">
+                                <div style="background: white; border-radius: 10px; padding: 12px; border: 2px solid #FCD34D;">
+                                    <div style="font-size: 10px; font-weight: 600; color: #92400E; text-transform: uppercase; margin-bottom: 4px;">
+                                        <i class="fa fa-table" style="margin-right: 4px;"></i>
+                                        IBC Tabla (Mensual)
+                                    </div>
+                                    <div style="font-size: 18px; font-weight: 700; color: #B45309; font-family: 'JetBrains Mono', monospace;">
+                                        <t t-esc="widget.formatValue(data.cotizante_51.ibc_tabla_mensual, 'currency')"/>
+                                    </div>
+                                    <div style="font-size: 10px; color: #92400E; margin-top: 4px;">
+                                        <t t-esc="data.cotizante_51.descripcion_rango || data.tabla_aplicada"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div t-att-style="'background: white; border-radius: 10px; padding: 12px; border: 2px solid ' + (data.cotizante_51.es_quincenal ? '#7C3AED' : '#0EA5E9') + ';'">
+                                    <div t-att-style="'font-size: 10px; font-weight: 600; text-transform: uppercase; margin-bottom: 4px; color: ' + (data.cotizante_51.es_quincenal ? '#7C3AED' : '#0EA5E9') + ';'">
+                                        <i class="fa fa-check-circle" style="margin-right: 4px;"></i>
+                                        IBC Periodo
+                                    </div>
+                                    <div t-att-style="'font-size: 18px; font-weight: 700; font-family: JetBrains Mono, monospace; color: ' + (data.cotizante_51.es_quincenal ? '#7C3AED' : '#0EA5E9') + ';'">
+                                        <t t-esc="widget.formatValue(data.cotizante_51.ibc_periodo, 'currency')"/>
+                                    </div>
+                                    <div t-att-style="'font-size: 10px; margin-top: 4px; color: ' + (data.cotizante_51.es_quincenal ? '#6D28D9' : '#0369A1') + ';'">
+                                        <i class="fa fa-check" style="margin-right: 4px;"></i>
+                                        Aplica completo (Res. 2388/2016)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Grid dias del periodo (solo si es quincenal) -->
+                        <t t-if="data.cotizante_51.es_quincenal">
+                            <div style="background: white; border-radius: 10px; padding: 12px; margin-top: 12px; border: 1px solid #FCD34D;">
+                                <div style="font-size: 11px; font-weight: 600; color: #92400E; margin-bottom: 10px;">
+                                    <i class="fa fa-calendar-check-o" style="margin-right: 6px;"></i>
+                                    DETALLE DE DIAS DEL MES
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-4">
+                                        <div style="background: #F5F3FF; border-radius: 8px; padding: 10px; text-align: center;">
+                                            <div style="font-size: 10px; color: #7C3AED; font-weight: 600;">Este Periodo</div>
+                                            <div style="font-size: 20px; font-weight: 700; color: #5B21B6;">
+                                                <t t-esc="data.cotizante_51.dias_periodo_actual"/>
+                                            </div>
+                                            <div style="font-size: 9px; color: #7C3AED;">dias</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div style="background: #FEF3C7; border-radius: 8px; padding: 10px; text-align: center;">
+                                            <div style="font-size: 10px; color: #B45309; font-weight: 600;">Otra Quincena</div>
+                                            <div style="font-size: 20px; font-weight: 700; color: #92400E;">
+                                                <t t-esc="data.cotizante_51.dias_otra_quincena"/>
+                                            </div>
+                                            <div style="font-size: 9px; color: #B45309;">dias</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div style="background: #ECFDF5; border-radius: 8px; padding: 10px; text-align: center;">
+                                            <div style="font-size: 10px; color: #059669; font-weight: 600;">Total Mes</div>
+                                            <div style="font-size: 20px; font-weight: 700; color: #047857;">
+                                                <t t-esc="data.cotizante_51.dias_mes_completo"/>
+                                            </div>
+                                            <div style="font-size: 9px; color: #059669;">dias</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Explicacion del calculo -->
+                        <t t-if="data.cotizante_51.explicacion and data.cotizante_51.explicacion.length > 0">
+                            <div style="background: white; border-radius: 10px; padding: 12px; margin-top: 12px; border: 1px solid #FCD34D;">
+                                <div style="font-size: 11px; font-weight: 600; color: #92400E; margin-bottom: 8px;">
+                                    <i class="fa fa-list-ol" style="margin-right: 6px;"></i>
+                                    CALCULO PASO A PASO
+                                </div>
+                                <div style="font-size: 11px; color: #78350F;">
+                                    <t t-foreach="data.cotizante_51.explicacion" t-as="paso" t-key="paso_index">
+                                        <div style="padding: 4px 0; border-bottom: 1px dashed #FCD34D;">
+                                            <i class="fa fa-chevron-right" style="margin-right: 6px; color: #F59E0B; font-size: 10px;"></i>
+                                            <t t-esc="paso"/>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Rango de tabla aplicado -->
+                        <t t-if="data.cotizante_51.rango_tabla">
+                            <div style="margin-top: 12px; padding: 10px; background: rgba(245, 158, 11, 0.15); border-radius: 8px; border-left: 3px solid #F59E0B;">
+                                <div style="font-size: 11px; color: #92400E;">
+                                    <i class="fa fa-info-circle" style="margin-right: 6px;"></i>
+                                    <strong>Rango Tabla:</strong> <t t-esc="data.cotizante_51.rango_tabla"/> COP
+                                    <t t-if="data.cotizante_51.descripcion_rango">
+                                        <span style="margin-left: 8px;">- <t t-esc="data.cotizante_51.descripcion_rango"/></span>
+                                    </t>
+                                </div>
+                            </div>
+                        </t>
+
+                        <div class="plf-legal" style="background: rgba(245, 158, 11, 0.1); margin-top: 12px;">
+                            <i class="fa fa-gavel"></i>
+                            Res. 2388/2016 Art. 5 - Tabla especial IBC para cotizantes tiempo parcial en regimen subsidiado
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ───────────────────────────────────────────────────────────
+                     PASO 1: DEVENGOS SALARIALES
+                     ─────────────────────────────────────────────────────────── -->
+                <div class="plf-section" style="margin: 0; border-radius: 0; border: none; border-bottom: 1px solid #E5E7EB;">
+                    <div class="plf-header plf-header-green" t-on-click="() => widget.toggleSection('devengos')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="plf-header-title" style="color: #15803D;">
+                                <span class="plf-step-number green">1</span>
+                                <i class="fa fa-money" style="margin-right: 6px;"></i>
+                                DEVENGOS SALARIALES
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="plf-header-value" style="color: #15803D;">
+                                    <t t-esc="widget.formatValue(data.devengos.total, 'currency')"/>
+                                </span>
+                                <i t-att-class="'fa plf-chevron ' + (widget.state.expandedSections.devengos ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="color: #15803D;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-att-class="'plf-collapsible ' + (widget.state.expandedSections.devengos ? 'expanded' : 'collapsed')">
+                        <div style="padding: 12px 16px; background: #F0FDF4;">
+                            <!-- Líneas detalle del cómputo -->
+                            <t t-if="data.devengos.lineas and data.devengos.lineas.length > 0">
+                                <table class="plf-table">
+                                    <t t-foreach="data.devengos.lineas" t-as="linea" t-key="linea_index">
+                                        <tr>
+                                            <td>
+                                                <span class="plf-badge devengo" style="font-size: 10px; padding: 2px 6px;">
+                                                    <t t-esc="linea.code || linea.category_code || 'DEV'"/>
+                                                </span>
+                                                <span style="margin-left: 8px; color: #374151;">
+                                                    <t t-esc="linea.name || linea.rule_name || 'Concepto'"/>
+                                                </span>
+                                            </td>
+                                            <td style="color: #15803D; font-weight: 500;">
+                                                <t t-esc="widget.formatValue(linea.total || linea.amount || 0, 'currency')"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr class="subtotal">
+                                        <td>TOTAL DEVENGOS SALARIALES</td>
+                                        <td><t t-esc="widget.formatValue(data.devengos.total, 'currency')"/></td>
+                                    </tr>
+                                </table>
+                            </t>
+                            <t t-else="">
+                                <div class="plf-detail-grid" style="padding: 0;">
+                                    <div class="plf-detail-item">
+                                        <div class="plf-detail-label">
+                                            <span class="plf-icon salary" style="width: 16px; height: 16px; font-size: 9px;"><i class="fa fa-money"></i></span>
+                                            Total Devengos
+                                        </div>
+                                        <div class="plf-detail-value positive">
+                                            <t t-esc="widget.formatValue(data.devengos.total, 'currency')"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                            <div class="plf-legal">
+                                <i class="fa fa-info-circle"></i>
+                                Incluye: Salario básico, horas extras, comisiones, recargos y demás conceptos salariales
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ───────────────────────────────────────────────────────────
+                     PASO 2: PAGOS NO CONSTITUTIVOS DE SALARIO
+                     ─────────────────────────────────────────────────────────── -->
+                <div class="plf-section" style="margin: 0; border-radius: 0; border: none; border-bottom: 1px solid #E5E7EB;">
+                    <div class="plf-header plf-header-orange" t-on-click="() => widget.toggleSection('no_salarial')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="plf-header-title" style="color: #C2410C;">
+                                <span class="plf-step-number orange">2</span>
+                                <i class="fa fa-ban" style="margin-right: 6px;"></i>
+                                PAGOS NO SALARIALES
+                                <span style="font-size: 10px; font-weight: 400; margin-left: 8px; color: #6B7280;">Art. 128 C.S.T.</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="plf-header-value" style="color: #C2410C;">
+                                    <t t-esc="widget.formatValue(data.pagos_no_salariales.total, 'currency')"/>
+                                </span>
+                                <i t-att-class="'fa plf-chevron ' + (widget.state.expandedSections.no_salarial ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="color: #C2410C;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-att-class="'plf-collapsible ' + (widget.state.expandedSections.no_salarial ? 'expanded' : 'collapsed')">
+                        <div style="padding: 12px 16px; background: #FFF7ED;">
+                            <t t-if="data.pagos_no_salariales.lineas and data.pagos_no_salariales.lineas.length > 0">
+                                <table class="plf-table">
+                                    <t t-foreach="data.pagos_no_salariales.lineas" t-as="linea" t-key="linea_index">
+                                        <tr>
+                                            <td>
+                                                <span class="plf-badge deduccion" style="font-size: 10px; padding: 2px 6px;">
+                                                    <t t-esc="linea.code || 'NO_SAL'"/>
+                                                </span>
+                                                <span style="margin-left: 8px; color: #374151;">
+                                                    <t t-esc="linea.name || 'Pago no salarial'"/>
+                                                </span>
+                                            </td>
+                                            <td style="color: #C2410C; font-weight: 500;">
+                                                <t t-esc="widget.formatValue(linea.total || linea.amount || 0, 'currency')"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr class="subtotal">
+                                        <td>TOTAL PAGOS NO SALARIALES</td>
+                                        <td><t t-esc="widget.formatValue(data.pagos_no_salariales.total, 'currency')"/></td>
+                                    </tr>
+                                </table>
+                            </t>
+                            <t t-elif="data.pagos_no_salariales.total > 0">
+                                <div class="plf-detail-grid" style="padding: 0;">
+                                    <div class="plf-detail-item">
+                                        <div class="plf-detail-label">
+                                            <span class="plf-icon deduction" style="width: 16px; height: 16px; font-size: 9px;"><i class="fa fa-ban"></i></span>
+                                            Pagos No Constitutivos
+                                        </div>
+                                        <div class="plf-detail-value" style="color: #C2410C;">
+                                            <t t-esc="widget.formatValue(data.pagos_no_salariales.total, 'currency')"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                            <t t-else="">
+                                <div style="text-align: center; padding: 12px; color: #6B7280; font-size: 12px;">
+                                    <i class="fa fa-check-circle" style="color: #22C55E; margin-right: 6px;"></i>
+                                    No hay pagos no constitutivos de salario en este período
+                                </div>
+                            </t>
+                            <div class="plf-legal">
+                                <i class="fa fa-gavel"></i>
+                                Art. 128 C.S.T. - Pagos que no constituyen salario: auxilios, bonificaciones ocasionales, etc.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ───────────────────────────────────────────────────────────
+                     PASO 3: CÁLCULO LEY 1393 (LÍMITE 40%)
+                     Solo se muestra cuando hay pagos no salariales
+                     ─────────────────────────────────────────────────────────── -->
+                <t t-if="data.pagos_no_salariales.total > 0">
+                <div class="plf-section" style="margin: 0; border-radius: 0; border: none; border-bottom: 1px solid #E5E7EB;">
+                    <div class="plf-header plf-header-purple" t-on-click="() => widget.toggleSection('ley1393')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="plf-header-title" style="color: #7C3AED;">
+                                <span class="plf-step-number purple">3</span>
+                                <i class="fa fa-balance-scale" style="margin-right: 6px;"></i>
+                                LEY 1393/2010 - LÍMITE 40%
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <t t-if="data.ley_1393.exceso > 0">
+                                    <span class="plf-badge warning" style="font-size: 10px;">
+                                        <i class="fa fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                        Exceso: <t t-esc="widget.formatValue(data.ley_1393.exceso, 'currency')"/>
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span class="plf-badge success" style="font-size: 10px;">
+                                        <i class="fa fa-check" style="margin-right: 4px;"></i>
+                                        Dentro del límite
+                                    </span>
+                                </t>
+                                <i t-att-class="'fa plf-chevron ' + (widget.state.expandedSections.ley1393 ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="color: #7C3AED;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-att-class="'plf-collapsible ' + (widget.state.expandedSections.ley1393 ? 'expanded' : 'collapsed')">
+                        <div style="padding: 12px 16px; background: #F5F3FF;">
+                            <div class="plf-detail-grid">
+                                <div class="plf-detail-item">
+                                    <div class="plf-detail-label">
+                                        <span class="plf-icon salary" style="width: 16px; height: 16px; font-size: 9px;"><i class="fa fa-money"></i></span>
+                                        Base para Cálculo 40%
+                                    </div>
+                                    <div class="plf-detail-value">
+                                        <t t-esc="widget.formatValue(data.ley_1393.salario_base, 'currency')"/>
+                                    </div>
+                                    <div style="font-size: 10px; color: #6B7280; margin-top: 2px;">
+                                        <t t-if="data.ley_1393.incluye_ausencias">
+                                            <i class="fa fa-info-circle"></i> Incluye ausencias
+                                        </t>
+                                    </div>
+                                </div>
+                                <div class="plf-detail-item">
+                                    <div class="plf-detail-label">
+                                        <span class="plf-icon deduction" style="width: 16px; height: 16px; font-size: 9px;"><i class="fa fa-ban"></i></span>
+                                        (+) Pagos No Salariales
+                                    </div>
+                                    <div class="plf-detail-value">
+                                        <t t-esc="widget.formatValue(data.ley_1393.pagos_no_salariales, 'currency')"/>
+                                    </div>
+                                </div>
+                                <div class="plf-detail-item">
+                                    <div class="plf-detail-label">
+                                        <span class="plf-icon percent" style="width: 16px; height: 16px; font-size: 9px;"><i class="fa fa-percent"></i></span>
+                                        (=) Suma Total
+                                    </div>
+                                    <div class="plf-detail-value">
+                                        <t t-esc="widget.formatValue(data.ley_1393.suma_para_40, 'currency')"/>
+                                    </div>
+                                </div>
+                                <div class="plf-detail-item">
+                                    <div class="plf-detail-label">
+                                        <span class="plf-icon uvt" style="width: 16px; height: 16px; font-size: 9px;"><i class="fa fa-calculator"></i></span>
+                                        Límite 40%
+                                    </div>
+                                    <div class="plf-detail-value" style="color: #7C3AED;">
+                                        <t t-esc="widget.formatValue(data.ley_1393.limite_40_pct, 'currency')"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Explicación del cálculo -->
+                            <div style="background: #EDE9FE; border-radius: 8px; padding: 12px; margin-top: 12px;">
+                                <div style="font-size: 11px; font-weight: 600; color: #7C3AED; margin-bottom: 8px;">
+                                    <i class="fa fa-calculator" style="margin-right: 6px;"></i>
+                                    FÓRMULA DEL CÁLCULO
+                                </div>
+                                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #4C1D95;">
+                                    Límite 40% = (<t t-esc="widget.formatValue(data.ley_1393.salario_base, 'currency')"/> + <t t-esc="widget.formatValue(data.ley_1393.pagos_no_salariales, 'currency')"/>) × 0.40
+                                </div>
+                                <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #4C1D95; margin-top: 4px;">
+                                    Límite 40% = <t t-esc="widget.formatValue(data.ley_1393.suma_para_40, 'currency')"/> × 0.40 = <span style="font-weight: 700;"><t t-esc="widget.formatValue(data.ley_1393.limite_40_pct, 'currency')"/></span>
+                                </div>
+
+                                <t t-if="data.ley_1393.exceso > 0">
+                                    <div style="margin-top: 10px; padding: 8px; background: #FEF3C7; border-radius: 6px; border-left: 3px solid #F59E0B;">
+                                        <div style="font-size: 11px; color: #92400E;">
+                                            <i class="fa fa-exclamation-triangle" style="margin-right: 4px;"></i>
+                                            <strong>EXCESO:</strong> Los pagos no salariales (<t t-esc="widget.formatValue(data.ley_1393.pagos_no_salariales, 'currency')"/>) superan el límite 40% (<t t-esc="widget.formatValue(data.ley_1393.limite_40_pct, 'currency')"/>)
+                                        </div>
+                                        <div style="font-size: 11px; color: #92400E; margin-top: 4px;">
+                                            El exceso de <strong><t t-esc="widget.formatValue(data.ley_1393.exceso, 'currency')"/></strong> se suma al IBC
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <div class="plf-legal">
+                                <i class="fa fa-gavel"></i>
+                                Art. 30 Ley 1393/2010 - Los pagos no salariales que excedan el 40% del total de ingresos hacen parte de la base de cotización
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </t>
+
+                <!-- ───────────────────────────────────────────────────────────
+                     PASO 4: AUSENCIAS
+                     ─────────────────────────────────────────────────────────── -->
+                <t t-if="data.ausencias.valor > 0">
+                    <div class="plf-section" style="margin: 0; border-radius: 0; border: none; border-bottom: 1px solid #E5E7EB;">
+                        <div class="plf-header plf-header-red" t-on-click="() => widget.toggleSection('ausencias')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="plf-header-title" style="color: #DC2626;">
+                                    <span class="plf-step-number red">4</span>
+                                    <i class="fa fa-user-times" style="margin-right: 6px;"></i>
+                                    DESCUENTO POR AUSENCIAS
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="plf-header-value" style="color: #DC2626;">
+                                        -<t t-esc="widget.formatValue(data.ausencias.valor, 'currency')"/>
+                                    </span>
+                                    <i t-att-class="'fa plf-chevron ' + (widget.state.expandedSections.ausencias ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="color: #DC2626;"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-att-class="'plf-collapsible ' + (widget.state.expandedSections.ausencias ? 'expanded' : 'collapsed')">
+                            <div style="padding: 12px 16px; background: #FEF2F2;">
+                                <div class="plf-detail-grid" style="padding: 0;">
+                                    <div class="plf-detail-item">
+                                        <div class="plf-detail-label">
+                                            <span class="plf-icon tax" style="width: 16px; height: 16px; font-size: 9px;"><i class="fa fa-minus-circle"></i></span>
+                                            Valor Ausencias
+                                        </div>
+                                        <div class="plf-detail-value negative">
+                                            <t t-esc="widget.formatValue(data.ausencias.valor, 'currency')"/>
+                                        </div>
+                                    </div>
+                                    <div class="plf-detail-item">
+                                        <div class="plf-detail-label">
+                                            <span class="plf-icon" style="width: 16px; height: 16px; font-size: 9px; background: #FEE2E2; color: #DC2626;"><i class="fa fa-info-circle"></i></span>
+                                            Incluidas en Ley 1393
+                                        </div>
+                                        <div class="plf-detail-value">
+                                            <t t-if="data.ausencias.incluidas_en_1393">
+                                                <span class="plf-badge success">Sí</span>
+                                            </t>
+                                            <t t-else="">
+                                                <span class="plf-badge deduccion">No</span>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="plf-legal">
+                                    <i class="fa fa-info-circle"></i>
+                                    Las ausencias reducen proporcionalmente el IBC según los días no trabajados
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- ───────────────────────────────────────────────────────────
+                     PASO 5: IBC PRELIMINAR
+                     ─────────────────────────────────────────────────────────── -->
+                <div style="background: #F3F4F6; padding: 14px 16px; border-bottom: 2px solid #9CA3AF;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <span class="plf-step-number gray">5</span>
+                            <div style="margin-left: 8px;">
+                                <div style="font-weight: 700; color: #374151; font-size: 13px;">IBC PRELIMINAR</div>
+                                <div style="font-size: 10px; color: #6B7280;">Antes de validar topes</div>
+                            </div>
+                        </div>
+                        <span style="font-weight: 700; color: #374151; font-size: 18px; font-family: 'JetBrains Mono', monospace;">
+                            <t t-esc="widget.formatValue(data.ibc_preliminar, 'currency')"/>
+                        </span>
+                    </div>
+
+                    <!-- Fórmula del cálculo -->
+                    <div style="margin-top: 10px; padding: 10px; background: #E5E7EB; border-radius: 6px;">
+                        <div style="font-size: 10px; font-weight: 600; color: #4B5563; margin-bottom: 6px;">
+                            <i class="fa fa-calculator" style="margin-right: 4px;"></i> FÓRMULA
+                        </div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1F2937;">
+                            IBC = Devengos Salariales
+                            <t t-if="data.ley_1393.exceso > 0"> + Exceso No Salarial</t>
+                            <t t-if="data.ausencias.valor > 0"> + Ausencias</t>
+                        </div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1F2937; margin-top: 4px;">
+                            IBC = <t t-esc="widget.formatValue(data.devengos.total, 'currency')"/>
+                            <t t-if="data.ley_1393.exceso > 0">
+                                + <t t-esc="widget.formatValue(data.ley_1393.exceso, 'currency')"/>
+                            </t>
+                            <t t-if="data.ausencias.valor > 0">
+                                + <t t-esc="widget.formatValue(data.ausencias.valor, 'currency')"/>
+                            </t>
+                            = <strong><t t-esc="widget.formatValue(data.ibc_preliminar, 'currency')"/></strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ───────────────────────────────────────────────────────────
+                     PASO 6: VALIDACIÓN DE TOPES
+                     ─────────────────────────────────────────────────────────── -->
+                <div class="plf-section" style="margin: 0; border-radius: 0; border: none; border-bottom: 1px solid #E5E7EB;">
+                    <div class="plf-header plf-header-blue" t-on-click="() => widget.toggleSection('topes')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="plf-header-title" style="color: #1D4ED8;">
+                                <span class="plf-step-number blue">6</span>
+                                <i class="fa fa-sliders" style="margin-right: 6px;"></i>
+                                VALIDACIÓN DE TOPES
+                                <span style="font-size: 10px; font-weight: 400; margin-left: 8px; color: #6B7280;">Art. 18 Ley 100/1993</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <t t-if="data.topes.aplicado === 'maximo'">
+                                    <span class="plf-badge danger" style="font-size: 10px;">
+                                        <i class="fa fa-arrow-down" style="margin-right: 4px;"></i>
+                                        Limitado al máximo
+                                    </span>
+                                </t>
+                                <t t-else="">
+                                    <span class="plf-badge success" style="font-size: 10px;">
+                                        <i class="fa fa-check" style="margin-right: 4px;"></i>
+                                        Dentro de tope
+                                    </span>
+                                </t>
+                                <i t-att-class="'fa plf-chevron ' + (widget.state.expandedSections.topes ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="color: #1D4ED8;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div t-att-class="'plf-collapsible ' + (widget.state.expandedSections.topes ? 'expanded' : 'collapsed')">
+                        <div style="padding: 16px; background: #EFF6FF;">
+                            <!-- Tarjetas de topes -->
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <div class="plf-summary-card" style="background: #DBEAFE;">
+                                        <div class="plf-summary-label" style="color: #1D4ED8;">
+                                            <i class="fa fa-building" style="margin-right: 4px;"></i>
+                                            IBC Calculado
+                                        </div>
+                                        <div class="plf-summary-value" style="color: #1D4ED8;">
+                                            <t t-esc="widget.formatValue(data.ibc_preliminar, 'currency')"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="plf-summary-card" t-att-style="'background: ' + (data.topes.aplicado === 'maximo' ? '#FEF3C7' : '#FEE2E2')">
+                                        <div class="plf-summary-label" t-att-style="'color: ' + (data.topes.aplicado === 'maximo' ? '#B45309' : '#DC2626')">
+                                            <i class="fa fa-arrow-up" style="margin-right: 4px;"></i>
+                                            Máximo (25 SMMLV)
+                                        </div>
+                                        <div class="plf-summary-value" t-att-style="'color: ' + (data.topes.aplicado === 'maximo' ? '#B45309' : '#DC2626')">
+                                            <t t-esc="widget.formatValue(data.topes.maximo, 'currency')"/>
+                                        </div>
+                                        <t t-if="data.topes.aplicado === 'maximo'">
+                                            <div style="font-size: 10px; color: #92400E; margin-top: 4px;">
+                                                <i class="fa fa-check-circle"></i> APLICADO
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Info adicional -->
+                            <div style="margin-top: 12px; padding: 10px; background: #F3F4F6; border-radius: 8px;">
+                                <div class="d-flex justify-content-between" style="font-size: 11px;">
+                                    <span style="color: #6B7280;">
+                                        <i class="fa fa-calendar" style="margin-right: 4px;"></i>
+                                        Días Efectivos:
+                                    </span>
+                                    <span style="font-weight: 600; color: #374151;">
+                                        <t t-esc="data.dias_efectivos"/> días
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between" style="font-size: 11px; margin-top: 6px;">
+                                    <span style="color: #6B7280;">
+                                        <i class="fa fa-money" style="margin-right: 4px;"></i>
+                                        SMMLV Vigente:
+                                    </span>
+                                    <span style="font-weight: 600; color: #374151;">
+                                        <t t-esc="widget.formatValue(data.topes.smmlv, 'currency')"/>
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between" style="font-size: 11px; margin-top: 6px;">
+                                    <span style="color: #6B7280;">
+                                        <i class="fa fa-clock-o" style="margin-right: 4px;"></i>
+                                        Valor Día IBC:
+                                    </span>
+                                    <span style="font-weight: 600; color: #374151;">
+                                        <t t-esc="widget.formatValue(data.valor_dia, 'currency')"/>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="plf-legal">
+                                <i class="fa fa-gavel"></i>
+                                Art. 18 Ley 100/1993 - El IBC no puede ser superior a 25 SMMLV
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ───────────────────────────────────────────────────────────
+                     PASO 7: IBC FINAL (RESULTADO)
+                     ─────────────────────────────────────────────────────────── -->
+                <div style="background: linear-gradient(135deg, #0EA5E9 0%, #0369A1 100%); color: white; padding: 16px; border-radius: 0 0 12px 12px;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <span class="plf-step-number" style="background: rgba(255,255,255,0.3); color: white;">7</span>
+                            <div style="margin-left: 10px;">
+                                <div style="font-size: 14px; font-weight: 700;">
+                                    <i class="fa fa-check-circle" style="margin-right: 8px;"></i>
+                                    IBC FINAL
+                                </div>
+                                <div style="font-size: 10px; opacity: 0.9;">Base de cotización para Seguridad Social</div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 28px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">
+                                <t t-esc="widget.formatValue(data.ibc_final, 'currency')"/>
+                            </div>
+                            <div style="font-size: 11px; opacity: 0.9;">
+                                Valor día: <t t-esc="widget.formatValue(data.valor_dia, 'currency')"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ═══════════════════════════════════════════════════════════════
+                 LÍNEAS DETALLE DEL CÓMPUTO (si existen)
+                 ═══════════════════════════════════════════════════════════════ -->
+            <t t-if="false">
+                <div class="plf-section" style="margin-top: 16px;">
+                    <div class="plf-header plf-header-gray" t-on-click="() => widget.toggleSection('lineas_detalle')">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="plf-header-title" style="color: #374151;">
+                                <i class="fa fa-list-alt" style="margin-right: 6px;"></i>
+                                DETALLE DE LÍNEAS DEL CÓMPUTO
+                                <span class="plf-badge info" style="margin-left: 8px;">
+                                    <t t-esc="data.lineas_detalle.length"/> conceptos
+                                </span>
+                            </div>
+                            <i t-att-class="'fa plf-chevron ' + (widget.state.expandedSections.lineas_detalle ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="color: #374151;"></i>
+                        </div>
+                    </div>
+                    <div t-att-class="'plf-collapsible ' + (widget.state.expandedSections.lineas_detalle ? 'expanded' : 'collapsed')">
+                        <div style="padding: 0;">
+                            <table class="plf-table">
+                                <thead>
+                                    <tr style="background: #F9FAFB;">
+                                        <th style="padding: 10px 12px; font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Código</th>
+                                        <th style="padding: 10px 12px; font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Concepto</th>
+                                        <th style="padding: 10px 12px; font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase;">Categoría</th>
+                                        <th style="padding: 10px 12px; font-size: 10px; font-weight: 600; color: #6B7280; text-transform: uppercase; text-align: right;">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="data.lineas_detalle" t-as="linea" t-key="linea_index">
+                                        <tr>
+                                            <td style="font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                                                <t t-esc="linea.code || '-'"/>
+                                            </td>
+                                            <td>
+                                                <t t-esc="linea.name || linea.rule_name || 'Concepto'"/>
+                                            </td>
+                                            <td>
+                                                <span t-att-class="'plf-badge ' + (linea.category_code === 'DEV_NO_SALARIAL' ? 'deduccion' : 'devengo')" style="font-size: 9px;">
+                                                    <t t-esc="linea.category_code || linea.category || 'N/A'"/>
+                                                </span>
+                                            </td>
+                                            <td t-att-style="'color: ' + (linea.category_code === 'DEV_NO_SALARIAL' ? '#C2410C' : '#15803D')">
+                                                <t t-esc="widget.formatValue(linea.total || linea.amount || 0, 'currency')"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+        </div>
+    </t>
+
+</templates>

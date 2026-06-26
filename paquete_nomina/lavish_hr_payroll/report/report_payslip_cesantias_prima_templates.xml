@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_liquidacion_cesantias_prima_document">
+        <t t-set="o" t-value="o.with_context(lang=o.employee_id.work_contact_id.lang or o.env.lang)"/>
+
+        <div class="page" style="font-family: 'Helvetica', Arial, sans-serif;">
+
+            <!-- Encabezado dinamico segun tipo -->
+            <div style="text-align: center; margin-bottom: 20px; padding: 15px; border-radius: 8px;"
+                 t-attf-style="background: linear-gradient(135deg, {{ '#9b59b6' if o.struct_id.process == 'prima' else ('#3498db' if o.struct_id.process == 'cesantias' else '#e67e22') }} 0%, {{ '#8e44ad' if o.struct_id.process == 'prima' else ('#2980b9' if o.struct_id.process == 'cesantias' else '#d35400') }} 100%);">
+                <h2 style="color: white; margin: 0; font-size: 18px; letter-spacing: 1px;">
+                    <t t-if="o.struct_id.process == 'prima'">LIQUIDACION DE PRIMA</t>
+                    <t t-if="o.struct_id.process == 'cesantias'">LIQUIDACION DE CESANTIAS</t>
+                    <t t-if="o.struct_id.process == 'intereses_cesantias'">LIQUIDACION DE INTERESES DE CESANTIAS</t>
+                </h2>
+            </div>
+
+            <!-- Informacion del empleado -->
+            <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                <table style="width: 100%; font-size: 11px;">
+                    <tr>
+                        <td style="width: 33%; padding: 5px; vertical-align: top;">
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Identificacion:</strong><br/>
+                                <span t-field="o.employee_id.identification_id"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Empleado:</strong><br/>
+                                <span t-field="o.employee_id.name"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Fecha Ingreso:</strong><br/>
+                                <span t-field="o.contract_id.date_start"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px;">
+                                <strong style="color: #2c3e50;">Cargo:</strong><br/>
+                                <span t-field="o.employee_id.job_id.name"/>
+                            </div>
+                        </td>
+                        <td style="width: 33%; padding: 5px; vertical-align: top;">
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Tipo contrato:</strong><br/>
+                                <span t-field="o.contract_id.contract_type"/>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 8px; border-radius: 5px; margin-bottom: 5px;">
+                                <strong style="color: #2c3e50;">Departamento:</strong><br/>
+                                <span t-field="o.employee_id.department_id.name"/>
+                            </div>
+                            <div style="background: #e8f5e9; padding: 8px; border-radius: 5px; border-left: 3px solid #27ae60;">
+                                <strong style="color: #27ae60;">Salario basico:</strong><br/>
+                                <span t-field="o.contract_id.wage"/>
+                            </div>
+                        </td>
+                        <td style="width: 33%; padding: 5px; vertical-align: top;">
+                            <div style="background: #e3f2fd; padding: 8px; border-radius: 5px; margin-bottom: 5px; border-left: 3px solid #2196f3;">
+                                <strong style="color: #1976d2;">Desde:</strong><br/>
+                                <span t-field="o.date_from"/>
+                            </div>
+                            <div style="background: #e3f2fd; padding: 8px; border-radius: 5px; border-left: 3px solid #2196f3;">
+                                <strong style="color: #1976d2;">Hasta:</strong><br/>
+                                <span t-field="o.date_to"/>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Tabla de conceptos -->
+            <div style="margin-bottom: 20px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);">
+                            <th style="padding: 10px; color: white; text-align: left; width: 35%;">Concepto</th>
+                            <th style="padding: 10px; color: white; text-align: right; width: 20%;">Base</th>
+                            <th style="padding: 10px; color: white; text-align: center; width: 15%;">Cantidad</th>
+                            <th style="padding: 10px; color: white; text-align: right; width: 30%;">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="value_neto" t-value="0"/>
+                        <t t-foreach="o.line_ids" t-as="l">
+                            <t t-if="not l.category_id.name in ['Neto','Bruto']">
+                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                    <td style="padding: 8px;"><span t-field="l.name"/></td>
+                                    <td style="padding: 8px; text-align: right;">
+                                        <span t-out="l.amount_base" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    </td>
+                                    <td style="padding: 8px; text-align: center; background: #f8f9fa;">
+                                        <t t-if="l.salary_rule_id.display_days_worked">
+                                            <span t-out="sum([i.number_of_days for i in o.worked_days_line_ids.filtered(lambda x: x.code == 'WORK100')])"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-field="l.quantity"/>
+                                        </t>
+                                    </td>
+                                    <td style="padding: 8px; text-align: right;">
+                                        <span t-out="l.total" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <t t-set="value_neto" t-value="value_neto + l.total"/>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Resumen de totales -->
+            <div style="margin-top: 20px;">
+                <table style="width: 100%;">
+                    <tr>
+                        <td style="width: 60%; vertical-align: top;">
+                            <t t-if="cp_template.caption">
+                                <div style="padding: 12px; background: #f8f9fa; border-radius: 8px; font-size: 11px;">
+                                    <span t-out="cp_template.caption"/>
+                                </div>
+                            </t>
+                        </td>
+                        <td style="width: 40%; vertical-align: top;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                    <td style="padding: 8px;"><strong>DEVENGOS</strong></td>
+                                    <td style="padding: 8px; text-align: right;">
+                                        <span t-field="o.line_ids.filtered(lambda line: line.code == 'TOTALDEV').total"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #e0e0e0;">
+                                    <td style="padding: 8px;"><strong>DEDUCCIONES</strong></td>
+                                    <td style="padding: 8px; text-align: right; color: #e74c3c;">
+                                        <span t-field="o.line_ids.filtered(lambda line: line.code == 'TOTALDED').total"
+                                              t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr style="background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);">
+                                    <td style="padding: 10px; color: white;"><strong>NETO A PAGAR</strong></td>
+                                    <td style="padding: 10px; text-align: right; color: white; font-size: 14px;">
+                                        <strong>
+                                            <span t-field="o.line_ids.filtered(lambda line: line.code == 'NET').total"
+                                                  t-options="{'widget': 'monetary', 'precision': 0, 'display_currency': o.company_id.currency_id}"/>
+                                        </strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="padding: 8px; font-size: 10px; font-style: italic; color: #666;">
+                                        <span t-out="o.contract_id.get_amount_text(o.line_ids.filtered(lambda line: line.code == 'NET').total).lower().capitalize()"/> pesos
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </template>
+
+    <template id="report_liquidacion_cesantias_prima">
+         <t t-foreach="docs" t-as="o">
+            <t t-set="inside_foreach_docs" t-value="o"/>
+            <t t-call="lavish_hr_payroll.report_liquidacion_cesantias_prima_document" t-lang="o.employee_id.work_contact_id.lang"/>
+        </t>
+    </template>
+
+</odoo>

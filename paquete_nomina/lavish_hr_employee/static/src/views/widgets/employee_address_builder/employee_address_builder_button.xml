@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="lavish_hr_employee.EmployeeAddressBuilderButton">
+        <button t-if="isVisible"
+                type="button"
+                class="btn btn-sm btn-link o_address_builder_btn p-0 ms-1"
+                t-on-click="openBuilder"
+                title="Constructor de Direccion Colombiana">
+            <i class="fa fa-building text-primary"/>
+        </button>
+    </t>
+</templates>

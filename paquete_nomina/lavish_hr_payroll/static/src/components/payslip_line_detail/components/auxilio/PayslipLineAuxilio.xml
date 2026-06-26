@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineAuxilio">
+        <div class="pld-auxilio-container">
+            <!-- Header -->
+            <div class="pld-auxilio-header d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i t-attf-class="fa #{tipoIcon} text-#{tipoColor}"/>
+                    <span class="fw-bold" t-esc="tipoAuxilio"/>
+                    <t t-if="esDevolucion">
+                        <span class="badge bg-warning text-dark">Devolucion</span>
+                    </t>
+                </div>
+                <small class="text-muted" t-esc="baseLegal"/>
+            </div>
+
+            <!-- Alerta si no aplica -->
+            <t t-if="!aplicaAuxilio">
+                <div class="alert alert-warning d-flex align-items-center gap-2 mb-3">
+                    <i class="fa fa-exclamation-triangle"/>
+                    <div>
+                        <strong>No aplica auxilio:</strong> <t t-esc="razonNoAplica"/>
+                        <div class="small mt-1">
+                            Salario: <t t-esc="props.formatCurrency(salarioEmpleado)"/> |
+                            Limite (2 SMMLV): <t t-esc="props.formatCurrency(limiteSalarial)"/>
+                        </div>
+                    </div>
+                </div>
+            </t>
+
+            <!-- KPIs -->
+            <t t-if="aplicaAuxilio">
+                <div class="pld-auxilio-kpis d-flex flex-wrap gap-3 mb-3">
+                    <t t-foreach="kpis" t-as="kpi" t-key="kpi.id">
+                        <div t-attf-class="pld-kpi-card p-2 rounded border #{kpi.highlight ? 'border-success bg-success-subtle' : 'bg-light'}">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <i t-attf-class="fa #{kpi.icon} text-#{kpi.color || tipoColor}" style="font-size: 12px;"/>
+                                <small class="text-muted" t-esc="kpi.label"/>
+                            </div>
+                            <div t-attf-class="fw-bold #{kpi.highlight ? 'text-success fs-5' : ''} #{kpi.color === 'danger' ? 'text-danger' : ''}">
+                                <t t-if="kpi.format === 'currency'">
+                                    <t t-esc="props.formatCurrency(kpi.value)"/>
+                                </t>
+                                <t t-else="">
+                                    <t t-esc="props.formatValue(kpi.value, kpi.format)"/>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+
+                <!-- Formula -->
+                <div class="pld-auxilio-formula bg-light p-2 rounded mb-3 d-flex align-items-center gap-2">
+                    <i class="fa fa-calculator text-secondary"/>
+                    <code t-esc="formula"/>
+                </div>
+
+                <!-- Indicador de limite salarial -->
+                <div class="pld-auxilio-limite d-flex align-items-center gap-2 mb-3 p-2 border rounded">
+                    <i class="fa fa-info-circle text-info"/>
+                    <small>
+                        <span class="text-muted">Aplica si salario &lt; 2 SMMLV:</span>
+                        <span class="fw-medium" t-esc="props.formatCurrency(limiteSalarial)"/>
+                    </small>
+                </div>
+            </t>
+
+            <!-- Detalle del calculo -->
+            <t t-if="hasPasos">
+                <div class="pld-auxilio-detalle">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                         t-on-click="toggleDetalleCalculo">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-list-ol text-secondary"/>
+                            <span class="fw-medium">Detalle del Calculo</span>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showDetalleCalculo ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showDetalleCalculo">
+                        <div class="pld-pasos-list mt-2 ps-3">
+                            <t t-foreach="pasos" t-as="paso" t-key="paso_index">
+                                <div t-attf-class="d-flex justify-content-between py-1 #{paso.highlight ? 'fw-bold text-success' : ''}">
+                                    <span t-esc="paso.label"/>
+                                    <span t-esc="formatPasoValue(paso)"/>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

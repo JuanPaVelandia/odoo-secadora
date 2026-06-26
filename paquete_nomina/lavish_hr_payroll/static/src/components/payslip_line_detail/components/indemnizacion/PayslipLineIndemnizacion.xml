@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineIndemnizacion">
+        <div class="pld-indemnizacion-container">
+            <!-- Header -->
+            <div class="pld-indem-header d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa fa-gavel text-danger"/>
+                    <span class="fw-bold">Indemnizacion por Despido</span>
+                    <span t-attf-class="badge bg-#{getTipoContratoColor()}" t-esc="tipoContratoLabel"/>
+                    <t t-if="tipoContrato === 'indefinido'">
+                        <span t-attf-class="badge bg-#{getRangoColor()}" t-esc="rangoSalarialLabel"/>
+                    </t>
+                </div>
+                <small class="text-muted" t-esc="baseLegal"/>
+            </div>
+
+            <!-- KPIs -->
+            <div class="pld-indem-kpis d-flex flex-wrap gap-3 mb-3">
+                <t t-foreach="kpis" t-as="kpi" t-key="kpi.id">
+                    <div t-attf-class="pld-kpi-card p-2 rounded border #{kpi.highlight ? 'border-danger bg-danger-subtle' : 'bg-light'}">
+                        <div class="d-flex align-items-center gap-1 mb-1">
+                            <i t-attf-class="fa #{kpi.icon} text-#{kpi.color}" style="font-size: 12px;"/>
+                            <small class="text-muted" t-esc="kpi.label"/>
+                        </div>
+                        <div t-attf-class="fw-bold #{kpi.highlight ? 'text-danger fs-5' : ''}">
+                            <t t-if="kpi.format === 'currency'">
+                                <t t-esc="props.formatCurrency(kpi.value)"/>
+                            </t>
+                            <t t-elif="kpi.format === 'number'">
+                                <t t-esc="kpi.value"/>
+                            </t>
+                            <t t-else="">
+                                <t t-esc="props.formatValue(kpi.value, kpi.format)"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Formula -->
+            <div class="pld-indem-formula bg-danger-subtle p-2 rounded mb-3 d-flex align-items-center gap-2">
+                <i class="fa fa-calculator text-danger"/>
+                <code class="text-danger" t-esc="formula"/>
+            </div>
+
+            <!-- Desglose del calculo (si hay) -->
+            <t t-if="hasDesglose">
+                <div class="pld-indem-desglose mb-3">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                         t-on-click="toggleDetalleCalculo">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-list-ol text-secondary"/>
+                            <span class="fw-medium">Desglose del Calculo</span>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showDetalleCalculo ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showDetalleCalculo">
+                        <div class="pld-desglose-content mt-2">
+                            <table class="table table-sm table-bordered mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Concepto</th>
+                                        <th class="text-end">Dias</th>
+                                        <th class="text-end">Valor Dia</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="desglose" t-as="item" t-key="item_index">
+                                        <tr t-attf-class="#{item.highlight ? 'table-danger fw-bold' : ''}">
+                                            <td t-esc="item.concepto || item.label"/>
+                                            <td class="text-end" t-esc="item.dias"/>
+                                            <td class="text-end" t-esc="props.formatCurrency(item.valor_dia)"/>
+                                            <td class="text-end fw-bold" t-esc="props.formatCurrency(item.subtotal)"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+            <!-- Pasos del calculo -->
+            <t t-if="hasPasos">
+                <div class="pld-indem-pasos mb-3">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                         t-on-click="toggleDetalleCalculo">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-list-ol text-secondary"/>
+                            <span class="fw-medium">Pasos del Calculo</span>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showDetalleCalculo ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showDetalleCalculo">
+                        <div class="pld-pasos-list mt-2 ps-3 border-start border-2 border-danger">
+                            <t t-foreach="pasos" t-as="paso" t-key="paso_index">
+                                <div t-attf-class="d-flex justify-content-between py-1 #{paso.highlight or paso.destacado ? 'fw-bold text-danger' : 'small'}">
+                                    <span t-esc="paso.label || paso.nombre"/>
+                                    <span t-esc="formatPasoValue(paso)"/>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+            <!-- Tabla de referencia Art. 64 -->
+            <div class="pld-indem-referencia mt-3">
+                <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                     t-on-click="toggleTablaReferencia">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa fa-book text-secondary"/>
+                        <span class="fw-medium">Tabla de Referencia Art. 64 C.S.T.</span>
+                    </div>
+                    <i t-attf-class="fa fa-chevron-#{state.showTablaReferencia ? 'up' : 'down'}"/>
+                </div>
+                <t t-if="state.showTablaReferencia">
+                    <div class="pld-referencia-content mt-2">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Tipo Contrato</th>
+                                    <th>Condicion</th>
+                                    <th>Formula Indemnizacion</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="tablaReferencia" t-as="ref" t-key="ref_index">
+                                    <tr t-attf-class="#{ref.tipo === tipoContratoLabel and (ref.condicion.includes(rangoSalarialLabel) or tipoContrato === 'fijo') ? 'table-danger' : ''}">
+                                        <td t-esc="ref.tipo"/>
+                                        <td t-esc="ref.condicion"/>
+                                        <td><small t-esc="ref.formula"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Nota importante -->
+            <div class="pld-indem-nota mt-3 p-2 bg-warning-subtle rounded">
+                <div class="d-flex align-items-start gap-2">
+                    <i class="fa fa-exclamation-triangle text-warning mt-1"/>
+                    <small class="text-muted">
+                        <strong>Nota:</strong> La indemnizacion aplica solo en caso de despido sin justa causa.
+                        Para trabajadores con mas de 10 años de servicio antes de 1991, se aplican reglas especiales (Ley 50/1990).
+                    </small>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

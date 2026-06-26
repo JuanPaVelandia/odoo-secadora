@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineRetencion">
+        <div class="pld-retencion-container">
+            <!-- Header -->
+            <div class="pld-retencion-header d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa fa-percent text-danger"/>
+                    <span class="fw-bold">Retencion en la Fuente</span>
+                    <span class="badge bg-secondary" t-esc="procedimientoLabel"/>
+                </div>
+                <small class="text-muted" t-esc="baseLegal"/>
+            </div>
+
+            <!-- KPIs -->
+            <div class="pld-retencion-kpis d-flex flex-wrap gap-3 mb-3">
+                <t t-foreach="kpis" t-as="kpi" t-key="kpi.id">
+                    <div t-attf-class="pld-kpi-card p-2 rounded border #{kpi.highlight ? 'border-danger bg-danger-subtle' : 'bg-light'}">
+                        <div class="d-flex align-items-center gap-1 mb-1">
+                            <i t-attf-class="fa #{kpi.icon} text-#{kpi.color}" style="font-size: 12px;"/>
+                            <small class="text-muted" t-esc="kpi.label"/>
+                        </div>
+                        <div t-attf-class="fw-bold #{kpi.highlight ? 'text-danger fs-5' : ''}">
+                            <t t-if="kpi.format === 'currency'">
+                                <t t-esc="props.formatCurrency(kpi.value)"/>
+                            </t>
+                            <t t-elif="kpi.format === 'number'">
+                                <t t-esc="kpi.value"/>
+                            </t>
+                            <t t-else="">
+                                <t t-esc="props.formatValue(kpi.value, kpi.format)"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Timeline de pasos -->
+            <div class="pld-retencion-timeline">
+                <t t-foreach="pasos" t-as="paso" t-key="paso.numero">
+                    <div class="pld-timeline-step mb-3">
+                        <!-- Cabecera del paso -->
+                        <div class="d-flex align-items-start cursor-pointer"
+                             t-on-click="() => this.toggleStep(paso.numero)">
+                            <!-- Indicador numerado -->
+                            <div class="pld-step-indicator me-3 d-flex flex-column align-items-center">
+                                <div t-attf-class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                                     t-attf-style="width: 32px; height: 32px; background-color: #{getStepColor(paso.numero - 1)};">
+                                    <t t-esc="paso.numero"/>
+                                </div>
+                                <t t-if="paso_index &lt; pasos.length - 1">
+                                    <div class="pld-step-line" style="width: 2px; height: 20px; background: #E5E7EB;"/>
+                                </t>
+                            </div>
+
+                            <!-- Contenido del paso -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i t-attf-class="fa #{paso.icono || 'fa-circle'} text-#{paso.color || 'secondary'}"/>
+                                            <span t-attf-class="fw-medium #{paso.highlight ? 'fs-5' : ''}" t-esc="paso.titulo"/>
+                                        </div>
+                                        <small class="text-muted" t-esc="paso.subtitulo"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span t-attf-class="fw-bold #{paso.highlight ? 'text-danger fs-5' : ''}"
+                                              t-esc="formatPasoValue(paso)"/>
+                                        <t t-if="paso.items and paso.items.length > 0">
+                                            <i t-attf-class="fa fa-chevron-#{isStepExpanded(paso.numero) ? 'up' : 'down'} text-muted"/>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <!-- Items expandibles del paso -->
+                                <t t-if="paso.items and paso.items.length > 0 and isStepExpanded(paso.numero)">
+                                    <div class="pld-step-items mt-2 ps-3 border-start border-2"
+                                         t-attf-style="border-color: #{getStepColor(paso.numero - 1)} !important;">
+                                        <t t-foreach="paso.items" t-as="item" t-key="item_index">
+                                            <div class="d-flex justify-content-between py-1 small">
+                                                <div>
+                                                    <span t-esc="item.nombre || item.label"/>
+                                                    <t t-if="item.limite">
+                                                        <small class="text-muted ms-1">(Limite: <t t-esc="item.limite"/>)</small>
+                                                    </t>
+                                                </div>
+                                                <span class="fw-medium">
+                                                    <t t-if="item.formato === 'uvt'">
+                                                        <t t-esc="item.valor"/> UVT
+                                                    </t>
+                                                    <t t-elif="item.formato === 'percent'">
+                                                        <t t-esc="item.valor"/>%
+                                                    </t>
+                                                    <t t-elif="item.formato === 'text'">
+                                                        <t t-esc="item.valor"/>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <t t-esc="props.formatCurrency(item.valor)"/>
+                                                    </t>
+                                                </span>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Tabla de tarifas Art. 383 -->
+            <div class="pld-retencion-tarifas mt-3">
+                <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                     t-on-click="toggleTablaTarifas">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa fa-table text-secondary"/>
+                        <span class="fw-medium">Tabla de Tarifas Art. 383 E.T.</span>
+                    </div>
+                    <i t-attf-class="fa fa-chevron-#{state.showTablaTarifas ? 'up' : 'down'}"/>
+                </div>
+                <t t-if="state.showTablaTarifas">
+                    <div class="pld-tarifas-content mt-2">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Desde (UVT)</th>
+                                    <th>Hasta (UVT)</th>
+                                    <th>Tarifa Marginal</th>
+                                    <th>Impuesto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="tablaTarifas" t-as="rango" t-key="rango_index">
+                                    <tr t-attf-class="#{rangoAplicado.desde === rango.desde ? 'table-danger' : ''}">
+                                        <td t-esc="rango.desde"/>
+                                        <td t-esc="rango.hasta || '∞'"/>
+                                        <td t-esc="rango.tarifa"/>
+                                        <td><small t-esc="rango.impuesto"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,536 @@
+/* =============================================
+   DETALLE DE NOMINA — KANBAN LIMPIO
+   Estilos para .row.detalle-nomina en vista
+   formulario hr.payslip
+   ============================================= */
+
+
+/* =============================================
+   1. KEYFRAME ANIMATIONS
+   ============================================= */
+
+@keyframes prn-float {
+    0%, 100% { transform: translateY(-50%) rotate(0deg); }
+    50% { transform: translateY(calc(-50% - 6px)) rotate(2deg); }
+}
+
+@keyframes prn-pulse-soft {
+    0%, 100% { opacity: 0.07; transform: translateY(-50%) scale(1); }
+    50% { opacity: 0.11; transform: translateY(-50%) scale(1.04); }
+}
+
+@keyframes prn-spin-slow {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+
+/* =============================================
+   2. ESTRUCTURA KANBAN — RESET LIMPIO
+   ============================================= */
+
+/* Eliminar gap del renderer kanban */
+.row.detalle-nomina .o_kanban_renderer {
+    gap: 0 !important;
+}
+
+/* Record y card — sin bordes ni sombras */
+.row.detalle-nomina .o_kanban_record,
+.row.detalle-nomina .oe_kanban_card {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Wrapper interno — solo linea inferior */
+.row.detalle-nomina .oe_kanban_card > div {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #edf0f2 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    overflow: visible !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.row.detalle-nomina .oe_kanban_card > div:hover {
+    background-color: rgba(0, 0, 0, 0.015) !important;
+}
+
+
+/* =============================================
+   3. ICONO DE FONDO — CENTRADO Y ANIMADO
+   ============================================= */
+
+.row.detalle-nomina .oe_kanban_card > div > div:first-child {
+    display: block !important;
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+    font-size: 52px !important;
+    opacity: 0.07 !important;
+    z-index: 0 !important;
+    transition: opacity 0.3s ease !important;
+    pointer-events: none !important;
+}
+
+.row.detalle-nomina .oe_kanban_card > div:hover > div:first-child {
+    opacity: 0.14 !important;
+}
+
+/* --- Animaciones por tipo de icono --- */
+
+/* Reloj (horas extras) — giro lento purpura */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-clock-o) {
+    animation: prn-spin-slow 20s linear infinite !important;
+    color: #6f42c1 !important;
+}
+
+/* Corazon (salud/EPS) — pulso rojo */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-heartbeat) {
+    animation: prn-pulse-soft 2.5s ease-in-out infinite !important;
+    color: #e74c3c !important;
+}
+
+/* Escudo (pension) — flotacion azul */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-shield) {
+    animation: prn-float 4s ease-in-out infinite !important;
+    color: #3498db !important;
+}
+
+/* Manos (prestaciones) — flotacion dorada */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-handshake-o) {
+    animation: prn-float 5s ease-in-out infinite !important;
+    color: #f39c12 !important;
+}
+
+/* Documento (basico) — pulso verde */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-file-text-o) {
+    animation: prn-pulse-soft 4s ease-in-out infinite !important;
+    color: #2ecc71 !important;
+}
+
+/* Calendario (ausencias) — flotacion naranja */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-calendar-times-o) {
+    animation: prn-float 3.5s ease-in-out infinite !important;
+    color: #e67e22 !important;
+}
+
+/* Grafica (IBD/IBC/Base SS) — pulso teal */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-bar-chart) {
+    animation: prn-pulse-soft 3.5s ease-in-out infinite !important;
+    color: #00897b !important;
+}
+
+/* Avion (vacaciones) — flotacion azul cielo */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-plane) {
+    animation: prn-float 4.5s ease-in-out infinite !important;
+    color: #00acc1 !important;
+}
+
+/* Medkit (incapacidad) — pulso rojo suave */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-medkit) {
+    animation: prn-pulse-soft 3s ease-in-out infinite !important;
+    color: #ef5350 !important;
+}
+
+/* Nino (licencia maternidad) — flotacion rosa */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-child) {
+    animation: prn-float 4s ease-in-out infinite !important;
+    color: #ec407a !important;
+}
+
+/* Dinero (prestamos) — pulso ambar */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-money) {
+    animation: prn-pulse-soft 3.5s ease-in-out infinite !important;
+    color: #ffa726 !important;
+}
+
+/* Plus/Minus (totales) — pulso oscuro */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-plus-circle),
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-minus-circle) {
+    animation: prn-pulse-soft 3s ease-in-out infinite !important;
+    color: #34495e !important;
+}
+
+/* Circulo generico — pulso suave */
+.row.detalle-nomina .oe_kanban_card > div > div:first-child:has(.fa-circle) {
+    animation: prn-pulse-soft 5s ease-in-out infinite !important;
+}
+
+
+/* =============================================
+   4. BADGE DE CATEGORIA — COLORES POR TIPO
+   ============================================= */
+
+/* Base badge */
+.prn-cat-label {
+    display: inline-block !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    padding: 2px 8px !important;
+    border-radius: 3px !important;
+    margin-top: 3px !important;
+    background: #f0f1f3 !important;
+    color: #5a6270 !important;
+}
+
+/* Colores por categoria */
+.prn-cat-BASIC,
+.prn-cat-BASICO {
+    background: #e8f5e9 !important;
+    color: #2e7d32 !important;
+}
+
+.prn-cat-HEYREC {
+    background: #ede7f6 !important;
+    color: #5e35b1 !important;
+}
+
+.prn-cat-AUX_TRANS,
+.prn-cat-AUXTRANS {
+    background: #e3f2fd !important;
+    color: #1565c0 !important;
+}
+
+.prn-cat-INDEMNIZACION,
+.prn-cat-INDEMNIZACIONES {
+    background: #fff3e0 !important;
+    color: #e65100 !important;
+}
+
+.prn-cat-PRESTACIONES_SOCIALES,
+.prn-cat-PRIMA {
+    background: #fff8e1 !important;
+    color: #f57f17 !important;
+}
+
+.prn-cat-DEDUCCIONES,
+.prn-cat-DED {
+    background: #fce4ec !important;
+    color: #c62828 !important;
+}
+
+.prn-cat-SSOCIAL,
+.prn-cat-SS {
+    background: #e8eaf6 !important;
+    color: #283593 !important;
+}
+
+.prn-cat-PROVISIONES,
+.prn-cat-PROV_NOM {
+    background: #f3e5f5 !important;
+    color: #7b1fa2 !important;
+}
+
+.prn-cat-BASE_SS,
+.prn-cat-IBD_SS {
+    background: #e0f2f1 !important;
+    color: #00695c !important;
+}
+
+.prn-cat-VACACIONES {
+    background: #e0f7fa !important;
+    color: #00838f !important;
+}
+
+.prn-cat-INCAPACIDAD {
+    background: #fbe9e7 !important;
+    color: #bf360c !important;
+}
+
+.prn-cat-LICENCIA_MATERNIDAD {
+    background: #fce4ec !important;
+    color: #c2185b !important;
+}
+
+.prn-cat-DEV_SAL,
+.prn-cat-DEVENGOS {
+    background: #e8f5e9 !important;
+    color: #388e3c !important;
+}
+
+.prn-cat-DEV_NO_SAL {
+    background: #f1f8e9 !important;
+    color: #558b2f !important;
+}
+
+.prn-cat-RETENCION,
+.prn-cat-RT {
+    background: #fff3e0 !important;
+    color: #e65100 !important;
+}
+
+.prn-cat-PRESTAMO {
+    background: #efebe9 !important;
+    color: #4e342e !important;
+}
+
+
+/* =============================================
+   5. FORMULA BAR — MONOSPACE TRANSPARENTE
+   ============================================= */
+
+.prn-formula-bar {
+    font-size: 11px;
+    color: #adb5bd;
+    font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+    background: rgba(0, 0, 0, 0.02);
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.prn-formula-bar .fa-calculator {
+    color: #ced4da;
+}
+
+/* Override para formulas con inline style existentes */
+.row.detalle-nomina .oe_kanban_card div[style*="color: #6c757d"][style*="font-size: 13px"] {
+    font-size: 11px !important;
+    color: #adb5bd !important;
+    font-family: 'SF Mono', 'Consolas', 'Monaco', monospace !important;
+    background: rgba(0, 0, 0, 0.02) !important;
+    padding: 3px 8px !important;
+    border-radius: 3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin-bottom: 4px !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+
+.row.detalle-nomina .oe_kanban_card div[style*="color: #6c757d"][style*="font-size: 13px"] .fa-calculator {
+    color: #ced4da !important;
+}
+
+
+/* =============================================
+   6. HEADERS — LINEA LIMPIA
+   ============================================= */
+
+.row.detalle-nomina .alert.alert-success,
+.row.detalle-nomina .alert.alert-danger,
+.row.detalle-nomina .alert.alert-warning,
+.row.detalle-nomina .alert.alert-info,
+.row.detalle-nomina .alert.alert-primary {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid currentColor !important;
+    border-radius: 0 !important;
+    padding: 10px 4px 8px !important;
+    margin-bottom: 2px !important;
+}
+
+.row.detalle-nomina .alert.alert-success {
+    border-color: #28a745 !important;
+    color: #28a745 !important;
+}
+
+.row.detalle-nomina .alert.alert-danger {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.row.detalle-nomina .alert.alert-warning {
+    border-color: #9c27b0 !important;
+    color: #9c27b0 !important;
+}
+
+.row.detalle-nomina .alert.alert-info {
+    border-color: #00897b !important;
+    color: #00897b !important;
+}
+
+.row.detalle-nomina .alert.alert-primary {
+    border-color: #1565c0 !important;
+    color: #1565c0 !important;
+}
+
+/* Titulo de seccion */
+.row.detalle-nomina .tiulo-detalle-nomina {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+}
+
+
+/* =============================================
+   7. FONDOS SUAVES POR SECCION
+   ============================================= */
+
+/* Devengos — verde fantasma */
+.row.detalle-nomina .devengos-contenedor .o_kanban_renderer {
+    background: rgba(40, 167, 69, 0.015);
+    border-radius: 4px;
+}
+
+.row.detalle-nomina .devengos-contenedor .oe_kanban_card > div:hover {
+    background-color: rgba(40, 167, 69, 0.04) !important;
+}
+
+/* Deducciones — rosa fantasma */
+.row.detalle-nomina .deducciones-contenedor .o_kanban_renderer {
+    background: rgba(220, 53, 69, 0.015);
+    border-radius: 4px;
+}
+
+.row.detalle-nomina .deducciones-contenedor .oe_kanban_card > div:hover {
+    background-color: rgba(220, 53, 69, 0.04) !important;
+}
+
+/* Provisiones — violeta fantasma */
+.row.detalle-nomina .provisiones-contenedor .o_kanban_renderer {
+    background: rgba(123, 31, 162, 0.015);
+    border-radius: 4px;
+}
+
+.row.detalle-nomina .provisiones-contenedor .oe_kanban_card > div:hover {
+    background-color: rgba(123, 31, 162, 0.04) !important;
+}
+
+/* Neto — azul fantasma */
+.row.detalle-nomina .neto-contenedor .o_kanban_renderer {
+    background: rgba(0, 105, 92, 0.015);
+    border-radius: 4px;
+}
+
+.row.detalle-nomina .neto-contenedor .oe_kanban_card > div:hover {
+    background-color: rgba(0, 105, 92, 0.04) !important;
+}
+
+
+/* =============================================
+   8. CONTENIDO INTERNO — AJUSTES
+   ============================================= */
+
+/* Padding interno del contenido */
+.row.detalle-nomina .oe_kanban_card > div > div:nth-child(2) {
+    padding: 12px 8px !important;
+}
+
+/* Posicion relativa para z-index sobre icono de fondo */
+.row.detalle-nomina .oe_kanban_card > div {
+    position: relative !important;
+}
+
+/* Footer con info adicional */
+.row.detalle-nomina .oe_kanban_card > div > div:last-child[style*="background: linear-gradient"] {
+    background: rgba(0, 0, 0, 0.02) !important;
+    border-top: 1px solid #edf0f2 !important;
+    border-radius: 0 !important;
+}
+
+
+/* =============================================
+   9. PROVISIONES Y SUBTOTALES (sibling rows)
+   ============================================= */
+
+/* Misma limpieza para rows hermanos de detalle-nomina */
+.row.detalle-nomina ~ .row .o_kanban_renderer {
+    gap: 0 !important;
+}
+
+.row.detalle-nomina ~ .row .o_kanban_record,
+.row.detalle-nomina ~ .row .oe_kanban_card {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.row.detalle-nomina ~ .row .oe_kanban_card > div {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #edf0f2 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+}
+
+.row.detalle-nomina ~ .row .oe_kanban_card > div:hover {
+    background-color: rgba(0, 0, 0, 0.015) !important;
+}
+
+/* Iconos de fondo en sibling rows */
+.row.detalle-nomina ~ .row .oe_kanban_card > div > div:first-child {
+    display: block !important;
+    position: absolute !important;
+    right: 16px !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+    font-size: 52px !important;
+    opacity: 0.07 !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    animation: prn-pulse-soft 5s ease-in-out infinite !important;
+}
+
+.row.detalle-nomina ~ .row .oe_kanban_card > div:hover > div:first-child {
+    opacity: 0.14 !important;
+}
+
+/* Headers en sibling rows */
+.row.detalle-nomina ~ .row .alert {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid currentColor !important;
+    border-radius: 0 !important;
+    padding: 10px 4px 8px !important;
+    margin-bottom: 2px !important;
+}
+
+.row.detalle-nomina ~ .row .tiulo-detalle-nomina,
+.row.detalle-nomina ~ .row .alert b {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+}
+
+/* Category badges en sibling rows */
+.row.detalle-nomina ~ .row .oe_kanban_card small span,
+.row.detalle-nomina ~ .row .prn-cat-label {
+    display: inline-block !important;
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.6px !important;
+    padding: 2px 8px !important;
+    border-radius: 3px !important;
+    margin-top: 3px !important;
+    background: #f0f1f3 !important;
+    color: #5a6270 !important;
+}
+
+/* Formula en sibling rows */
+.row.detalle-nomina ~ .row .oe_kanban_card div[style*="color: #6c757d"][style*="font-size: 13px"] {
+    font-size: 11px !important;
+    color: #adb5bd !important;
+    font-family: 'SF Mono', 'Consolas', 'Monaco', monospace !important;
+    background: rgba(0, 0, 0, 0.02) !important;
+    padding: 3px 8px !important;
+    border-radius: 3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin-bottom: 4px !important;
+    border: 1px solid rgba(0, 0, 0, 0.04) !important;
+}

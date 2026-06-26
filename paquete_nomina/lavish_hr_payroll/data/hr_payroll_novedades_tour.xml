@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="lavish_hr_payroll_novedades_ausencias_tour" model="web_tour.tour">
+        <field name="name">lavish_hr_payroll_novedades_ausencias_tour</field>
+        <field name="sequence">210</field>
+        <field name="rainbow_man_message"><![CDATA[
+            <strong>Payroll novelty and absence flow complete.</strong>
+        ]]></field>
+    </record>
+</odoo>

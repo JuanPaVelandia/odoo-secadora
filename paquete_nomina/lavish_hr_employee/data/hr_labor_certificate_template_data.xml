@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+        ============================================
+        PLANTILLAS DE CERTIFICADO LABORAL - EJEMPLOS
+        ============================================
+        Estas plantillas de ejemplo muestran diferentes configuraciones
+        de estilos y bloques para certificados laborales.
+
+        Estilos disponibles:
+        - classic: Azul/verde tradicional
+        - modern: Gradientes púrpura
+        - formal: Dorado/negro ejecutivo
+        - minimal: Blanco y negro
+        - elegant: Vinotinto sofisticado
+        - corporate: Azul institucional
+        -->
+
+        <!--
+        Nota: Las plantillas se crean por compañía usando SQL constraint.
+        Los registros de ejemplo se pueden usar como referencia para
+        configurar nuevas plantillas.
+
+        El siguiente es un registro de ejemplo que muestra la estructura
+        de configuración recomendada.
+        -->
+
+        <!-- Texto de ayuda para placeholders disponibles -->
+        <record id="labor_certificate_placeholder_help" model="ir.config_parameter">
+            <field name="key">hr_labor_certificate.placeholders_help</field>
+            <field name="value">
+Variables disponibles para certificados laborales:
+
+DATOS DEL EMPLEADO:
+- %(empleado)s - Nombre completo del empleado
+- %(identificacion)s - Número de identificación
+- %(tipo_documento)s - Tipo de documento (CC, CE, etc.)
+- %(genero)s - Género (male/female)
+- %(cargo)s - Cargo del empleado
+- %(departamento)s - Departamento
+
+DATOS DEL CONTRATO:
+- %(fecha_inicio)s - Fecha de inicio del contrato
+- %(fecha_retiro)s - Fecha de retiro
+- %(salario)s - Salario básico mensual
+- %(salario_letras)s - Salario en letras
+- %(tipo_contrato)s - Tipo de contrato
+
+DATOS DE LA EMPRESA:
+- %(empresa)s - Nombre de la empresa
+- %(nit_empresa)s - NIT de la empresa
+- %(ciudad_empresa)s - Ciudad de la empresa
+
+DATOS DEL CERTIFICADO:
+- %(dirigido_a)s - Solicitante/Dirigido a
+- %(tercero)s - Nombre del tercero
+- %(secuencia)s - Número de certificado
+- %(fecha_actual)s - Fecha actual en texto
+            </field>
+        </record>
+
+        <!-- Secuencias movidas a data/ir_sequences.xml -->
+
+    </data>
+
+    <!-- Reglas salariales comunes para certificados (sin noupdate para que se puedan actualizar) -->
+    <data>
+        <!--
+        Reglas salariales recomendadas para incluir en certificados:
+
+        1. BASIC - Salario básico (valor del contrato)
+        2. AUX001 - Auxilio de transporte (valor del contrato)
+        3. HEYREC - Horas extras y recargos (promedio 3 meses)
+        4. COMISION - Comisiones (promedio 3 meses)
+        5. BONIF - Bonificaciones (último mes)
+
+        Estos son ejemplos genéricos. Cada empresa debe configurar
+        según sus propias reglas salariales.
+        -->
+    </data>
+</odoo>

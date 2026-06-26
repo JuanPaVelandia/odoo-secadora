@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Container for global context menu -->
+    <t t-name="lavish_hr_payroll.ContextMenuContainer">
+        <ContextMenu/>
+    </t>
+
+    <t t-name="lavish_hr_payroll.ContextMenu">
+        <div t-if="state.isOpen"
+             t-ref="menu"
+             class="lavish-context-menu dropdown-menu show shadow-lg"
+             t-att-style="menuStyle"
+             t-on-contextmenu.prevent="">
+
+            <t t-foreach="state.items" t-as="item" t-key="item_index">
+                <!-- Separator -->
+                <div t-if="item.separator" class="dropdown-divider"/>
+
+                <!-- Section Header -->
+                <div t-elif="item.isHeader" class="dropdown-header d-flex align-items-center px-3 py-1">
+                    <i t-if="item.icon" t-attf-class="fa {{item.icon}} me-2" style="font-size: 11px;"/>
+                    <small class="fw-bold text-uppercase" style="font-size: 10px; letter-spacing: 0.5px;">
+                        <t t-esc="item.label"/>
+                    </small>
+                </div>
+
+                <!-- Menu Item -->
+                <a t-else=""
+                   href="#"
+                   class="dropdown-item d-flex align-items-center py-2 px-3"
+                   t-att-class="{'disabled': item.disabled, 'active-item': item.active}"
+                   t-on-click.prevent.stop="() => this.onItemClick(item)">
+                    <i t-if="item.icon"
+                       t-attf-class="fa {{item.icon}} me-3"
+                       t-att-class="{'text-primary': item.active, 'text-muted': !item.active}"
+                       style="width: 16px;"/>
+                    <span t-esc="item.label"/>
+                    <span t-if="item.active" class="ms-2">
+                        <i class="fa fa-check text-success" style="font-size: 10px;"/>
+                    </span>
+                    <span t-if="item.shortcut" class="ms-auto text-muted small ps-3">
+                        <t t-esc="item.shortcut"/>
+                    </span>
+                </a>
+            </t>
+
+            <!-- Empty state -->
+            <div t-if="state.items.length === 0" class="dropdown-item text-muted">
+                <i class="fa fa-info-circle me-2"/>
+                No hay acciones disponibles
+            </div>
+        </div>
+    </t>
+
+</templates>

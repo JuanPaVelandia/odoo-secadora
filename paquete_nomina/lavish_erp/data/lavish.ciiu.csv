@@ -1,0 +1,716 @@
+id,code,name,ciiu_type,section,parent_id:id,is_dian_special,active
+ciiu_section_a,A,Agricultura ganaderia caza silvicultura y pesca,section,A,,False,True
+ciiu_section_b,B,Explotacion de minas y canteras,section,B,,False,True
+ciiu_section_c,C,Industrias manufactureras,section,C,,False,True
+ciiu_section_d,D,Suministro de electricidad gas vapor y aire acondicionado,section,D,,False,True
+ciiu_section_e,E,Distribucion de agua evacuacion y tratamiento de aguas residuales gestion de desechos,section,E,,False,True
+ciiu_section_f,F,Construccion,section,F,,False,True
+ciiu_section_g,G,Comercio al por mayor y al por menor reparacion de vehiculos automotores y motocicletas,section,G,,False,True
+ciiu_section_h,H,Transporte y almacenamiento,section,H,,False,True
+ciiu_section_i,I,Alojamiento y servicios de comida,section,I,,False,True
+ciiu_section_j,J,Informacion y comunicaciones,section,J,,False,True
+ciiu_section_k,K,Actividades financieras y de seguros,section,K,,False,True
+ciiu_section_l,L,Actividades inmobiliarias,section,L,,False,True
+ciiu_section_m,M,Actividades profesionales cientificas y tecnicas,section,M,,False,True
+ciiu_section_n,N,Actividades de servicios administrativos y de apoyo,section,N,,False,True
+ciiu_section_o,O,Administracion publica y defensa planes de seguridad social de afiliacion obligatoria,section,O,,False,True
+ciiu_section_p,P,Educacion,section,P,,False,True
+ciiu_section_q,Q,Actividades de atencion de la salud humana y de asistencia social,section,Q,,False,True
+ciiu_section_r,R,Actividades artisticas de entretenimiento y recreacion,section,R,,False,True
+ciiu_section_s,S,Otras actividades de servicios,section,S,,False,True
+ciiu_section_t,T,Actividades de los hogares individuales como empleadores,section,T,,False,True
+ciiu_section_u,U,Actividades de organizaciones y entidades extraterritoriales,section,U,,False,True
+ciiu_dian_0010,0010,Asalariados,dian,DIAN,,True,True
+ciiu_dian_0020,0020,Pensionados,dian,DIAN,,True,True
+ciiu_dian_0081,0081,Personas naturales sin actividad economica,dian,DIAN,,True,True
+ciiu_dian_0082,0082,Personas naturales subsidiadas por terceros,dian,DIAN,,True,True
+ciiu_dian_0090,0090,Rentistas de capital solo para personas naturales,dian,DIAN,,True,True
+ciiu_div_01,01,Agricultura  ganadería  caza y actividades de servicios conexas,division,A,ciiu_section_a,False,True
+ciiu_group_011,011,Cultivos agrícolas transitorios,group,A,ciiu_div_01,False,True
+ciiu_0111,0111,Cultivo de cereales (excepto arroz)  legumbres y semillas oleaginosas,class,A,ciiu_group_011,False,True
+ciiu_0112,0112,Cultivo de arroz,class,A,ciiu_group_011,False,True
+ciiu_0113,0113,Cultivo de hortalizas  raíces y tubérculos,class,A,ciiu_group_011,False,True
+ciiu_0114,0114,Cultivo de tabaco,class,A,ciiu_group_011,False,True
+ciiu_0115,0115,Cultivo de plantas textiles,class,A,ciiu_group_011,False,True
+ciiu_0119,0119,Otros cultivos transitorios n.c.p.,class,A,ciiu_group_011,False,True
+ciiu_group_012,012,Cultivos agrícolas permanentes,group,A,ciiu_div_01,False,True
+ciiu_0121,0121,Cultivo de frutas tropicales y subtropicales,class,A,ciiu_group_012,False,True
+ciiu_0122,0122,Cultivo de plátano y banano,class,A,ciiu_group_012,False,True
+ciiu_0123,0123,Cultivo de café,class,A,ciiu_group_012,False,True
+ciiu_0124,0124,Cultivo de caña de azúcar,class,A,ciiu_group_012,False,True
+ciiu_0125,0125,Cultivo de flor de corte,class,A,ciiu_group_012,False,True
+ciiu_0126,0126,Cultivo de palma para aceite (palma africana) y otros frutos oleaginosos,class,A,ciiu_group_012,False,True
+ciiu_0127,0127,Cultivo de plantas con las que se preparan bebidas,class,A,ciiu_group_012,False,True
+ciiu_0128,0128,Cultivo de especias y de plantas aromáticas y medicinales,class,A,ciiu_group_012,False,True
+ciiu_0129,0129,Otros cultivos permanentes n.c.p.,class,A,ciiu_group_012,False,True
+ciiu_group_013,013,Propagación de plantas (actividades de los viveros  excepto viveros forestales),group,A,ciiu_div_01,False,True
+ciiu_group_014,014,Ganadería,group,A,ciiu_div_01,False,True
+ciiu_0141,0141,Cría de ganado bovino y bufalino,class,A,ciiu_group_014,False,True
+ciiu_0142,0142,Cría de caballos y otros equinos,class,A,ciiu_group_014,False,True
+ciiu_0143,0143,Cría de ovejas y cabras,class,A,ciiu_group_014,False,True
+ciiu_0144,0144,Cría de ganado porcino,class,A,ciiu_group_014,False,True
+ciiu_0145,0145,Cría de aves de corral,class,A,ciiu_group_014,False,True
+ciiu_0149,0149,Cría de otros animales n.c.p.,class,A,ciiu_group_014,False,True
+ciiu_group_015,015,Explotación mixta (agrícola y pecuaria),group,A,ciiu_div_01,False,True
+ciiu_group_016,016,Actividades de apoyo a la agricultura y la ganadería  y actividades posteriores a la cosecha,group,A,ciiu_div_01,False,True
+ciiu_0161,0161,Actividades de apoyo a la agricultura,class,A,ciiu_group_016,False,True
+ciiu_0162,0162,Actividades de apoyo a la ganadería,class,A,ciiu_group_016,False,True
+ciiu_0163,0163,Actividades posteriores a la cosecha,class,A,ciiu_group_016,False,True
+ciiu_0164,0164,Tratamiento de semillas para propagación,class,A,ciiu_group_016,False,True
+ciiu_group_017,017,Caza ordinaria y mediante trampas y actividades de servicios conexas,group,A,ciiu_div_01,False,True
+ciiu_div_02,02,Silvicultura y extracción de madera,division,A,ciiu_section_a,False,True
+ciiu_group_021,021,Silvicultura y otras actividades forestales,group,A,ciiu_div_02,False,True
+ciiu_group_022,022,Extracción de madera,group,A,ciiu_div_02,False,True
+ciiu_group_023,023,Recolección de productos forestales diferentes a la madera,group,A,ciiu_div_02,False,True
+ciiu_group_024,024,Servicios de apoyo a la silvicultura,group,A,ciiu_div_02,False,True
+ciiu_div_03,03,Pesca y acuicultura,division,A,ciiu_section_a,False,True
+ciiu_group_031,031,Pesca,group,A,ciiu_div_03,False,True
+ciiu_0311,0311,Pesca marítima,class,A,ciiu_group_031,False,True
+ciiu_0312,0312,Pesca de agua dulce,class,A,ciiu_group_031,False,True
+ciiu_group_032,032,Acuicultura,group,A,ciiu_div_03,False,True
+ciiu_0321,0321,Acuicultura marítima,class,A,ciiu_group_032,False,True
+ciiu_0322,0322,Acuicultura de agua dulce,class,A,ciiu_group_032,False,True
+ciiu_div_05,05,Extracción de carbón de piedra y lignito,division,B,ciiu_section_b,False,True
+ciiu_group_051,051,Extracción de hulla (carbón de piedra),group,B,ciiu_div_05,False,True
+ciiu_group_052,052,Extracción de carbón lignito,group,B,ciiu_div_05,False,True
+ciiu_div_06,06,Extracción de petróleo crudo y gas natural,division,B,ciiu_section_b,False,True
+ciiu_group_061,061,Extracción de petróleo crudo,group,B,ciiu_div_06,False,True
+ciiu_group_062,062,Extracción de gas natural,group,B,ciiu_div_06,False,True
+ciiu_div_07,07,Extracción de minerales metalíferos,division,B,ciiu_section_b,False,True
+ciiu_group_071,071,Extracción de minerales de hierro,group,B,ciiu_div_07,False,True
+ciiu_group_072,072,Extracción de minerales metalíferos no ferrosos,group,B,ciiu_div_07,False,True
+ciiu_0721,0721,Extracción de minerales de uranio y de torio,class,B,ciiu_group_072,False,True
+ciiu_0722,0722,Extracción de oro y otros metales preciosos,class,B,ciiu_group_072,False,True
+ciiu_0723,0723,Extracción de minerales de níquel,class,B,ciiu_group_072,False,True
+ciiu_0729,0729,Extracción de otros minerales metalíferos no ferrosos n.c.p.,class,B,ciiu_group_072,False,True
+ciiu_div_08,08,Extracción de otras minas y canteras,division,B,ciiu_section_b,False,True
+ciiu_group_081,081,Extracción de piedra  arena  arcillas  cal  yeso  caolín  bentonitas y similares,group,B,ciiu_div_08,False,True
+ciiu_0811,0811,Extracción de piedra  arena  arcillas comunes  yeso y anhidrita,class,B,ciiu_group_081,False,True
+ciiu_0812,0812,Extracción de arcillas de uso industrial  caliza  caolín y bentonitas,class,B,ciiu_group_081,False,True
+ciiu_group_082,082,Extracción de esmeraldas  piedras preciosas y semipreciosas,group,B,ciiu_div_08,False,True
+ciiu_group_089,089,Extracción de otros minerales no metálicos n.c.p.,group,B,ciiu_div_08,False,True
+ciiu_0891,0891,Extracción de minerales para la fabricación de abonos y productos químicos,class,B,ciiu_group_089,False,True
+ciiu_0892,0892,Extracción de halita (sal),class,B,ciiu_group_089,False,True
+ciiu_0899,0899,Extracción de otros minerales no metálicos n.c.p.,class,B,ciiu_group_089,False,True
+ciiu_div_09,09,Actividades de servicios de apoyo para la explotación de minas,division,B,ciiu_section_b,False,True
+ciiu_group_091,091,Actividades de apoyo para la extracción de petróleo y de gas natural,group,B,ciiu_div_09,False,True
+ciiu_group_099,099,Actividades de apoyo para otras actividades de explotación de minas y canteras,group,B,ciiu_div_09,False,True
+ciiu_div_10,10,Elaboración de productos alimenticios,division,C,ciiu_section_c,False,True
+ciiu_group_101,101,Procesamiento y conservación de carne  pescado  crustáceos y moluscos,group,C,ciiu_div_10,False,True
+ciiu_1011,1011,Procesamiento y conservación de carne y productos cárnicos,class,C,ciiu_group_101,False,True
+ciiu_1012,1012,Procesamiento y conservación de pescados  crustáceos y moluscos,class,C,ciiu_group_101,False,True
+ciiu_group_102,102,Procesamiento y conservación de frutas  legumbres  hortalizas y tubérculos,group,C,ciiu_div_10,False,True
+ciiu_group_103,103,Elaboración de aceites y grasas de origen vegetal y animal,group,C,ciiu_div_10,False,True
+ciiu_group_104,104,Elaboración de productos lácteos,group,C,ciiu_div_10,False,True
+ciiu_group_105,105,Elaboración de productos de molinería  almidones y productos derivados del almidón,group,C,ciiu_div_10,False,True
+ciiu_1051,1051,Elaboración de productos de molinería,class,C,ciiu_group_105,False,True
+ciiu_1052,1052,Elaboración de almidones y productos derivados del almidón,class,C,ciiu_group_105,False,True
+ciiu_group_106,106,Elaboración de productos de café,group,C,ciiu_div_10,False,True
+ciiu_1061,1061,Trilla de café,class,C,ciiu_group_106,False,True
+ciiu_1062,1062,Descafeinado  tostión y molienda del café,class,C,ciiu_group_106,False,True
+ciiu_1063,1063,Otros derivados del café,class,C,ciiu_group_106,False,True
+ciiu_group_107,107,Elaboración de azúcar y panela,group,C,ciiu_div_10,False,True
+ciiu_1071,1071,Elaboración y refinación de azúcar,class,C,ciiu_group_107,False,True
+ciiu_1072,1072,Elaboración de panela,class,C,ciiu_group_107,False,True
+ciiu_group_108,108,Elaboración de otros productos alimenticios,group,C,ciiu_div_10,False,True
+ciiu_1081,1081,Elaboración de productos de panadería,class,C,ciiu_group_108,False,True
+ciiu_1082,1082,Elaboración de cacao  chocolate y productos de confitería,class,C,ciiu_group_108,False,True
+ciiu_1083,1083,Elaboración de macarrones  fideos  alcuzcuz y productos farináceos similares,class,C,ciiu_group_108,False,True
+ciiu_1084,1084,Elaboración de comidas y platos preparados,class,C,ciiu_group_108,False,True
+ciiu_1089,1089,Elaboración de otros productos alimenticios n.c.p.,class,C,ciiu_group_108,False,True
+ciiu_group_109,109,Elaboración de alimentos preparados para animales,group,C,ciiu_div_10,False,True
+ciiu_div_11,11,Elaboración de bebidas,division,C,ciiu_section_c,False,True
+ciiu_group_110,110,Elaboración de bebidas,group,C,ciiu_div_11,False,True
+ciiu_1101,1101,Destilación  rectificación y mezcla de bebidas alcohólicas,class,C,ciiu_group_110,False,True
+ciiu_1102,1102,Elaboración de bebidas fermentadas no destiladas,class,C,ciiu_group_110,False,True
+ciiu_1103,1103,Producción de malta  elaboración de cervezas y otras bebidas malteadas,class,C,ciiu_group_110,False,True
+ciiu_1104,1104,Elaboración de bebidas no alcohólicas  producción de aguas minerales y de otras aguas embotelladas,class,C,ciiu_group_110,False,True
+ciiu_div_12,12,Elaboración de productos de tabaco,division,C,ciiu_section_c,False,True
+ciiu_group_120,120,Elaboración de productos de tabaco,group,C,ciiu_div_12,False,True
+ciiu_div_13,13,Fabricación de productos textiles,division,C,ciiu_section_c,False,True
+ciiu_group_131,131,Preparación  hilatura  tejeduría y acabado de productos textiles,group,C,ciiu_div_13,False,True
+ciiu_1311,1311,Preparación e hilatura de fibras textiles,class,C,ciiu_group_131,False,True
+ciiu_1312,1312,Tejeduría de productos textiles,class,C,ciiu_group_131,False,True
+ciiu_1313,1313,Acabado de productos textiles,class,C,ciiu_group_131,False,True
+ciiu_group_139,139,Fabricación de otros productos textiles,group,C,ciiu_div_13,False,True
+ciiu_1391,1391,Fabricación de tejidos de punto y ganchillo,class,C,ciiu_group_139,False,True
+ciiu_1392,1392,Confección de artículos con materiales textiles  excepto prendas de vestir,class,C,ciiu_group_139,False,True
+ciiu_1393,1393,Fabricación de tapetes y alfombras para pisos,class,C,ciiu_group_139,False,True
+ciiu_1394,1394,Fabricación de cuerdas  cordeles  cables  bramantes y redes,class,C,ciiu_group_139,False,True
+ciiu_1399,1399,Fabricación de otros artículos textiles n.c.p.,class,C,ciiu_group_139,False,True
+ciiu_div_14,14,Confección de prendas de vestir,division,C,ciiu_section_c,False,True
+ciiu_group_141,141,Confección de prendas de vestir  excepto prendas de piel,group,C,ciiu_div_14,False,True
+ciiu_group_142,142,Fabricación de artículos de piel,group,C,ciiu_div_14,False,True
+ciiu_group_143,143,Fabricación de artículos de punto y ganchillo,group,C,ciiu_div_14,False,True
+ciiu_div_15,15,Curtido y recurtido de cueros; fabricación de calzado; fabricación de artículos de viaje  maletas  bolsos de mano y artículos similares  y fabricación de artículos de talabartería y guarnicionería; adobo y teñido de pieles,division,C,ciiu_section_c,False,True
+ciiu_group_151,151,Curtido y recurtido de cueros; fabricación de artículos de viaje  bolsos de mano y artículos similares  y fabricación de artículos de talabartería y guarnicionería  adobo y teñido de pieles,group,C,ciiu_div_15,False,True
+ciiu_1511,1511,Curtido y recurtido de cueros; recurtido y teñido de pieles,class,C,ciiu_group_151,False,True
+ciiu_1512,1512,Fabricación de artículos de viaje  bolsos de mano y artículos similares elaborados en cuero  y fabricación de artículos de talabartería y guarnicionería,class,C,ciiu_group_151,False,True
+ciiu_1513,1513,Fabricación de artículos de viaje  bolsos de mano y artículos similares; artículos de talabartería y guarnicionería elaborados en otros materiales,class,C,ciiu_group_151,False,True
+ciiu_group_152,152,Fabricación de calzado,group,C,ciiu_div_15,False,True
+ciiu_1521,1521,Fabricación de calzado de cuero y piel  con cualquier tipo de suela,class,C,ciiu_group_152,False,True
+ciiu_1522,1522,Fabricación de otros tipos de calzado  excepto calzado de cuero y piel,class,C,ciiu_group_152,False,True
+ciiu_1523,1523,Fabricación de partes del calzado,class,C,ciiu_group_152,False,True
+ciiu_div_16,16,Transformación de la madera y fabricación de productos de madera y de corcho  excepto muebles; fabricación de artículos de cestería y espartería,division,C,ciiu_section_c,False,True
+ciiu_group_161,161,Aserrado  acepillado e impregnación de la madera,group,C,ciiu_div_16,False,True
+ciiu_group_162,162,Fabricación de hojas de madera para enchapado; fabricación de tableros contrachapados  tableros laminados  tableros de partículas y otros tableros y paneles,group,C,ciiu_div_16,False,True
+ciiu_group_163,163,Fabricación de partes y piezas de madera  de carpintería y ebanistería para la construcción,group,C,ciiu_div_16,False,True
+ciiu_group_164,164,Fabricación de recipientes de madera,group,C,ciiu_div_16,False,True
+ciiu_group_169,169,Fabricación de otros productos de madera; fabricación de artículos de corcho  cestería y espartería,group,C,ciiu_div_16,False,True
+ciiu_div_17,17,Fabricación de papel  cartón y productos de papel y cartón,division,C,ciiu_section_c,False,True
+ciiu_group_170,170,Fabricación de papel  cartón y productos de papel y cartón,group,C,ciiu_div_17,False,True
+ciiu_1701,1701,Fabricación de pulpas (pastas) celulósicas; papel y cartón,class,C,ciiu_group_170,False,True
+ciiu_1702,1702,Fabricación de papel y cartón ondulado (corrugado); fabricación de envases  empaques y de embalajes de papel y cartón.,class,C,ciiu_group_170,False,True
+ciiu_1709,1709,Fabricación de otros artículos de papel y cartón,class,C,ciiu_group_170,False,True
+ciiu_div_18,18,Actividades de impresión y de producción de copias a partir de grabaciones originales,division,C,ciiu_section_c,False,True
+ciiu_group_181,181,Actividades de impresión y actividades de servicios relacionados con la impresión,group,C,ciiu_div_18,False,True
+ciiu_1811,1811,Actividades de impresión,class,C,ciiu_group_181,False,True
+ciiu_1812,1812,Actividades de servicios relacionados con la impresión,class,C,ciiu_group_181,False,True
+ciiu_group_182,182,Producción de copias a partir de grabaciones originales,group,C,ciiu_div_18,False,True
+ciiu_div_19,19,Coquización  fabricación de productos de la refinación del petróleo y actividad de mezcla de combustibles,division,C,ciiu_section_c,False,True
+ciiu_group_191,191,Fabricación de productos de hornos de coque,group,C,ciiu_div_19,False,True
+ciiu_group_192,192,Fabricación de productos de la refinación del petróleo,group,C,ciiu_div_19,False,True
+ciiu_1921,1921,Fabricación de productos de la refinación del petróleo,class,C,ciiu_group_192,False,True
+ciiu_1922,1922,Actividad de mezcla de combustibles,class,C,ciiu_group_192,False,True
+ciiu_div_20,20,Fabricación de sustancias y productos químicos,division,C,ciiu_section_c,False,True
+ciiu_group_201,201,Fabricación de sustancias químicas básicas  abonos y compuestos inorgánicos nitrogenados  plásticos y caucho sintético en formas primarias,group,C,ciiu_div_20,False,True
+ciiu_2011,2011,Fabricación de sustancias y productos químicos básicos,class,C,ciiu_group_201,False,True
+ciiu_2012,2012,Fabricación de abonos y compuestos inorgánicos nitrogenados,class,C,ciiu_group_201,False,True
+ciiu_2013,2013,Fabricación de plásticos en formas primarias,class,C,ciiu_group_201,False,True
+ciiu_2014,2014,Fabricación de caucho sintético en formas primarias,class,C,ciiu_group_201,False,True
+ciiu_group_202,202,Fabricación de otros productos químicos,group,C,ciiu_div_20,False,True
+ciiu_2021,2021,Fabricación de plaguicidas y otros productos químicos de uso agropecuario,class,C,ciiu_group_202,False,True
+ciiu_2022,2022,Fabricación de pinturas  barnices y revestimientos similares  tintas para impresión y masillas,class,C,ciiu_group_202,False,True
+ciiu_2023,2023,Fabricación de jabones y detergentes  preparados para limpiar y pulir; perfumes y preparados de tocador,class,C,ciiu_group_202,False,True
+ciiu_2029,2029,Fabricación de otros productos químicos n.c.p.,class,C,ciiu_group_202,False,True
+ciiu_group_203,203,Fabricación de fibras sintéticas y artificiales,group,C,ciiu_div_20,False,True
+ciiu_div_21,21,Fabricación de productos farmacéuticos  sustancias químicas medicinales y productos botánicos de uso farmacéutico,division,C,ciiu_section_c,False,True
+ciiu_group_210,210,Fabricación de productos farmacéuticos  sustancias químicas medicinales y productos botánicos de uso farmacéutico,group,C,ciiu_div_21,False,True
+ciiu_div_22,22,Fabricación de productos de caucho y de plástico,division,C,ciiu_section_c,False,True
+ciiu_group_221,221,Fabricación de productos de caucho,group,C,ciiu_div_22,False,True
+ciiu_2211,2211,Fabricación de llantas y neumáticos de caucho,class,C,ciiu_group_221,False,True
+ciiu_2212,2212,Reencauche de llantas usadas,class,C,ciiu_group_221,False,True
+ciiu_2219,2219,Fabricación de formas básicas de caucho y otros productos de caucho n.c.p.,class,C,ciiu_group_221,False,True
+ciiu_group_222,222,Fabricación de productos de plástico,group,C,ciiu_div_22,False,True
+ciiu_2221,2221,Fabricación de formas básicas de plástico,class,C,ciiu_group_222,False,True
+ciiu_2229,2229,Fabricación de artículos de plástico n.c.p.,class,C,ciiu_group_222,False,True
+ciiu_div_23,23,Fabricación de otros productos minerales no metálicos,division,C,ciiu_section_c,False,True
+ciiu_group_231,231,Fabricación de vidrio y productos de vidrio,group,C,ciiu_div_23,False,True
+ciiu_group_239,239,Fabricación de productos minerales no metálicos n.c.p.,group,C,ciiu_div_23,False,True
+ciiu_2391,2391,Fabricación de productos refractarios,class,C,ciiu_group_239,False,True
+ciiu_2392,2392,Fabricación de materiales de arcilla para la construcción,class,C,ciiu_group_239,False,True
+ciiu_2393,2393,Fabricación de otros productos de cerámica y porcelana,class,C,ciiu_group_239,False,True
+ciiu_2394,2394,Fabricación de cemento  cal y yeso,class,C,ciiu_group_239,False,True
+ciiu_2395,2395,Fabricación de artículos de hormigón  cemento y yeso,class,C,ciiu_group_239,False,True
+ciiu_2396,2396,Corte  tallado y acabado de la piedra,class,C,ciiu_group_239,False,True
+ciiu_2399,2399,Fabricación de otros productos minerales no metálicos n.c.p.,class,C,ciiu_group_239,False,True
+ciiu_div_24,24,Fabricación de productos metalúrgicos básicos,division,C,ciiu_section_c,False,True
+ciiu_group_241,241,Industrias básicas de hierro y de acero,group,C,ciiu_div_24,False,True
+ciiu_group_242,242,Industrias básicas de metales preciosos y de metales no ferrosos,group,C,ciiu_div_24,False,True
+ciiu_2421,2421,Industrias básicas de metales preciosos,class,C,ciiu_group_242,False,True
+ciiu_2429,2429,Industrias básicas de otros metales no ferrosos,class,C,ciiu_group_242,False,True
+ciiu_group_243,243,Fundición de metales,group,C,ciiu_div_24,False,True
+ciiu_2431,2431,Fundición de hierro y de acero,class,C,ciiu_group_243,False,True
+ciiu_2432,2432,Fundición de metales no ferrosos,class,C,ciiu_group_243,False,True
+ciiu_div_25,25,Fabricación de productos elaborados de metal  excepto maquinaria y equipo,division,C,ciiu_section_c,False,True
+ciiu_group_251,251,Fabricación de productos metálicos para uso estructural  tanques  depósitos y generadores de vapor,group,C,ciiu_div_25,False,True
+ciiu_2511,2511,Fabricación de productos metálicos para uso estructural,class,C,ciiu_group_251,False,True
+ciiu_2512,2512,Fabricación de tanques  depósitos y recipientes de metal  excepto los utilizados para el envase o transporte de mercancías,class,C,ciiu_group_251,False,True
+ciiu_2513,2513,Fabricación de generadores de vapor  excepto calderas de agua caliente para calefacción central,class,C,ciiu_group_251,False,True
+ciiu_group_252,252,Fabricación de armas y municiones,group,C,ciiu_div_25,False,True
+ciiu_group_259,259,Fabricación de otros productos elaborados de metal y actividades de servicios relacionadas con el trabajo de metales,group,C,ciiu_div_25,False,True
+ciiu_2591,2591,Forja  prensado  estampado y laminado de metal; pulvimetalurgia,class,C,ciiu_group_259,False,True
+ciiu_2592,2592,Tratamiento y revestimiento de metales; mecanizado,class,C,ciiu_group_259,False,True
+ciiu_2593,2593,Fabricación de artículos de cuchillería  herramientas de mano y artículos de ferretería,class,C,ciiu_group_259,False,True
+ciiu_2599,2599,Fabricación de otros productos elaborados de metal n.c.p.,class,C,ciiu_group_259,False,True
+ciiu_div_26,26,Fabricación de productos informáticos  electrónicos y ópticos,division,C,ciiu_section_c,False,True
+ciiu_group_261,261,Fabricación de componentes y tableros electrónicos,group,C,ciiu_div_26,False,True
+ciiu_group_262,262,Fabricación de computadoras y de equipo periférico,group,C,ciiu_div_26,False,True
+ciiu_group_263,263,Fabricación de equipos de comunicación,group,C,ciiu_div_26,False,True
+ciiu_group_264,264,Fabricación de aparatos electrónicos de consumo,group,C,ciiu_div_26,False,True
+ciiu_group_265,265,Fabricación de equipo de medición  prueba  navegación y control; fabricación de relojes,group,C,ciiu_div_26,False,True
+ciiu_2651,2651,Fabricación de equipo de medición  prueba  navegación y control,class,C,ciiu_group_265,False,True
+ciiu_2652,2652,Fabricación de relojes,class,C,ciiu_group_265,False,True
+ciiu_group_266,266,Fabricación de equipo de irradiación y equipo electrónico de uso médico y terapéutico,group,C,ciiu_div_26,False,True
+ciiu_group_267,267,Fabricación de instrumentos ópticos y equipo fotográfico,group,C,ciiu_div_26,False,True
+ciiu_group_268,268,Fabricación de medios magnéticos y ópticos para almacenamiento de datos,group,C,ciiu_div_26,False,True
+ciiu_div_27,27,Fabricación de aparatos y equipo eléctrico,division,C,ciiu_section_c,False,True
+ciiu_group_271,271,Fabricación de motores  generadores y transformadores eléctricos y de aparatos de distribución y control de la energía eléctrica,group,C,ciiu_div_27,False,True
+ciiu_2711,2711,Fabricación de motores  generadores y transformadores eléctricos,class,C,ciiu_group_271,False,True
+ciiu_2712,2712,Fabricación de aparatos de distribución y control de la energía eléctrica,class,C,ciiu_group_271,False,True
+ciiu_group_272,272,Fabricación de pilas  baterías y acumuladores eléctricos,group,C,ciiu_div_27,False,True
+ciiu_group_273,273,Fabricación de hilos y cables aislados y sus dispositivos,group,C,ciiu_div_27,False,True
+ciiu_2731,2731,Fabricación de hilos y cables eléctricos y de fibra óptica,class,C,ciiu_group_273,False,True
+ciiu_2732,2732,Fabricación de dispositivos de cableado,class,C,ciiu_group_273,False,True
+ciiu_group_274,274,Fabricación de equipos eléctricos de iluminación,group,C,ciiu_div_27,False,True
+ciiu_group_275,275,Fabricación de aparatos de uso doméstico,group,C,ciiu_div_27,False,True
+ciiu_group_279,279,Fabricación de otros tipos de equipo eléctrico n.c.p.,group,C,ciiu_div_27,False,True
+ciiu_div_28,28,Fabricación de maquinaria y equipo n.c.p.,division,C,ciiu_section_c,False,True
+ciiu_group_281,281,Fabricación de maquinaria y equipo de uso general,group,C,ciiu_div_28,False,True
+ciiu_2811,2811,Fabricación de motores  turbinas  y partes para motores de combustión interna,class,C,ciiu_group_281,False,True
+ciiu_2812,2812,Fabricación de equipos de potencia hidráulica y neumática,class,C,ciiu_group_281,False,True
+ciiu_2813,2813,Fabricación de otras bombas  compresores  grifos y válvulas,class,C,ciiu_group_281,False,True
+ciiu_2814,2814,Fabricación de cojinetes  engranajes  trenes de engranajes y piezas de transmisión,class,C,ciiu_group_281,False,True
+ciiu_2815,2815,Fabricación de hornos  hogares y quemadores industriales,class,C,ciiu_group_281,False,True
+ciiu_2816,2816,Fabricación de equipo de elevación y manipulación,class,C,ciiu_group_281,False,True
+ciiu_2817,2817,Fabricación de maquinaria y equipo de oficina (excepto computadoras y equipo periférico),class,C,ciiu_group_281,False,True
+ciiu_2818,2818,Fabricación de herramientas manuales con motor,class,C,ciiu_group_281,False,True
+ciiu_2819,2819,Fabricación de otros tipos de maquinaria y equipo de uso general n.c.p.,class,C,ciiu_group_281,False,True
+ciiu_group_282,282,Fabricación de maquinaria y equipo de uso especial,group,C,ciiu_div_28,False,True
+ciiu_2821,2821,Fabricación de maquinaria agropecuaria y forestal,class,C,ciiu_group_282,False,True
+ciiu_2822,2822,Fabricación de máquinas formadoras de metal y de máquinas herramienta,class,C,ciiu_group_282,False,True
+ciiu_2823,2823,Fabricación de maquinaria para la metalurgia,class,C,ciiu_group_282,False,True
+ciiu_2824,2824,Fabricación de maquinaria para explotación de minas y canteras y para obras de construcción,class,C,ciiu_group_282,False,True
+ciiu_2825,2825,Fabricación de maquinaria para la elaboración de alimentos  bebidas y tabaco,class,C,ciiu_group_282,False,True
+ciiu_2826,2826,Fabricación de maquinaria para la elaboración de productos textiles  prendas de vestir y cueros,class,C,ciiu_group_282,False,True
+ciiu_2829,2829,Fabricación de otros tipos de maquinaria y equipo de uso especial n.c.p.,class,C,ciiu_group_282,False,True
+ciiu_div_29,29,Fabricación de vehículos automotores  remolques y semirremolques,division,C,ciiu_section_c,False,True
+ciiu_group_291,291,Fabricación de vehículos automotores y sus motores,group,C,ciiu_div_29,False,True
+ciiu_group_292,292,Fabricación de carrocerías para vehículos automotores; fabricación de remolques y semirremolques,group,C,ciiu_div_29,False,True
+ciiu_group_293,293,Fabricación de partes  piezas (autopartes) y accesorios (lujos) para vehículos automotores,group,C,ciiu_div_29,False,True
+ciiu_div_30,30,Fabricación de otros tipos de equipo de transporte,division,C,ciiu_section_c,False,True
+ciiu_group_301,301,Construcción de barcos y otras embarcaciones,group,C,ciiu_div_30,False,True
+ciiu_3011,3011,Construcción de barcos y de estructuras flotantes,class,C,ciiu_group_301,False,True
+ciiu_3012,3012,Construcción de embarcaciones de recreo y deporte,class,C,ciiu_group_301,False,True
+ciiu_group_302,302,Fabricación de locomotoras y de material rodante para ferrocarriles,group,C,ciiu_div_30,False,True
+ciiu_group_303,303,Fabricación de aeronaves  naves espaciales y de maquinaria conexa,group,C,ciiu_div_30,False,True
+ciiu_group_304,304,Fabricación de vehículos militares de combate,group,C,ciiu_div_30,False,True
+ciiu_group_309,309,Fabricación de otros tipos de equipo de transporte n.c.p.,group,C,ciiu_div_30,False,True
+ciiu_3091,3091,Fabricación de motocicletas,class,C,ciiu_group_309,False,True
+ciiu_3092,3092,Fabricación de bicicletas y de sillas de ruedas para personas con discapacidad,class,C,ciiu_group_309,False,True
+ciiu_3099,3099,Fabricación de otros tipos de equipo de transporte n.c.p.,class,C,ciiu_group_309,False,True
+ciiu_div_31,31,Fabricación de muebles  colchones y somieres,division,C,ciiu_section_c,False,True
+ciiu_group_311,311,Fabricación de muebles,group,C,ciiu_div_31,False,True
+ciiu_group_312,312,Fabricación de colchones y somieres,group,C,ciiu_div_31,False,True
+ciiu_div_32,32,Otras industrias manufactureras,division,C,ciiu_section_c,False,True
+ciiu_group_321,321,Fabricación de joyas  bisutería y artículos conexos,group,C,ciiu_div_32,False,True
+ciiu_group_322,322,Fabricación de instrumentos musicales,group,C,ciiu_div_32,False,True
+ciiu_group_323,323,Fabricación de artículos y equipo para la práctica del deporte,group,C,ciiu_div_32,False,True
+ciiu_group_324,324,Fabricación de juegos  juguetes y rompecabezas,group,C,ciiu_div_32,False,True
+ciiu_group_325,325,Fabricación de instrumentos  aparatos y materiales médicos y odontológicos (incluido mobiliario),group,C,ciiu_div_32,False,True
+ciiu_group_329,329,Otras industrias manufactureras n.c.p.,group,C,ciiu_div_32,False,True
+ciiu_div_33,33,Instalación  mantenimiento y reparación especializado de maquinaria y equipo,division,C,ciiu_section_c,False,True
+ciiu_group_331,331,Mantenimiento y reparación especializado de productos elaborados en metal y de maquinaria y equipo,group,C,ciiu_div_33,False,True
+ciiu_3311,3311,Mantenimiento y reparación especializado de productos elaborados en metal,class,C,ciiu_group_331,False,True
+ciiu_3312,3312,Mantenimiento y reparación especializado de maquinaria y equipo,class,C,ciiu_group_331,False,True
+ciiu_3313,3313,Mantenimiento y reparación especializado de equipo electrónico y óptico,class,C,ciiu_group_331,False,True
+ciiu_3314,3314,Mantenimiento y reparación especializado de equipo eléctrico,class,C,ciiu_group_331,False,True
+ciiu_3315,3315,Mantenimiento y reparación especializado de equipo de transporte  excepto los vehículos automotores  motocicletas y bicicletas,class,C,ciiu_group_331,False,True
+ciiu_3319,3319,Mantenimiento y reparación de otros tipos de equipos y sus componentes n.c.p.,class,C,ciiu_group_331,False,True
+ciiu_group_332,332,Instalación especializada de maquinaria y equipo industrial,group,C,ciiu_div_33,False,True
+ciiu_div_35,35,Suministro de electricidad  gas  vapor y aire acondicionado,division,D,ciiu_section_d,False,True
+ciiu_group_351,351,Generación  transmisión  distribución y comercialización de energía eléctrica,group,D,ciiu_div_35,False,True
+ciiu_3511,3511,Generación de energía eléctrica,class,D,ciiu_group_351,False,True
+ciiu_3512,3512,Transmisión de energía eléctrica,class,D,ciiu_group_351,False,True
+ciiu_3513,3513,Distribución de energía eléctrica,class,D,ciiu_group_351,False,True
+ciiu_3514,3514,Comercialización de energía eléctrica,class,D,ciiu_group_351,False,True
+ciiu_group_352,352,Producción de gas; distribución de combustibles gaseosos por tuberías,group,D,ciiu_div_35,False,True
+ciiu_group_353,353,Suministro de vapor y aire acondicionado,group,D,ciiu_div_35,False,True
+ciiu_div_36,36,Captación  tratamiento y distribución de agua,division,E,ciiu_section_e,False,True
+ciiu_group_360,360,Captación  tratamiento y distribución de agua,group,E,ciiu_div_36,False,True
+ciiu_div_37,37,Evacuación y tratamiento de aguas residuales,division,E,ciiu_section_e,False,True
+ciiu_group_370,370,Evacuación y tratamiento de aguas residuales,group,E,ciiu_div_37,False,True
+ciiu_div_38,38,Recolección  tratamiento y disposición de desechos  recuperación de materiales,division,E,ciiu_section_e,False,True
+ciiu_group_381,381,Recolección de desechos,group,E,ciiu_div_38,False,True
+ciiu_3811,3811,Recolección de desechos no peligrosos,class,E,ciiu_group_381,False,True
+ciiu_3812,3812,Recolección de desechos peligrosos,class,E,ciiu_group_381,False,True
+ciiu_group_382,382,Tratamiento y disposición de desechos,group,E,ciiu_div_38,False,True
+ciiu_3821,3821,Tratamiento y disposición de desechos no peligrosos,class,E,ciiu_group_382,False,True
+ciiu_3822,3822,Tratamiento y disposición de desechos peligrosos,class,E,ciiu_group_382,False,True
+ciiu_group_383,383,Recuperación de materiales,group,E,ciiu_div_38,False,True
+ciiu_div_39,39,Actividades de saneamiento ambiental y otros servicios de gestión de desechos,division,E,ciiu_section_e,False,True
+ciiu_group_390,390,Actividades de saneamiento ambiental y otros servicios de gestión de desechos,group,E,ciiu_div_39,False,True
+ciiu_div_41,41,Construcción de edificios,division,F,ciiu_section_f,False,True
+ciiu_group_411,411,Construcción de edificios,group,F,ciiu_div_41,False,True
+ciiu_4111,4111,Construcción de edificios residenciales,class,F,ciiu_group_411,False,True
+ciiu_4112,4112,Construcción de edificios no residenciales,class,F,ciiu_group_411,False,True
+ciiu_div_42,42,Obras de ingeniería civil,division,F,ciiu_section_f,False,True
+ciiu_group_421,421,Construcción de carreteras y vías de ferrocarril,group,F,ciiu_div_42,False,True
+ciiu_group_422,422,Construcción de proyectos de servicio público,group,F,ciiu_div_42,False,True
+ciiu_group_429,429,Construcción de otras obras de ingeniería civil,group,F,ciiu_div_42,False,True
+ciiu_div_43,43,Actividades especializadas para la construcción de edificios y obras de ingeniería civil,division,F,ciiu_section_f,False,True
+ciiu_group_431,431,Demolición y preparación del terreno,group,F,ciiu_div_43,False,True
+ciiu_4311,4311,Demolición,class,F,ciiu_group_431,False,True
+ciiu_4312,4312,Preparación del terreno,class,F,ciiu_group_431,False,True
+ciiu_group_432,432,Instalaciones eléctricas  de fontanería y otras instalaciones especializadas,group,F,ciiu_div_43,False,True
+ciiu_4321,4321,Instalaciones eléctricas,class,F,ciiu_group_432,False,True
+ciiu_4322,4322,Instalaciones de fontanería  calefacción y aire acondicionado,class,F,ciiu_group_432,False,True
+ciiu_4329,4329,Otras instalaciones especializadas,class,F,ciiu_group_432,False,True
+ciiu_group_433,433,Terminación y acabado de edificios y obras de ingeniería civil,group,F,ciiu_div_43,False,True
+ciiu_group_439,439,Otras actividades especializadas para la construcción de edificios y obras de ingeniería civil,group,F,ciiu_div_43,False,True
+ciiu_div_45,45,Comercio  mantenimiento y reparación de vehículos automotores y motocicletas  sus partes  piezas y accesorios,division,G,ciiu_section_g,False,True
+ciiu_group_451,451,Comercio de vehículos automotores,group,G,ciiu_div_45,False,True
+ciiu_4511,4511,Comercio de vehículos automotores nuevos,class,G,ciiu_group_451,False,True
+ciiu_4512,4512,Comercio de vehículos automotores usados,class,G,ciiu_group_451,False,True
+ciiu_group_452,452,Mantenimiento y reparación de vehículos automotores,group,G,ciiu_div_45,False,True
+ciiu_group_453,453,Comercio de partes  piezas (autopartes) y accesorios (lujos) para vehículos automotores,group,G,ciiu_div_45,False,True
+ciiu_group_454,454,Comercio  mantenimiento y reparación de motocicletas y de sus partes  piezas y accesorios,group,G,ciiu_div_45,False,True
+ciiu_4541,4541,Comercio de motocicletas y de sus partes  piezas y accesorios,class,G,ciiu_group_454,False,True
+ciiu_4542,4542,Mantenimiento y reparación de motocicletas y de sus partes y piezas,class,G,ciiu_group_454,False,True
+ciiu_div_46,46,Comercio al por mayor y en comisión o por contrata  excepto el comercio de vehículos automotores y motocicletas,division,G,ciiu_section_g,False,True
+ciiu_group_461,461,Comercio al por mayor a cambio de una retribución o por contrata,group,G,ciiu_div_46,False,True
+ciiu_group_462,462,Comercio al por mayor de materias primas agropecuarias; animales vivos,group,G,ciiu_div_46,False,True
+ciiu_group_463,463,Comercio al por mayor de alimentos  bebidas y tabaco,group,G,ciiu_div_46,False,True
+ciiu_4631,4631,Comercio al por mayor de productos alimenticios,class,G,ciiu_group_463,False,True
+ciiu_4632,4632,Comercio al por mayor de bebidas y tabaco,class,G,ciiu_group_463,False,True
+ciiu_group_464,464,Comercio al por mayor de artículos y enseres domésticos (incluidas prendas de vestir),group,G,ciiu_div_46,False,True
+ciiu_4641,4641,Comercio al por mayor de productos textiles  productos confeccionados para uso doméstico,class,G,ciiu_group_464,False,True
+ciiu_4642,4642,Comercio al por mayor de prendas de vestir,class,G,ciiu_group_464,False,True
+ciiu_4643,4643,Comercio al por mayor de calzado,class,G,ciiu_group_464,False,True
+ciiu_4644,4644,Comercio al por mayor de aparatos y equipo de uso doméstico,class,G,ciiu_group_464,False,True
+ciiu_4645,4645,Comercio al por mayor de productos farmacéuticos  medicinales  cosméticos y de tocador,class,G,ciiu_group_464,False,True
+ciiu_4649,4649,Comercio al por mayor de otros utensilios domésticos n.c.p.,class,G,ciiu_group_464,False,True
+ciiu_group_465,465,Comercio al por mayor de maquinaria y equipo,group,G,ciiu_div_46,False,True
+ciiu_4651,4651,Comercio al por mayor de computadores  equipo periférico y programas de informática,class,G,ciiu_group_465,False,True
+ciiu_4652,4652,Comercio al por mayor de equipo  partes y piezas electrónicos y de telecomunicaciones,class,G,ciiu_group_465,False,True
+ciiu_4653,4653,Comercio al por mayor de maquinaria y equipo agropecuarios,class,G,ciiu_group_465,False,True
+ciiu_4659,4659,Comercio al por mayor de otros tipos de maquinaria y equipo n.c.p.,class,G,ciiu_group_465,False,True
+ciiu_group_466,466,Comercio al por mayor especializado de otros productos,group,G,ciiu_div_46,False,True
+ciiu_4661,4661,Comercio al por mayor de combustibles sólidos  líquidos  gaseosos y productos conexos,class,G,ciiu_group_466,False,True
+ciiu_4662,4662,Comercio al por mayor de metales y productos metalíferos,class,G,ciiu_group_466,False,True
+ciiu_4663,4663,Comercio al por mayor de materiales de construcción  artículos de ferretería  pinturas  productos de vidrio  equipo y materiales de fontanería y calefacción,class,G,ciiu_group_466,False,True
+ciiu_4664,4664,Comercio al por mayor de productos químicos básicos  cauchos y plásticos en formas primarias y productos químicos de uso agropecuario,class,G,ciiu_group_466,False,True
+ciiu_4665,4665,Comercio al por mayor de desperdicios  desechos y chatarra,class,G,ciiu_group_466,False,True
+ciiu_4669,4669,Comercio al por mayor de otros productos n.c.p.,class,G,ciiu_group_466,False,True
+ciiu_group_469,469,Comercio al por mayor no especializado,group,G,ciiu_div_46,False,True
+ciiu_div_47,47,Comercio al por menor (incluso el comercio al por menor de combustibles)  excepto el de vehículos automotores y motocicletas,division,G,ciiu_section_g,False,True
+ciiu_group_471,471,Comercio al por menor en establecimientos no especializados,group,G,ciiu_div_47,False,True
+ciiu_4711,4711,Comercio al por menor en establecimientos no especializados con surtido compuesto principalmente por alimentos  bebidas o tabaco,class,G,ciiu_group_471,False,True
+ciiu_4719,4719,Comercio al por menor en establecimientos no especializados  con surtido compuesto principalmente por productos diferentes de alimentos (víveres en general)  bebidas y tabaco,class,G,ciiu_group_471,False,True
+ciiu_group_472,472,Comercio al por menor de alimentos (víveres en general)  bebidas y tabaco  en establecimientos especializados,group,G,ciiu_div_47,False,True
+ciiu_4721,4721,Comercio al por menor de productos agrícolas para el consumo en establecimientos especializados,class,G,ciiu_group_472,False,True
+ciiu_4722,4722,Comercio al por menor de leche  productos lácteos y huevos  en establecimientos especializados,class,G,ciiu_group_472,False,True
+ciiu_4723,4723,Comercio al por menor de carnes (incluye aves de corral)  productos cárnicos  pescados y productos de mar  en establecimientos especializados,class,G,ciiu_group_472,False,True
+ciiu_4724,4724,Comercio al por menor de bebidas y productos del tabaco  en establecimientos especializados,class,G,ciiu_group_472,False,True
+ciiu_4729,4729,Comercio al por menor de otros productos alimenticios n.c.p.  en establecimientos especializados,class,G,ciiu_group_472,False,True
+ciiu_group_473,473,Comercio al por menor de combustible  lubricantes  aditivos y productos de limpieza para automotores  en establecimientos especializados,group,G,ciiu_div_47,False,True
+ciiu_4731,4731,Comercio al por menor de combustible para automotores,class,G,ciiu_group_473,False,True
+ciiu_4732,4732,Comercio al por menor de lubricantes (aceites  grasas)  aditivos y productos de limpieza para vehículos automotores,class,G,ciiu_group_473,False,True
+ciiu_group_474,474,Comercio al por menor de equipos de informática y de comunicaciones  en establecimientos especializados,group,G,ciiu_div_47,False,True
+ciiu_4741,4741,Comercio al por menor de computadores  equipos periféricos  programas de informática y equipos de telecomunicaciones en establecimientos especializados,class,G,ciiu_group_474,False,True
+ciiu_4742,4742,Comercio al por menor de equipos y aparatos de sonido y de video  en establecimientos especializados,class,G,ciiu_group_474,False,True
+ciiu_group_475,475,Comercio al por menor de otros enseres domésticos en establecimientos especializados,group,G,ciiu_div_47,False,True
+ciiu_4751,4751,Comercio al por menor de productos textiles en establecimientos especializados,class,G,ciiu_group_475,False,True
+ciiu_4752,4752,Comercio al por menor de artículos de ferretería  pinturas y productos de vidrio en establecimientos especializados,class,G,ciiu_group_475,False,True
+ciiu_4753,4753,Comercio al por menor de tapices  alfombras y cubrimientos para paredes y pisos en establecimientos especializados,class,G,ciiu_group_475,False,True
+ciiu_4754,4754,Comercio al por menor de electrodomésticos y gasodomésticos de uso doméstico  muebles y equipos de iluminación,class,G,ciiu_group_475,False,True
+ciiu_4755,4755,Comercio al por menor de artículos y utensilios de uso doméstico,class,G,ciiu_group_475,False,True
+ciiu_4759,4759,Comercio al por menor de otros artículos domésticos en establecimientos especializados,class,G,ciiu_group_475,False,True
+ciiu_group_476,476,Comercio al por menor de artículos culturales y de entretenimiento  en establecimientos especializados,group,G,ciiu_div_47,False,True
+ciiu_4761,4761,Comercio al por menor de libros  periódicos  materiales y artículos de papelería y escritorio  en establecimientos especializados,class,G,ciiu_group_476,False,True
+ciiu_4762,4762,Comercio al por menor de artículos deportivos  en establecimientos especializados,class,G,ciiu_group_476,False,True
+ciiu_4769,4769,Comercio al por menor de otros artículos culturales y de entretenimiento n.c.p. en establecimientos especializados,class,G,ciiu_group_476,False,True
+ciiu_group_477,477,Comercio al por menor de otros productos en establecimientos especializados,group,G,ciiu_div_47,False,True
+ciiu_4771,4771,Comercio al por menor de prendas de vestir y sus accesorios (incluye artículos de piel) en establecimientos especializados,class,G,ciiu_group_477,False,True
+ciiu_4772,4772,Comercio al por menor de todo tipo de calzado y artículos de cuero y sucedáneos del cuero en establecimientos especializados.,class,G,ciiu_group_477,False,True
+ciiu_4773,4773,Comercio al por menor de productos farmacéuticos y medicinales  cosméticos y artículos de tocador en establecimientos especializados,class,G,ciiu_group_477,False,True
+ciiu_4774,4774,Comercio al por menor de otros productos nuevos en establecimientos especializados,class,G,ciiu_group_477,False,True
+ciiu_4775,4775,Comercio al por menor de artículos de segunda mano,class,G,ciiu_group_477,False,True
+ciiu_group_478,478,Comercio al por menor en puestos de venta móviles,group,G,ciiu_div_47,False,True
+ciiu_4781,4781,Comercio al por menor de alimentos  bebidas y tabaco  en puestos de venta móviles,class,G,ciiu_group_478,False,True
+ciiu_4782,4782,Comercio al por menor de productos textiles  prendas de vestir y calzado  en puestos de venta móviles,class,G,ciiu_group_478,False,True
+ciiu_4789,4789,Comercio al por menor de otros productos en puestos de venta móviles,class,G,ciiu_group_478,False,True
+ciiu_group_479,479,Comercio al por menor no realizado en establecimientos  puestos de venta o mercados,group,G,ciiu_div_47,False,True
+ciiu_4791,4791,Comercio al por menor realizado a través de Internet,class,G,ciiu_group_479,False,True
+ciiu_4792,4792,Comercio al por menor realizado a través de casas de venta o por correo,class,G,ciiu_group_479,False,True
+ciiu_4799,4799,Otros tipos de comercio al por menor no realizado en establecimientos  puestos de venta o mercados.,class,G,ciiu_group_479,False,True
+ciiu_div_49,49,Transporte terrestre; transporte por tuberías,division,H,ciiu_section_h,False,True
+ciiu_group_491,491,Transporte férreo,group,H,ciiu_div_49,False,True
+ciiu_4911,4911,Transporte férreo de pasajeros,class,H,ciiu_group_491,False,True
+ciiu_4912,4912,Transporte férreo de carga,class,H,ciiu_group_491,False,True
+ciiu_group_492,492,Transporte terrestre público automotor,group,H,ciiu_div_49,False,True
+ciiu_4921,4921,Transporte de pasajeros,class,H,ciiu_group_492,False,True
+ciiu_4922,4922,Transporte mixto,class,H,ciiu_group_492,False,True
+ciiu_4923,4923,Transporte de carga por carretera,class,H,ciiu_group_492,False,True
+ciiu_group_493,493,Transporte por tuberías,group,H,ciiu_div_49,False,True
+ciiu_div_50,50,Transporte acuático,division,H,ciiu_section_h,False,True
+ciiu_group_501,501,Transporte marítimo y de cabotaje,group,H,ciiu_div_50,False,True
+ciiu_5011,5011,Transporte de pasajeros marítimo y de cabotaje,class,H,ciiu_group_501,False,True
+ciiu_5012,5012,Transporte de carga marítimo y de cabotaje,class,H,ciiu_group_501,False,True
+ciiu_group_502,502,Transporte fluvial,group,H,ciiu_div_50,False,True
+ciiu_5021,5021,Transporte fluvial de pasajeros,class,H,ciiu_group_502,False,True
+ciiu_5022,5022,Transporte fluvial de carga,class,H,ciiu_group_502,False,True
+ciiu_div_51,51,Transporte aéreo,division,H,ciiu_section_h,False,True
+ciiu_group_511,511,Transporte aéreo de pasajeros,group,H,ciiu_div_51,False,True
+ciiu_5111,5111,Transporte aéreo nacional de pasajeros,class,H,ciiu_group_511,False,True
+ciiu_5112,5112,Transporte aéreo internacional de pasajeros,class,H,ciiu_group_511,False,True
+ciiu_group_512,512,Transporte aéreo de carga,group,H,ciiu_div_51,False,True
+ciiu_5121,5121,Transporte aéreo nacional de carga,class,H,ciiu_group_512,False,True
+ciiu_5122,5122,Transporte aéreo internacional de carga,class,H,ciiu_group_512,False,True
+ciiu_div_52,52,Almacenamiento y actividades complementarias al transporte,division,H,ciiu_section_h,False,True
+ciiu_group_521,521,Almacenamiento y depósito,group,H,ciiu_div_52,False,True
+ciiu_group_522,522,Actividades de las estaciones  vías y servicios complementarios para el transporte,group,H,ciiu_div_52,False,True
+ciiu_5221,5221,Actividades de estaciones  vías y servicios complementarios para el transporte terrestre,class,H,ciiu_group_522,False,True
+ciiu_5222,5222,Actividades de puertos y servicios complementarios para el transporte acuático,class,H,ciiu_group_522,False,True
+ciiu_5223,5223,Actividades de aeropuertos  servicios de navegación aérea y demás actividades conexas al transporte aéreo,class,H,ciiu_group_522,False,True
+ciiu_5224,5224,Manipulación de carga,class,H,ciiu_group_522,False,True
+ciiu_5229,5229,Otras actividades complementarias al transporte,class,H,ciiu_group_522,False,True
+ciiu_div_53,53,Correo y servicios de mensajería,division,H,ciiu_section_h,False,True
+ciiu_group_531,531,Actividades postales nacionales,group,H,ciiu_div_53,False,True
+ciiu_group_532,532,Actividades de mensajería,group,H,ciiu_div_53,False,True
+ciiu_div_55,55,Alojamiento,division,I,ciiu_section_i,False,True
+ciiu_group_551,551,Actividades de alojamiento de estancias cortas,group,I,ciiu_div_55,False,True
+ciiu_5511,5511,Alojamiento en hoteles,class,I,ciiu_group_551,False,True
+ciiu_5512,5512,Alojamiento en apartahoteles,class,I,ciiu_group_551,False,True
+ciiu_5513,5513,Alojamiento en centros vacacionales,class,I,ciiu_group_551,False,True
+ciiu_5514,5514,Alojamiento rural,class,I,ciiu_group_551,False,True
+ciiu_5519,5519,Otros tipos de alojamientos para visitantes,class,I,ciiu_group_551,False,True
+ciiu_group_552,552,Actividades de zonas de camping y parques para vehículos recreacionales,group,I,ciiu_div_55,False,True
+ciiu_group_553,553,Servicio por horas,group,I,ciiu_div_55,False,True
+ciiu_group_559,559,Otros tipos de alojamiento n.c.p.,group,I,ciiu_div_55,False,True
+ciiu_div_56,56,Actividades de servicios de comidas y bebidas,division,I,ciiu_section_i,False,True
+ciiu_group_561,561,Actividades de restaurantes  cafeterías y servicio móvil de comidas,group,I,ciiu_div_56,False,True
+ciiu_5611,5611,Expendio a la mesa de comidas preparadas,class,I,ciiu_group_561,False,True
+ciiu_5612,5612,Expendio por autoservicio de comidas preparadas,class,I,ciiu_group_561,False,True
+ciiu_5613,5613,Expendio de comidas preparadas en cafeterías,class,I,ciiu_group_561,False,True
+ciiu_5619,5619,Otros tipos de expendio de comidas preparadas n.c.p.,class,I,ciiu_group_561,False,True
+ciiu_group_562,562,Actividades de catering para eventos y otros servicios de comidas,group,I,ciiu_div_56,False,True
+ciiu_5621,5621,Catering para eventos,class,I,ciiu_group_562,False,True
+ciiu_5629,5629,Actividades de otros servicios de comidas,class,I,ciiu_group_562,False,True
+ciiu_group_563,563,Expendio de bebidas alcohólicas para el consumo dentro del establecimiento,group,I,ciiu_div_56,False,True
+ciiu_div_58,58,Actividades de edición,division,J,ciiu_section_j,False,True
+ciiu_group_581,581,Edición de libros  publicaciones periódicas y otras actividades de edición,group,J,ciiu_div_58,False,True
+ciiu_5811,5811,Edición de libros,class,J,ciiu_group_581,False,True
+ciiu_5812,5812,Edición de directorios y listas de correo,class,J,ciiu_group_581,False,True
+ciiu_5813,5813,Edición de periódicos  revistas y otras publicaciones periódicas,class,J,ciiu_group_581,False,True
+ciiu_5819,5819,Otros trabajos de edición,class,J,ciiu_group_581,False,True
+ciiu_group_582,582,Edición de programas de informática (software),group,J,ciiu_div_58,False,True
+ciiu_div_59,59,Actividades cinematográficas  de video y producción de programas de televisión  grabación de sonido y edición de música,division,J,ciiu_section_j,False,True
+ciiu_group_591,591,Actividades de producción de películas cinematográficas  video y producción de programas  anuncios y comerciales de televisión,group,J,ciiu_div_59,False,True
+ciiu_5911,5911,Actividades de producción de películas cinematográficas  videos  programas  anuncios y comerciales de televisión,class,J,ciiu_group_591,False,True
+ciiu_5912,5912,Actividades de posproducción de películas cinematográficas  videos  programas  anuncios y comerciales de televisión,class,J,ciiu_group_591,False,True
+ciiu_5913,5913,Actividades de distribución de películas cinematográficas  videos  programas  anuncios y comerciales de televisión,class,J,ciiu_group_591,False,True
+ciiu_5914,5914,Actividades de exhibición de películas cinematográficas y videos,class,J,ciiu_group_591,False,True
+ciiu_group_592,592,Actividades de grabación de sonido y edición de música,group,J,ciiu_div_59,False,True
+ciiu_div_60,60,Actividades de programación  transmisión y/o difusión,division,J,ciiu_section_j,False,True
+ciiu_group_601,601,Actividades de programación y transmisión en el servicio de radiodifusión sonora,group,J,ciiu_div_60,False,True
+ciiu_group_602,602,Actividades de programación y transmisión de televisión,group,J,ciiu_div_60,False,True
+ciiu_div_61,61,Telecomunicaciones,division,J,ciiu_section_j,False,True
+ciiu_group_611,611,Actividades de telecomunicaciones alámbricas,group,J,ciiu_div_61,False,True
+ciiu_group_612,612,Actividades de telecomunicaciones inalámbricas,group,J,ciiu_div_61,False,True
+ciiu_group_613,613,Actividades de telecomunicación satelital,group,J,ciiu_div_61,False,True
+ciiu_group_619,619,Otras actividades de telecomunicaciones,group,J,ciiu_div_61,False,True
+ciiu_div_62,62,Desarrollo de sistemas informáticos (planificación  análisis  diseño  programación  pruebas)  consultoría informática y actividades relacionadas,division,J,ciiu_section_j,False,True
+ciiu_group_620,620,Desarrollo de sistemas informáticos (planificación  análisis  diseño  programación  pruebas)  consultoría informática y actividades relacionadas,group,J,ciiu_div_62,False,True
+ciiu_6201,6201,Actividades de desarrollo de sistemas informáticos (planificación  análisis  diseño  programación  pruebas),class,J,ciiu_group_620,False,True
+ciiu_6202,6202,Actividades de consultoría informática y actividades de administración de instalaciones informáticas,class,J,ciiu_group_620,False,True
+ciiu_6209,6209,Otras actividades de tecnologías de información y actividades de servicios informáticos,class,J,ciiu_group_620,False,True
+ciiu_div_63,63,Actividades de servicios de información,division,J,ciiu_section_j,False,True
+ciiu_group_631,631,Procesamiento de datos  alojamiento (hosting) y actividades relacionadas; portales web,group,J,ciiu_div_63,False,True
+ciiu_6311,6311,Procesamiento de datos  alojamiento (hosting) y actividades relacionadas,class,J,ciiu_group_631,False,True
+ciiu_6312,6312,Portales web,class,J,ciiu_group_631,False,True
+ciiu_group_639,639,Otras actividades de servicio de información,group,J,ciiu_div_63,False,True
+ciiu_6391,6391,Actividades de agencias de noticias,class,J,ciiu_group_639,False,True
+ciiu_6399,6399,Otras actividades de servicio de información n.c.p.,class,J,ciiu_group_639,False,True
+ciiu_div_64,64,Actividades de servicios financieros  excepto las de seguros y de pensiones,division,K,ciiu_section_k,False,True
+ciiu_group_641,641,Intermediación monetaria,group,K,ciiu_div_64,False,True
+ciiu_6411,6411,Banco Central,class,K,ciiu_group_641,False,True
+ciiu_6412,6412,Bancos comerciales,class,K,ciiu_group_641,False,True
+ciiu_group_642,642,Otros tipos de intermediación monetaria,group,K,ciiu_div_64,False,True
+ciiu_6421,6421,Actividades de las corporaciones financieras,class,K,ciiu_group_642,False,True
+ciiu_6422,6422,Actividades de las compañías de financiamiento,class,K,ciiu_group_642,False,True
+ciiu_6423,6423,Banca de segundo piso,class,K,ciiu_group_642,False,True
+ciiu_6424,6424,Actividades de las cooperativas financieras,class,K,ciiu_group_642,False,True
+ciiu_group_643,643,Fideicomisos  fondos (incluye fondos de cesantías) y entidades financieras similares,group,K,ciiu_div_64,False,True
+ciiu_6431,6431,Fideicomisos  fondos y entidades financieras similares,class,K,ciiu_group_643,False,True
+ciiu_6432,6432,Fondos de cesantías,class,K,ciiu_group_643,False,True
+ciiu_group_649,649,Otras actividades de servicio financiero  excepto las de seguros y pensiones,group,K,ciiu_div_64,False,True
+ciiu_6491,6491,Leasing financiero (arrendamiento financiero),class,K,ciiu_group_649,False,True
+ciiu_6492,6492,Actividades financieras de fondos de empleados y otras formas asociativas del sector solidario,class,K,ciiu_group_649,False,True
+ciiu_6493,6493,Actividades de compra de cartera o factoring,class,K,ciiu_group_649,False,True
+ciiu_6494,6494,Otras actividades de distribución de fondos,class,K,ciiu_group_649,False,True
+ciiu_6495,6495,Instituciones especiales oficiales,class,K,ciiu_group_649,False,True
+ciiu_6499,6499,Otras actividades de servicio financiero  excepto las de seguros y pensiones n.c.p.,class,K,ciiu_group_649,False,True
+ciiu_div_65,65,Seguros (incluso el reaseguro)  seguros sociales y fondos de pensiones  excepto la seguridad social,division,K,ciiu_section_k,False,True
+ciiu_group_651,651,Seguros y capitalización,group,K,ciiu_div_65,False,True
+ciiu_6511,6511,Seguros generales,class,K,ciiu_group_651,False,True
+ciiu_6512,6512,Seguros de vida,class,K,ciiu_group_651,False,True
+ciiu_6513,6513,Reaseguros,class,K,ciiu_group_651,False,True
+ciiu_6514,6514,Capitalización,class,K,ciiu_group_651,False,True
+ciiu_group_652,652,Servicios de seguros sociales de salud y riesgos profesionales,group,K,ciiu_div_65,False,True
+ciiu_6521,6521,Servicios de seguros sociales de salud,class,K,ciiu_group_652,False,True
+ciiu_6522,6522,Servicios de seguros sociales de riesgos profesionales,class,K,ciiu_group_652,False,True
+ciiu_group_653,653,Servicios de seguros sociales de pensiones,group,K,ciiu_div_65,False,True
+ciiu_6531,6531,Régimen de prima media con prestación definida (RPM),class,K,ciiu_group_653,False,True
+ciiu_6532,6532,Régimen de ahorro individual (RAI),class,K,ciiu_group_653,False,True
+ciiu_div_66,66,Actividades auxiliares de las actividades de servicios financieros,division,K,ciiu_section_k,False,True
+ciiu_group_661,661,Actividades auxiliares de las actividades de servicios financieros  excepto las de seguros y pensiones,group,K,ciiu_div_66,False,True
+ciiu_6611,6611,Administración de mercados financieros,class,K,ciiu_group_661,False,True
+ciiu_6612,6612,Corretaje de valores y de contratos de productos básicos,class,K,ciiu_group_661,False,True
+ciiu_6613,6613,Otras actividades relacionadas con el mercado de valores,class,K,ciiu_group_661,False,True
+ciiu_6614,6614,Actividades de las casas de cambio,class,K,ciiu_group_661,False,True
+ciiu_6615,6615,Actividades de los profesionales de compra y venta de divisas,class,K,ciiu_group_661,False,True
+ciiu_6619,6619,Otras actividades auxiliares de las actividades de servicios financieros n.c.p.,class,K,ciiu_group_661,False,True
+ciiu_group_662,662,Actividades de servicios auxiliares de los servicios de seguros y pensiones,group,K,ciiu_div_66,False,True
+ciiu_6621,6621,Actividades de agentes y corredores de seguros,class,K,ciiu_group_662,False,True
+ciiu_6629,6629,Evaluación de riesgos y daños  y otras actividades de servicios auxiliares,class,K,ciiu_group_662,False,True
+ciiu_group_663,663,Actividades de administración de fondos,group,K,ciiu_div_66,False,True
+ciiu_div_68,68,Actividades inmobiliarias,division,L,ciiu_section_l,False,True
+ciiu_group_681,681,Actividades inmobiliarias realizadas con bienes propios o arrendados,group,L,ciiu_div_68,False,True
+ciiu_group_682,682,Actividades inmobiliarias realizadas a cambio de una retribución o por contrata,group,L,ciiu_div_68,False,True
+ciiu_div_69,69,Actividades jurídicas y de contabilidad,division,M,ciiu_section_m,False,True
+ciiu_group_691,691,Actividades jurídicas,group,M,ciiu_div_69,False,True
+ciiu_group_692,692,Actividades de contabilidad  teneduría de libros  auditoría financiera y asesoría tributaria,group,M,ciiu_div_69,False,True
+ciiu_div_70,70,Actividades de administración empresarial; actividades de consultoría de gestión,division,M,ciiu_section_m,False,True
+ciiu_group_701,701,Actividades de administración empresarial,group,M,ciiu_div_70,False,True
+ciiu_group_702,702,Actividades de consultaría de gestión,group,M,ciiu_div_70,False,True
+ciiu_div_71,71,Actividades de arquitectura e ingeniería; ensayos y análisis técnicos,division,M,ciiu_section_m,False,True
+ciiu_group_711,711,Actividades de arquitectura e ingeniería y otras actividades conexas de consultoría técnica,group,M,ciiu_div_71,False,True
+ciiu_group_712,712,Ensayos y análisis técnicos,group,M,ciiu_div_71,False,True
+ciiu_div_72,72,Investigación científica y desarrollo,division,M,ciiu_section_m,False,True
+ciiu_group_721,721,Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería,group,M,ciiu_div_72,False,True
+ciiu_group_722,722,Investigaciones y desarrollo experimental en el campo de las ciencias sociales y las humanidades,group,M,ciiu_div_72,False,True
+ciiu_div_73,73,Publicidad y estudios de mercado,division,M,ciiu_section_m,False,True
+ciiu_group_731,731,Publicidad,group,M,ciiu_div_73,False,True
+ciiu_group_732,732,Estudios de mercado y realización de encuestas de opinión pública,group,M,ciiu_div_73,False,True
+ciiu_div_74,74,Otras actividades profesionales  científicas y técnicas,division,M,ciiu_section_m,False,True
+ciiu_group_741,741,Actividades especializadas de diseño,group,M,ciiu_div_74,False,True
+ciiu_group_742,742,Actividades de fotografía,group,M,ciiu_div_74,False,True
+ciiu_group_749,749,Otras actividades profesionales  científicas y técnicas n.c.p.,group,M,ciiu_div_74,False,True
+ciiu_div_75,75,Actividades veterinarias,division,M,ciiu_section_m,False,True
+ciiu_group_750,750,Actividades veterinarias,group,M,ciiu_div_75,False,True
+ciiu_div_77,77,Actividades de alquiler y arrendamiento,division,N,ciiu_section_n,False,True
+ciiu_group_771,771,Alquiler y arrendamiento de vehículos automotores,group,N,ciiu_div_77,False,True
+ciiu_group_772,772,Alquiler y arrendamiento de efectos personales y enseres domésticos,group,N,ciiu_div_77,False,True
+ciiu_7721,7721,Alquiler y arrendamiento de equipo recreativo y deportivo,class,N,ciiu_group_772,False,True
+ciiu_7722,7722,Alquiler de videos y discos,class,N,ciiu_group_772,False,True
+ciiu_7729,7729,Alquiler y arrendamiento de otros efectos personales y enseres domésticos n.c.p.,class,N,ciiu_group_772,False,True
+ciiu_group_773,773,Alquiler y arrendamiento de otros tipos de maquinaria  equipo y bienes tangibles n.c.p.,group,N,ciiu_div_77,False,True
+ciiu_group_774,774,Arrendamiento de propiedad intelectual y productos similares  excepto obras protegidas por derechos de autor,group,N,ciiu_div_77,False,True
+ciiu_div_78,78,Actividades de empleo,division,N,ciiu_section_n,False,True
+ciiu_group_781,781,Actividades de agencias de empleo,group,N,ciiu_div_78,False,True
+ciiu_group_782,782,Actividades de agencias de empleo temporal,group,N,ciiu_div_78,False,True
+ciiu_group_783,783,Otras actividades de suministro de recurso humano,group,N,ciiu_div_78,False,True
+ciiu_div_79,79,Actividades de las agencias de viajes  operadores turísticos  servicios de reserva y actividades relacionadas,division,N,ciiu_section_n,False,True
+ciiu_group_791,791,Actividades de las agencias de viajes y operadores turísticos,group,N,ciiu_div_79,False,True
+ciiu_7911,7911,Actividades de las agencias de viaje,class,N,ciiu_group_791,False,True
+ciiu_7912,7912,Actividades de operadores turísticos,class,N,ciiu_group_791,False,True
+ciiu_group_799,799,Otros servicios de reserva y actividades relacionadas,group,N,ciiu_div_79,False,True
+ciiu_div_80,80,Actividades de seguridad e investigación privada,division,N,ciiu_section_n,False,True
+ciiu_group_801,801,Actividades de seguridad privada,group,N,ciiu_div_80,False,True
+ciiu_group_802,802,Actividades de servicios de sistemas de seguridad,group,N,ciiu_div_80,False,True
+ciiu_group_803,803,Actividades de detectives e investigadores privados,group,N,ciiu_div_80,False,True
+ciiu_div_81,81,Actividades de servicios a edificios y paisajismo (jardines  zonas verdes),division,N,ciiu_section_n,False,True
+ciiu_group_811,811,Actividades combinadas de apoyo a instalaciones,group,N,ciiu_div_81,False,True
+ciiu_group_812,812,Actividades de limpieza,group,N,ciiu_div_81,False,True
+ciiu_8121,8121,Limpieza general interior de edificios,class,N,ciiu_group_812,False,True
+ciiu_8129,8129,Otras actividades de limpieza de edificios e instalaciones industriales,class,N,ciiu_group_812,False,True
+ciiu_group_813,813,Actividades de paisajismo y servicios de mantenimiento conexos,group,N,ciiu_div_81,False,True
+ciiu_div_82,82,Actividades administrativas y de apoyo de oficina y otras actividades de apoyo a las empresas,division,N,ciiu_section_n,False,True
+ciiu_group_821,821,Actividades administrativas y de apoyo de oficina,group,N,ciiu_div_82,False,True
+ciiu_8211,8211,Actividades combinadas de servicios administrativos de oficina,class,N,ciiu_group_821,False,True
+ciiu_8219,8219,Fotocopiado  preparación de documentos y otras actividades especializadas de apoyo a oficina,class,N,ciiu_group_821,False,True
+ciiu_group_822,822,Actividades de centros de llamadas (Call center),group,N,ciiu_div_82,False,True
+ciiu_group_823,823,Organización de convenciones y eventos comerciales,group,N,ciiu_div_82,False,True
+ciiu_group_829,829,Actividades de servicios de apoyo a las empresas n.c.p.,group,N,ciiu_div_82,False,True
+ciiu_8291,8291,Actividades de agencias de cobranza y oficinas de calificación crediticia,class,N,ciiu_group_829,False,True
+ciiu_8292,8292,Actividades de envase y empaque,class,N,ciiu_group_829,False,True
+ciiu_8299,8299,Otras actividades de servicio de apoyo a las empresas n.c.p.,class,N,ciiu_group_829,False,True
+ciiu_div_84,84,Administración pública y defensa; planes de seguridad social de afiliación obligatoria,division,O,ciiu_section_o,False,True
+ciiu_group_841,841,Administración del Estado y aplicación de la política económica y social de la comunidad,group,O,ciiu_div_84,False,True
+ciiu_8411,8411,Actividades legislativas de la administración pública,class,O,ciiu_group_841,False,True
+ciiu_8412,8412,Actividades ejecutivas de la administración pública,class,O,ciiu_group_841,False,True
+ciiu_8413,8413,Regulación de las actividades de organismos que prestan servicios de salud  educativos  culturales y otros servicios sociales  excepto servicios de seguridad social,class,O,ciiu_group_841,False,True
+ciiu_8414,8414,Actividades reguladoras y facilitadoras de la actividad económica,class,O,ciiu_group_841,False,True
+ciiu_8415,8415,Actividades de los otros órganos de control,class,O,ciiu_group_841,False,True
+ciiu_group_842,842,Prestación de servicios a la comunidad en general,group,O,ciiu_div_84,False,True
+ciiu_8421,8421,Relaciones exteriores,class,O,ciiu_group_842,False,True
+ciiu_8422,8422,Actividades de defensa,class,O,ciiu_group_842,False,True
+ciiu_8423,8423,Orden público y actividades de seguridad,class,O,ciiu_group_842,False,True
+ciiu_8424,8424,Administración de justicia,class,O,ciiu_group_842,False,True
+ciiu_group_843,843,Actividades de planes de seguridad social de afiliación obligatoria,group,O,ciiu_div_84,False,True
+ciiu_div_85,85,Educación,division,P,ciiu_section_p,False,True
+ciiu_group_851,851,Educación de la primera infancia  preescolar y básica primaria,group,P,ciiu_div_85,False,True
+ciiu_8511,8511,Educación de la primera infancia,class,P,ciiu_group_851,False,True
+ciiu_8512,8512,Educación preescolar,class,P,ciiu_group_851,False,True
+ciiu_8513,8513,Educación básica primaria,class,P,ciiu_group_851,False,True
+ciiu_group_852,852,Educación secundaria y de formación laboral,group,P,ciiu_div_85,False,True
+ciiu_8521,8521,Educación básica secundaria,class,P,ciiu_group_852,False,True
+ciiu_8522,8522,Educación media académica,class,P,ciiu_group_852,False,True
+ciiu_8523,8523,Educación media técnica y de formación laboral,class,P,ciiu_group_852,False,True
+ciiu_group_853,853,Establecimientos que combinan diferentes niveles de educación,group,P,ciiu_div_85,False,True
+ciiu_group_854,854,Educación superior,group,P,ciiu_div_85,False,True
+ciiu_8541,8541,Educación técnica profesional,class,P,ciiu_group_854,False,True
+ciiu_8542,8542,Educación tecnológica,class,P,ciiu_group_854,False,True
+ciiu_8543,8543,Educación de instituciones universitarias o de escuelas tecnológicas,class,P,ciiu_group_854,False,True
+ciiu_8544,8544,Educación de universidades,class,P,ciiu_group_854,False,True
+ciiu_group_855,855,Otros tipos de educación,group,P,ciiu_div_85,False,True
+ciiu_8551,8551,Formación académica no formal,class,P,ciiu_group_855,False,True
+ciiu_8552,8552,Enseñanza deportiva y recreativa,class,P,ciiu_group_855,False,True
+ciiu_8553,8553,Enseñanza cultural,class,P,ciiu_group_855,False,True
+ciiu_8559,8559,Otros tipos de educación n.c.p.,class,P,ciiu_group_855,False,True
+ciiu_group_856,856,Actividades de apoyo a la educación,group,P,ciiu_div_85,False,True
+ciiu_div_86,86,Actividades de atención de la salud humana,division,Q,ciiu_section_q,False,True
+ciiu_group_861,861,Actividades de hospitales y clínicas  con internación,group,Q,ciiu_div_86,False,True
+ciiu_group_862,862,Actividades de práctica médica y odontológica  sin internación,group,Q,ciiu_div_86,False,True
+ciiu_8621,8621,Actividades de la práctica médica  sin internación,class,Q,ciiu_group_862,False,True
+ciiu_8622,8622,Actividades de la práctica odontológica,class,Q,ciiu_group_862,False,True
+ciiu_group_869,869,Otras actividades de atención relacionadas con la salud humana,group,Q,ciiu_div_86,False,True
+ciiu_8691,8691,Actividades de apoyo diagnóstico,class,Q,ciiu_group_869,False,True
+ciiu_8692,8692,Actividades de apoyo terapéutico,class,Q,ciiu_group_869,False,True
+ciiu_8699,8699,Otras actividades de atención de la salud humana,class,Q,ciiu_group_869,False,True
+ciiu_div_87,87,Actividades de atención residencial medicalizada,division,Q,ciiu_section_q,False,True
+ciiu_group_871,871,Actividades de atención residencial medicalizada de tipo general,group,Q,ciiu_div_87,False,True
+ciiu_group_872,872,Actividades de atención residencial  para el cuidado de pacientes con retardo mental  enfermedad mental y consumo de sustancias psicoactivas,group,Q,ciiu_div_87,False,True
+ciiu_group_873,873,Actividades de atención en instituciones para el cuidado de personas mayores y/o discapacitadas,group,Q,ciiu_div_87,False,True
+ciiu_group_879,879,Otras actividades de atención en instituciones con alojamiento,group,Q,ciiu_div_87,False,True
+ciiu_div_88,88,Actividades de asistencia social sin alojamiento,division,Q,ciiu_section_q,False,True
+ciiu_group_881,881,Actividades de asistencia social sin alojamiento para personas mayores y discapacitadas,group,Q,ciiu_div_88,False,True
+ciiu_group_889,889,Otras actividades de asistencia social sin alojamiento,group,Q,ciiu_div_88,False,True
+ciiu_div_90,90,Actividades creativas  artísticas y de entretenimiento,division,R,ciiu_section_r,False,True
+ciiu_group_900,900,Actividades creativas  artísticas y de entretenimiento,group,R,ciiu_div_90,False,True
+ciiu_9001,9001,Creación literaria,class,R,ciiu_group_900,False,True
+ciiu_9002,9002,Creación musical,class,R,ciiu_group_900,False,True
+ciiu_9003,9003,Creación teatral,class,R,ciiu_group_900,False,True
+ciiu_9004,9004,Creación audiovisual,class,R,ciiu_group_900,False,True
+ciiu_9005,9005,Artes plásticas y visuales,class,R,ciiu_group_900,False,True
+ciiu_9006,9006,Actividades teatrales,class,R,ciiu_group_900,False,True
+ciiu_9007,9007,Actividades de espectáculos musicales en vivo,class,R,ciiu_group_900,False,True
+ciiu_9008,9008,Otras actividades de espectáculos en vivo,class,R,ciiu_group_900,False,True
+ciiu_div_91,91,Actividades de bibliotecas  archivos  museos y otras actividades culturales,division,R,ciiu_section_r,False,True
+ciiu_group_910,910,Actividades de bibliotecas  archivos  museos y otras actividades culturales,group,R,ciiu_div_91,False,True
+ciiu_9101,9101,Actividades de bibliotecas y archivos,class,R,ciiu_group_910,False,True
+ciiu_9102,9102,Actividades y funcionamiento de museos  conservación de edificios y sitios históricos,class,R,ciiu_group_910,False,True
+ciiu_9103,9103,Actividades de jardines botánicos  zoológicos y reservas naturales,class,R,ciiu_group_910,False,True
+ciiu_div_92,92,Actividades de juegos de azar y apuestas,division,R,ciiu_section_r,False,True
+ciiu_group_920,920,Actividades de juegos de azar y apuestas,group,R,ciiu_div_92,False,True
+ciiu_div_93,93,Actividades deportivas y actividades recreativas y de esparcimiento,division,R,ciiu_section_r,False,True
+ciiu_group_931,931,Actividades deportivas,group,R,ciiu_div_93,False,True
+ciiu_9311,9311,Gestión de instalaciones deportivas,class,R,ciiu_group_931,False,True
+ciiu_9312,9312,Actividades de clubes deportivos,class,R,ciiu_group_931,False,True
+ciiu_9319,9319,Otras actividades deportivas,class,R,ciiu_group_931,False,True
+ciiu_group_932,932,Otras actividades recreativas y de esparcimiento,group,R,ciiu_div_93,False,True
+ciiu_9321,9321,Actividades de parques de atracciones y parques temáticos,class,R,ciiu_group_932,False,True
+ciiu_9329,9329,Otras actividades recreativas y de esparcimiento n.c.p.,class,R,ciiu_group_932,False,True
+ciiu_div_94,94,Actividades de asociaciones,division,S,ciiu_section_s,False,True
+ciiu_group_941,941,Actividades de asociaciones empresariales y de empleadores,group,S,ciiu_div_94,False,True
+ciiu_9411,9411,Actividades de asociaciones empresariales y de empleadores,class,S,ciiu_group_941,False,True
+ciiu_9412,9412,Actividades de asociaciones profesionales,class,S,ciiu_group_941,False,True
+ciiu_group_942,942,Actividades de sindicatos de empleados,group,S,ciiu_div_94,False,True
+ciiu_group_949,949,Actividades de otras asociaciones,group,S,ciiu_div_94,False,True
+ciiu_9491,9491,Actividades de asociaciones religiosas,class,S,ciiu_group_949,False,True
+ciiu_9492,9492,Actividades de asociaciones políticas,class,S,ciiu_group_949,False,True
+ciiu_9499,9499,Actividades de otras asociaciones n.c.p.,class,S,ciiu_group_949,False,True
+ciiu_div_95,95,Mantenimiento y reparación de computadores  efectos personales y enseres domésticos,division,S,ciiu_section_s,False,True
+ciiu_group_951,951,Mantenimiento y reparación de computadores y equipo de comunicaciones,group,S,ciiu_div_95,False,True
+ciiu_9511,9511,Mantenimiento y reparación de computadores y de equipo periférico,class,S,ciiu_group_951,False,True
+ciiu_9512,9512,Mantenimiento y reparación de equipos de comunicación,class,S,ciiu_group_951,False,True
+ciiu_group_952,952,Mantenimiento y reparación de efectos personales y enseres domésticos,group,S,ciiu_div_95,False,True
+ciiu_9521,9521,Mantenimiento y reparación de aparatos electrónicos de consumo,class,S,ciiu_group_952,False,True
+ciiu_9522,9522,Mantenimiento y reparación de aparatos y equipos domésticos y de jardinería,class,S,ciiu_group_952,False,True
+ciiu_9523,9523,Reparación de calzado y artículos de cuero,class,S,ciiu_group_952,False,True
+ciiu_9524,9524,Reparación de muebles y accesorios para el hogar,class,S,ciiu_group_952,False,True
+ciiu_9529,9529,Mantenimiento y reparación de otros efectos personales y enseres domésticos,class,S,ciiu_group_952,False,True
+ciiu_div_96,96,Otras actividades de servicios personales,division,S,ciiu_section_s,False,True
+ciiu_group_960,960,Otras actividades de servicios personales,group,S,ciiu_div_96,False,True
+ciiu_9601,9601,Lavado y limpieza  incluso la limpieza en seco  de productos textiles y de piel,class,S,ciiu_group_960,False,True
+ciiu_9602,9602,Peluquería y otros tratamientos de belleza,class,S,ciiu_group_960,False,True
+ciiu_9603,9603,Pompas fúnebres y actividades relacionadas,class,S,ciiu_group_960,False,True
+ciiu_9609,9609,Otras actividades de servicios personales n.c.p.,class,S,ciiu_group_960,False,True
+ciiu_div_97,97,Actividades de los hogares individuales como empleadores de personal doméstico,division,T,ciiu_section_t,False,True
+ciiu_group_970,970,Actividades de los hogares individuales como empleadores de personal doméstico,group,T,ciiu_div_97,False,True
+ciiu_div_98,98,Actividades no diferenciadas de los hogares individuales como productores de bienes y servicios para uso propio,division,T,ciiu_section_t,False,True
+ciiu_group_981,981,Actividades no diferenciadas de los hogares individuales como productores de bienes para uso propio,group,T,ciiu_div_98,False,True
+ciiu_group_982,982,Actividades no diferenciadas de los hogares individuales como productores de servicios para uso propio,group,T,ciiu_div_98,False,True
+ciiu_div_99,99,Actividades de organizaciones y entidades extraterritoriales,division,U,ciiu_section_u,False,True
+ciiu_group_990,990,Actividades de organizaciones y entidades extraterritoriales,group,U,ciiu_div_99,False,True

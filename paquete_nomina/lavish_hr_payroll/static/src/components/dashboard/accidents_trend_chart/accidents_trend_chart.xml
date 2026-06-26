@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.AccidentsTrendChart">
+        <div class="card h-100">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0">
+                        <i class="fa fa-ambulance text-danger me-2"/>
+                        Accidentes e incidentes (6 meses)
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-danger">
+                            Accidentes: <t t-esc="formatNumber(accidentsTotal)"/>
+                        </span>
+                        <span class="badge bg-warning text-dark">
+                            Incidentes: <t t-esc="formatNumber(incidentsTotal)"/>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <t t-if="!hasData">
+                    <div class="text-center text-muted py-4">
+                        <i class="fa fa-info-circle fa-2x mb-2"/>
+                        <p class="mb-0">No hay accidentes registrados en los ultimos meses</p>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div style="height: 260px; position: relative;">
+                        <canvas t-ref="chartCanvas"/>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

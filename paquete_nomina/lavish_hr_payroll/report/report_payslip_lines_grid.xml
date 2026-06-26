@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Accion del Reporte PDF -->
+    <record id="action_report_payslip_lines_grid" model="ir.actions.report">
+        <field name="name">Reporte de Lineas de Nomina</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">lavish_hr_payroll.report_payslip_lines_grid</field>
+        <field name="report_file">lavish_hr_payroll.report_payslip_lines_grid</field>
+        <field name="print_report_name">'Lineas_Nomina_%s' % (object.name or 'Reporte')</field>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Plantilla Principal del Reporte -->
+    <template id="report_payslip_lines_grid">
+        <t t-call="web.html_container">
+            <t t-call="lavish_hr_payroll.report_payslip_lines_grid_document"/>
+        </t>
+    </template>
+
+    <!-- Documento del Reporte -->
+    <template id="report_payslip_lines_grid_document">
+        <t t-call="web.external_layout">
+            <div class="page">
+                <!-- Encabezado del Reporte -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="text-center mb-3" style="color: #2c3e50; font-weight: 700;">
+                            REPORTE DE LINEAS DE NOMINA
+                        </h2>
+                        <div class="text-center" style="color: #7f8c8d;">
+                            <t t-if="docs">
+                                <strong>Lote:</strong> <t t-out="docs.name"/>
+                                <span class="mx-2">|</span>
+                                <strong>Periodo:</strong>
+                                <t t-out="docs.date_start" t-options="{'widget': 'date'}"/> -
+                                <t t-out="docs.date_end" t-options="{'widget': 'date'}"/>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen General -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <table class="table table-sm" style="background: #f8f9fa; border-radius: 8px;">
+                            <tr>
+                                <td class="text-center border-0" style="width: 20%;">
+                                    <small class="text-muted d-block">Empleados</small>
+                                    <strong style="font-size: 1.2em; color: #3498db;">
+                                        <t t-out="totals.get('employee_count', 0)"/>
+                                    </strong>
+                                </td>
+                                <td class="text-center border-0" style="width: 20%;">
+                                    <small class="text-muted d-block">Total Devengos</small>
+                                    <strong style="font-size: 1.2em; color: #27ae60;">
+                                        <t t-out="format_currency(totals.get('devengos', 0))"/>
+                                    </strong>
+                                </td>
+                                <td class="text-center border-0" style="width: 20%;">
+                                    <small class="text-muted d-block">Total Deducciones</small>
+                                    <strong style="font-size: 1.2em; color: #e74c3c;">
+                                        <t t-out="format_currency(totals.get('deducciones', 0))"/>
+                                    </strong>
+                                </td>
+                                <td class="text-center border-0" style="width: 20%;">
+                                    <small class="text-muted d-block">Seguridad Social</small>
+                                    <strong style="font-size: 1.2em; color: #9b59b6;">
+                                        <t t-out="format_currency(totals.get('seguridad_social', 0))"/>
+                                    </strong>
+                                </td>
+                                <td class="text-center border-0" style="width: 20%;">
+                                    <small class="text-muted d-block">Neto a Pagar</small>
+                                    <strong style="font-size: 1.2em; color: #2c3e50;">
+                                        <t t-out="format_currency(totals.get('neto', 0))"/>
+                                    </strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Contenido Agrupado -->
+                <t t-foreach="grouped_data.items()" t-as="group_item">
+                    <t t-set="group_key" t-value="group_item[0]"/>
+                    <t t-set="group_data" t-value="group_item[1]"/>
+
+                    <!-- Header del Grupo -->
+                    <div class="mb-3" style="page-break-inside: avoid;">
+                        <div style="background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                                    color: white; padding: 10px 15px; border-radius: 6px 6px 0 0;">
+                            <div class="row">
+                                <div class="col-8">
+                                    <strong style="font-size: 1.1em;">
+                                        <t t-out="group_data.get('name', 'Sin Nombre')"/>
+                                    </strong>
+                                    <t t-if="group_data.get('extra_data', {}).get('identification')">
+                                        <small class="ms-2" style="opacity: 0.8;">
+                                            CC: <t t-out="group_data['extra_data']['identification']"/>
+                                        </small>
+                                    </t>
+                                </div>
+                                <div class="col-4 text-end">
+                                    <small>
+                                        <t t-if="group_data.get('employee_count')">
+                                            <t t-out="group_data['employee_count']"/> empleado(s)
+                                        </t>
+                                    </small>
+                                </div>
+                            </div>
+                            <t t-if="group_data.get('extra_data', {}).get('department')">
+                                <small style="opacity: 0.8;">
+                                    <t t-out="group_data['extra_data'].get('department', '')"/>
+                                    <t t-if="group_data['extra_data'].get('job')">
+                                        - <t t-out="group_data['extra_data']['job']"/>
+                                    </t>
+                                </small>
+                            </t>
+                        </div>
+
+                        <!-- Tabla de Devengos -->
+                        <t t-if="group_data['categories'].get('devengos')">
+                            <div style="background: #e8f5e9; padding: 8px 15px; border-left: 4px solid #27ae60;">
+                                <strong style="color: #27ae60;">DEVENGOS</strong>
+                            </div>
+                            <table class="table table-sm table-bordered mb-0" style="font-size: 0.85em;">
+                                <thead style="background: #f1f8e9;">
+                                    <tr>
+                                        <th style="width: 40%;">Concepto</th>
+                                        <th style="width: 12%;">Codigo</th>
+                                        <th class="text-center" style="width: 12%;">Cantidad</th>
+                                        <th class="text-center" style="width: 12%;">% Tasa</th>
+                                        <th class="text-end" style="width: 12%;">Base</th>
+                                        <th class="text-end" style="width: 12%;">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="group_data['categories']['devengos']" t-as="line">
+                                        <tr t-att-style="'font-weight: bold; background: #c8e6c9;' if line['code'] == 'TOTALDEV' else ''">
+                                            <td><t t-out="line['name']"/></td>
+                                            <td><code><t t-out="line['code']"/></code></td>
+                                            <td class="text-center">
+                                                <t t-if="line['quantity'] != 1">
+                                                    <t t-out="'%.2f' % line['quantity']"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-center">
+                                                <t t-if="line['rate'] != 100">
+                                                    <t t-out="'%.2f' % line['rate']"/>%
+                                                </t>
+                                            </td>
+                                            <td class="text-end">
+                                                <t t-if="line['amount']">
+                                                    <t t-out="format_currency(line['amount'])"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-end" style="color: #27ae60;">
+                                                <t t-out="format_currency(line['total'])"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot style="background: #a5d6a7;">
+                                    <tr>
+                                        <td colspan="5" class="text-end"><strong>Subtotal Devengos:</strong></td>
+                                        <td class="text-end"><strong><t t-out="format_currency(group_data['subtotals']['devengos'])"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+
+                        <!-- Tabla de Seguridad Social -->
+                        <t t-if="group_data['categories'].get('seguridad_social')">
+                            <div style="background: #f3e5f5; padding: 8px 15px; border-left: 4px solid #9b59b6; margin-top: 10px;">
+                                <strong style="color: #9b59b6;">SEGURIDAD SOCIAL</strong>
+                            </div>
+                            <table class="table table-sm table-bordered mb-0" style="font-size: 0.85em;">
+                                <thead style="background: #ede7f6;">
+                                    <tr>
+                                        <th style="width: 40%;">Concepto</th>
+                                        <th style="width: 12%;">Codigo</th>
+                                        <th class="text-center" style="width: 12%;">Cantidad</th>
+                                        <th class="text-center" style="width: 12%;">% Tasa</th>
+                                        <th class="text-end" style="width: 12%;">Base</th>
+                                        <th class="text-end" style="width: 12%;">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="group_data['categories']['seguridad_social']" t-as="line">
+                                        <tr>
+                                            <td><t t-out="line['name']"/></td>
+                                            <td><code><t t-out="line['code']"/></code></td>
+                                            <td class="text-center">
+                                                <t t-if="line['quantity'] != 1">
+                                                    <t t-out="'%.2f' % line['quantity']"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-center">
+                                                <t t-if="line['rate'] != 100">
+                                                    <t t-out="'%.2f' % line['rate']"/>%
+                                                </t>
+                                            </td>
+                                            <td class="text-end">
+                                                <t t-if="line['amount']">
+                                                    <t t-out="format_currency(line['amount'])"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-end" style="color: #9b59b6;">
+                                                <t t-out="format_currency(line['total'])"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot style="background: #d1c4e9;">
+                                    <tr>
+                                        <td colspan="5" class="text-end"><strong>Subtotal Seguridad Social:</strong></td>
+                                        <td class="text-end"><strong><t t-out="format_currency(group_data['subtotals']['seguridad_social'])"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+
+                        <!-- Tabla de Deducciones -->
+                        <t t-if="group_data['categories'].get('deducciones')">
+                            <div style="background: #ffebee; padding: 8px 15px; border-left: 4px solid #e74c3c; margin-top: 10px;">
+                                <strong style="color: #e74c3c;">DEDUCCIONES</strong>
+                            </div>
+                            <table class="table table-sm table-bordered mb-0" style="font-size: 0.85em;">
+                                <thead style="background: #ffcdd2;">
+                                    <tr>
+                                        <th style="width: 40%;">Concepto</th>
+                                        <th style="width: 12%;">Codigo</th>
+                                        <th class="text-center" style="width: 12%;">Cantidad</th>
+                                        <th class="text-center" style="width: 12%;">% Tasa</th>
+                                        <th class="text-end" style="width: 12%;">Base</th>
+                                        <th class="text-end" style="width: 12%;">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="group_data['categories']['deducciones']" t-as="line">
+                                        <tr t-att-style="'font-weight: bold; background: #ef9a9a;' if line['code'] == 'TOTALDED' else ''">
+                                            <td><t t-out="line['name']"/></td>
+                                            <td><code><t t-out="line['code']"/></code></td>
+                                            <td class="text-center">
+                                                <t t-if="line['quantity'] != 1">
+                                                    <t t-out="'%.2f' % line['quantity']"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-center">
+                                                <t t-if="line['rate'] != 100">
+                                                    <t t-out="'%.2f' % line['rate']"/>%
+                                                </t>
+                                            </td>
+                                            <td class="text-end">
+                                                <t t-if="line['amount']">
+                                                    <t t-out="format_currency(line['amount'])"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-end" style="color: #e74c3c;">
+                                                <t t-out="format_currency(line['total'])"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot style="background: #ef9a9a;">
+                                    <tr>
+                                        <td colspan="5" class="text-end"><strong>Subtotal Deducciones:</strong></td>
+                                        <td class="text-end"><strong><t t-out="format_currency(group_data['subtotals']['deducciones'])"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+
+                        <!-- Neto a Pagar -->
+                        <t t-if="group_data['categories'].get('neto')">
+                            <div style="background: #2c3e50; color: white; padding: 12px 15px; margin-top: 10px; border-radius: 0 0 6px 6px;">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <strong style="font-size: 1.1em;">NETO A PAGAR</strong>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <strong style="font-size: 1.3em;">
+                                            <t t-out="format_currency(group_data['subtotals']['neto'])"/>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- Provisiones (si aplica) -->
+                        <t t-if="group_data['categories'].get('provisiones')">
+                            <div style="background: #fff3e0; padding: 8px 15px; border-left: 4px solid #ff9800; margin-top: 10px;">
+                                <strong style="color: #ff9800;">PROVISIONES</strong>
+                            </div>
+                            <table class="table table-sm table-bordered mb-0" style="font-size: 0.85em;">
+                                <thead style="background: #ffe0b2;">
+                                    <tr>
+                                        <th style="width: 52%;">Concepto</th>
+                                        <th style="width: 12%;">Codigo</th>
+                                        <th class="text-end" style="width: 18%;">Base</th>
+                                        <th class="text-end" style="width: 18%;">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="group_data['categories']['provisiones']" t-as="line">
+                                        <tr>
+                                            <td><t t-out="line['name']"/></td>
+                                            <td><code><t t-out="line['code']"/></code></td>
+                                            <td class="text-end">
+                                                <t t-if="line['amount']">
+                                                    <t t-out="format_currency(line['amount'])"/>
+                                                </t>
+                                            </td>
+                                            <td class="text-end" style="color: #ff9800;">
+                                                <t t-out="format_currency(line['total'])"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot style="background: #ffcc80;">
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Total Provisiones:</strong></td>
+                                        <td class="text-end"><strong><t t-out="format_currency(group_data['subtotals']['provisiones'])"/></strong></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+                    </div>
+
+                    <!-- Separador entre grupos -->
+                    <div style="height: 20px;"/>
+                </t>
+
+                <!-- Pie de Pagina con Totales Generales -->
+                <div style="margin-top: 30px; page-break-inside: avoid;">
+                    <table class="table table-bordered" style="background: #2c3e50; color: white;">
+                        <tr>
+                            <td class="text-center" style="width: 25%; border-color: #34495e;">
+                                <small>TOTAL DEVENGOS</small><br/>
+                                <strong style="font-size: 1.3em; color: #2ecc71;">
+                                    <t t-out="format_currency(totals.get('devengos', 0))"/>
+                                </strong>
+                            </td>
+                            <td class="text-center" style="width: 25%; border-color: #34495e;">
+                                <small>TOTAL DEDUCCIONES</small><br/>
+                                <strong style="font-size: 1.3em; color: #e74c3c;">
+                                    <t t-out="format_currency(totals.get('deducciones', 0))"/>
+                                </strong>
+                            </td>
+                            <td class="text-center" style="width: 25%; border-color: #34495e;">
+                                <small>SEGURIDAD SOCIAL</small><br/>
+                                <strong style="font-size: 1.3em; color: #9b59b6;">
+                                    <t t-out="format_currency(totals.get('seguridad_social', 0))"/>
+                                </strong>
+                            </td>
+                            <td class="text-center" style="width: 25%; border-color: #34495e;">
+                                <small>NETO A PAGAR</small><br/>
+                                <strong style="font-size: 1.3em; color: #f1c40f;">
+                                    <t t-out="format_currency(totals.get('neto', 0))"/>
+                                </strong>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Fecha de Generacion -->
+                <div class="text-center mt-4" style="color: #7f8c8d; font-size: 0.8em;">
+                    Generado el <t t-out="datetime.datetime.now().strftime('%d/%m/%Y %H:%M')"/>
+                    por <t t-out="env.user.name"/>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

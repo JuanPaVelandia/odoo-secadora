@@ -1,0 +1,946 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- EMPLOYEE VIEWS -->
+
+        <record id="view_department_form_accounting" model="ir.ui.view">
+                    <field name="name">hr.department.form.accounting</field>
+                    <field name="model">hr.department</field>
+                    <field name="inherit_id" ref="hr.view_department_form"/>
+                    <field name="arch" type="xml">
+
+                        <!-- Agregar nueva página de contabilización -->
+                        <xpath expr="//sheet" position="inside">
+                            <notebook>
+                                <page string="Contabilización" name="accounting_automation">
+
+                                    <group>
+                                        <group string="Configuración Contable">
+                                            <field name="code_account" placeholder="Código de departamento (ej: 0001)"/>
+                                            <field name="skip_accounting"/>
+                                            <field name="dept_code_length"/>
+                                            <field name="rule_code_length"/>
+                                            <field name="job_code_length"/>
+                                        </group>
+                                        <group string="Estadísticas">
+                                            <field name="accounting_configs_count" readonly="1"/>
+                                            <field name="can_generate_accounting" invisible="1"/>
+                                        </group>
+                                    </group>
+
+                                    <separator string="Configuraciones Contables del Departamento"/>
+
+                                    <field name="accounting_config_ids" nolabel="1">
+                                        <list string="Configuraciones Contables" editable="bottom">
+                                            <field name="salary_rule" string="Regla Salarial" options="{'no_create': True}"/>
+                                            <field name="priority_type"/>
+                                            <field name="debit_account" options="{'no_create': True}"/>
+                                            <field name="credit_account" options="{'no_create': True}"/>
+                                            <field name="third_debit"/>
+                                            <field name="third_credit"/>
+                                            <field name="active" widget="boolean_toggle"/>
+                                        </list>
+                                    </field>
+
+                                    <div class="mt16">
+                                        <button name="action_generate_accounting_configs" type="object" string="Generar Configuraciones Contables" class="btn-primary" icon="fa-magic" invisible="not can_generate_accounting"/>
+                                        <button name="action_clear_accounting_configs" type="object" string="Limpiar Configuraciones" class="btn-secondary" icon="fa-trash" invisible="accounting_configs_count == 0"/>
+                                        <button name="action_view_accounting_configs" type="object" string="Ver Configuraciones" class="btn-info" icon="fa-eye" invisible="accounting_configs_count == 0"/>
+                                    </div>
+
+                                </page>
+                            </notebook>
+
+                        </xpath>
+
+                    </field>
+                </record>
+
+        <record id="view_department_tree_accounting" model="ir.ui.view">
+                    <field name="name">hr.department.tree.accounting</field>
+                    <field name="model">hr.department</field>
+                    <field name="inherit_id" ref="hr.view_department_tree"/>
+                    <field name="arch" type="xml">
+                        <field name="name" position="after">
+                            <field name="accounting_configs_count" string="Config. Contables"/>
+                        </field>
+                    </field>
+                </record>
+
+        <record id="view_lavish_hr_employee_form_employee" model="ir.ui.view">
+                    <field name="name">hr.employee.lavish.hr.employee.form.inherit</field>
+                    <field name="model">hr.employee</field>
+                    <field name="priority">20</field>
+                    <field name="inherit_id" ref="hr.view_employee_form"/>
+                    <field name="arch" type="xml">
+                        <xpath expr="//field[@name='work_email']" position="before">
+                            <field name="employee_type" required="1"/>
+                        </xpath>
+                        <xpath expr="//field[@name='work_email']" position="after">
+                            <field name="personal_email"/>
+                            <field name="personal_mobile"/>
+                        </xpath>
+                        <xpath expr="//page[1]" position="attributes">
+                            <attribute name="string">Información de Trabajo</attribute>
+                        </xpath>
+                        <xpath expr="//page[2]" position="attributes">
+                            <attribute name="string">Información Pública</attribute>
+                        </xpath>
+                        <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='public']/div[1]/div[1]/group[1]" position="after">
+                            <group name="asignacion" string="Asignación">
+                                <group>
+                                    <field name="analytic_account_id"/>
+                                </group>
+                            </group>
+                            <group name="alianzat" invisible="1">
+                                <group>
+                                    <field name="ed_qualification"/>
+                                    <field name="ed_observation"/>
+                                </group>
+                                <group>
+                                    <field name="info_project"/>
+                                    <field name="front_back" widget='radio'/>
+                                    <field name="confianza_manejo"/>
+                                    <field name="cost_assumed_by" widget='radio'/>
+                                    <field name="type_job" widget='radio'/>
+                                </group>
+                            </group>
+
+                        </xpath>
+                        <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='public']/div[1]/div[1]/group[not(@name)][2]" position="after">
+                            <group name="licencia_conducción" string="Licencia de Conducción">
+                                <field name="licencia_rh"/>
+                                <field name="licencia_categoria"/>
+                                <field name="licencia_vigencia"/>
+                                <field name="licencia_restricciones"/>
+                                <field name="operacion_retirar"/>
+                                <field name="operacion_reemplazo"  invisible="not operacion_retirar"/>
+                            </group>
+                        </xpath>
+                        <xpath expr="//field[@name='visa_no']" position="before">
+                            <field name="working_hours_id"
+                                   options="{'no_create': True}"
+                                   help="Horario laboral asociado al empleado. Al seleccionarlo se actualizará automáticamente el campo 'Sábado día hábil' si el horario incluye sábados."/>
+                            <field name="auto_works_saturday" readonly="1"
+                                   help="Este campo se marca automáticamente cuando el horario laboral incluye sábados"/>
+                            <field name="sabado"/>
+                        </xpath>
+
+                        <xpath expr="//field[@name='identification_id']" position="attributes">
+                            <attribute name="force_save">True</attribute>
+                            <attribute name="invisible">1</attribute>
+                        </xpath>
+                        <xpath expr="//form[1]/sheet[1]/notebook[1]/page[@name='personal_information']/group[1]/group[1]/label[1]" position="before">
+                            <field name="work_contact_id"/>
+                            <field name="l10n_latam_identification_type_id" options="{'no_open': True, 'no_create': True}" placeholder="Tipo de documento"/>
+                            <field name="identification_id"/>
+                        </xpath>
+                        <xpath expr="//field[@name='work_contact_id']" position="attributes">
+                            <attribute name="string">Tercero</attribute>
+                            <attribute name="help">Tercero equivalente a el empleado</attribute>
+                            <attribute name="context">{'show_address': 1, 'default_type': 'private',
+                                 'form_view_ref':
+                                'base.res_partner_view_form_private'}
+                            </attribute>
+                        </xpath>
+                        <!-- employee_type nativo de Odoo no requiere ajustes de atributos aqui -->
+                        <xpath expr="//field[@name='emergency_phone']" position="after">
+                            <field name="emergency_relationship"/>
+                                        </xpath>
+                        <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
+                            <page string="Contratos" name="contratos">
+                                <group>
+                                    <field name="contract_ids" colspan="2" nolabel="1"
+                                           context="{'default_employee_id': id, 'default_view_inherit_employee': True}">
+                                        <list string="Contracts" decoration-bf="message_needaction"
+                                              decoration-info="state == 'draft'" decoration-muted="state in ('close', 'cancel')"
+                                              decoration-danger="state == 'pending'">
+                                            <field name="name"/>
+                                            <field name="employee_id" invisible="1"/>
+                                            <field name="job_id"/>
+                                            <field name="resource_calendar_id" invisible="1"/>
+                                            <field name="date_start"/>
+                                            <field name="date_end"/>
+                                            <field name="state" invisible="1"/>
+                                            <field name="kanban_state" widget="state_selection" readonly="1" 
+                                                   invisible="1"/>
+                                            <field name="wage" />
+                                            <field name="message_needaction" invisible="1"/>
+                                            <field name="company_id"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Información Familiar" name="estado_civil">
+                                <group>
+                                    <group>
+                                        <field name="marital"/>
+                                        <field name="type_identification_spouse"
+                                               invisible="marital not in ['married', 'cohabitant']"
+                                               groups="hr.group_hr_user"/>
+                                        <field name="num_identification_spouse"
+                                                invisible="marital not in ['married', 'cohabitant']"
+                                                groups="hr.group_hr_user"/>
+                                    </group>
+                                    <group>
+                                        <field name="spouse_complete_name"
+                                            invisible="marital not in ['married', 'cohabitant']"/>
+                                        <field name="spouse_birthdate"
+                                                invisible="marital not in ['married', 'cohabitant']"/>
+                                        <field name="spouse_phone"
+                                                invisible="marital not in ['married', 'cohabitant']"
+                                                groups="hr.group_hr_user"/>
+                                    </group>
+                                </group>
+                                <group name="dependientes" string="Dependientes">
+                                    <field name="dependents_information" nolabel="1" colspan="2">
+                                        <list editable="bottom" >
+                                            <field name="name"/>
+                                            <field name="genero"/>
+                                            <field name="date_birthday"/>
+                                            <field name="dependents_type"/>
+                                            <field name="document_type"/>
+                                            <field name="vat"/>
+                                            <field name="phone"/>
+                                            <field name="address"/>
+                                            <field name="report_income_and_withholdings"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                            <page string="Seguridad Social" name="seguridad_social" invisible="not is_colombian_company">
+                                <field name="is_colombian_company" invisible="1"/>
+                                <group name="pila" string="PILA">
+                                    <field name="tipo_coti_id"/>
+                                    <field name="subtipo_coti_id"/>
+                                    <field name="extranjero"/>
+                                    <field name="residente"/>
+                                    <field name="date_of_residence_abroad"  invisible="not residente"/>
+                                    <field name="indicador_especial_id"/>
+                                </group>
+                                <newline/>
+                                <group name="entidad" string="Entidades">
+                                    <field name="social_security_entities" nolabel="1" colspan="2">
+                                        <list string="Configuracion nomina" editable="bottom">
+                                            <field name="contrib_id"/>
+                                            <field name="partner_id"/>
+                                            <field name="date_change"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </page>
+                        </xpath>
+                        <xpath expr="//field[@name='country_of_birth']" position="after">
+                            <field name="department_birth_id" invisible="not is_colombian_company"/>
+                            <field name="city_birth_id" invisible="not is_colombian_company"/>
+                        </xpath>
+                        <!-- Widget constructor de direccion al lado de private_street -->
+                        <xpath expr="//field[@name='private_street']" position="after">
+                            <widget name="employee_address_builder_button"/>
+                        </xpath>
+                        <!-- Campos Colombia despues del bloque de direccion nativo -->
+                        <xpath expr="//div[hasclass('o_address_format')]" position="after">
+                            <group col="4" invisible="not is_colombian_company">
+                                <field name="private_city_id" options="{'no_create': True}" placeholder="Ciudad..."/>
+                                <field name="private_neighborhood_id" options="{'no_create': True}" placeholder="Barrio..."/>
+                                <field name="private_barrio" placeholder="Barrio (texto libre)"/>
+                                <field name="private_postal_code_id" options="{'no_create': True}"/>
+                            </group>
+                            <field name="private_full_address" readonly="1" class="text-muted small" invisible="not is_colombian_company"/>
+                            <field name="main_road" invisible="1"/>
+                            <field name="name_road" invisible="1"/>
+                            <field name="main_letter_road" invisible="1"/>
+                            <field name="prefix_main_road" invisible="1"/>
+                            <field name="sector_main_road" invisible="1"/>
+                            <field name="generator_road_number" invisible="1"/>
+                            <field name="generator_road_letter" invisible="1"/>
+                            <field name="generator_road_sector" invisible="1"/>
+                            <field name="generator_plate_number" invisible="1"/>
+                            <field name="generator_plate_sector" invisible="1"/>
+                            <field name="complement_name_a" invisible="1"/>
+                            <field name="complement_number_a" invisible="1"/>
+                            <field name="complement_name_b" invisible="1"/>
+                            <field name="complement_number_b" invisible="1"/>
+                            <field name="complement_name_c" invisible="1"/>
+                            <field name="complement_text_c" invisible="1"/>
+                        </xpath>
+                        <!-- Ocultar campo private_city nativo ya que usamos private_city_id -->
+                        <xpath expr="//field[@name='private_city']" position="attributes">
+                            <attribute name="invisible">1</attribute>
+                        </xpath>
+
+                        <!-- Campos de Nombres justo arriba del nombre del empleado -->
+                        <xpath expr="//div[hasclass('oe_title')]/h1" position="before">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="text-muted small me-2">Nombres:</span>
+                                <button name="action_split_name" type="object"
+                                        string="Dividir Nombre" class="btn btn-link btn-sm p-0"
+                                        title="Divide el nombre completo en primer nombre, segundo nombre, primer apellido y segundo apellido"
+                                        icon="fa-magic"/>
+                            </div>
+                            <group class="mb-0">
+                                <group>
+                                    <field name="first_name" placeholder="Primer nombre"/>
+                                    <field name="surname" placeholder="Primer apellido"/>
+                                </group>
+                                <group>
+                                    <field name="middle_name" placeholder="Segundo nombre"/>
+                                    <field name="mother_name" placeholder="Segundo apellido"/>
+                                </group>
+                            </group>
+                        </xpath>
+                    </field>
+                </record>
+
+        <record model="ir.ui.view" id="report_print_badge_template_list">
+                    <field name="name">report print badge template tree</field>
+                    <field name="model">report.print.badge.template</field>
+                    <field name="arch" type="xml">
+                        <list>
+                            <field name="company_id"/>
+                            <field name="img_header_filename"/>
+                        </list>
+                    </field>
+                </record>
+
+        <record id="report_print_badge_template_form" model="ir.ui.view">
+                    <field name="name">report print badge template form</field>
+                    <field name="model">report.print.badge.template</field>
+                    <field name="arch" type="xml">
+                        <form>
+                            <sheet>
+                                <group>
+                                    <field name="company_id" required="1"/>
+                                    <field name="img_header_filename" invisible="1"/>
+                                    <field name="img_header_file" filename="img_header_filename"/>
+                                    <field name="imgback_header_filename" invisible="1"/>
+                                    <field name="imgback_header_file" filename="imgback_header_filename"/>
+                                    <field name="with_extra_space"/>
+                                    <field name="orientation"/>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </record>
+
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+                    <field name="name">res.config.settings.view.form.inherit.hr.payroll.lavish</field>
+                    <field name="model">res.config.settings</field>
+                    <field name="priority" eval="46"/>
+                    <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+                    <field name="arch" type="xml">
+                        <xpath expr="//block[@id='hr_payroll_accountant']" position="after">
+                            <h2>Parametros Generales</h2>
+                            <div class="row mt16 o_settings_container" id="attributes_other">
+                                <div class="col-12 col-lg-6 o_setting_box">
+                                    <div class="o_setting_left_pane">
+                                        <field name="simple_provisions"/>
+                                        <field name="fragment_vac"/>
+                                        <field name="prv_vac_cpt"/>
+                                        <field name="init_vac_date"/>
+                                    </div>
+                                    <div class="o_setting_right_pane">
+                                        <span class="o_form_label">¿Calculo de provisiones simple?</span>
+                                        <br/>
+                                        <span class="o_form_label">Vacaciones fragmentadas</span>
+                                        <br/>
+                                        <span class="o_form_label">Provision de vacaciones por conceptos</span>
+                                        <br/>
+                                        <span class="o_form_label">Fecha de corte libro de vacaciones</span>
+                                    </div>
+                                </div>
+                            </div>   
+                        </xpath>
+                    </field>
+                </record>
+
+        <record model="ir.ui.view" id="form_hr_employee_report_curriculum">
+                    <field name="name">form hr_employee_report_curriculum</field>
+                    <field name="model">hr.employee.report.curriculum</field>
+                    <field name="arch" type="xml">
+                        <form>
+                            <sheet string="Informe configurable hoja de vida">
+                                <group>
+                                    <field name="employee_ids" required="1" readonly="1" force_save="1" widget="many2many_tags"/>
+                                    <field name="include_resume_curriculum"/>
+                                </group>
+                                <group>
+                                    <field name="favorite_id"/>
+                                    <field name="domain_documents" widget="domain" options="{'model': 'documents.document', 'in_dialog': True}"/>
+                                    <field name="order_fields" widget="many2many_tags"/>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="save_favorite"/>
+                                    </group>
+                                    <group>
+                                        <field name="name" required="save_favorite" invisible="not save_favorite"/>
+                                    </group>
+                                </group>
+                                <group string="Documentos">
+                                    <field name="document_ids" nolabel="1" can_create="false">
+                                        <list>
+                                            <field name="sequence" widget="handle"/>
+                                            <field name="partner_id" readonly="1" force_save="1"/>
+                                            <field name="document_id" readonly="1" force_save="1"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </sheet>
+                            <footer>
+                                <button name="generate_pdf" class="oe_highlight" string="Generar" type="object"/>
+                            </footer>
+                        </form>
+                    </field>
+                </record>
+
+        <record model="ir.ui.view" id="hr_employee_sanctions_view_tree">
+                    <field name="name">Sanciones vista tree</field>
+                    <field name="model">hr.employee.sanctions</field>
+                    <field name="arch" type="xml">
+                        <list>
+                            <field name="employee_id"/>
+                            <field name="type_fault_id"/>
+                            <field name="registration_date"/>
+                            <field name="name" optional="show"/>
+                            <field name="stage" optional="show"/>
+                        </list>
+                    </field>
+                </record>
+
+        <record model="ir.ui.view" id="hr_employee_sanctions_view_form">
+                    <field name="name">Sanciones vista form</field>
+                    <field name="model">hr.employee.sanctions</field>
+                    <field name="arch" type="xml">
+                        <form>
+                            <sheet string="Sanciones">
+                                <group>
+                                    <group>
+                                        <field name="employee_id" options="{'no_create': True}" required="1"/>
+                                        <field name="company_id" readonly="1"/>
+                                        <field name="work_contact_id" invisible="1"/>
+                                        <field name="name" required="1"/>
+                                        <field name="absence_id" options="{'no_create': True}" domain="[('employee_id','=',employee_id)]"/>
+                                        <field name="document_id" options="{'no_create': True}" domain="[('partner_id','=',work_contact_id)]"/>
+                                    </group>
+                                    <group>
+                                        <field name="type_fault_id" options="{'no_create': True}" required="1"/>
+                                        <field name="registration_date" required="1"/>
+                                        <field name="stage" required="1"/>
+                                    </group>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </record>
+
+        <record model="ir.ui.view" id="hr_employee_sanctions_search_view">
+                    <field name="name">hr_employee_sanctions_search_view</field>
+                    <field name="model">hr.employee.sanctions</field>
+                    <field name="arch" type="xml">
+                        <search string="Sanciones">
+                            <field name="employee_id"/>
+                            <field name="type_fault_id"/>
+                            <field name="name"/>
+                        </search>
+                    </field>
+                </record>
+
+        <!-- Vista tree para hr.skill con campo is_other (standalone) -->
+        <record id="view_lavish_hr_skill_tree" model="ir.ui.view">
+                    <field name="name">hr.skill.tree.lavish</field>
+                    <field name="model">hr.skill</field>
+                    <field name="priority">20</field>
+                    <field name="arch" type="xml">
+                        <list string="Habilidades">
+                            <field name="name"/>
+                            <field name="is_other" optional="show"/>
+                            <field name="skill_type_id"/>
+                        </list>
+                    </field>
+                </record>
+
+        <!-- Vista form para hr.skill - heredando de hr_skills nativo -->
+        <record id="view_lavish_hr_skill_form" model="ir.ui.view">
+                    <field name="name">hr.skill.form.inherit.lavish</field>
+                    <field name="model">hr.skill</field>
+                    <field name="inherit_id" ref="hr_skills.hr_skill_view_form"/>
+                    <field name="arch" type="xml">
+                        <xpath expr="//field[@name='name']" position="after">
+                            <field name="is_other"/>
+                        </xpath>
+                    </field>
+                </record>
+
+        <!-- Vista tree para hr.resume.line.type - heredando de hr_skills nativo -->
+        <record id="view_hr_resume_line_type" model="ir.ui.view">
+                    <field name="name">hr.resume.line.type.tree.inherit.lavish</field>
+                    <field name="model">hr.resume.line.type</field>
+                    <field name="inherit_id" ref="hr_skills.hr_resume_line_type_tree_view"/>
+                    <field name="arch" type="xml">
+                        <xpath expr="//field[@name='name']" position="after">
+                            <field name="type_resume"/>
+                        </xpath>
+                    </field>
+                </record>
+
+        <record id="view_job_form_accounting" model="ir.ui.view">
+                    <field name="name">hr.job.form.accounting</field>
+                    <field name="model">hr.job</field>
+                    <field name="inherit_id" ref="hr.view_hr_job_form"/>
+                    <field name="arch" type="xml">
+
+                        <!-- Agregar nueva página de contabilización -->
+                        <xpath expr="//sheet" position="inside">
+                            <notebook>
+
+
+                            <page string="Contabilización" name="accounting_automation">
+
+                                <group>
+                                    <group string="Configuración Contable">
+                                        <field name="code_account" placeholder="Código de puesto (ej: 01)"/>
+                                        <field name="skip_accounting"/>
+                                        <field name="dept_code_length"/>
+                                        <field name="rule_code_length"/>
+                                        <field name="job_code_length"/>
+                                    </group>
+                                    <group string="Estadísticas">
+                                        <field name="accounting_configs_count" readonly="1"/>
+                                        <field name="can_generate_accounting" invisible="1"/>
+                                    </group>
+                                </group>
+
+                                <separator string="Configuraciones Contables del Puesto"/>
+
+                                <field name="accounting_config_ids" nolabel="1">
+                                    <list string="Configuraciones Contables" editable="bottom">
+                                        <field name="salary_rule" string="Regla Salarial" options="{'no_create': True}"/>
+                                        <field name="priority_type"/>
+                                        <field name="debit_account" options="{'no_create': True}"/>
+                                        <field name="credit_account" options="{'no_create': True}"/>
+                                        <field name="third_debit"/>
+                                        <field name="third_credit"/>
+                                        <field name="active" widget="boolean_toggle"/>
+                                    </list>
+                                </field>
+
+                                <div class="mt16">
+                                    <button name="action_generate_accounting_configs" 
+                                            type="object" 
+                                            string="Generar Configuraciones Contables" 
+                                            class="btn-primary"
+                                            icon="fa-magic"
+                                            invisible="not can_generate_accounting"/>
+                                    <button name="action_clear_accounting_configs" 
+                                            type="object" 
+                                            string="Limpiar Configuraciones" 
+                                            class="btn-secondary"
+                                            icon="fa-trash"
+                                            invisible="accounting_configs_count == 0"/>
+                                    <button name="action_view_accounting_configs" 
+                                            type="object" 
+                                            string="Ver Configuraciones" 
+                                            class="btn-info"
+                                            icon="fa-eye"
+                                            invisible="accounting_configs_count == 0"/>
+                                </div>
+
+                            </page>
+                            </notebook>
+                        </xpath>
+
+                    </field>
+                </record>
+
+        <record id="view_job_tree_accounting" model="ir.ui.view">
+                    <field name="name">hr.job.tree.accounting</field>
+                    <field name="model">hr.job</field>
+                    <field name="inherit_id" ref="hr.view_hr_job_tree"/>
+                    <field name="arch" type="xml">
+                        <field name="name" position="after">
+                            <field name="accounting_configs_count" string="Config. Contables"/>
+                        </field>
+                    </field>
+                </record>
+
+        <record id="view_lavish_hr_employee_form_employee_partner" model="ir.ui.view">
+                    <field name="name">hr.employee.lavish.hr.employee.partner.form.inherit</field>
+                    <field name="model">res.partner</field>
+                    <field name="priority">50</field>
+                    <field name="inherit_id" ref="base.res_partner_view_form_private"/>
+                    <field name="arch" type="xml">
+                        <xpath expr="//field[@name='name']" position="attributes">
+                            <attribute name="string">Apellidos-Nombres</attribute>                
+                            <attribute name="required">1</attribute>
+                        </xpath>
+                        <xpath expr="//form[1]/sheet[1]/group[1]/group[1]" position="before">
+                            <group>
+                                <field name="l10n_latam_identification_type_id" required="1"/>
+                                <field name="vat_co" placeholder="RUT/NIT/CC/ID" style="width: 60%%" required="1"/>
+                                <field name="vat" invisible="1"/>
+                                <field name="vat_vd" invisible="1"/>
+                                <field name="first_name" required="1"/>
+                                <field name="second_name"/>
+                                <field name="first_lastname" required="1"/>
+                                <field name="second_lastname"/>
+                            </group>
+                        </xpath>
+                        <xpath expr="//field[@name='street2']" position="attributes">
+                            <attribute name="invisible">1</attribute>
+                        </xpath>
+                        <xpath expr="//field[@name='city']" position="replace">
+                            <xpath expr="//field[@name='country_id']" position="move"/>                    
+                        </xpath>
+                        <xpath expr="//field[@name='state_id']" position="after">
+                            <field name="city_id" placeholder="City" class="o_address_city" />
+                        </xpath>
+                        <xpath expr="//field[@name='bank_ids']" position="replace">
+                            <field name="bank_ids">
+                                <list editable="bottom">
+                                    <field name="company_id"/>
+                                    <field name="bank_id"/>
+                                    <field name="type_account"/>
+                                    <field name="acc_number"/>
+                                    <field name="is_main"/>
+                                </list>
+                            </field>
+                        </xpath>
+                    </field>
+                </record>
+
+        <record id="hr_employee_benefits_history_list" model="ir.ui.view">
+                    <field name="name">hr.employee.benefits.history.tree</field>
+                    <field name="model">hr.employee.benefits.history</field>
+                    <field name="arch" type="xml">
+                        <list>
+                            <field name="employee_id"/>
+                            <field name="benefit_type"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="days_worked"/>
+                            <field name="days_paid"/>
+                            <field name="base_amount" sum="Total Base"/>
+                            <field name="amount" sum="Total Pagado"/>
+                            <field name="period_type"/>
+                            <field name="year"/>
+                            <field name="state"/>
+                        </list>
+                    </field>
+                </record>
+
+        <record id="hr_employee_benefits_history_form" model="ir.ui.view">
+                    <field name="name">hr.employee.benefits.history.form</field>
+                    <field name="model">hr.employee.benefits.history</field>
+                    <field name="arch" type="xml">
+                        <form>
+                            <header>
+                                <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,paid"/>
+                            </header>
+                            <sheet>
+                                <group>
+                                    <group string="Informacion General">
+                                        <field name="employee_id"/>
+                                        <field name="contract_id"/>
+                                        <field name="benefit_type"/>
+                                        <field name="period_type"/>
+                                        <field name="year"/>
+                                    </group>
+                                    <group string="Periodo">
+                                        <field name="date_from"/>
+                                        <field name="date_to"/>
+                                        <field name="payslip_id"/>
+                                        <field name="payslip_run_id"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Calculo">
+                                        <field name="days_worked"/>
+                                        <field name="days_paid"/>
+                                        <field name="base_amount"/>
+                                        <field name="amount"/>
+                                    </group>
+                                    <group string="Adicional">
+                                        <field name="company_id"/>
+                                    </group>
+                                </group>
+                                <group string="Observaciones">
+                                    <field name="notes" nolabel="1" colspan="2"/>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </record>
+
+        <record id="hr_employee_benefits_history_search" model="ir.ui.view">
+                    <field name="name">hr.employee.benefits.history.search</field>
+                    <field name="model">hr.employee.benefits.history</field>
+                    <field name="arch" type="xml">
+                        <search>
+                            <field name="employee_id"/>
+                            <field name="benefit_type"/>
+                            <field name="year"/>
+                            <filter name="prima" string="Prima" domain="[('benefit_type', '=', 'prima')]"/>
+                            <filter name="cesantias" string="Cesantias" domain="[('benefit_type', '=', 'cesantias')]"/>
+                            <filter name="intereses" string="Intereses Cesantias" domain="[('benefit_type', '=', 'intereses_cesantias')]"/>
+                            <filter name="vacaciones" string="Vacaciones" domain="[('benefit_type', '=', 'vacaciones')]"/>
+                            <separator/>
+                            <filter name="confirmed" string="Confirmados" domain="[('state', '=', 'confirmed')]"/>
+                            <filter name="paid" string="Pagados" domain="[('state', '=', 'paid')]"/>
+                            <separator/>
+                                <filter name="group_employee" string="Empleado" context="{'group_by': 'employee_id'}"/>
+                                <filter name="group_type" string="Tipo Prestacion" context="{'group_by': 'benefit_type'}"/>
+                                <filter name="group_year" string="Ano" context="{'group_by': 'year'}"/>
+                                <filter name="group_period" string="Tipo Periodo" context="{'group_by': 'period_type'}"/>
+                        </search>
+                    </field>
+                </record>
+
+        <record id="hr_employee_benefits_history_pivot" model="ir.ui.view">
+                    <field name="name">hr.employee.benefits.history.pivot</field>
+                    <field name="model">hr.employee.benefits.history</field>
+                    <field name="arch" type="xml">
+                        <pivot string="Historico Prestaciones">
+                            <field name="employee_id" type="row"/>
+                            <field name="benefit_type" type="col"/>
+                            <field name="amount" type="measure"/>
+                        </pivot>
+                    </field>
+                </record>
+
+        <record id="hr_employee_benefits_history_graph" model="ir.ui.view">
+                    <field name="name">hr.employee.benefits.history.graph</field>
+                    <field name="model">hr.employee.benefits.history</field>
+                    <field name="arch" type="xml">
+                        <graph string="Historico Prestaciones">
+                            <field name="benefit_type"/>
+                            <field name="amount" type="measure"/>
+                        </graph>
+                    </field>
+                </record>
+
+        <!-- ================================================================== -->
+        <!-- DEPENDIENTES DEL EMPLEADO -->
+        <!-- ================================================================== -->
+        <record id="view_hr_employee_dependents_tree" model="ir.ui.view">
+            <field name="name">hr.employee.dependents.tree</field>
+            <field name="model">hr.employee.dependents</field>
+            <field name="arch" type="xml">
+                <list string="Dependientes del Empleado">
+                    <field name="employee_id"/>
+                    <field name="name"/>
+                    <field name="dependents_type"/>
+                    <field name="genero"/>
+                    <field name="date_birthday"/>
+                    <field name="document_type"/>
+                    <field name="vat"/>
+                    <field name="report_income_and_withholdings" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hr_employee_dependents_form" model="ir.ui.view">
+            <field name="name">hr.employee.dependents.form</field>
+            <field name="model">hr.employee.dependents</field>
+            <field name="arch" type="xml">
+                <form string="Dependiente del Empleado">
+                    <sheet>
+                        <group>
+                            <group string="Información del Dependiente">
+                                <field name="employee_id"/>
+                                <field name="name"/>
+                                <field name="dependents_type"/>
+                                <field name="genero"/>
+                                <field name="date_birthday"/>
+                            </group>
+                            <group string="Identificación">
+                                <field name="document_type"/>
+                                <field name="vat"/>
+                                <field name="phone"/>
+                                <field name="report_income_and_withholdings"/>
+                            </group>
+                        </group>
+                        <group string="Dirección" colspan="2">
+                            <field name="address" colspan="2"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hr_employee_dependents_search" model="ir.ui.view">
+            <field name="name">hr.employee.dependents.search</field>
+            <field name="model">hr.employee.dependents</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Dependientes">
+                    <field name="name"/>
+                    <field name="employee_id"/>
+                    <field name="vat"/>
+                    <separator/>
+                    <filter string="Reportar en Certificado" name="filter_report"
+                            domain="[('report_income_and_withholdings', '=', True)]"/>
+                    <separator/>
+                        <filter string="Empleado" name="group_employee"
+                                context="{'group_by': 'employee_id'}"/>
+                        <filter string="Tipo" name="group_type"
+                                context="{'group_by': 'dependents_type'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- DOCUMENTOS DEL EMPLEADO -->
+        <!-- ================================================================== -->
+        <record id="view_hr_employee_documents_tree" model="ir.ui.view">
+            <field name="name">hr.employee.documents.tree</field>
+            <field name="model">hr.employee.documents</field>
+            <field name="arch" type="xml">
+                <list string="Documentos del Empleado" decoration-danger="expiration_date and expiration_date &lt; current_date">
+                    <field name="employee_id"/>
+                    <field name="name"/>
+                    <field name="document"/>
+                    <field name="expiration_date"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hr_employee_documents_form" model="ir.ui.view">
+            <field name="name">hr.employee.documents.form</field>
+            <field name="model">hr.employee.documents</field>
+            <field name="arch" type="xml">
+                <form string="Documento del Empleado">
+                    <sheet>
+                        <group>
+                            <group string="Información del Documento">
+                                <field name="employee_id"/>
+                                <field name="name"/>
+                                <field name="expiration_date"/>
+                            </group>
+                            <group string="Archivo">
+                                <field name="document"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hr_employee_documents_search" model="ir.ui.view">
+            <field name="name">hr.employee.documents.search</field>
+            <field name="model">hr.employee.documents</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Documentos">
+                    <field name="name"/>
+                    <field name="employee_id"/>
+                    <separator/>
+                    <filter string="Vencidos" name="filter_expired"
+                            domain="[('expiration_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                    <filter string="Por Vencer (30 días)" name="filter_expiring"
+                            domain="[('expiration_date', '&gt;=', context_today().strftime('%Y-%m-%d')),
+                                     ('expiration_date', '&lt;=', (context_today() + relativedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+                    <separator/>
+                        <filter string="Empleado" name="group_employee"
+                                context="{'group_by': 'employee_id'}"/>
+                </search>
+            </field>
+        </record>
+
+        <!-- ================================================================== -->
+        <!-- SINDICATOS -->
+        <!-- ================================================================== -->
+        <record id="view_hr_employee_labor_union_tree" model="ir.ui.view">
+            <field name="name">hr.employee.labor.union.tree</field>
+            <field name="model">hr.employee.labor.union</field>
+            <field name="arch" type="xml">
+                <list string="Sindicatos de Empleados">
+                    <field name="employee_id"/>
+                    <field name="name_labor_union"/>
+                    <field name="afiliado" widget="boolean_toggle"/>
+                    <field name="fuero" widget="boolean_toggle"/>
+                    <field name="cargo_sindicato"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_hr_employee_labor_union_form" model="ir.ui.view">
+            <field name="name">hr.employee.labor.union.form</field>
+            <field name="model">hr.employee.labor.union</field>
+            <field name="arch" type="xml">
+                <form string="Afiliación Sindical">
+                    <sheet>
+                        <group>
+                            <group string="Información del Sindicato">
+                                <field name="employee_id"/>
+                                <field name="name_labor_union"/>
+                            </group>
+                            <group string="Estado">
+                                <field name="afiliado"/>
+                                <field name="fuero"/>
+                                <field name="cargo_sindicato"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_hr_employee_labor_union_search" model="ir.ui.view">
+            <field name="name">hr.employee.labor.union.search</field>
+            <field name="model">hr.employee.labor.union</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Sindicatos">
+                    <field name="employee_id"/>
+                    <field name="name_labor_union"/>
+                    <separator/>
+                    <filter string="Afiliados" name="filter_afiliados"
+                            domain="[('afiliado', '=', True)]"/>
+                    <filter string="Con Fuero" name="filter_fuero"
+                            domain="[('fuero', '=', True)]"/>
+                    <separator/>
+                        <filter string="Empleado" name="group_employee"
+                                context="{'group_by': 'employee_id'}"/>
+                        <filter string="Sindicato" name="group_union"
+                                context="{'group_by': 'name_labor_union'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_lavish_hr_employee_tree_names" model="ir.ui.view">
+                    <field name="name">hr.employee.tree.names</field>
+                    <field name="model">hr.employee</field>
+                    <field name="inherit_id" ref="hr.view_employee_tree"/>
+                    <field name="arch" type="xml">
+                        <xpath expr="//field[@name='name']" position="after">
+                            <field name="first_name" optional="show"/>
+                            <field name="surname" optional="show"/>
+                        </xpath>
+                    </field>
+                </record>
+
+        <record id="view_lavish_hr_employee_search_names" model="ir.ui.view">
+                    <field name="name">hr.employee.search.names</field>
+                    <field name="model">hr.employee</field>
+                    <field name="inherit_id" ref="hr.view_employee_filter"/>
+                    <field name="arch" type="xml">
+                        <xpath expr="//field[@name='name']" position="after">
+                            <field name="first_name" string="Primer Nombre"/>
+                            <field name="surname" string="Primer Apellido"/>
+                        </xpath>
+                    </field>
+                </record>
+
+        <record id="hr_employee_view_form_hide_skills" model="ir.ui.view">
+                    <field name="name">hr.employee.form.hide.skills.resume</field>
+                    <field name="model">hr.employee</field>
+                    <field name="inherit_id" ref="hr_skills.hr_employee_view_form"/>
+                    <field name="priority">50</field>
+                    <field name="arch" type="xml">
+                        <!-- Ocultar toda la pagina de Resume/Skills -->
+                        <xpath expr="//page[@name='skills_resume']" position="attributes">
+                            <attribute name="invisible">1</attribute>
+                        </xpath>
+                    </field>
+                </record>
+
+    </data>
+</odoo>

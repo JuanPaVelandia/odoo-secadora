@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLineIBD">
+        <div class="pld-ibd-container">
+            <!-- Header -->
+            <div class="pld-ibd-header d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa fa-building text-primary"/>
+                    <span class="fw-bold">Ingreso Base de Cotizacion</span>
+                </div>
+                <small class="text-muted" t-esc="baseLegal"/>
+            </div>
+
+            <!-- KPIs principales -->
+            <div class="pld-ibd-kpis d-flex flex-wrap gap-3 mb-3">
+                <t t-foreach="kpis" t-as="kpi" t-key="kpi.id">
+                    <div class="pld-kpi-card p-2 rounded border bg-light">
+                        <div class="d-flex align-items-center gap-1 mb-1">
+                            <i t-attf-class="fa #{kpi.icon} text-#{kpi.color}" style="font-size: 12px;"/>
+                            <small class="text-muted" t-esc="kpi.label"/>
+                        </div>
+                        <div class="fw-bold">
+                            <t t-if="kpi.format === 'currency'">
+                                <t t-esc="props.formatCurrency(kpi.value)"/>
+                            </t>
+                            <t t-else="">
+                                <t t-esc="props.formatValue(kpi.value, kpi.format)"/>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Alertas de validaciones -->
+            <t t-if="hasValidaciones">
+                <div class="pld-ibd-validaciones mb-3">
+                    <t t-foreach="validaciones" t-as="val" t-key="val.tipo">
+                        <div t-attf-class="alert alert-#{val.color} d-flex align-items-center gap-2 py-2 mb-2">
+                            <i t-attf-class="fa #{val.icon}"/>
+                            <div>
+                                <strong t-esc="val.label"/>
+                                <small class="d-block text-muted" t-esc="val.descripcion"/>
+                                <t t-if="val.valor">
+                                    <small class="fw-medium">Valor: <t t-esc="props.formatCurrency(val.valor)"/></small>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </t>
+
+            <!-- Timeline de pasos -->
+            <div class="pld-ibd-timeline">
+                <t t-foreach="pasos" t-as="paso" t-key="paso.numero">
+                    <div class="pld-timeline-step mb-3">
+                        <!-- Cabecera del paso -->
+                        <div class="d-flex align-items-start cursor-pointer"
+                             t-on-click="() => this.toggleStep(paso.numero)">
+                            <!-- Indicador numerado -->
+                            <div class="pld-step-indicator me-3 d-flex flex-column align-items-center">
+                                <div t-attf-class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                                     t-attf-style="width: 32px; height: 32px; background-color: #{getStepColor(paso.numero - 1)};">
+                                    <t t-esc="paso.numero"/>
+                                </div>
+                                <t t-if="paso_index &lt; pasos.length - 1">
+                                    <div class="pld-step-line" style="width: 2px; height: 20px; background: #E5E7EB;"/>
+                                </t>
+                            </div>
+
+                            <!-- Contenido del paso -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i t-attf-class="fa #{paso.icono || 'fa-circle'} text-#{paso.color || 'secondary'}"/>
+                                            <span t-attf-class="fw-medium #{paso.highlight ? 'fs-5' : ''}" t-esc="paso.titulo"/>
+                                        </div>
+                                        <small class="text-muted" t-esc="paso.subtitulo"/>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <t t-if="paso.valor !== null and paso.valor !== undefined">
+                                            <span t-attf-class="fw-bold #{paso.highlight ? 'text-primary fs-5' : ''}"
+                                                  t-esc="formatPasoValue(paso)"/>
+                                        </t>
+                                        <t t-if="paso.items and paso.items.length > 0">
+                                            <i t-attf-class="fa fa-chevron-#{isStepExpanded(paso.numero) ? 'up' : 'down'} text-muted"/>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <!-- Items expandibles del paso -->
+                                <t t-if="paso.items and paso.items.length > 0 and isStepExpanded(paso.numero)">
+                                    <div class="pld-step-items mt-2 ps-3 border-start border-2"
+                                         t-attf-style="border-color: #{getStepColor(paso.numero - 1)} !important;">
+                                        <t t-foreach="paso.items" t-as="item" t-key="item_index">
+                                            <div class="d-flex justify-content-between py-1 small">
+                                                <span t-esc="item.nombre || item.label"/>
+                                                <span class="fw-medium">
+                                                    <t t-if="item.valor !== undefined">
+                                                        <t t-esc="props.formatCurrency(item.valor)"/>
+                                                    </t>
+                                                    <t t-elif="item.aplica !== undefined">
+                                                        <i t-attf-class="fa #{item.aplica ? 'fa-check text-success' : 'fa-times text-muted'}"/>
+                                                    </t>
+                                                </span>
+                                            </div>
+                                        </t>
+
+                                        <!-- Limite 40% si aplica -->
+                                        <t t-if="paso.limite_40">
+                                            <div class="d-flex justify-content-between py-1 small border-top mt-1 pt-1">
+                                                <span class="text-info">Limite 40%</span>
+                                                <span class="fw-medium text-info" t-esc="props.formatCurrency(paso.limite_40)"/>
+                                            </div>
+                                        </t>
+                                        <t t-if="paso.excedente > 0">
+                                            <div class="d-flex justify-content-between py-1 small">
+                                                <span class="text-warning">Excedente (suma a IBC)</span>
+                                                <span class="fw-medium text-warning" t-esc="props.formatCurrency(paso.excedente)"/>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+
+            <!-- Componentes detallados -->
+            <t t-if="hasComponentes">
+                <div class="pld-ibd-componentes mt-3">
+                    <div class="d-flex align-items-center justify-content-between cursor-pointer p-2 bg-light rounded"
+                         t-on-click="toggleComponentes">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa fa-list text-secondary"/>
+                            <span class="fw-medium">Todos los Componentes</span>
+                            <span class="badge bg-secondary" t-esc="componentes.length"/>
+                        </div>
+                        <i t-attf-class="fa fa-chevron-#{state.showComponentes ? 'up' : 'down'}"/>
+                    </div>
+                    <t t-if="state.showComponentes">
+                        <div class="pld-componentes-list mt-2">
+                            <table class="table table-sm table-striped">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Codigo</th>
+                                        <th>Concepto</th>
+                                        <th>Categoria</th>
+                                        <th class="text-end">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="componentes" t-as="comp" t-key="comp_index">
+                                        <tr>
+                                            <td><code t-esc="comp.codigo"/></td>
+                                            <td t-esc="comp.nombre"/>
+                                            <td><span class="badge bg-light text-dark" t-esc="comp.categoria"/></td>
+                                            <td class="text-end fw-medium" t-esc="props.formatCurrency(comp.valor)"/>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </div>
+    </t>
+
+</templates>

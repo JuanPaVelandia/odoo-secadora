@@ -1,0 +1,431 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <!-- Indicadores Especiales PILA con tarifas segun normativa -->
+
+        <!-- 1: Alto Riesgo - Decreto 2090/2003 -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_actividad_alto_riesgo">
+            <field name="name">1: Actividades de alto riesgo</field>
+            <field name="code">1</field>
+            <field name="porc_pension_total">26.0</field>
+            <field name="porc_pension_empleado">4.0</field>
+            <field name="porc_pension_adicional">10.0</field>
+            <field name="porc_salud_total">12.5</field>
+            <field name="porc_salud_empleado">4.0</field>
+            <field name="porc_salud_empresa">8.5</field>
+            <field name="aplica_fsp">True</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Decreto 2090/2003</field>
+            <field name="descripcion">Actividades de alto riesgo: Mineria, construccion de tuneles, bomberos, etc. Tarifa pension 26% (16% base + 10% adicional empresa)</field>
+            <!-- Prestaciones Sociales -->
+            <field name="dias_vacaciones">15.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">True</field>
+            <field name="dias_prima">15.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">True</field>
+            <field name="dias_cesantias">30.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">True</field>
+            <field name="porc_intereses_cesantias">12.0</field>
+            <field name="paga_intereses_cesantias">True</field>
+            <!-- Auxilio Transporte -->
+            <field name="paga_auxilio_transporte">True</field>
+            <field name="incluye_aux_transporte_prestaciones">True</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 2: Senadores y Representantes - Ley 4/1992 -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_actividad_senador">
+            <field name="name">2: Senadores y Representantes</field>
+            <field name="code">2</field>
+            <field name="porc_pension_total">25.5</field>
+            <field name="porc_pension_empleado">4.0</field>
+            <field name="porc_pension_adicional">0.0</field>
+            <field name="porc_salud_total">12.5</field>
+            <field name="porc_salud_empleado">4.0</field>
+            <field name="porc_salud_empresa">8.5</field>
+            <field name="aplica_fsp">True</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Ley 4/1992</field>
+            <field name="descripcion">Congresistas, Senadores y Representantes a la Camara. Tarifa pension especial 25.5%</field>
+            <!-- Prestaciones Sociales -->
+            <field name="dias_vacaciones">15.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">True</field>
+            <field name="dias_prima">15.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">True</field>
+            <field name="dias_cesantias">30.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">True</field>
+            <field name="porc_intereses_cesantias">12.0</field>
+            <field name="paga_intereses_cesantias">True</field>
+            <!-- Auxilio Transporte -->
+            <field name="paga_auxilio_transporte">False</field>
+            <field name="incluye_aux_transporte_prestaciones">False</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 3: CTI - Decreto 4040/2004 -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_actividad_cti">
+            <field name="name">3: CTI</field>
+            <field name="code">3</field>
+            <field name="porc_pension_total">35.0</field>
+            <field name="porc_pension_empleado">4.0</field>
+            <field name="porc_pension_adicional">19.0</field>
+            <field name="porc_salud_total">12.5</field>
+            <field name="porc_salud_empleado">4.0</field>
+            <field name="porc_salud_empresa">8.5</field>
+            <field name="aplica_fsp">True</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Decreto 4040/2004</field>
+            <field name="descripcion">Cuerpo Tecnico de Investigacion de la Fiscalia. Tarifa pension especial 35% (16% base + 19% adicional empresa)</field>
+            <!-- Prestaciones Sociales -->
+            <field name="dias_vacaciones">15.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">True</field>
+            <field name="dias_prima">15.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">True</field>
+            <field name="dias_cesantias">30.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">True</field>
+            <field name="porc_intereses_cesantias">12.0</field>
+            <field name="paga_intereses_cesantias">True</field>
+            <!-- Auxilio Transporte -->
+            <field name="paga_auxilio_transporte">True</field>
+            <field name="incluye_aux_transporte_prestaciones">True</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 4: Aviadores Civiles -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_actividad_aviadores">
+            <field name="name">4: Aviadores Civiles</field>
+            <field name="code">4</field>
+            <field name="porc_pension_total">21.0</field>
+            <field name="porc_pension_empleado">4.0</field>
+            <field name="porc_pension_adicional">5.0</field>
+            <field name="porc_salud_total">12.5</field>
+            <field name="porc_salud_empleado">4.0</field>
+            <field name="porc_salud_empresa">8.5</field>
+            <field name="aplica_fsp">True</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Decreto 1302/1994</field>
+            <field name="descripcion">Aviadores civiles y personal de vuelo. Tarifa pension especial 21% (16% base + 5% adicional empresa)</field>
+            <!-- Prestaciones Sociales -->
+            <field name="dias_vacaciones">15.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">True</field>
+            <field name="dias_prima">15.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">True</field>
+            <field name="dias_cesantias">30.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">True</field>
+            <field name="porc_intereses_cesantias">12.0</field>
+            <field name="paga_intereses_cesantias">True</field>
+            <!-- Auxilio Transporte -->
+            <field name="paga_auxilio_transporte">False</field>
+            <field name="incluye_aux_transporte_prestaciones">False</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 5: Sin Riesgo Especial (Normal) -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_actividad_sin_riesgo">
+            <field name="name">5: Sin riesgo especial</field>
+            <field name="code">5</field>
+            <field name="porc_pension_total">16.0</field>
+            <field name="porc_pension_empleado">4.0</field>
+            <field name="porc_pension_adicional">0.0</field>
+            <field name="porc_salud_total">12.5</field>
+            <field name="porc_salud_empleado">4.0</field>
+            <field name="porc_salud_empresa">8.5</field>
+            <field name="aplica_fsp">True</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Ley 797/2003</field>
+            <field name="descripcion">Cotizante sin riesgo especial. Tarifas normales: Pension 16%, Salud 12.5%</field>
+            <!-- Prestaciones Sociales -->
+            <field name="dias_vacaciones">15.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">True</field>
+            <field name="dias_prima">15.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">True</field>
+            <field name="dias_cesantias">30.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">True</field>
+            <field name="porc_intereses_cesantias">12.0</field>
+            <field name="paga_intereses_cesantias">True</field>
+            <!-- Auxilio Transporte -->
+            <field name="paga_auxilio_transporte">True</field>
+            <field name="incluye_aux_transporte_prestaciones">True</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 6: PSAP - Programa Subsidio al Aporte en Pension -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_actividad_psap">
+            <field name="name">6: PSAP - Subsidio Pension</field>
+            <field name="code">6</field>
+            <field name="porc_pension_total">16.0</field>
+            <field name="porc_pension_empleado">4.0</field>
+            <field name="porc_pension_adicional">0.0</field>
+            <field name="porc_salud_total">12.5</field>
+            <field name="porc_salud_empleado">4.0</field>
+            <field name="porc_salud_empresa">8.5</field>
+            <field name="aplica_fsp">False</field>
+            <field name="es_subsidiado">True</field>
+            <field name="porc_subsidio">75.0</field>
+            <field name="normativa">Ley 1955/2019 Art. 197</field>
+            <field name="descripcion">Programa de Subsidio al Aporte en Pension para trabajadores con ingresos inferiores a 1 SMMLV. Subsidio hasta 75% del aporte</field>
+            <!-- Prestaciones Sociales -->
+            <field name="dias_vacaciones">15.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">True</field>
+            <field name="dias_prima">15.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">True</field>
+            <field name="dias_cesantias">30.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">True</field>
+            <field name="porc_intereses_cesantias">12.0</field>
+            <field name="paga_intereses_cesantias">True</field>
+            <!-- Auxilio Transporte -->
+            <field name="paga_auxilio_transporte">True</field>
+            <field name="incluye_aux_transporte_prestaciones">True</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 7: Pensionado con Salud 4% -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_pensionado_4">
+            <field name="name">7: Pensionado Salud 4%</field>
+            <field name="code">7</field>
+            <field name="porc_pension_total">0.0</field>
+            <field name="porc_pension_empleado">0.0</field>
+            <field name="porc_pension_adicional">0.0</field>
+            <field name="porc_salud_total">4.0</field>
+            <field name="porc_salud_empleado">4.0</field>
+            <field name="porc_salud_empresa">0.0</field>
+            <field name="aplica_fsp">False</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Ley 100/1993</field>
+            <field name="descripcion">Pensionado que cotiza salud sobre su mesada pensional. Tarifa reducida 4% para pensiones hasta 1 SMMLV</field>
+            <!-- Prestaciones Sociales - Pensionados NO tienen prestaciones -->
+            <field name="dias_vacaciones">0.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">False</field>
+            <field name="dias_prima">0.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">False</field>
+            <field name="dias_cesantias">0.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">False</field>
+            <field name="porc_intereses_cesantias">0.0</field>
+            <field name="paga_intereses_cesantias">False</field>
+            <!-- Auxilio Transporte - Pensionados NO tienen auxilio -->
+            <field name="paga_auxilio_transporte">False</field>
+            <field name="incluye_aux_transporte_prestaciones">False</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 8: Pensionado con Salud 10% -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_pensionado_10">
+            <field name="name">8: Pensionado Salud 10%</field>
+            <field name="code">8</field>
+            <field name="porc_pension_total">0.0</field>
+            <field name="porc_pension_empleado">0.0</field>
+            <field name="porc_pension_adicional">0.0</field>
+            <field name="porc_salud_total">10.0</field>
+            <field name="porc_salud_empleado">10.0</field>
+            <field name="porc_salud_empresa">0.0</field>
+            <field name="aplica_fsp">False</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Ley 100/1993</field>
+            <field name="descripcion">Pensionado que cotiza salud sobre su mesada pensional. Tarifa 10% para pensiones entre 1 y 4 SMMLV</field>
+            <!-- Prestaciones Sociales - Pensionados NO tienen prestaciones -->
+            <field name="dias_vacaciones">0.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">False</field>
+            <field name="dias_prima">0.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">False</field>
+            <field name="dias_cesantias">0.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">False</field>
+            <field name="porc_intereses_cesantias">0.0</field>
+            <field name="paga_intereses_cesantias">False</field>
+            <!-- Auxilio Transporte - Pensionados NO tienen auxilio -->
+            <field name="paga_auxilio_transporte">False</field>
+            <field name="incluye_aux_transporte_prestaciones">False</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+
+        <!-- 9: Pensionado con Salud 12% -->
+        <record model="hr.indicador.especial.pila" id="lavish_hr_employee.hr_indicador_pensionado_12">
+            <field name="name">9: Pensionado Salud 12%</field>
+            <field name="code">9</field>
+            <field name="porc_pension_total">0.0</field>
+            <field name="porc_pension_empleado">0.0</field>
+            <field name="porc_pension_adicional">0.0</field>
+            <field name="porc_salud_total">12.0</field>
+            <field name="porc_salud_empleado">12.0</field>
+            <field name="porc_salud_empresa">0.0</field>
+            <field name="aplica_fsp">False</field>
+            <field name="es_subsidiado">False</field>
+            <field name="normativa">Ley 100/1993</field>
+            <field name="descripcion">Pensionado que cotiza salud sobre su mesada pensional. Tarifa 12% para pensiones mayores a 4 SMMLV</field>
+            <!-- Prestaciones Sociales - Pensionados NO tienen prestaciones -->
+            <field name="dias_vacaciones">0.0</field>
+            <field name="base_dias_vacaciones">360</field>
+            <field name="paga_vacaciones">False</field>
+            <field name="dias_prima">0.0</field>
+            <field name="base_dias_prima">360</field>
+            <field name="paga_prima">False</field>
+            <field name="dias_cesantias">0.0</field>
+            <field name="base_dias_cesantias">360</field>
+            <field name="paga_cesantias">False</field>
+            <field name="porc_intereses_cesantias">0.0</field>
+            <field name="paga_intereses_cesantias">False</field>
+            <!-- Auxilio Transporte - Pensionados NO tienen auxilio -->
+            <field name="paga_auxilio_transporte">False</field>
+            <field name="incluye_aux_transporte_prestaciones">False</field>
+            <!-- Configuracion de uso -->
+            <field name="solo_prestaciones">False</field>
+            <field name="no_usar_en_pila">False</field>
+        </record>
+        <record id="holiday_status_cl" model="hr.leave.type">
+            <field name="name">Paid Time Off</field>
+            <field name="requires_allocation">yes</field>
+            <field name="employee_requests">no</field>
+            <field name="leave_validation_type">both</field>
+            <field name="leave_notif_subtype_id" ref="hr_holidays.mt_leave"/>
+            <field name="allocation_notif_subtype_id" ref="hr_holidays.mt_leave_allocation"/>
+            <field name="responsible_ids" eval="[(4, ref('base.user_admin'))]"/>
+            <field name="icon_id" ref="hr_holidays.icon_14"/>
+            <field name="color">2</field>
+        </record>
+
+        <!-- <record id="hr_holidays.holiday_status_sl" model="hr.leave.type">
+            <field name="name">Ausencias por enfermedad</field>
+            <field name="code">EGA</field>
+            <field name="request_unit">day</field>
+            <field name="num_days_no_assume">2</field>
+            <field name="recognizing_factor_eps_arl">0.66670</field>
+            <field name="recognizing_factor_company">1</field>
+        </record> -->
+
+        <!-- <record id="holiday_status_no_pay" model="hr.leave.type">
+            <field name="name">No remunerada</field>
+            <field name="code">LICENCIA_NO_REMUNERADA</field>
+            <field name="request_unit">day</field>
+        </record>
+        <record id="work_entry_vac" model="hr.work.entry.type">
+            <field name="name">VACACIONES DISFRUTADAS</field>
+            <field name="color">4</field>
+            <field name="code">VACDISFRUTADAS</field>
+            <field name="round_days">HALF</field>
+            <field name="is_leave">yes</field>
+        </record> -->
+        <record id="work_entry_prev_pay" model="hr.work.entry.type">
+            <field name="name">Dias liquidados en otras nominas</field>
+            <field name="color">4</field>
+            <field name="code">PREV_PAYS</field>
+            <field name="round_days">HALF</field>
+            <field name="is_leave">no</field>
+        </record>
+        <record id="work_entry_WORK_D" model="hr.work.entry.type">
+            <field name="name">Dias trabajados</field>
+            <field name="color">4</field>
+            <field name="code">WORK_D</field>
+            <field name="round_days">HALF</field>
+            <field name="is_leave">no</field>
+        </record>
+        <record id="work_entry_WORK_D_31" model="hr.work.entry.type">
+            <field name="name">Dias 31</field>
+            <field name="color">4</field>
+            <field name="code">WORK131</field>
+            <field name="round_days">HALF</field>
+            <field name="is_leave">no</field>
+        </record>
+        <!-- <record id="work_entry_MAT" model="hr.work.entry.type">
+            <field name="name">Licencia De Maternidad o Paternidad</field>
+            <field name="color">4</field>
+            <field name="code">MAT</field>
+            <field name="round_days">HALF</field>
+            <field name="is_leave">yes</field>
+        </record> -->
+        <!-- <record id="holiday_status_MAT" model="hr.leave.type">
+            <field name="name">Licencia De Maternidad o Paternidad</field>
+            <field name="code">MAT</field>
+            <field name="requires_allocation">yes</field>
+            <field name="employee_requests">yes</field>
+            <field name="leave_validation_type">manager</field>
+            <field name="allocation_validation_type">officer</field>
+            <field name="request_unit">day</field>
+            <field name="work_entry_type_id" ref="lavish_hr_employee.work_entry_MAT"></field>
+            <field name="leave_notif_subtype_id" ref="hr_holidays.mt_leave"/>
+            <field name="responsible_id" ref="base.user_admin"/>
+            <field name="icon_id" ref="hr_holidays.icon_14"/>
+            <field name="color">4</field>
+        </record>
+        <record id="holiday_status_MAT" model="hr.leave.type">
+            <field name="name">Licencia De Maternidad o Paternidad</field>
+            <field name="code">MAT</field>
+            <field name="requires_allocation">yes</field>
+            <field name="employee_requests">yes</field>
+            <field name="leave_validation_type">manager</field>
+            <field name="allocation_validation_type">officer</field>
+            <field name="request_unit">day</field>
+            <field name="work_entry_type_id" ref="lavish_hr_employee.work_entry_MAT"></field>
+            <field name="leave_notif_subtype_id" ref="hr_holidays.mt_leave"/>
+            <field name="responsible_id" ref="base.user_admin"/>
+            <field name="icon_id" ref="hr_holidays.icon_14"/>
+            <field name="color">4</field>
+        </record>
+        <record id="holiday_status_vac" model="hr.leave.type">
+            <field name="name">Vacaciones disfrutadas</field>
+            <field name="code">VACDISFRUTADAS</field>
+            <field name="requires_allocation">yes</field>
+            <field name="employee_requests">yes</field>
+            <field name="leave_validation_type">manager</field>
+            <field name="allocation_validation_type">officer</field>
+            <field name="request_unit">day</field>
+            <field name="work_entry_type_id" ref="lavish_hr_employee.work_entry_vac"></field>
+            <field name="leave_notif_subtype_id" ref="hr_holidays.mt_leave"/>
+            <field name="responsible_id" ref="base.user_admin"/>
+            <field name="icon_id" ref="hr_holidays.icon_14"/>
+            <field name="color">4</field>
+        </record>
+        <record id="hr_work_entry_contract.work_entry_type_sick_leave" model="hr.work.entry.type">
+            <field name="name">Ausencias por enfermedad</field>
+            <field name="code">EGA</field>
+            <field name="is_leave">True</field>
+            <field name="color">5</field>
+        </record>
+
+        <record id="hr_work_entry_contract.work_entry_type_unpaid_leave" model="hr.work.entry.type">
+            <field name="name">No remunerada</field>
+            <field name="color">6</field>
+            <field name="code">LICENCIA_NO_REMUNERADA</field>
+            <field name="is_leave">True</field>
+        </record> -->
+    </data>
+
+</odoo>

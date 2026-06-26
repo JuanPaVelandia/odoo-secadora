@@ -1,0 +1,153 @@
+/* ================================================================
+   ESTILOS PARA VISTA KANBAN DE SECCIONES DE ESTRUCTURA SALARIAL
+   ================================================================ */
+
+.o_hr_payroll_section_kanban {
+    // Contenedor principal
+    .o_kanban_group {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin: 0 8px;
+        padding: 8px;
+
+        // Cabecera de grupo
+        .o_kanban_header {
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px 8px 0 0;
+            margin: -8px -8px 8px -8px;
+
+            .o_kanban_header_title {
+                color: white;
+
+                .o_column_title {
+                    font-weight: 600;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+            }
+        }
+
+        // Grupo de DEVENGOS
+        &[data-id="devengos"] .o_kanban_header {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        // Grupo de DEDUCCIONES
+        &[data-id="deducciones"] .o_kanban_header,
+        &[data-id="totalded"] .o_kanban_header {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        // Grupo de TOTALES
+        &[data-id="totaldev"] .o_kanban_header,
+        &[data-id="net"] .o_kanban_header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        // Grupo de PROVISIONES
+        &[data-id="provisiones"] .o_kanban_header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        // Grupo de IBD_SS
+        &[data-id="ibd_ss"] .o_kanban_header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+    }
+
+    // Tarjetas Kanban
+    .o_kanban_record {
+        margin: 8px 0;
+        border-radius: 8px;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transition: all 0.2s ease;
+        background: white;
+
+        &:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .oe_kanban_card {
+            padding: 16px;
+        }
+
+        // Color picker lateral
+        aside {
+            padding: 8px 4px;
+            background: #f8f9fa;
+            border-radius: 8px 0 0 8px;
+
+            .o_field_color_picker {
+                .o_colorlist {
+                    flex-direction: column;
+                    gap: 4px;
+                }
+            }
+        }
+
+        // Contenido principal
+        main {
+            padding: 12px 16px;
+        }
+
+        // Nombre de seccion
+        .fw-bold.fs-5 {
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        // Estadisticas
+        .d-flex.gap-3 {
+            .fa {
+                font-size: 14px;
+            }
+        }
+
+        // Badges de tipo
+        .o_field_badge {
+            .badge {
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+        }
+    }
+
+    // Barra de progreso
+    .o_kanban_progressbar {
+        height: 6px;
+        border-radius: 3px;
+        margin-top: 8px;
+        background: #e9ecef;
+
+        .o_progress {
+            border-radius: 3px;
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .o_hr_payroll_section_kanban {
+        .o_kanban_group {
+            margin: 0 4px;
+
+            .o_kanban_header {
+                padding: 10px 12px;
+            }
+        }
+
+        .o_kanban_record {
+            .oe_kanban_card {
+                padding: 12px;
+            }
+        }
+    }
+}

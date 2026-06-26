@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_change_wage_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page" style="font-family: 'Helvetica', Arial, sans-serif;">
+
+                        <!-- Encabezado con estilo -->
+                        <div style="text-align: center; margin-bottom: 25px; padding: 15px; background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%); border-radius: 8px;">
+                            <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 1px;">
+                                NOTIFICACION DE CAMBIO SALARIAL
+                            </h2>
+                        </div>
+
+                        <!-- Informacion del documento -->
+                        <div style="margin-bottom: 20px;">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td style="width: 50%;">
+                                        <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 4px solid #3498db;">
+                                            <strong style="color: #2c3e50;">Fecha de vigencia:</strong><br/>
+                                            <span style="font-size: 14px;" t-field="doc.date_start" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/>
+                                        </div>
+                                    </td>
+                                    <td style="width: 50%; text-align: right;">
+                                        <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; border-right: 4px solid #27ae60;">
+                                            <strong style="color: #2c3e50;">Contrato No.:</strong><br/>
+                                            <span style="font-size: 14px;" t-out="doc.contract_id.sequence or doc.contract_id.name"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Datos del empleado -->
+                        <div style="margin-bottom: 20px; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                            <div style="margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #3498db;">
+                                <strong style="color: #2c3e50; font-size: 12px;">DATOS DEL EMPLEADO</strong>
+                            </div>
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td style="width: 50%; padding: 5px 0;">
+                                        <strong>Nombre:</strong><br/>
+                                        <span style="font-size: 13px;" t-field="doc.employee_id.name"/>
+                                    </td>
+                                    <td style="width: 50%; padding: 5px 0;">
+                                        <strong>Identificacion:</strong><br/>
+                                        <span style="font-size: 13px;" t-field="doc.employee_id.identification_id"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 5px 0;">
+                                        <strong>Cargo:</strong><br/>
+                                        <span style="font-size: 13px;" t-out="doc.job_id.name if doc.job_id else (doc.employee_id.job_id.name if doc.employee_id.job_id else 'N/A')"/>
+                                    </td>
+                                    <td style="padding: 5px 0;">
+                                        <strong>Departamento:</strong><br/>
+                                        <span style="font-size: 13px;" t-out="doc.employee_id.department_id.name if doc.employee_id.department_id else 'N/A'"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Contenido de la notificacion -->
+                        <div style="margin-bottom: 20px; line-height: 1.6;">
+                            <p>Cordial saludo,</p>
+                            <p style="text-align: justify;">
+                                Por medio de la presente, le comunicamos que a partir del
+                                <strong><span t-field="doc.date_start" t-options="{'widget': 'date', 'format': 'dd \'de\' MMMM \'de\' yyyy'}"/></strong>,
+                                su salario basico mensual sera ajustado de acuerdo con los siguientes terminos:
+                            </p>
+                        </div>
+
+                        <!-- Tabla de cambio salarial -->
+                        <div style="margin-bottom: 25px;">
+                            <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden;">
+                                <thead>
+                                    <tr style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);">
+                                        <th style="padding: 12px 15px; text-align: left; color: white; font-size: 12px;">Concepto</th>
+                                        <th style="padding: 12px 15px; text-align: right; color: white; font-size: 12px;">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="background: #f8f9fa;">
+                                        <td style="padding: 12px 15px; border-bottom: 1px solid #e0e0e0;">
+                                            Salario Anterior
+                                        </td>
+                                        <td style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #e0e0e0;">
+                                            <span t-field="doc.wage_old" t-options="{'widget': 'monetary', 'display_currency': doc.contract_id.company_id.currency_id}"/>
+                                        </td>
+                                    </tr>
+                                    <tr style="background: #e8f5e9;">
+                                        <td style="padding: 12px 15px; border-bottom: 1px solid #c8e6c9;">
+                                            <strong style="color: #27ae60;">Nuevo Salario</strong>
+                                        </td>
+                                        <td style="padding: 12px 15px; text-align: right; border-bottom: 1px solid #c8e6c9;">
+                                            <strong style="color: #27ae60; font-size: 16px;">
+                                                <span t-field="doc.wage" t-options="{'widget': 'monetary', 'display_currency': doc.contract_id.company_id.currency_id}"/>
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                    <tr style="background: #fff3e0;">
+                                        <td style="padding: 12px 15px;">
+                                            <span style="color: #e67e22;">Incremento</span>
+                                        </td>
+                                        <td style="padding: 12px 15px; text-align: right;">
+                                            <span style="color: #e67e22;">
+                                                <span t-field="doc.difference" t-options="{'widget': 'monetary', 'display_currency': doc.contract_id.company_id.currency_id}"/>
+                                            </span>
+                                            <span style="background: #e67e22; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 8px;">
+                                                +<span t-out="'%.2f' % (doc.difference_percentage or 0)"/>%
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Motivo del cambio -->
+                        <t t-if="doc.reason">
+                            <div style="margin-bottom: 20px; padding: 12px 15px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                                <strong style="color: #1976d2;">Motivo del cambio:</strong>
+                                <span style="margin-left: 10px;">
+                                    <t t-if="doc.reason == 'start'">Inicio de contrato</t>
+                                    <t t-elif="doc.reason == 'annual_update'">Actualizacion anual</t>
+                                    <t t-elif="doc.reason == 'adjustment'">Ajuste general</t>
+                                    <t t-elif="doc.reason == 'legal'">Ajuste por normativa legal</t>
+                                    <t t-elif="doc.reason == 'collective'">Negociacion colectiva</t>
+                                    <t t-elif="doc.reason == 'business_decision'">Decision empresarial</t>
+                                    <t t-elif="doc.reason == 'performance'">Desempeno</t>
+                                    <t t-elif="doc.reason == 'promotion'">Promocion</t>
+                                    <t t-elif="doc.reason == 'market_adjustment'">Ajuste al mercado</t>
+                                    <t t-elif="doc.reason == 'restructuring'">Reestructuracion</t>
+                                    <t t-elif="doc.reason == 'other'"><span t-field="doc.other_reason"/></t>
+                                    <t t-else=""><span t-field="doc.reason"/></t>
+                                </span>
+                            </div>
+                        </t>
+
+                        <!-- Nota retroactiva -->
+                        <t t-if="doc.apply_retroactive and doc.retroactive_date">
+                            <div style="margin-bottom: 20px; padding: 12px 15px; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ffc107;">
+                                <strong style="color: #f57c00;">Nota importante:</strong>
+                                <span style="margin-left: 10px;">
+                                    Este cambio tiene efecto retroactivo desde el
+                                    <strong><span t-field="doc.retroactive_date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/></strong>.
+                                </span>
+                            </div>
+                        </t>
+
+                        <!-- Texto de cierre -->
+                        <div style="margin-bottom: 30px; line-height: 1.6;">
+                            <p style="text-align: justify;">
+                                Las demas condiciones de su contrato de trabajo permanecen sin modificacion.
+                            </p>
+                            <p>Atentamente,</p>
+                        </div>
+
+                        <!-- Firmas -->
+                        <div style="margin-top: 50px;">
+                            <table style="width: 100%;">
+                                <tr>
+                                    <td style="width: 45%; text-align: center; padding: 10px;">
+                                        <div style="border-top: 2px solid #2c3e50; padding-top: 10px; margin: 0 20px;">
+                                            <strong style="font-size: 11px; color: #2c3e50;">EMPLEADOR</strong><br/>
+                                            <span style="font-size: 12px;" t-field="doc.contract_id.company_id.name"/><br/>
+                                            <span style="font-size: 10px; color: #666;">NIT: <span t-field="doc.contract_id.company_id.vat"/></span>
+                                        </div>
+                                    </td>
+                                    <td style="width: 10%;"></td>
+                                    <td style="width: 45%; text-align: center; padding: 10px;">
+                                        <div style="border-top: 2px solid #2c3e50; padding-top: 10px; margin: 0 20px;">
+                                            <strong style="font-size: 11px; color: #2c3e50;">TRABAJADOR</strong><br/>
+                                            <span style="font-size: 12px;" t-field="doc.employee_id.name"/><br/>
+                                            <span style="font-size: 10px; color: #666;">C.C. <span t-field="doc.employee_id.identification_id"/></span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <!-- Pie de pagina -->
+                        <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #e0e0e0; font-size: 9px; color: #999; text-align: center;">
+                            Documento generado automaticamente -
+                            <span t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

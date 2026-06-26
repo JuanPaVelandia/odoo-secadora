@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PayslipLinePrestacion">
+        <div class="pld-widget-section pld-prestacion-view">
+            <!-- Header con tipo y base legal -->
+            <div class="pld-section-header pld-section-header-steps">
+                <div class="pld-header-left">
+                    <i t-att-class="'fa ' + props.ruleConfig.icon" t-att-style="'color: ' + props.ruleConfig.color + ';'"/>
+                    <span class="pld-header-title-dark"><t t-esc="data.tipoPrestacion"/></span>
+                    <span t-if="data.esLiquidacion" class="pld-badge pld-badge-warning">LIQUIDACIÓN</span>
+                </div>
+                <div class="pld-header-right">
+                    <a t-if="props.getLeyUrl(data.baseLegal)" t-att-href="props.getLeyUrl(data.baseLegal)" target="_blank" class="pld-legal-link" t-on-click.stop="">
+                        <t t-esc="data.baseLegal"/> <i class="fa fa-external-link"/>
+                    </a>
+                    <span t-else="" class="pld-badge pld-badge-legal"><t t-esc="data.baseLegal"/></span>
+                </div>
+            </div>
+
+            <div class="pld-section-content">
+                <!-- Explicación -->
+                <t t-if="data.explicacion">
+                    <div class="pld-paso-explicacion">
+                        <i class="fa fa-info-circle"/> <t t-esc="data.explicacion"/>
+                    </div>
+                </t>
+
+                <!-- Indicadores del backend -->
+                <t t-if="hasIndicadores">
+                    <div class="pld-indicadores-row">
+                        <t t-foreach="data.indicadores" t-as="ind" t-key="ind_index">
+                            <div t-att-class="'pld-indicador pld-indicador-' + (ind.color || 'primary')">
+                                <i t-att-class="'fa ' + (ind.icono || 'fa-info-circle')"/>
+                                <span class="pld-ind-texto"><t t-esc="ind.texto"/></span>
+                                <span class="pld-ind-desc"><t t-esc="ind.descripcion"/></span>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Composición de la Base -->
+                <div class="pld-prestacion-base">
+                    <div class="pld-subtabla-header">
+                        <i class="fa fa-money"/> Composición de la Base
+                    </div>
+                    <table class="pld-paso-tabla">
+                        <thead>
+                            <tr>
+                                <th>Componente</th>
+                                <th class="text-right">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="fa fa-money"/> Salario Base</td>
+                                <td class="text-right"><t t-esc="props.formatCurrency(data.salarioBase)"/></td>
+                            </tr>
+                            <t t-if="data.variableTotal > 0">
+                                <tr>
+                                    <td>
+                                        <i class="fa fa-plus-circle pld-icon-ok"/> Variable Total
+                                        <span class="pld-texto-sm">(promedio <t t-esc="data.mesesPeriodo"/> meses)</span>
+                                    </td>
+                                    <td class="text-right pld-valor-suma">+ <t t-esc="props.formatCurrency(data.variableTotal)"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="data.aplicaAuxilio and data.auxilioTransporte > 0">
+                                <tr>
+                                    <td><i class="fa fa-bus"/> Auxilio de Transporte</td>
+                                    <td class="text-right pld-valor-suma">+ <t t-esc="props.formatCurrency(data.auxilioTransporte)"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="data.conceptosNeto != 0">
+                                <tr t-att-class="data.conceptosNeto >= 0 ? '' : 'pld-row-resta'">
+                                    <td>
+                                        <i t-att-class="data.conceptosNeto >= 0 ? 'fa fa-plus-circle pld-icon-ok' : 'fa fa-minus-circle pld-icon-resta'"/>
+                                        Conceptos Adicionales
+                                    </td>
+                                    <td t-att-class="'text-right ' + (data.conceptosNeto >= 0 ? 'pld-valor-suma' : 'pld-valor-resta')">
+                                        <t t-esc="data.conceptosNeto >= 0 ? '+' : ''"/><t t-esc="props.formatCurrency(data.conceptosNeto)"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr class="pld-tabla-total">
+                                <td><strong>BASE TOTAL MENSUAL</strong></td>
+                                <td class="text-right"><strong><t t-esc="props.formatCurrency(data.baseTotal)"/></strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Detalle de Variables -->
+                <t t-if="hasLineasVariable">
+                    <div class="pld-subtabla-container">
+                        <div class="pld-subtabla-header pld-clickable" t-on-click="toggleVariableDetail">
+                            <i class="fa fa-list"/> Detalle Componentes Variables (<t t-esc="data.lineasVariable.length"/>)
+                            <i t-att-class="'fa fa-chevron-' + (state.showVariableDetail ? 'up' : 'down')" style="float:right;"/>
+                        </div>
+                        <t t-if="state.showVariableDetail">
+                            <table class="pld-paso-tabla pld-tabla-sm pld-tabla-variables">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Concepto</th>
+                                        <th>Nómina</th>
+                                        <th>Fecha</th>
+                                        <th class="text-right">Total</th>
+                                        <th class="text-right">Usado</th>
+                                        <th class="text-right">%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="data.lineasVariable" t-as="linea" t-key="linea_index">
+                                        <tr>
+                                            <td><span class="pld-badge-codigo"><t t-esc="linea.codigo"/></span></td>
+                                            <td><t t-esc="linea.nombre"/></td>
+                                            <td>
+                                                <a t-if="linea.payslipId" t-att-href="'/web#id=' + linea.payslipId + '&amp;model=hr.payslip&amp;view_type=form'" target="_blank" class="pld-link-nomina">
+                                                    <i class="fa fa-file-text-o"/> <t t-esc="linea.slipNumber || 'Ver'"/>
+                                                </a>
+                                                <span t-else="" class="pld-texto-sm"><t t-esc="linea.slipNumber || '-'"/></span>
+                                            </td>
+                                            <td class="pld-texto-sm"><t t-esc="linea.fecha || '-'"/></td>
+                                            <td class="text-right"><t t-esc="props.formatCurrency(linea.total)"/></td>
+                                            <td class="text-right"><t t-esc="props.formatCurrency(linea.valorUsado)"/></td>
+                                            <td class="text-right pld-texto-sm">
+                                                <t t-if="linea.total > 0">
+                                                    <t t-esc="((linea.valorUsado / linea.total) * 100).toFixed(1)"/>%
+                                                </t>
+                                                <t t-else="">-</t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                                <tfoot>
+                                    <tr class="pld-tabla-total">
+                                        <td colspan="4"><strong>TOTAL VARIABLE</strong></td>
+                                        <td class="text-right"><strong><t t-esc="props.formatCurrency(totalLineasVariable)"/></strong></td>
+                                        <td class="text-right"><strong><t t-esc="props.formatCurrency(data.variableTotal)"/></strong></td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </t>
+                    </div>
+                </t>
+
+                <!-- Pasos del Cálculo -->
+                <div class="pld-prestacion-pasos">
+                    <div class="pld-subtabla-header">
+                        <i class="fa fa-calculator"/> Pasos del Cálculo
+                    </div>
+                    <div class="pld-formula-steps">
+                        <t t-foreach="data.formulaPasos" t-as="paso" t-key="paso_index">
+                            <div t-att-class="'pld-formula-step ' + (paso.tipo === 'resultado' ? 'pld-step-subtotal' : '')">
+                                <span class="pld-step-num" t-att-style="'background: ' + getStepColor(paso_index) + ';'">
+                                    <t t-esc="paso.paso"/>
+                                </span>
+                                <span class="pld-step-desc"><t t-esc="paso.concepto"/></span>
+                                <span class="pld-step-formula" t-if="paso.formulaTexto">
+                                    <t t-esc="paso.formulaTexto"/>
+                                </span>
+                                <span class="pld-step-val">
+                                    <t t-esc="props.formatValue(paso.resultado, paso.formato)"/>
+                                </span>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Resultado -->
+                <div class="pld-prestacion-resultado">
+                    <div class="pld-resultado-main">
+                        <span class="pld-resultado-label">
+                            <i class="fa fa-check-circle"/> <t t-esc="data.tipoPrestacion"/>
+                        </span>
+                        <span class="pld-resultado-valor" t-att-style="'color: ' + props.ruleConfig.color + ';'">
+                            <t t-esc="props.formatCurrency(data.valorFinal)"/>
+                        </span>
+                    </div>
+                    <div t-if="data.formulaResumen" class="pld-resultado-formula">
+                        <t t-esc="data.formulaResumen"/>
+                    </div>
+                </div>
+
+                <!-- Comparativa si hay datos anteriores -->
+                <t t-if="data.valorAnterior > 0">
+                    <div class="pld-comparativa-box">
+                        <div class="pld-subtabla-header">
+                            <i class="fa fa-exchange"/> Comparativa
+                        </div>
+                        <div class="pld-comparativa-grid">
+                            <div class="pld-comp-item">
+                                <span class="pld-comp-label">Anterior</span>
+                                <span class="pld-comp-valor"><t t-esc="props.formatCurrency(data.valorAnterior)"/></span>
+                            </div>
+                            <div class="pld-comp-item">
+                                <span class="pld-comp-label">Actual</span>
+                                <span class="pld-comp-valor"><t t-esc="props.formatCurrency(data.valorFinal)"/></span>
+                            </div>
+                            <div t-att-class="'pld-comp-item ' + ((data.valorFinal - data.valorAnterior) >= 0 ? 'pld-comp-up' : 'pld-comp-down')">
+                                <span class="pld-comp-label">Diferencia</span>
+                                <span class="pld-comp-valor">
+                                    <i t-att-class="(data.valorFinal - data.valorAnterior) >= 0 ? 'fa fa-arrow-up' : 'fa fa-arrow-down'"/>
+                                    <t t-esc="props.formatCurrency(Math.abs(data.valorFinal - data.valorAnterior))"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

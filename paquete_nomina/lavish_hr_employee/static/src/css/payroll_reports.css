@@ -1,0 +1,334 @@
+/**
+ * Estilos personalizados para reportes de nómina
+ * Complementa Bootstrap 5.3.3
+ * Módulo: lavish_hr_employee
+ */
+
+/* ============================================
+   CLASES GLOBALES DE REPORTES
+   ============================================ */
+
+.payroll-report {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #212529;
+}
+
+.payroll-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    margin-bottom: 1.5rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.payroll-card:hover {
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   PASOS DE CÁLCULO
+   ============================================ */
+
+.calculation-steps {
+    background-color: #f8f9fa;
+    border-left: 4px solid #0d6efd;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.calculation-steps ol {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.calculation-steps li {
+    margin-bottom: 0.5rem;
+    line-height: 1.8;
+}
+
+.calculation-steps li:last-child {
+    margin-bottom: 0;
+}
+
+/* ============================================
+   RESULTADO DESTACADO
+   ============================================ */
+
+.result-highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    box-shadow: 0 0.5rem 1rem rgba(102, 126, 234, 0.3);
+}
+
+.result-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.5rem 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   BADGES CON ICONOS
+   ============================================ */
+
+.icon-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+}
+
+/* ============================================
+   TABLAS DE NÓMINA
+   ============================================ */
+
+.payroll-table {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.payroll-table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-bottom: 2px solid #dee2e6;
+    padding: 0.75rem;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.payroll-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.payroll-table tbody td {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+.payroll-table .currency {
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+}
+
+/* ============================================
+   ALERTAS PERSONALIZADAS
+   ============================================ */
+
+.alert-payroll {
+    border-left-width: 4px;
+    border-radius: 0.375rem;
+    padding: 1rem 1.25rem;
+}
+
+.alert-payroll .alert-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+}
+
+/* ============================================
+   CARDS DE PROVISIONES
+   ============================================ */
+
+.provision-card {
+    border: none;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.provision-card .card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+    border-bottom: none;
+}
+
+.provision-card .provision-amount {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+/* ============================================
+   INDICADORES DE ESTADO
+   ============================================ */
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-indicator.applied {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-indicator.not-applied {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+/* ============================================
+   TIMELINE DE CÁLCULOS
+   ============================================ */
+
+.calculation-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.calculation-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.5rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: #dee2e6;
+}
+
+.calculation-timeline .timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.calculation-timeline .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.25rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    background-color: #0d6efd;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #dee2e6;
+}
+
+/* ============================================
+   SECCIONES COLAPSABLES
+   ============================================ */
+
+.payroll-collapse-header {
+    cursor: pointer;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.payroll-collapse-header:hover {
+    background-color: #e9ecef;
+}
+
+.payroll-collapse-header .collapse-icon {
+    transition: transform 0.3s ease;
+}
+
+.payroll-collapse-header[aria-expanded="true"] .collapse-icon {
+    transform: rotate(90deg);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+    .payroll-report {
+        font-size: 0.9rem;
+    }
+
+    .result-value {
+        font-size: 1.5rem;
+    }
+
+    .payroll-table {
+        font-size: 0.85rem;
+    }
+
+    .calculation-steps {
+        padding: 0.75rem;
+    }
+}
+
+/* ============================================
+   IMPRESIÓN
+   ============================================ */
+
+@media print {
+    .payroll-card {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+        page-break-inside: avoid;
+    }
+
+    .calculation-steps {
+        border: 1px solid #dee2e6;
+        page-break-inside: avoid;
+    }
+
+    .payroll-collapse-header {
+        display: none;
+    }
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.payroll-animate {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ============================================
+   UTILIDADES ESPECÍFICAS
+   ============================================ */
+
+.text-money {
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    color: #198754;
+}
+
+.text-deduction {
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    color: #dc3545;
+}
+
+.highlight-row {
+    background-color: #fff3cd !important;
+    font-weight: 600;
+}
+
+.total-row {
+    background-color: #e7f1ff !important;
+    font-weight: 700;
+    border-top: 2px solid #0d6efd !important;
+}

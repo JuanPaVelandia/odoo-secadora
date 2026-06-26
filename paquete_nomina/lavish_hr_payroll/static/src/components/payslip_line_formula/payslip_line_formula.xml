@@ -1,0 +1,996 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="lavish_hr_payroll.PayslipLineFormula">
+        <div class="payslip-formula-widget" style="font-family: Inter, Arial, sans-serif; background: #F9FAFB; padding: 16px; border-radius: 14px; width: 100%; max-width: 100%; box-sizing: border-box;">
+
+            <!-- Loading -->
+            <div t-if="state.loading" class="text-center py-4">
+                <i class="fa fa-spinner fa-spin fa-2x" style="color: #2563EB;"></i>
+                <p class="mt-2" style="color: #6B7280;">Cargando datos...</p>
+            </div>
+
+            <t t-else="">
+                <!-- HEADER: Empleado + KPIs -->
+                <div style="background: #FFFFFF; border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid #E5E7EB;">
+                    <div class="d-flex align-items-center gap-3">
+                        <!-- Avatar -->
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background: #DBEAFE; color: #2563EB; display: grid; place-items: center; font-size: 18px; font-weight: 700;">
+                            <t t-esc="(state.employee?.name || 'E')[0]"/>
+                        </div>
+                        <!-- Info -->
+                        <div>
+                            <div style="font-size: 16px; font-weight: 600; color: #2563EB; margin: 0;">
+                                <t t-esc="state.employee?.name || '-'"/>
+                                <span t-if="state.employee?.sabado" style="background: #22C55E; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px; font-weight: 500;">
+                                    <i class="fa fa-calendar-check-o"></i> Trabaja Sábados
+                                </span>
+                            </div>
+                            <div style="font-size: 13px; color: #6B7280;">
+                                <t t-esc="state.employee?.job_id ? state.employee.job_id[1] : '-'"/>
+                                <span t-if="state.employee?.identification_id"> · CC <t t-esc="state.employee.identification_id"/></span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- LINEA ACTUAL -->
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; margin-bottom: 16px;">
+                    <!-- Header azul -->
+                    <div style="background: #DBEAFE; color: #1D4ED8; padding: 12px 16px; border-radius: 14px 14px 0 0; border-bottom: 1px solid #93C5FD;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center gap-2">
+                                <LottieIcon name="this.getAnimatedIcon().name"
+                                            color="this.getAnimatedIcon().color"
+                                            size="32"
+                                            trigger="'hover'"/>
+                                <div>
+                                    <span style="font-size: 11px; background: #2563EB; color: white; padding: 2px 8px; border-radius: 6px; margin-right: 8px;">
+                                        <t t-esc="line.code"/>
+                                    </span>
+                                    <span style="font-size: 14px; font-weight: 600; color: #1F2937;">
+                                        <t t-esc="line.name"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div>
+                                <span t-if="isDevengo" style="background: #DCFCE7; color: #15803D; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 500;">
+                                    <i class="fa fa-plus-circle"></i> Devengo
+                                </span>
+                                <span t-else="" style="background: #FFEDD5; color: #C2410C; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 500;">
+                                    <i class="fa fa-minus-circle"></i> Deducción
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info de la regla con links navegables -->
+                    <div style="background: #F9FAFB; padding: 8px 16px; border-bottom: 1px solid #E5E7EB;">
+                        <div class="row" style="font-size: 11px; color: #6B7280;">
+                            <div class="col-12">
+                                <strong style="color: #1F2937;">Regla Salarial:</strong>
+                                <span t-if="currentLine.salary_rule_id" style="color: #2563EB; cursor: pointer; text-decoration: underline;"
+                                      t-on-click="() => this.openSalaryRule(currentLine.salary_rule_id[0])">
+                                    <t t-esc="salaryRule"/>
+                                </span>
+                                <span t-else=""><t t-esc="salaryRule"/></span>
+                            </div>
+                            <div class="col-12 mt-1">
+                                <strong style="color: #1F2937;">Categoría:</strong>
+                                <span t-if="currentLine.category_id" style="color: #7C3AED; cursor: pointer; text-decoration: underline;"
+                                      t-on-click="() => this.openCategory(currentLine.category_id[0])">
+                                    <t t-esc="category"/>
+                                </span>
+                                <span t-else=""><t t-esc="category"/></span>
+                            </div>
+                            <div t-if="usedRules.length" class="col-12 mt-2">
+                                <strong style="color: #1F2937;">Reglas usadas:</strong>
+                                <span class="d-flex flex-wrap gap-2 mt-1">
+                                    <t t-foreach="usedRules" t-as="rule" t-key="rule.code">
+                                        <span t-att-style="'background: #F3F4F6; color: #374151; padding: 2px 8px; border-radius: 10px; font-size: 10px; border: 1px solid #E5E7EB;'">
+                                            <span style="font-family: monospace; font-weight: 600; margin-right: 4px;">
+                                                <t t-esc="rule.code || '-'"/>
+                                            </span>
+                                            <span t-if="rule.id" style="color: #2563EB; cursor: pointer; text-decoration: underline;"
+                                                  t-on-click="() => this.openSalaryRule(rule.id)">
+                                                <t t-esc="rule.name || '-'"/>
+                                            </span>
+                                            <span t-else=""><t t-esc="rule.name || '-'"/></span>
+                                        </span>
+                                    </t>
+                                </span>
+                            </div>
+                            <div t-if="usedRulesDetailed.length" class="col-12 mt-2">
+                                <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #6B7280; letter-spacing: 0.4px;">
+                                    Detalle de reglas usadas
+                                </div>
+                                <div class="d-flex flex-column gap-2 mt-1">
+                                    <t t-foreach="usedRulesDetailed" t-as="ur" t-key="ur.code + '-' + ur.total">
+                                        <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 10px; padding: 8px 10px;">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <div style="font-size: 12px; font-weight: 600; color: #1F2937;">
+                                                        <t t-esc="ur.name || '-'"/>
+                                                    </div>
+                                                    <div style="font-size: 10px; color: #6B7280;">
+                                                        <t t-esc="ur.category || '-'"/>
+                                                    </div>
+                                                </div>
+                                                <div style="font-family: monospace; font-weight: 700; color: #1F2937;">
+                                                    <t t-esc="this.formatValue(ur.total || 0, 'currency')"/>
+                                                </div>
+                                            </div>
+                                            <div style="font-size: 10px; color: #6B7280; margin-top: 4px; font-family: monospace;">
+                                                <t t-esc="this.formatValue(ur.amount || 0, 'currency')"/> ×
+                                                <t t-esc="this.formatRuleQuantity(ur)"/> ×
+                                                <t t-esc="this.formatRuleRate(ur)"/>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Indicadores especiales: Préstamo, Novedad, Ausencia -->
+                        <div t-if="state.isLoan or state.isNovelty or state.isContractConcept" class="mt-2" style="font-size: 10px;">
+                            <span t-if="state.isLoan" style="background: #FEE2E2; color: #B91C1C; padding: 2px 8px; border-radius: 10px; margin-right: 6px;">
+                                <i class="fa fa-money"></i> Préstamo
+                            </span>
+                            <span t-if="state.isNovelty" style="background: #FFEDD5; color: #C2410C; padding: 2px 8px; border-radius: 10px; margin-right: 6px;">
+                                <i class="fa fa-file-text-o"></i> Novedad
+                            </span>
+                            <span t-if="state.isContractConcept" style="background: #DCFCE7; color: #15803D; padding: 2px 8px; border-radius: 10px; margin-right: 6px;">
+                                <i class="fa fa-file-o"></i> Concepto Contrato
+                            </span>
+                            <span t-if="line.entity_id" style="color: #6B7280; margin-left: 8px;">
+                                <strong>Entidad:</strong> <t t-esc="line.entity_id[1]"/>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- FORMULA + KPIs (para todas las reglas) -->
+                    <div t-if="state.formulaData" style="background: #F8FAFC; padding: 12px 16px; border-bottom: 1px solid #E5E7EB;">
+                        <!-- Formula full width -->
+                        <div style="background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 12px; margin-bottom: 10px;">
+                            <div style="font-size: 10px; color: #4338CA; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px;">
+                                Fórmula
+                            </div>
+                            <div style="font-size: 15px; font-weight: 600; color: #111827; font-family: monospace;">
+                                <t t-esc="state.formulaData?.formula || '-'"/>
+                            </div>
+                            <div t-if="state.formulaData?.explanation" style="font-size: 12px; color: #374151; margin-top: 4px;">
+                                <i class="fa fa-info-circle" style="color: #4F46E5;"></i>
+                                <t t-esc="state.formulaData.explanation"/>
+                            </div>
+                            <div t-if="state.formulaData?.legalRef" style="font-size: 10px; color: #6B7280; font-style: italic; margin-top: 4px;">
+                                <i class="fa fa-balance-scale"></i>
+                                <t t-esc="state.formulaData.legalRef"/>
+                            </div>
+                        </div>
+
+                        <!-- KPIs -->
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Horas del mes -->
+                            <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 12px; padding: 10px 12px;">
+                                <div style="font-size: 10px; text-transform: uppercase; font-weight: 700; color: #6B7280;">
+                                    <i class="fa fa-clock-o" style="color: #2563EB;"></i> Horas del mes
+                                </div>
+                                <div style="font-size: 16px; font-weight: 700; font-family: monospace; color: #1F2937;">
+                                    <t t-esc="this.formatValue(this.monthHours, 'number')"/> h
+                                </div>
+                                <div style="font-size: 10px; color: #6B7280;">Total del período</div>
+                            </div>
+
+                            <!-- Novedad / Ausencia / Vacaciones (linea actual) -->
+                            <div t-if="this.noveltyKpi" t-att-style="'background: ' + this.noveltyKpi.bg + '; border: 1px solid ' + this.noveltyKpi.color + '55; border-radius: 12px; padding: 10px 12px;'">
+                                <div t-att-style="'font-size: 10px; text-transform: uppercase; font-weight: 700; color: ' + this.noveltyKpi.color + ';'">
+                                    <i t-att-class="'fa ' + this.noveltyKpi.icon"></i> <t t-esc="this.noveltyKpi.label"/>
+                                </div>
+                                <div style="font-size: 12px; font-weight: 600; color: #1F2937;">
+                                    <t t-esc="this.noveltyKpi.name || '-'"/>
+                                </div>
+                                <div style="font-size: 10px; color: #6B7280; margin-top: 2px;">
+                                    Cantidad: <t t-esc="this.formatValue(this.noveltyKpi.quantity, 'number')"/>
+                                </div>
+                                <div t-if="this.noveltyKpi.total" style="font-size: 11px; font-weight: 600; color: #1F2937; margin-top: 2px;">
+                                    <t t-esc="this.formatValue(this.noveltyKpi.total, 'currency')"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ═══════════════════════════════════════════════════════════════
+                         TEMPLATES ESPECIFICOS DE REGLAS
+                         Si existe un template registrado, usarlo en lugar de la vista generica
+                         ═══════════════════════════════════════════════════════════════ -->
+                    <t t-if="hasSpecificTemplate">
+                        <!-- IBD Template -->
+                        <t t-if="isIBDTemplate">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.IBD">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                        <!-- Retencion Proc1 Template -->
+                        <t t-elif="isRetencionProc1Template">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.RetencionProc1">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                        <!-- Liquidacion Template -->
+                        <t t-elif="isLiquidacionTemplate">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.Liquidacion">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                        <!-- Provision Template -->
+                        <t t-elif="isProvisionTemplate">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.Provision">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                        <!-- Auxilio Transporte Template -->
+                        <t t-elif="isAuxilioTransporteTemplate">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.AuxilioTransporte">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                        <!-- Prima Template -->
+                        <t t-elif="isPrimaTemplate">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.Prima">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                        <!-- Cesantias Template -->
+                        <t t-elif="isCesantiasTemplate">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.Cesantias">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                        <!-- Int. Cesantias Template -->
+                        <t t-elif="isIntCesantiasTemplate">
+                            <t t-call="lavish_hr_payroll.RuleTemplate.IntCesantias">
+                                <t t-set="widget" t-value="this"/>
+                                <t t-set="data" t-value="state.ruleData"/>
+                            </t>
+                        </t>
+                    </t>
+
+                    <!-- ═══════════════════════════════════════════════════════════════
+                         VISTA GENERICA (cuando no hay template especifico)
+                         ═══════════════════════════════════════════════════════════════ -->
+                    <t t-if="!hasSpecificTemplate">
+                    <!-- Formula y Pasos -->
+                    <div style="padding: 16px;">
+                        <!-- Pasos del cálculo con números en círculos e iconos -->
+                        <div t-if="state.formulaData?.steps?.length" class="plf-section" style="border: 1px solid #E5E7EB; border-radius: 10px; overflow: hidden;">
+                            <table class="plf-table">
+                                <t t-foreach="state.formulaData.steps" t-as="step" t-key="step_index">
+                                    <tr t-att-class="step.highlight ? 'highlight' : ''"
+                                        t-att-style="!step.highlight ? (step_index % 2 === 0 ? 'background: #F9FAFB;' : 'background: white;') : ''">
+                                        <td style="padding: 10px 12px; border-bottom: 1px solid #E5E7EB;">
+                                            <div class="d-flex align-items-center">
+                                                <!-- Número en círculo -->
+                                                <span t-att-class="'plf-step-number ' + (step.highlight ? 'green' : step_index === 0 ? 'blue' : step_index === 1 ? 'purple' : step_index === 2 ? 'orange' : step_index === 3 ? 'cyan' : 'gray')">
+                                                    <t t-esc="step_index + 1"/>
+                                                </span>
+                                                <!-- Icono según tipo -->
+                                                <span t-att-class="'plf-icon ' + (step.label.toLowerCase().includes('salario') ? 'salary' : step.label.toLowerCase().includes('salud') ? 'health' : step.label.toLowerCase().includes('pensi') ? 'pension' : step.label.toLowerCase().includes('uvt') ? 'uvt' : step.label.toLowerCase().includes('reten') ? 'tax' : step.label.toLowerCase().includes('tarifa') ? 'percent' : step.label.toLowerCase().includes('rango') ? 'calendar' : 'money')">
+                                                    <i t-att-class="'fa ' + (step.label.toLowerCase().includes('salario') ? 'fa-money' : step.label.toLowerCase().includes('salud') ? 'fa-medkit' : step.label.toLowerCase().includes('pensi') ? 'fa-university' : step.label.toLowerCase().includes('uvt') ? 'fa-calculator' : step.label.toLowerCase().includes('reten') ? 'fa-percent' : step.label.toLowerCase().includes('tarifa') ? 'fa-percent' : step.label.toLowerCase().includes('rango') ? 'fa-list-ol' : 'fa-dollar')"></i>
+                                                </span>
+                                                <span style="color: #374151; font-weight: 500;"><t t-esc="step.label"/></span>
+                                            </div>
+                                        </td>
+                                        <td t-att-style="'padding: 10px 12px; border-bottom: 1px solid #E5E7EB; text-align: right; font-family: monospace; font-size: 13px;' + (step.highlight ? 'color: #15803D; font-weight: 700;' : 'color: #1F2937; font-weight: 500;')">
+                                            <t t-if="step.value !== null and step.value !== undefined and step.value !== '' and step.value !== 0 or step.format === 'currency'">
+                                                <t t-if="step.format === 'currency'" t-esc="this.formatValue(step.value, 'currency')"/>
+                                                <t t-elif="step.format === 'number'" t-esc="step.value"/>
+                                                <t t-else="" t-esc="step.value || '-'"/>
+                                            </t>
+                                            <t t-else="">
+                                                <span style="color: #9CA3AF;">-</span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </table>
+                        </div>
+
+                        <!-- Indicadores con badges animados -->
+                        <div t-if="state.formulaData?.indicators?.length" class="d-flex gap-2 flex-wrap mt-3">
+                            <t t-foreach="state.formulaData.indicators" t-as="ind" t-key="ind_index">
+                                <span t-if="ind.value" t-att-class="'plf-badge ' + (ind.color || 'info')" style="animation: fadeIn 0.3s ease-out;">
+                                    <i t-att-class="'fa me-1 ' + (ind.color === 'info' ? 'fa-info-circle' : ind.color === 'warning' ? 'fa-exclamation-triangle' : ind.color === 'danger' ? 'fa-times-circle' : ind.color === 'success' ? 'fa-check-circle' : 'fa-circle')"></i>
+                                    <strong><t t-esc="ind.label"/>:</strong>
+                                    <span class="ms-1"><t t-esc="ind.value"/></span>
+                                </span>
+                            </t>
+                        </div>
+
+                        <!-- BASE LEGAL - Nueva seccion con referencia normativa -->
+                        <div t-if="state.formulaData?.baseLegal || state.formulaData?.elementoLey"
+                             class="plf-legal-section"
+                             style="margin-top: 16px; background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%); border: 1px solid #F59E0B; border-radius: 10px; padding: 12px 16px; animation: slideInUp 0.4s ease-out;">
+                            <div class="d-flex align-items-start gap-3">
+                                <!-- Icono de balanza animado -->
+                                <div style="width: 40px; height: 40px; background: #F59E0B; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: pulse 2s infinite;">
+                                    <i class="fa fa-balance-scale" style="color: white; font-size: 18px;"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <!-- Titulo -->
+                                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #92400E; letter-spacing: 0.5px; margin-bottom: 4px;">
+                                        <i class="fa fa-gavel me-1"></i> Fundamento Legal
+                                    </div>
+                                    <!-- Base Legal Principal -->
+                                    <div t-if="state.formulaData?.baseLegal" style="font-size: 13px; font-weight: 600; color: #78350F; font-family: 'Georgia', serif;">
+                                        <t t-esc="state.formulaData.baseLegal"/>
+                                    </div>
+                                    <!-- Elemento de Ley -->
+                                    <div t-if="state.formulaData?.elementoLey" style="font-size: 11px; color: #92400E; margin-top: 4px; font-style: italic;">
+                                        <i class="fa fa-bookmark me-1"></i>
+                                        <t t-esc="state.formulaData.elementoLey"/>
+                                    </div>
+                                    <!-- Articulos adicionales -->
+                                    <div t-if="state.formulaData?.articulos?.length" class="d-flex flex-wrap gap-1 mt-2">
+                                        <t t-foreach="state.formulaData.articulos" t-as="art" t-key="art_index">
+                                            <span style="background: #FEF3C7; border: 1px solid #F59E0B; color: #92400E; padding: 2px 8px; border-radius: 12px; font-size: 10px;">
+                                                <t t-esc="art"/>
+                                            </span>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variacion vs periodo anterior -->
+                        <div t-if="state.formulaData?.valorAnterior !== undefined and state.formulaData?.valorAnterior !== null"
+                             style="margin-top: 12px; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px 14px;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div style="font-size: 11px; color: #6B7280;">
+                                    <i class="fa fa-history me-1"></i> Comparacion con periodo anterior
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div style="font-size: 11px;">
+                                        <span style="color: #6B7280;">Anterior:</span>
+                                        <span style="font-weight: 600; color: #374151; margin-left: 4px;">
+                                            <t t-esc="this.formatValue(state.formulaData.valorAnterior, 'currency')"/>
+                                        </span>
+                                    </div>
+                                    <div t-if="state.formulaData?.variacion !== undefined">
+                                        <span t-att-style="'padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; ' + (state.formulaData.variacion > 0 ? 'background: #DCFCE7; color: #15803D;' : state.formulaData.variacion &lt; 0 ? 'background: #FEE2E2; color: #B91C1C;' : 'background: #F3F4F6; color: #6B7280;')">
+                                            <i t-att-class="'fa me-1 ' + (state.formulaData.variacion > 0 ? 'fa-arrow-up' : state.formulaData.variacion &lt; 0 ? 'fa-arrow-down' : 'fa-minus')"></i>
+                                            <t t-if="state.formulaData.variacion > 0">+</t><t t-esc="state.formulaData.variacion"/>%
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SEGURIDAD SOCIAL KPI - Tarjeta especializada para aportes -->
+                        <div t-if="socialSecurityKPI"
+                             class="plf-ssocial-card"
+                             t-att-style="'margin-top: 16px; background: linear-gradient(135deg, ' + socialSecurityKPI.config.colorBg + '15 0%, ' + socialSecurityKPI.config.colorBg + '08 100%); border: 1px solid ' + socialSecurityKPI.config.colorBg + '40; border-radius: 12px; padding: 16px; animation: slideInUp 0.4s ease-out;'">
+
+                            <!-- Header con icono animado y tipo -->
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <!-- Icono animado segun tipo -->
+                                    <div t-att-class="'plf-ssocial-icon ' + socialSecurityKPI.config.animacion"
+                                         t-att-style="'width: 48px; height: 48px; background: ' + socialSecurityKPI.config.colorBg + '; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px ' + socialSecurityKPI.config.colorBg + '40;'">
+                                        <i t-att-class="'fa ' + socialSecurityKPI.config.icono" style="color: white; font-size: 20px;"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 14px; font-weight: 700; color: #1F2937;">
+                                            <t t-esc="socialSecurityKPI.config.nombre"/>
+                                        </div>
+                                        <div style="font-size: 11px; color: #6B7280;">
+                                            Codigo: <span style="font-family: monospace; font-weight: 600;"><t t-esc="socialSecurityKPI.codigo"/></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Valor total con animacion -->
+                                <div style="text-align: right;">
+                                    <div class="plf-ssocial-value" t-att-style="'font-size: 22px; font-weight: 700; font-family: monospace; color: ' + socialSecurityKPI.config.colorBg + ';'">
+                                        <t t-esc="this.formatValue(socialSecurityKPI.valor, 'currency')"/>
+                                    </div>
+                                    <div style="font-size: 10px; color: #6B7280;">
+                                        <t t-esc="socialSecurityKPI.porcentaje"/>% del IBC
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Entidad con codigo PILA -->
+                            <div class="plf-ssocial-entity" style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 12px; border: 1px solid #E5E7EB;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <div style="font-size: 10px; text-transform: uppercase; font-weight: 600; color: #6B7280; letter-spacing: 0.5px;">
+                                            <i class="fa fa-building me-1"></i> <t t-esc="socialSecurityKPI.entidad.tipoEntidad"/>
+                                        </div>
+                                        <div t-if="socialSecurityKPI.entidad.tieneEntidad" style="font-size: 13px; font-weight: 600; color: #1F2937; margin-top: 2px;">
+                                            <t t-esc="socialSecurityKPI.entidad.nombre"/>
+                                        </div>
+                                        <div t-else="" style="font-size: 13px; font-weight: 600; color: #9CA3AF; font-style: italic; margin-top: 2px;">
+                                            Sin asignar
+                                        </div>
+                                    </div>
+                                    <!-- Codigo PILA -->
+                                    <div t-if="socialSecurityKPI.entidad.codigoPILA" style="text-align: right;">
+                                        <div style="font-size: 10px; text-transform: uppercase; font-weight: 600; color: #6B7280;">
+                                            Codigo PILA
+                                        </div>
+                                        <div style="font-size: 16px; font-weight: 700; font-family: monospace; color: #1F2937; background: #F3F4F6; padding: 4px 10px; border-radius: 6px; margin-top: 2px;">
+                                            <t t-esc="socialSecurityKPI.entidad.codigoPILA"/>
+                                        </div>
+                                    </div>
+                                    <div t-else="" style="text-align: right;">
+                                        <div style="font-size: 10px; text-transform: uppercase; font-weight: 600; color: #9CA3AF;">
+                                            Codigo PILA
+                                        </div>
+                                        <div style="font-size: 12px; color: #9CA3AF; font-style: italic;">
+                                            No registrado
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Advertencias si las hay -->
+                            <div t-if="socialSecurityKPI.advertencias?.length > 0" class="d-flex flex-wrap gap-2 mb-3">
+                                <t t-foreach="socialSecurityKPI.advertencias" t-as="adv" t-key="adv_index">
+                                    <div t-att-class="'plf-ssocial-warning ' + adv.tipo"
+                                         t-att-style="'display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 500; animation: bounce 1s ease-in-out; ' + (adv.tipo === 'warning' ? 'background: #FEF3C7; color: #B45309; border: 1px solid #F59E0B;' : 'background: #DBEAFE; color: #1D4ED8; border: 1px solid #3B82F6;')">
+                                        <i t-att-class="'fa ' + adv.icono" style="font-size: 12px;"></i>
+                                        <span><t t-esc="adv.mensaje"/></span>
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- KPIs en fila -->
+                            <div class="row g-2">
+                                <!-- IBC -->
+                                <div class="col-4">
+                                    <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #E5E7EB;">
+                                        <div style="font-size: 10px; text-transform: uppercase; font-weight: 600; color: #6B7280;">IBC</div>
+                                        <div style="font-size: 13px; font-weight: 600; font-family: monospace; color: #1F2937;">
+                                            <t t-esc="this.formatValue(socialSecurityKPI.ibc, 'currency')"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Porcentaje -->
+                                <div class="col-4">
+                                    <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #E5E7EB;">
+                                        <div style="font-size: 10px; text-transform: uppercase; font-weight: 600; color: #6B7280;">Tasa</div>
+                                        <div t-att-style="'font-size: 13px; font-weight: 600; color: ' + socialSecurityKPI.config.colorBg + ';'">
+                                            <t t-esc="socialSecurityKPI.porcentaje"/>%
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Variacion -->
+                                <div class="col-4">
+                                    <div style="background: white; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #E5E7EB;">
+                                        <div style="font-size: 10px; text-transform: uppercase; font-weight: 600; color: #6B7280;">Variacion</div>
+                                        <div t-if="socialSecurityKPI.variacion !== null">
+                                            <span t-att-style="'font-size: 13px; font-weight: 600; ' + (parseFloat(socialSecurityKPI.variacion) > 0 ? 'color: #22C55E;' : parseFloat(socialSecurityKPI.variacion) &lt; 0 ? 'color: #EF4444;' : 'color: #6B7280;')">
+                                                <i t-att-class="'fa ' + (parseFloat(socialSecurityKPI.variacion) > 0 ? 'fa-arrow-up' : parseFloat(socialSecurityKPI.variacion) &lt; 0 ? 'fa-arrow-down' : 'fa-minus')" style="font-size: 10px;"></i>
+                                                <t t-if="parseFloat(socialSecurityKPI.variacion) > 0">+</t><t t-esc="socialSecurityKPI.variacion"/>%
+                                            </span>
+                                        </div>
+                                        <div t-else="" style="font-size: 13px; color: #9CA3AF;">-</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Base legal -->
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px dashed #E5E7EB;">
+                                <div style="font-size: 10px; color: #6B7280;">
+                                    <i class="fa fa-balance-scale me-1"></i>
+                                    <t t-esc="socialSecurityKPI.config.baseLegal"/>
+                                    <t t-if="socialSecurityKPI.config.aplicaDesde">
+                                        <span style="margin-left: 8px; background: #F3F4F6; padding: 2px 6px; border-radius: 4px; font-weight: 500;">
+                                            Aplica desde <t t-esc="socialSecurityKPI.config.aplicaDesde"/> SMMLV
+                                        </span>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </t>
+                    <!-- Fin de vista generica -->
+                </div>
+
+                <!-- DÍAS DEL PERÍODO - Calendario visual -->
+                <t t-if="isBasicSalaryLine">
+                <div style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; margin-bottom: 16px; padding: 16px;">
+                    <div class="d-flex justify-content-between align-items-center" style="margin-bottom: 12px;">
+                        <div style="font-size: 13px; font-weight: 600; color: #1F2937;">
+                            <i class="fa fa-calendar" style="color: #2563EB;"></i> DÍAS DEL PERÍODO
+                            <span style="font-size: 11px; font-weight: 400; color: #6B7280; margin-left: 8px;">
+                                <t t-esc="state.payslip?.date_from"/> - <t t-esc="state.payslip?.date_to"/>
+                            </span>
+                        </div>
+                        <span style="background: #DBEAFE; color: #1D4ED8; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">
+                            <t t-esc="state.periodDays.total"/> días
+                        </span>
+                    </div>
+
+                    <!-- Calendario de días (cada día un cuadrito) -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 2px; margin-bottom: 12px;">
+                        <t t-foreach="state.calendarDays" t-as="day" t-key="day.date">
+                            <div t-att-style="'width: 22px; height: 28px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 9px; background: ' + day.color + '; color: white;' + (day.isVirtual ? ' opacity: 0.6; border: 1px dashed #6B7280;' : '')"
+                                 t-att-title="day.isVirtual ? 'Día ' + day.day + ' (Virtual - Colombia 30 días)' : day.date + ' - ' + (day.type === 'work' ? 'Laboral' : day.type === 'saturday_work' ? 'Sábado Laboral' : day.type === 'saturday' ? 'Sábado' : day.type === 'sunday' ? 'Domingo' : day.type === 'holiday' ? 'Festivo' : 'Virtual')">
+                                <span style="font-weight: 600;"><t t-esc="day.day"/></span>
+                                <span style="font-size: 7px; opacity: 0.9;"><t t-esc="day.dayName"/></span>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Leyenda compacta -->
+                    <div class="d-flex flex-wrap gap-3" style="font-size: 11px; color: #6B7280; margin-bottom: 8px;">
+                        <span><span style="display: inline-block; width: 12px; height: 12px; background: #22C55E; border-radius: 3px; margin-right: 4px;"></span> Laborales (<t t-esc="state.periodDays.workDays"/>)</span>
+                        <!-- Sábados: azul si no trabaja, verde si trabaja sábados -->
+                        <t t-if="state.employee?.sabado">
+                            <span><span style="display: inline-block; width: 12px; height: 12px; background: #22C55E; border-radius: 3px; margin-right: 4px;"></span> Sábados Lab. (<t t-esc="state.periodDays.saturdays"/>)</span>
+                        </t>
+                        <t t-else="">
+                            <span><span style="display: inline-block; width: 12px; height: 12px; background: #2563EB; border-radius: 3px; margin-right: 4px;"></span> Sábados (<t t-esc="state.periodDays.saturdays"/>)</span>
+                        </t>
+                        <span><span style="display: inline-block; width: 12px; height: 12px; background: #F97316; border-radius: 3px; margin-right: 4px;"></span> Domingos (<t t-esc="state.periodDays.sundays"/>)</span>
+                        <span t-if="state.periodDays.holidays > 0"><span style="display: inline-block; width: 12px; height: 12px; background: #EF4444; border-radius: 3px; margin-right: 4px;"></span> Festivos (<t t-esc="state.periodDays.holidays"/>)</span>
+                        <span t-if="state.periodDays.virtualDays > 0"><span style="display: inline-block; width: 12px; height: 12px; background: #9CA3AF; border-radius: 3px; margin-right: 4px; opacity: 0.6;"></span> Virtuales (<t t-esc="state.periodDays.virtualDays"/>)</span>
+                    </div>
+
+                    <!-- Ausencias detalladas (si existen) -->
+                    <t t-if="state.absenceList.length > 0">
+                        <div style="border-top: 1px dashed #E5E7EB; padding-top: 10px; margin-top: 8px;">
+                            <div style="font-size: 11px; font-weight: 600; color: #C2410C; margin-bottom: 6px;">
+                                <i class="fa fa-exclamation-triangle"></i> AUSENCIAS / NOVEDADES
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <t t-foreach="state.absenceList" t-as="abs" t-key="abs.code">
+                                    <div style="background: #FFEDD5; border: 1px solid #FB923C; border-radius: 6px; padding: 4px 8px; font-size: 10px;">
+                                        <span style="font-weight: 600; color: #C2410C;"><t t-esc="abs.name"/></span>
+                                        <span style="color: #EA580C; margin-left: 6px;"><t t-esc="abs.days"/> días</span>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+                </t>
+
+                <!-- PRÉSTAMO (si aplica) -->
+                <div t-if="state.loanDetails" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; margin-bottom: 16px;">
+                    <div style="background: #FFEDD5; padding: 12px 16px; border-radius: 14px 14px 0 0; border-bottom: 1px solid #FB923C;">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa fa-money" style="color: #F97316;"></i>
+                                <span style="font-size: 13px; font-weight: 600; color: #C2410C; margin-left: 8px;">PRÉSTAMO</span>
+                            </div>
+                            <span t-if="state.loanDetails.isCompleted" style="background: #DCFCE7; color: #15803D; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 600;">
+                                <i class="fa fa-check"></i> CUMPLIDO
+                            </span>
+                            <span t-else="" style="background: #DBEAFE; color: #1D4ED8; padding: 4px 12px; border-radius: 12px; font-size: 11px;">
+                                EN CURSO
+                            </span>
+                        </div>
+                    </div>
+                    <div style="padding: 16px;">
+                        <!-- Barra de progreso -->
+                        <div style="background: #E5E7EB; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 12px;">
+                            <div t-att-style="'width: ' + state.loanDetails.progress + '%; background: linear-gradient(90deg, #22C55E, #4ADE80); height: 100%; transition: width 0.5s;'"></div>
+                        </div>
+                        <!-- Detalles -->
+                        <div class="row" style="font-size: 12px;">
+                            <div class="col-4 text-center">
+                                <div style="color: #6B7280;">Monto Total</div>
+                                <div style="font-weight: 600; color: #1F2937;"><t t-esc="this.formatValue(state.loanDetails.amount, 'currency')"/></div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="color: #6B7280;">Pagado</div>
+                                <div style="font-weight: 600; color: #22C55E;"><t t-esc="this.formatValue(state.loanDetails.paid_amount, 'currency')"/></div>
+                            </div>
+                            <div class="col-4 text-center">
+                                <div style="color: #6B7280;">Saldo</div>
+                                <div style="font-weight: 600; color: #F97316;"><t t-esc="this.formatValue(state.loanDetails.balance_amount, 'currency')"/></div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-2" style="font-size: 11px; color: #6B7280;">
+                            Cuota <t t-esc="state.loanDetails.paidInstallments + 1"/> de <t t-esc="state.loanDetails.totalInstallments"/>
+                            (<t t-esc="state.loanDetails.progress"/>% completado)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DETALLE DEL CÁLCULO - Estilizado con secciones colapsables -->
+                <div t-if="false" class="plf-widget">
+                    <div class="plf-section" style="margin-bottom: 16px; border-radius: 14px;">
+                        <!-- Header principal -->
+                        <div class="plf-header plf-header-blue" style="cursor: pointer; border-radius: 14px 14px 0 0;"
+                             t-on-click="toggleDetails">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="plf-header-title" style="color: #1D4ED8;">
+                                    <i class="fa fa-table" style="margin-right: 8px;"></i>
+                                    DETALLE DEL CÁLCULO
+                                    <span class="plf-badge info" style="margin-left: 8px;">
+                                        <t t-esc="computationEntries.filter(e => e.isHeader).length"/> secciones
+                                    </span>
+                                </div>
+                                <span style="font-size: 11px;">
+                                    <t t-if="state.showDetails">Ocultar</t>
+                                    <t t-else="">Mostrar</t>
+                                    <i t-att-class="'fa plf-chevron ms-2 ' + (state.showDetails ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="color: #1D4ED8;"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div t-att-class="'plf-collapsible ' + (state.showDetails ? 'expanded' : 'collapsed')">
+                            <!-- Secciones del computation estilizadas -->
+                            <t t-if="computationEntries.length > 0">
+                                <t t-set="currentSection" t-value="''"/>
+                                <t t-set="sectionIndex" t-value="0"/>
+                                <t t-foreach="computationEntries" t-as="entry" t-key="entry.key">
+                                    <!-- Header de sección -->
+                                    <t t-if="entry.isHeader">
+                                        <t t-set="currentSection" t-value="entry.keyFormatted"/>
+                                        <t t-set="sectionColor" t-value="entry.keyFormatted.toLowerCase().includes('periodo') ? 'blue' : entry.keyFormatted.toLowerCase().includes('ingreso') ? 'green' : entry.keyFormatted.toLowerCase().includes('aporte') ? 'purple' : entry.keyFormatted.toLowerCase().includes('base') ? 'orange' : entry.keyFormatted.toLowerCase().includes('beneficio') ? 'cyan' : entry.keyFormatted.toLowerCase().includes('retenc') ? 'red' : entry.keyFormatted.toLowerCase().includes('param') ? 'amber' : 'gray'"/>
+                                        <t t-set="sectionIndex" t-value="sectionIndex + 1"/>
+                                        <div t-att-class="'plf-header plf-header-' + sectionColor"
+                                             style="cursor: pointer; padding: 10px 16px; margin: 0; border-radius: 0;"
+                                             t-on-click="(ev) => this.toggleComputationSection(entry.keyFormatted, ev)">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div class="plf-header-title" style="font-size: 12px;">
+                                                    <span t-att-class="'plf-step-number ' + sectionColor">
+                                                        <t t-esc="sectionIndex"/>
+                                                    </span>
+                                                    <i t-att-class="'fa me-2 ' + (entry.keyFormatted.toLowerCase().includes('periodo') ? 'fa-calendar' : entry.keyFormatted.toLowerCase().includes('ingreso') ? 'fa-money' : entry.keyFormatted.toLowerCase().includes('aporte') ? 'fa-university' : entry.keyFormatted.toLowerCase().includes('base') ? 'fa-calculator' : entry.keyFormatted.toLowerCase().includes('beneficio') ? 'fa-gift' : entry.keyFormatted.toLowerCase().includes('retenc') ? 'fa-percent' : entry.keyFormatted.toLowerCase().includes('param') ? 'fa-cog' : 'fa-list')"></i>
+                                                    <t t-esc="entry.keyFormatted"/>
+                                                </div>
+                                                <i t-att-class="'fa plf-chevron ' + (this.isSectionExpanded(entry.keyFormatted) ? 'fa-chevron-up rotated' : 'fa-chevron-down')" style="font-size: 11px;"></i>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <!-- Datos de la sección -->
+                                    <t t-elif="!entry.isHeader and entry.parentSection">
+                                        <div t-att-class="'plf-collapsible ' + (this.isSectionExpanded(entry.parentSection) ? 'expanded' : 'collapsed')">
+                                            <div class="d-flex justify-content-between align-items-center" style="padding: 8px 16px; padding-left: 48px; background: white; border-bottom: 1px solid #E5E7EB;">
+                                                <div style="display: flex; align-items: center; font-size: 11px; color: #6B7280;">
+                                                    <span t-att-class="'plf-icon ' + (entry.keyFormatted.toLowerCase().includes('salario') || entry.keyFormatted.toLowerCase().includes('salary') ? 'salary' : entry.keyFormatted.toLowerCase().includes('salud') ? 'health' : entry.keyFormatted.toLowerCase().includes('pensi') || entry.keyFormatted.toLowerCase().includes('solidaridad') || entry.keyFormatted.toLowerCase().includes('subsistencia') ? 'pension' : entry.keyFormatted.toLowerCase().includes('uvt') || entry.keyFormatted.toLowerCase().includes('ibr') ? 'uvt' : entry.keyFormatted.toLowerCase().includes('tarifa') || entry.keyFormatted.toLowerCase().includes('porcentaje') ? 'percent' : entry.keyFormatted.toLowerCase().includes('total') ? 'money' : entry.keyFormatted.toLowerCase().includes('deduccion') || entry.keyFormatted.toLowerCase().includes('renta') ? 'deduction' : entry.keyFormatted.toLowerCase().includes('limite') ? 'calendar' : 'money')" style="width: 18px; height: 18px; font-size: 9px; margin-right: 10px;">
+                                                        <i t-att-class="'fa ' + (entry.keyFormatted.toLowerCase().includes('salario') || entry.keyFormatted.toLowerCase().includes('salary') ? 'fa-money' : entry.keyFormatted.toLowerCase().includes('salud') ? 'fa-medkit' : entry.keyFormatted.toLowerCase().includes('pensi') || entry.keyFormatted.toLowerCase().includes('solidaridad') || entry.keyFormatted.toLowerCase().includes('subsistencia') ? 'fa-university' : entry.keyFormatted.toLowerCase().includes('uvt') || entry.keyFormatted.toLowerCase().includes('ibr') ? 'fa-calculator' : entry.keyFormatted.toLowerCase().includes('tarifa') || entry.keyFormatted.toLowerCase().includes('porcentaje') ? 'fa-percent' : entry.keyFormatted.toLowerCase().includes('total') ? 'fa-check-circle' : entry.keyFormatted.toLowerCase().includes('deduccion') || entry.keyFormatted.toLowerCase().includes('renta') ? 'fa-minus-circle' : entry.keyFormatted.toLowerCase().includes('limite') ? 'fa-sliders' : 'fa-circle-o')"></i>
+                                                    </span>
+                                                    <t t-esc="entry.keyFormatted"/>
+                                                </div>
+                                                <div t-att-style="'font-family: monospace; font-size: 12px; font-weight: 600; ' + (entry.isNumber ? 'color: #2563EB;' : 'color: #1F2937;')">
+                                                    <t t-esc="entry.displayValue"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </t>
+                            </t>
+
+                        <!-- TABLA DE LÍNEAS USADAS EN EL CÁLCULO -->
+                        <div t-if="hasDetailLines" style="border-top: 2px solid #93C5FD; margin-top: 8px;">
+                            <div style="background: #DBEAFE; padding: 8px 16px; cursor: pointer; border-bottom: 1px solid #93C5FD;"
+                                 t-on-click="toggleDetailLines">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span style="font-size: 11px; font-weight: 600; color: #1F2937;">
+                                        <i class="fa fa-list-alt" style="color: #2563EB;"></i> LÍNEAS USADAS EN EL CÁLCULO
+                                        <span style="background: #2563EB; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">
+                                            <t t-esc="state.detailLines.length"/>
+                                        </span>
+                                    </span>
+                                    <span style="font-size: 10px; color: #1D4ED8;">
+                                        <t t-if="state.showDetailLines">
+                                            <i class="fa fa-chevron-up"></i>
+                                        </t>
+                                        <t t-else="">
+                                            <i class="fa fa-chevron-down"></i>
+                                        </t>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div t-if="state.showDetailLines" style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; font-size: 10px; min-width: 800px;">
+                                    <thead>
+                                        <tr style="background: #DBEAFE;">
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: center; color: #1F2937; width: 50px;">ID</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: left; color: #1F2937; width: 80px;">Código</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: left; color: #1F2937;">Nombre</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: left; color: #1F2937;">Regla Salarial</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: left; color: #1F2937;">Categoría</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: left; color: #1F2937;">Contrato</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: left; color: #1F2937;">Empleado</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: center; color: #1F2937;">Período</th>
+                                            <th style="padding: 8px 6px; border-bottom: 1px solid #93C5FD; text-align: right; color: #1F2937;">Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.detailLines" t-as="dl" t-key="dl.id">
+                                            <tr t-att-style="(dl.is_other_period ? 'background: #FFEDD5;' : (dl_index % 2 === 0 ? 'background: white;' : 'background: #F9FAFB;'))">
+                                                <!-- ID con enlace -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB; text-align: center;">
+                                                    <span style="background: #DBEAFE; color: #2563EB; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: 500;"
+                                                          t-on-click="() => this.openPayslipLine(dl.id)">
+                                                        <t t-esc="dl.id"/>
+                                                    </span>
+                                                </td>
+                                                <!-- Código -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB; font-family: monospace; color: #2563EB; font-weight: 500;">
+                                                    <t t-esc="dl.code"/>
+                                                </td>
+                                                <!-- Nombre -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB; color: #1F2937;">
+                                                    <t t-esc="dl.name"/>
+                                                    <!-- Indicador de novedad/ausencia -->
+                                                    <t t-if="dl.leave_id">
+                                                        <span style="background: #FFEDD5; color: #C2410C; padding: 1px 6px; border-radius: 10px; font-size: 9px; margin-left: 4px;">
+                                                            <i class="fa fa-calendar-times-o"></i> <t t-esc="dl.leave_id[1]"/>
+                                                        </span>
+                                                    </t>
+                                                    <t t-elif="dl.entity_id">
+                                                        <span style="background: #DCFCE7; color: #15803D; padding: 1px 6px; border-radius: 10px; font-size: 9px; margin-left: 4px;">
+                                                            <i class="fa fa-building"></i> <t t-esc="dl.entity_id[1]"/>
+                                                        </span>
+                                                    </t>
+                                                </td>
+                                                <!-- Regla Salarial con enlace -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB;">
+                                                    <span t-if="dl.salary_rule_id" style="color: #2563EB; cursor: pointer; text-decoration: underline;"
+                                                          t-on-click="() => this.openSalaryRule(dl.salary_rule_id[0])">
+                                                        <t t-esc="dl.salary_rule_id[1]"/>
+                                                    </span>
+                                                    <span t-else="" style="color: #9CA3AF;">-</span>
+                                                </td>
+                                                <!-- Categoría con enlace -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB;">
+                                                    <span t-if="dl.category_id" style="color: #1D4ED8; cursor: pointer;"
+                                                          t-on-click="() => this.openCategory(dl.category_id[0])">
+                                                        <t t-esc="dl.category_id[1]"/>
+                                                    </span>
+                                                    <span t-else="" style="color: #9CA3AF;">-</span>
+                                                </td>
+                                                <!-- Contrato con enlace -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB;">
+                                                    <span t-if="dl.contract_id" style="color: #2563EB; cursor: pointer; text-decoration: underline;"
+                                                          t-on-click="() => this.openContract(dl.contract_id[0])">
+                                                        <t t-esc="dl.contract_id[1]"/>
+                                                    </span>
+                                                    <span t-else="" style="color: #9CA3AF;">-</span>
+                                                </td>
+                                                <!-- Empleado con enlace -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB;">
+                                                    <span t-if="dl.employee_id" style="color: #1F2937; cursor: pointer;"
+                                                          t-on-click="() => this.openEmployee(dl.employee_id[0])">
+                                                        <t t-esc="dl.employee_id[1]"/>
+                                                    </span>
+                                                    <span t-else="" style="color: #9CA3AF;">-</span>
+                                                </td>
+                                                <!-- Período/Nómina -->
+                                                <td style="padding: 6px; border-bottom: 1px solid #E5E7EB; text-align: center;">
+                                                    <t t-if="dl.payslip_info">
+                                                        <span t-att-style="'cursor: pointer; padding: 2px 6px; border-radius: 4px; font-size: 9px; ' + (dl.is_other_period ? 'background: #F97316; color: white;' : 'background: #DCFCE7; color: #15803D;')"
+                                                              t-on-click="() => this.openPayslip(dl.slip_id[0])"
+                                                              t-att-title="dl.payslip_info.name">
+                                                            <t t-if="dl.is_other_period">
+                                                                <i class="fa fa-calendar"></i> Otro
+                                                            </t>
+                                                            <t t-else="">
+                                                                <i class="fa fa-check"></i> Actual
+                                                            </t>
+                                                        </span>
+                                                        <div style="font-size: 9px; color: #6B7280; margin-top: 2px;">
+                                                            <t t-esc="this.formatDate(dl.payslip_info.date_from)"/>
+                                                        </div>
+                                                    </t>
+                                                    <span t-else="" style="color: #9CA3AF;">-</span>
+                                                </td>
+                                                <!-- Monto -->
+                                                <td t-att-style="'padding: 6px; border-bottom: 1px solid #E5E7EB; text-align: right; font-family: monospace; font-weight: 600; ' + (dl.dev_or_ded === 'devengo' ? 'color: #22C55E;' : 'color: #F97316;')">
+                                                    <t t-esc="this.formatValue(dl.total, 'currency')"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <!-- Totales -->
+                                    <tfoot>
+                                        <tr style="background: #DBEAFE; font-weight: 600;">
+                                            <td colspan="8" style="padding: 8px 6px; border-top: 2px solid #93C5FD; text-align: right; color: #1F2937;">
+                                                Total líneas usadas:
+                                            </td>
+                                            <td style="padding: 8px 6px; border-top: 2px solid #93C5FD; text-align: right; font-family: monospace; color: #1F2937;">
+                                                <t t-esc="this.formatValue(state.detailLines.reduce((sum, l) => sum + (l.total || 0), 0), 'currency')"/>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- NOVEDADES Y AUSENCIAS -->
+                <div t-if="state.novelties.length > 0" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; margin-bottom: 16px;">
+                    <div style="background: #FFEDD5; padding: 10px 16px; border-radius: 14px 14px 0 0; border-bottom: 1px solid #FB923C;">
+                        <div style="font-size: 12px; font-weight: 600; color: #C2410C;">
+                            <i class="fa fa-file-text-o"></i> NOVEDADES Y AUSENCIAS
+                            <span style="background: #F97316; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">
+                                <t t-esc="state.novelties.length"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                            <thead>
+                                <tr style="background: #FFEDD5;">
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #FB923C; text-align: center; color: #C2410C; width: 50px;">ID</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #FB923C; text-align: left; color: #C2410C; width: 80px;">Código</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #FB923C; text-align: left; color: #C2410C;">Nombre</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #FB923C; text-align: left; color: #C2410C;">Entidad</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #FB923C; text-align: left; color: #C2410C;">Regla</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #FB923C; text-align: left; color: #C2410C;">Categoría</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #FB923C; text-align: right; color: #C2410C;">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.novelties" t-as="nov" t-key="nov.id">
+                                    <tr t-att-style="nov_index % 2 === 0 ? 'background: white;' : 'background: #FFEDD5;'">
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">
+                                            <span style="background: #FFEDD5; color: #C2410C; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: 500;"
+                                                  t-on-click="() => this.openPayslipLine(nov.id)">
+                                                <t t-esc="nov.id"/>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB; font-family: monospace; color: #C2410C; font-weight: 500;">
+                                            <t t-esc="nov.code"/>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB; color: #1F2937;">
+                                            <t t-esc="nov.name"/>
+                                            <t t-if="nov.leave_id">
+                                                <span style="background: #F97316; color: white; padding: 1px 6px; border-radius: 10px; font-size: 9px; margin-left: 4px;">
+                                                    <i class="fa fa-calendar-times-o"></i> Ausencia
+                                                </span>
+                                            </t>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB;">
+                                            <span t-if="nov.entity_id" style="color: #6B7280;">
+                                                <t t-esc="nov.entity_id[1]"/>
+                                            </span>
+                                            <span t-else="" style="color: #D1D5DB;">-</span>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB;">
+                                            <span t-if="nov.salary_rule_id" style="color: #2563EB; cursor: pointer; text-decoration: underline;"
+                                                  t-on-click="() => this.openSalaryRule(nov.salary_rule_id[0])">
+                                                <t t-esc="nov.salary_rule_id[1]"/>
+                                            </span>
+                                            <span t-else="" style="color: #D1D5DB;">-</span>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB;">
+                                            <span t-if="nov.category_id" style="color: #1D4ED8;">
+                                                <t t-esc="nov.category_id[1]"/>
+                                            </span>
+                                            <span t-else="" style="color: #D1D5DB;">-</span>
+                                        </td>
+                                        <td t-att-style="'padding: 6px 12px; border-bottom: 1px solid #E5E7EB; text-align: right; font-family: monospace; font-weight: 600; ' + (nov.dev_or_ded === 'devengo' ? 'color: #22C55E;' : 'color: #F97316;')">
+                                            <t t-esc="this.formatValue(nov.total, 'currency')"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #FFEDD5; font-weight: 600;">
+                                    <td colspan="6" style="padding: 8px 12px; border-top: 2px solid #FB923C; text-align: right; color: #C2410C;">
+                                        Total:
+                                    </td>
+                                    <td style="padding: 8px 12px; border-top: 2px solid #FB923C; text-align: right; font-family: monospace; color: #C2410C;">
+                                        <t t-esc="this.formatValue(state.novelties.reduce((sum, n) => sum + (n.total || 0), 0), 'currency')"/>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CONCEPTOS DE CONTRATO -->
+                <div t-if="state.contractConcepts.length > 0" style="background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 14px; margin-bottom: 16px;">
+                    <div style="background: #DCFCE7; padding: 10px 16px; border-radius: 14px 14px 0 0; border-bottom: 1px solid #86EFAC;">
+                        <div style="font-size: 12px; font-weight: 600; color: #15803D;">
+                            <i class="fa fa-file-o" style="color: #22C55E;"></i> CONCEPTOS DE CONTRATO
+                            <span style="background: #22C55E; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 8px;">
+                                <t t-esc="state.contractConcepts.length"/>
+                            </span>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                            <thead>
+                                <tr style="background: #DCFCE7;">
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #86EFAC; text-align: center; color: #15803D; width: 50px;">ID</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #86EFAC; text-align: left; color: #15803D; width: 80px;">Código</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #86EFAC; text-align: left; color: #15803D;">Nombre</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #86EFAC; text-align: left; color: #15803D;">Regla</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #86EFAC; text-align: left; color: #15803D;">Categoría</th>
+                                    <th style="padding: 8px 12px; border-bottom: 1px solid #86EFAC; text-align: right; color: #15803D;">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="state.contractConcepts" t-as="cc" t-key="cc.id">
+                                    <tr t-att-style="cc_index % 2 === 0 ? 'background: white;' : 'background: #F9FAFB;'">
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB; text-align: center;">
+                                            <span style="background: #DCFCE7; color: #15803D; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: 500;"
+                                                  t-on-click="() => this.openPayslipLine(cc.id)">
+                                                <t t-esc="cc.id"/>
+                                            </span>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB; font-family: monospace; color: #15803D; font-weight: 500;">
+                                            <t t-esc="cc.code"/>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB; color: #1F2937;">
+                                            <t t-esc="cc.name"/>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB;">
+                                            <span t-if="cc.salary_rule_id" style="color: #2563EB; cursor: pointer; text-decoration: underline;"
+                                                  t-on-click="() => this.openSalaryRule(cc.salary_rule_id[0])">
+                                                <t t-esc="cc.salary_rule_id[1]"/>
+                                            </span>
+                                            <span t-else="" style="color: #D1D5DB;">-</span>
+                                        </td>
+                                        <td style="padding: 6px 12px; border-bottom: 1px solid #E5E7EB;">
+                                            <span t-if="cc.category_id" style="color: #1D4ED8;">
+                                                <t t-esc="cc.category_id[1]"/>
+                                            </span>
+                                            <span t-else="" style="color: #D1D5DB;">-</span>
+                                        </td>
+                                        <td t-att-style="'padding: 6px 12px; border-bottom: 1px solid #E5E7EB; text-align: right; font-family: monospace; font-weight: 600; ' + (cc.dev_or_ded === 'devengo' ? 'color: #22C55E;' : 'color: #F97316;')">
+                                            <t t-esc="this.formatValue(cc.total, 'currency')"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: #DCFCE7; font-weight: 600;">
+                                    <td colspan="5" style="padding: 8px 12px; border-top: 2px solid #86EFAC; text-align: right; color: #15803D;">
+                                        Total:
+                                    </td>
+                                    <td style="padding: 8px 12px; border-top: 2px solid #86EFAC; text-align: right; font-family: monospace; color: #15803D;">
+                                        <t t-esc="this.formatValue(state.contractConcepts.reduce((sum, c) => sum + (c.total || 0), 0), 'currency')"/>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- INFORMACIÓN DE NÓMINA -->
+                <div style="background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 14px; padding: 12px 16px;">
+                    <div class="row" style="font-size: 11px; color: #6B7280;">
+                        <div class="col-md-3">
+                            <strong style="color: #1F2937;">Número:</strong> <t t-esc="state.payslip?.number || '-'"/>
+                        </div>
+                        <div class="col-md-3">
+                            <strong style="color: #1F2937;">Estado:</strong>
+                            <span t-att-style="'padding: 2px 8px; border-radius: 10px; font-size: 10px; ' + (state.payslip?.state === 'done' ? 'background: #DCFCE7; color: #15803D;' : state.payslip?.state === 'verify' ? 'background: #FFEDD5; color: #C2410C;' : 'background: #DBEAFE; color: #1D4ED8;')">
+                                <t t-esc="stateLabel"/>
+                            </span>
+                        </div>
+                        <div class="col-md-3">
+                            <strong style="color: #1F2937;">Desde:</strong> <t t-esc="this.formatDate(state.payslip?.date_from)"/>
+                        </div>
+                        <div class="col-md-3">
+                            <strong style="color: #1F2937;">Hasta:</strong> <t t-esc="this.formatDate(state.payslip?.date_to)"/>
+                        </div>
+                    </div>
+                    <div t-if="state.payslip?.struct_id" class="mt-2" style="font-size: 11px; color: #6B7280;">
+                        <strong style="color: #1F2937;">Estructura:</strong> <t t-esc="state.payslip.struct_id[1]"/>
+                    </div>
+                </div>
+
+            </t>
+        </div>
+    </t>
+</templates>

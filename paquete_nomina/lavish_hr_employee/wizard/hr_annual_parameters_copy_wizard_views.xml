@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════════
+         WIZARD: Copiar Parámetros Anuales
+         ═══════════════════════════════════════════════════════════════════════════ -->
+
+    <record id="hr_annual_parameters_copy_wizard_form" model="ir.ui.view">
+        <field name="name">hr.annual.parameters.copy.wizard.form</field>
+        <field name="model">hr.annual.parameters.copy.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Copiar Parámetros Anuales">
+                <sheet>
+                    <!-- Header con estado -->
+                    <div class="oe_title">
+                        <h1>
+                            <span invisible="state != 'draft'">Configurar Copia de Parámetros</span>
+                            <span invisible="state != 'preview'">Vista Previa de Cambios</span>
+                            <span invisible="state != 'done'">Parámetros Copiados</span>
+                        </h1>
+                    </div>
+
+                    <!-- Estado: Configurar -->
+                    <group invisible="state != 'draft'">
+                        <group string="Período">
+                            <field name="company_id" readonly="1"/>
+                            <field name="source_year"/>
+                            <field name="target_year"/>
+                            <field name="source_parameters_id" readonly="1"/>
+                        </group>
+                        <group string="Valores Actuales">
+                            <field name="current_smmlv" widget="monetary" readonly="1"/>
+                            <field name="current_uvt" readonly="1"/>
+                            <field name="current_aux_transporte" widget="monetary" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group invisible="state != 'draft'">
+                        <group string="Nuevos Valores">
+                            <field name="new_smmlv" widget="monetary"/>
+                            <field name="new_uvt"/>
+                            <field name="new_aux_transporte" widget="monetary"/>
+                            <field name="ipc_increment"/>
+                        </group>
+                        <group string="Incrementos Calculados">
+                            <field name="increment_smmlv" readonly="1"/>
+                            <field name="increment_uvt" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <group string="Opciones de Copia" invisible="state != 'draft'" col="4">
+                        <field name="copy_social_security"/>
+                        <field name="copy_provisions"/>
+                        <field name="copy_working_hours"/>
+                        <field name="copy_options"/>
+                    </group>
+
+                    <!-- Estado: Vista Previa -->
+                    <group invisible="state != 'preview'" string="Resumen de Cambios">
+                        <group>
+                            <field name="source_year" readonly="1"/>
+                            <field name="target_year" readonly="1"/>
+                        </group>
+                        <group>
+                            <div class="alert alert-info" role="alert">
+                                <strong>Se copiarán los siguientes valores:</strong>
+                                <ul>
+                                    <li>SMMLV: <field name="new_smmlv" widget="monetary" nolabel="1" readonly="1"/> (Incremento: <field name="increment_smmlv" nolabel="1" readonly="1"/>%)</li>
+                                    <li>UVT: <field name="new_uvt" nolabel="1" readonly="1"/></li>
+                                    <li>Aux. Transporte: <field name="new_aux_transporte" widget="monetary" nolabel="1" readonly="1"/></li>
+                                </ul>
+                            </div>
+                        </group>
+                    </group>
+
+                    <field name="state" invisible="1"/>
+                </sheet>
+
+                <footer>
+                    <button string="Vista Previa"
+                            name="action_preview"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button string="Volver"
+                            name="action_back"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'preview'"/>
+                    <button string="Copiar Parámetros"
+                            name="action_copy_parameters"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'preview'"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir el wizard -->
+    <record id="action_hr_annual_parameters_copy_wizard" model="ir.actions.act_window">
+        <field name="name">Copiar Parámetros de Año Anterior</field>
+        <field name="res_model">hr.annual.parameters.copy.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

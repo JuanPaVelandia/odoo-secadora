@@ -1,0 +1,763 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PAYSLIP LINE FORMULA - ESTILOS Y ANIMACIONES
+   Widget para visualización detallada de cálculos de nómina
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ANIMACIONES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes highlight {
+    0% { background-color: #FEF3C7; }
+    50% { background-color: #FDE68A; }
+    100% { background-color: #FEF3C7; }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(245, 158, 11, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-6px);
+    }
+    60% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Animaciones especializadas para Seguridad Social */
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    10%, 30% {
+        transform: scale(1.15);
+    }
+    20% {
+        transform: scale(1.05);
+    }
+    50% {
+        transform: scale(1);
+    }
+}
+
+@keyframes bounce-slow {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-4px) rotate(2deg);
+    }
+    75% {
+        transform: translateY(-2px) rotate(-2deg);
+    }
+}
+
+@keyframes wave {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(10deg);
+    }
+    75% {
+        transform: rotate(-10deg);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-2px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(2px);
+    }
+}
+
+@keyframes numberPop {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CONTENEDOR PRINCIPAL
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-widget {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.plf-section {
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    animation: fadeIn 0.3s ease-out;
+    transition: box-shadow 0.2s ease;
+}
+
+.plf-section:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   NÚMEROS EN CÍRCULOS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+    margin-right: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plf-step-number:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.plf-step-number.green { background: #22C55E; color: white; }
+.plf-step-number.blue { background: #3B82F6; color: white; }
+.plf-step-number.orange { background: #F97316; color: white; }
+.plf-step-number.purple { background: #8B5CF6; color: white; }
+.plf-step-number.cyan { background: #06B6D4; color: white; }
+.plf-step-number.red { background: #EF4444; color: white; }
+.plf-step-number.amber { background: #F59E0B; color: white; }
+.plf-step-number.gray { background: #6B7280; color: white; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   HEADERS DE SECCIONES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-header {
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    user-select: none;
+}
+
+.plf-header:hover {
+    filter: brightness(0.97);
+}
+
+.plf-header-green { background: #DCFCE7; border-bottom: 1px solid #86EFAC; }
+.plf-header-blue { background: #DBEAFE; border-bottom: 1px solid #93C5FD; }
+.plf-header-orange { background: #FFEDD5; border-bottom: 1px solid #FDBA74; }
+.plf-header-purple { background: #EDE9FE; border-bottom: 1px solid #C4B5FD; }
+.plf-header-cyan { background: #CFFAFE; border-bottom: 1px solid #67E8F9; }
+.plf-header-red { background: #FEE2E2; border-bottom: 1px solid #FECACA; }
+.plf-header-amber { background: #FEF3C7; border-bottom: 1px solid #FCD34D; }
+.plf-header-gray { background: #F3F4F6; border-bottom: 1px solid #D1D5DB; }
+
+.plf-header-title {
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.plf-header-value {
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    animation: countUp 0.4s ease-out;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ICONOS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-size: 11px;
+    transition: transform 0.2s ease;
+}
+
+.plf-icon:hover {
+    transform: scale(1.15);
+}
+
+.plf-icon.salary { background: #DCFCE7; color: #15803D; }
+.plf-icon.health { background: #DBEAFE; color: #1D4ED8; }
+.plf-icon.pension { background: #EDE9FE; color: #7C3AED; }
+.plf-icon.tax { background: #FEE2E2; color: #DC2626; }
+.plf-icon.deduction { background: #FFEDD5; color: #C2410C; }
+.plf-icon.provision { background: #CFFAFE; color: #0891B2; }
+.plf-icon.uvt { background: #FEF3C7; color: #B45309; }
+.plf-icon.percent { background: #F3F4F6; color: #374151; }
+.plf-icon.calendar { background: #DBEAFE; color: #2563EB; }
+.plf-icon.money { background: #DCFCE7; color: #16A34A; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TABLA DE DATOS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.plf-table tr {
+    transition: background-color 0.15s ease;
+}
+
+.plf-table tr:hover {
+    background-color: #F9FAFB !important;
+}
+
+.plf-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.plf-table td:last-child {
+    text-align: right;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.plf-table tr.highlight {
+    background: #DCFCE7 !important;
+    font-weight: 600;
+    animation: highlight 1s ease-out;
+}
+
+.plf-table tr.highlight td {
+    color: #15803D;
+}
+
+.plf-table tr.subtotal {
+    background: #1F2937 !important;
+    color: white;
+    font-weight: 600;
+}
+
+.plf-table tr.subtotal td {
+    border-bottom: none;
+    padding: 10px 12px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BADGES Y TAGS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    transition: transform 0.2s ease;
+}
+
+.plf-badge:hover {
+    transform: scale(1.05);
+}
+
+.plf-badge.devengo { background: #DCFCE7; color: #15803D; }
+.plf-badge.deduccion { background: #FFEDD5; color: #C2410C; }
+.plf-badge.info { background: #DBEAFE; color: #1D4ED8; }
+.plf-badge.warning { background: #FEF3C7; color: #B45309; }
+.plf-badge.danger { background: #FEE2E2; color: #DC2626; }
+.plf-badge.success { background: #DCFCE7; color: #16A34A; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TARJETAS DE RESUMEN
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-summary-card {
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.plf-summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.plf-summary-card.devengos { background: #DCFCE7; }
+.plf-summary-card.deducciones { background: #FFEDD5; }
+.plf-summary-card.neto { background: #DBEAFE; }
+
+.plf-summary-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.plf-summary-value {
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    animation: countUp 0.5s ease-out;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   CALENDARIO DE DÍAS
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-calendar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+}
+
+.plf-day {
+    width: 24px;
+    height: 30px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: white;
+    transition: transform 0.15s ease;
+    cursor: default;
+}
+
+.plf-day:hover {
+    transform: scale(1.15);
+    z-index: 1;
+}
+
+.plf-day.work { background: #22C55E; }
+.plf-day.saturday { background: #2563EB; }
+.plf-day.sunday { background: #F97316; }
+.plf-day.holiday { background: #EF4444; }
+.plf-day.virtual { background: #9CA3AF; opacity: 0.6; border: 1px dashed #6B7280; }
+.plf-day.absence { background: #A855F7; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LINKS CLICKEABLES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-link {
+    color: #2563EB;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.plf-link:hover {
+    color: #1D4ED8;
+    text-decoration: underline;
+}
+
+.plf-link-purple {
+    color: #7C3AED;
+}
+
+.plf-link-purple:hover {
+    color: #6D28D9;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SECCIÓN COLAPSABLE
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-collapsible {
+    overflow: hidden;
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.plf-collapsible.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+.plf-collapsible.expanded {
+    max-height: 2000px;
+    opacity: 1;
+}
+
+.plf-chevron {
+    transition: transform 0.3s ease;
+}
+
+.plf-chevron.rotated {
+    transform: rotate(180deg);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DETALLE DE CÁLCULO
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+}
+
+.plf-detail-item {
+    background: #F9FAFB;
+    border-radius: 8px;
+    padding: 10px 12px;
+    animation: slideIn 0.3s ease-out;
+    transition: background-color 0.15s ease;
+}
+
+.plf-detail-item:hover {
+    background: #F3F4F6;
+}
+
+.plf-detail-label {
+    font-size: 10px;
+    color: #6B7280;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.plf-detail-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1F2937;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.plf-detail-value.positive { color: #16A34A; }
+.plf-detail-value.negative { color: #DC2626; }
+.plf-detail-value.neutral { color: #374151; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE LEGAL
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-legal {
+    font-size: 10px;
+    color: #6B7280;
+    font-style: italic;
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: #F9FAFB;
+    border-radius: 4px;
+    border-left: 3px solid #D1D5DB;
+}
+
+.plf-legal i {
+    margin-right: 4px;
+}
+
+/* Seccion de Base Legal mejorada */
+.plf-legal-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.plf-legal-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #F59E0B 0%, #D97706 100%);
+}
+
+.plf-legal-section:hover {
+    animation: glow 2s ease-in-out infinite;
+}
+
+/* Icono de balanza con animacion */
+.plf-legal-icon {
+    width: 40px;
+    height: 40px;
+    background: #F59E0B;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.plf-legal-icon i {
+    color: white;
+    font-size: 18px;
+}
+
+/* Tags de articulos */
+.plf-legal-tag {
+    background: #FEF3C7;
+    border: 1px solid #F59E0B;
+    color: #92400E;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    transition: all 0.2s ease;
+}
+
+.plf-legal-tag:hover {
+    background: #F59E0B;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Variacion con periodo anterior */
+.plf-variation {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    transition: transform 0.2s ease;
+}
+
+.plf-variation:hover {
+    transform: scale(1.1);
+}
+
+.plf-variation.positive {
+    background: #DCFCE7;
+    color: #15803D;
+}
+
+.plf-variation.negative {
+    background: #FEE2E2;
+    color: #B91C1C;
+}
+
+.plf-variation.neutral {
+    background: #F3F4F6;
+    color: #6B7280;
+}
+
+.plf-variation i {
+    margin-right: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   RESPONSIVE
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .plf-summary-card {
+        padding: 10px;
+    }
+
+    .plf-summary-value {
+        font-size: 13px;
+    }
+
+    .plf-detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .plf-day {
+        width: 20px;
+        height: 26px;
+        font-size: 9px;
+    }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SEGURIDAD SOCIAL KPI
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.plf-ssocial-card {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.plf-ssocial-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.plf-ssocial-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: currentColor;
+}
+
+/* Iconos animados por tipo de aporte */
+.plf-ssocial-icon {
+    transition: all 0.3s ease;
+}
+
+.plf-ssocial-icon:hover {
+    transform: scale(1.15) !important;
+}
+
+.plf-ssocial-icon.animate-heartbeat {
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.plf-ssocial-icon.animate-bounce-slow {
+    animation: bounce-slow 2s ease-in-out infinite;
+}
+
+.plf-ssocial-icon.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.plf-ssocial-icon.animate-wave {
+    animation: wave 2s ease-in-out infinite;
+}
+
+.plf-ssocial-icon.animate-shake {
+    animation: shake 4s ease-in-out infinite;
+}
+
+/* Valor principal con efecto pop */
+.plf-ssocial-value {
+    animation: numberPop 0.5s ease-out;
+}
+
+/* Entidad con hover effect */
+.plf-ssocial-entity {
+    transition: all 0.2s ease;
+}
+
+.plf-ssocial-entity:hover {
+    background: #F9FAFB !important;
+    transform: scale(1.01);
+}
+
+/* Advertencias con animacion de bounce */
+.plf-ssocial-warning {
+    animation: bounce 1s ease-in-out;
+}
+
+.plf-ssocial-warning.warning {
+    background: #FEF3C7;
+    color: #B45309;
+    border: 1px solid #F59E0B;
+}
+
+.plf-ssocial-warning.info {
+    background: #DBEAFE;
+    color: #1D4ED8;
+    border: 1px solid #3B82F6;
+}
+
+/* Colores por tipo de aporte */
+.plf-ssocial-salud {
+    --ssocial-color: #F43F5E;
+    --ssocial-bg: rgba(244, 63, 94, 0.1);
+}
+
+.plf-ssocial-pension {
+    --ssocial-color: #3B82F6;
+    --ssocial-bg: rgba(59, 130, 246, 0.1);
+}
+
+.plf-ssocial-fsp {
+    --ssocial-color: #8B5CF6;
+    --ssocial-bg: rgba(139, 92, 246, 0.1);
+}
+
+.plf-ssocial-arl {
+    --ssocial-color: #10B981;
+    --ssocial-bg: rgba(16, 185, 129, 0.1);
+}
+
+/* Responsive para tarjeta de seguridad social */
+@media (max-width: 576px) {
+    .plf-ssocial-card {
+        padding: 12px;
+    }
+
+    .plf-ssocial-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+
+    .plf-ssocial-icon i {
+        font-size: 16px !important;
+    }
+
+    .plf-ssocial-value {
+        font-size: 18px !important;
+    }
+}

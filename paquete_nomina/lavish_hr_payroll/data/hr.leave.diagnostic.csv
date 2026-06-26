@@ -1,0 +1,1278 @@
+id,code,name
+lavish_hr_payroll.cie10_a00,A00,Colera
+lavish_hr_payroll.cie10_a01,A01,Fiebre tifoidea y paratifoidea
+lavish_hr_payroll.cie10_a02,A02,Otras infecciones debidas a Salmonella
+lavish_hr_payroll.cie10_a03,A03,Shigelosis
+lavish_hr_payroll.cie10_a04,A04,Otras infecciones intestinales bacterianas
+lavish_hr_payroll.cie10_a05,A05,Otras intoxicaciones alimentarias bacterianas
+lavish_hr_payroll.cie10_a06,A06,Amebiasis
+lavish_hr_payroll.cie10_a07,A07,Otras enfermedades intestinales debidas a protozoarios
+lavish_hr_payroll.cie10_a08,A08,Infecciones intestinales debidas a virus y otros organismos especificados
+lavish_hr_payroll.cie10_a09,A09,Diarrea y gastroenteritis de presunto origen infeccioso
+lavish_hr_payroll.cie10_a15,A15,Tuberculosis respiratoria confirmada bacteriologica e histologicamente
+lavish_hr_payroll.cie10_a16,A16,Tuberculosis respiratoria no confirmada bacteriologica o histologicamente
+lavish_hr_payroll.cie10_a17,A17,Tuberculosis del sistema nervioso
+lavish_hr_payroll.cie10_a18,A18,Tuberculosis de otros organos
+lavish_hr_payroll.cie10_a19,A19,Tuberculosis miliar
+lavish_hr_payroll.cie10_a20,A20,Peste
+lavish_hr_payroll.cie10_a21,A21,Tularemia
+lavish_hr_payroll.cie10_a22,A22,Carbunco (antrax)
+lavish_hr_payroll.cie10_a23,A23,Brucelosis
+lavish_hr_payroll.cie10_a24,A24,Muermo y melioidosis
+lavish_hr_payroll.cie10_a25,A25,Fiebres por mordedura de rata
+lavish_hr_payroll.cie10_a26,A26,Erisipeloide
+lavish_hr_payroll.cie10_a27,A27,Leptospirosis
+lavish_hr_payroll.cie10_a28,A28,Otras enfermedades zoonoticas bacterianas no clasificadas en otra parte
+lavish_hr_payroll.cie10_a30,A30,Lepra (enfermedad de Hansen)
+lavish_hr_payroll.cie10_a31,A31,Infecciones debidas a otras micobacterias
+lavish_hr_payroll.cie10_a32,A32,Listeriosis
+lavish_hr_payroll.cie10_a33,A33,Tetanos neonatal
+lavish_hr_payroll.cie10_a34,A34,Tetanos obstetrico
+lavish_hr_payroll.cie10_a35,A35,Otros tipos de tetanos
+lavish_hr_payroll.cie10_a36,A36,Difteria
+lavish_hr_payroll.cie10_a37,A37,Tos ferina (tos convulsiva)
+lavish_hr_payroll.cie10_a38,A38,Escarlatina
+lavish_hr_payroll.cie10_a39,A39,Infeccion meningococica
+lavish_hr_payroll.cie10_a40,A40,Septicemia estreptococica
+lavish_hr_payroll.cie10_a41,A41,Otras septicemias
+lavish_hr_payroll.cie10_a42,A42,Actinomicosis
+lavish_hr_payroll.cie10_a43,A43,Nocardiosis
+lavish_hr_payroll.cie10_a44,A44,Bartonelosis
+lavish_hr_payroll.cie10_a46,A46,Erisipela
+lavish_hr_payroll.cie10_a48,A48,Otras enfermedades bacterianas no clasificadas en otra parte
+lavish_hr_payroll.cie10_a49,A49,Infeccion bacteriana de sitio no especificado
+lavish_hr_payroll.cie10_a50,A50,Sifilis congenita
+lavish_hr_payroll.cie10_a51,A51,Sifilis precoz
+lavish_hr_payroll.cie10_a52,A52,Sifilis tardia
+lavish_hr_payroll.cie10_a53,A53,Otras sifilis y las no especificadas
+lavish_hr_payroll.cie10_a54,A54,Infeccion gonococica
+lavish_hr_payroll.cie10_a55,A55,Linfogranuloma (venereo) por clamidias
+lavish_hr_payroll.cie10_a56,A56,Otras enfermedades de transmision sexual debidas a clamidias
+lavish_hr_payroll.cie10_a57,A57,Chancro blando
+lavish_hr_payroll.cie10_a58,A58,Granuloma inguinal
+lavish_hr_payroll.cie10_a59,A59,Tricomoniasis
+lavish_hr_payroll.cie10_a60,A60,Infeccion anogenital debida a virus del herpes (herpes simple)
+lavish_hr_payroll.cie10_a63,A63,Otras enfermedades de transmision predominantemente sexual no clasificadas en otra parte
+lavish_hr_payroll.cie10_a64,A64,Enfermedad de transmision sexual no especificada
+lavish_hr_payroll.cie10_a65,A65,Sifilis no venerea
+lavish_hr_payroll.cie10_a66,A66,Frambesia
+lavish_hr_payroll.cie10_a67,A67,Pinta (carate)
+lavish_hr_payroll.cie10_a68,A68,Fiebres recurrentes
+lavish_hr_payroll.cie10_a69,A69,Otras infecciones por espiroquetas
+lavish_hr_payroll.cie10_a70,A70,Infeccion debida a Chlamydia psittaci
+lavish_hr_payroll.cie10_a71,A71,Tracoma
+lavish_hr_payroll.cie10_a74,A74,Otras enfermedades causadas por clamidias
+lavish_hr_payroll.cie10_a75,A75,Tifus
+lavish_hr_payroll.cie10_a77,A77,Fiebre maculosa (fiebre transmitida por garrapatas)
+lavish_hr_payroll.cie10_a78,A78,Fiebre Q
+lavish_hr_payroll.cie10_a79,A79,Otras rickettsiosis
+lavish_hr_payroll.cie10_a80,A80,Poliomielitis aguda
+lavish_hr_payroll.cie10_a81,A81,Infecciones del sistema nervioso central por virus lentos
+lavish_hr_payroll.cie10_a82,A82,Rabia
+lavish_hr_payroll.cie10_a83,A83,Encefalitis viral transmitida por mosquitos
+lavish_hr_payroll.cie10_a84,A84,Encefalitis viral transmitida por garrapatas
+lavish_hr_payroll.cie10_a85,A85,Otras encefalitis virales no clasificadas en otra parte
+lavish_hr_payroll.cie10_a86,A86,Encefalitis viral no especificada
+lavish_hr_payroll.cie10_a87,A87,Meningitis viral
+lavish_hr_payroll.cie10_a88,A88,Otras infecciones virales del sistema nervioso central no clasificadas en otra parte
+lavish_hr_payroll.cie10_a89,A89,Infeccion viral del sistema nervioso central no especificada
+lavish_hr_payroll.cie10_a90,A90,Fiebre del dengue (dengue clasico)
+lavish_hr_payroll.cie10_a91,A91,Fiebre del dengue hemorragico
+lavish_hr_payroll.cie10_a92,A92,Otras fiebres virales transmitidas por mosquitos
+lavish_hr_payroll.cie10_a93,A93,Otras fiebres virales transmitidas por artropodos no clasificadas en otra parte
+lavish_hr_payroll.cie10_a94,A94,Fiebre viral transmitida por artropodos no especificada
+lavish_hr_payroll.cie10_a95,A95,Fiebre amarilla
+lavish_hr_payroll.cie10_a96,A96,Fiebre hemorragica por arenavirus
+lavish_hr_payroll.cie10_a98,A98,Otras fiebres virales hemorragicas no clasificadas en otra parte
+lavish_hr_payroll.cie10_a99,A99,Fiebre viral hemorragica no especificada
+lavish_hr_payroll.cie10_b00,B00,Infecciones herpeticas (herpes simple)
+lavish_hr_payroll.cie10_b01,B01,Varicela
+lavish_hr_payroll.cie10_b02,B02,Herpes zoster
+lavish_hr_payroll.cie10_b03,B03,Viruela
+lavish_hr_payroll.cie10_b04,B04,Viruela de los monos
+lavish_hr_payroll.cie10_b05,B05,Sarampion
+lavish_hr_payroll.cie10_b06,B06,Rubeola
+lavish_hr_payroll.cie10_b07,B07,Verrugas viricas
+lavish_hr_payroll.cie10_b08,B08,Otras infecciones virales caracterizadas por lesiones de la piel y de las membranas mucosas no clasificadas en otra parte
+lavish_hr_payroll.cie10_b09,B09,Infeccion viral no especificada caracterizada por lesiones de la piel y de las membranas mucosas
+lavish_hr_payroll.cie10_b15,B15,Hepatitis aguda tipo A
+lavish_hr_payroll.cie10_b16,B16,Hepatitis aguda tipo B
+lavish_hr_payroll.cie10_b17,B17,Otras hepatitis virales agudas
+lavish_hr_payroll.cie10_b18,B18,Hepatitis viral cronica
+lavish_hr_payroll.cie10_b19,B19,Hepatitis viral sin otra especificacion
+lavish_hr_payroll.cie10_b20,B20,Enfermedad por virus de la inmunodeficiencia humana (VIH) resultante en enfermedades infecciosas y parasitarias
+lavish_hr_payroll.cie10_b21,B21,Enfermedad por virus de la inmunodeficiencia humana (VIH) resultante en tumores malignos
+lavish_hr_payroll.cie10_b22,B22,Enfermedad por virus de la inmunodeficiencia humana (VIH) resultante en otras enfermedades especificadas
+lavish_hr_payroll.cie10_b23,B23,Enfermedad por virus de la inmunodeficiencia humana (VIH) resultante en otras afecciones
+lavish_hr_payroll.cie10_b24,B24,Enfermedad por virus de la inmunodeficiencia humana (VIH) sin otra especificacion
+lavish_hr_payroll.cie10_b25,B25,Enfermedad debida a virus citomegalico
+lavish_hr_payroll.cie10_b26,B26,Parotiditis infecciosa
+lavish_hr_payroll.cie10_b27,B27,Mononucleosis infecciosa
+lavish_hr_payroll.cie10_b30,B30,Conjuntivitis viral
+lavish_hr_payroll.cie10_b33,B33,Otras enfermedades virales no clasificadas en otra parte
+lavish_hr_payroll.cie10_b34,B34,Infeccion viral de sitio no especificado
+lavish_hr_payroll.cie10_b35,B35,Dermatofitosis
+lavish_hr_payroll.cie10_b36,B36,Otras micosis superficiales
+lavish_hr_payroll.cie10_b37,B37,Candidiasis
+lavish_hr_payroll.cie10_b38,B38,Coccidioidomicosis
+lavish_hr_payroll.cie10_b39,B39,Histoplasmosis
+lavish_hr_payroll.cie10_b40,B40,Blastomicosis
+lavish_hr_payroll.cie10_b41,B41,Paracoccidioidomicosis
+lavish_hr_payroll.cie10_b42,B42,Esporotricosis
+lavish_hr_payroll.cie10_b43,B43,Cromomicosis y absceso feomicotico
+lavish_hr_payroll.cie10_b44,B44,Aspergilosis
+lavish_hr_payroll.cie10_b45,B45,Criptococosis
+lavish_hr_payroll.cie10_b46,B46,Cigomicosis
+lavish_hr_payroll.cie10_b47,B47,Micetoma
+lavish_hr_payroll.cie10_b48,B48,Otras micosis no clasificadas en otra parte
+lavish_hr_payroll.cie10_b49,B49,Micosis no especificada
+lavish_hr_payroll.cie10_b50,B50,Paludismo (malaria) debido a Plasmodium falciparum
+lavish_hr_payroll.cie10_b51,B51,Paludismo (malaria) debido a Plasmodium vivax
+lavish_hr_payroll.cie10_b52,B52,Paludismo (malaria) debido a Plasmodium malariae
+lavish_hr_payroll.cie10_b53,B53,Otro paludismo (malaria) confirmado parasitologicamente
+lavish_hr_payroll.cie10_b54,B54,Paludismo (malaria) no especificado
+lavish_hr_payroll.cie10_b55,B55,Leishmaniasis
+lavish_hr_payroll.cie10_b56,B56,Tripanosomiasis africana
+lavish_hr_payroll.cie10_b57,B57,Enfermedad de Chagas
+lavish_hr_payroll.cie10_b58,B58,Toxoplasmosis
+lavish_hr_payroll.cie10_b59,B59,Neumocistosis
+lavish_hr_payroll.cie10_b60,B60,Otras enfermedades debidas a protozoarios no clasificadas en otra parte
+lavish_hr_payroll.cie10_b64,B64,Enfermedad debida a protozoarios no especificada
+lavish_hr_payroll.cie10_b65,B65,Esquistosomiasis (bilharziasis)
+lavish_hr_payroll.cie10_b66,B66,Otras infecciones debidas a trematodos
+lavish_hr_payroll.cie10_b67,B67,Equinococosis
+lavish_hr_payroll.cie10_b68,B68,Teniasis
+lavish_hr_payroll.cie10_b69,B69,Cisticercosis
+lavish_hr_payroll.cie10_b70,B70,Difilobotriasis y esparganosis
+lavish_hr_payroll.cie10_b71,B71,Otras infecciones debidas a cestodos
+lavish_hr_payroll.cie10_b72,B72,Dracontiasis
+lavish_hr_payroll.cie10_b73,B73,Oncocercosis
+lavish_hr_payroll.cie10_b74,B74,Filariasis
+lavish_hr_payroll.cie10_b75,B75,Triquinosis
+lavish_hr_payroll.cie10_b76,B76,Anquilostomiasis y necatoriasis
+lavish_hr_payroll.cie10_b77,B77,Ascariasis
+lavish_hr_payroll.cie10_b78,B78,Estrongiloidiasis
+lavish_hr_payroll.cie10_b79,B79,Tricuriasis
+lavish_hr_payroll.cie10_b80,B80,Enterobiasis
+lavish_hr_payroll.cie10_b81,B81,Otras helmintiasis intestinales no clasificadas en otra parte
+lavish_hr_payroll.cie10_b82,B82,Parasitosis intestinal sin otra especificacion
+lavish_hr_payroll.cie10_b83,B83,Otras helmintiasis
+lavish_hr_payroll.cie10_b85,B85,Pediculosis y ftiriasis
+lavish_hr_payroll.cie10_b86,B86,Escabiosis
+lavish_hr_payroll.cie10_b87,B87,Miasis
+lavish_hr_payroll.cie10_b88,B88,Otras infestaciones
+lavish_hr_payroll.cie10_b89,B89,Enfermedad parasitaria no especificada
+lavish_hr_payroll.cie10_b90,B90,Secuelas de tuberculosis
+lavish_hr_payroll.cie10_b91,B91,Secuelas de poliomielitis
+lavish_hr_payroll.cie10_b92,B92,Secuelas de lepra
+lavish_hr_payroll.cie10_b94,B94,Secuelas de otras enfermedades infecciosas y parasitarias y de las no especificadas
+lavish_hr_payroll.cie10_b95,B95,Estreptococo y estafilococo como causa de enfermedades clasificadas en otros capitulos
+lavish_hr_payroll.cie10_b96,B96,Otros agentes bacterianos como causa de enfermedades clasificadas en otros capitulos
+lavish_hr_payroll.cie10_b97,B97,Agentes virales como causa de enfermedades clasificadas en otros capitulos
+lavish_hr_payroll.cie10_b99,B99,Otras enfermedades infecciosas y las no especificadas
+lavish_hr_payroll.cie10_c00,C00,Tumor maligno del labio
+lavish_hr_payroll.cie10_c01,C01,Tumor maligno de la base de la lengua
+lavish_hr_payroll.cie10_c02,C02,Tumor maligno de otras partes y de las no especificadas de la lengua
+lavish_hr_payroll.cie10_c03,C03,Tumor maligno de la encia
+lavish_hr_payroll.cie10_c04,C04,Tumor maligno del piso de la boca
+lavish_hr_payroll.cie10_c05,C05,Tumor maligno del paladar
+lavish_hr_payroll.cie10_c06,C06,Tumor maligno de otras partes y de las no especificadas de la boca
+lavish_hr_payroll.cie10_c07,C07,Tumor maligno de la glandula parotida
+lavish_hr_payroll.cie10_c08,C08,Tumor maligno de otras glandulas salivales mayores y de las no especificadas
+lavish_hr_payroll.cie10_c09,C09,Tumor maligno de la amigdala
+lavish_hr_payroll.cie10_c10,C10,Tumor maligno de la orofaringe
+lavish_hr_payroll.cie10_c11,C11,Tumor maligno de la nasofaringe
+lavish_hr_payroll.cie10_c12,C12,Tumor maligno del seno piriforme
+lavish_hr_payroll.cie10_c13,C13,Tumor maligno de la hipofaringe
+lavish_hr_payroll.cie10_c14,C14,Tumor maligno de otros sitios y de los mal definidos del labio de la cavidad bucal y de la faringe
+lavish_hr_payroll.cie10_c15,C15,Tumor maligno del esofago
+lavish_hr_payroll.cie10_c16,C16,Tumor maligno del estomago
+lavish_hr_payroll.cie10_c17,C17,Tumor maligno del intestino delgado
+lavish_hr_payroll.cie10_c18,C18,Tumor maligno del colon
+lavish_hr_payroll.cie10_c19,C19,Tumor maligno de la union rectosigmoidea
+lavish_hr_payroll.cie10_c20,C20,Tumor maligno del recto
+lavish_hr_payroll.cie10_c21,C21,Tumor maligno del ano y del conducto anal
+lavish_hr_payroll.cie10_c22,C22,Tumor maligno del higado y de las vias biliares intrahepaticas
+lavish_hr_payroll.cie10_c23,C23,Tumor maligno de la vesicula biliar
+lavish_hr_payroll.cie10_c24,C24,Tumor maligno de otras partes y de las no especificadas de las vias biliares
+lavish_hr_payroll.cie10_c25,C25,Tumor maligno del pancreas
+lavish_hr_payroll.cie10_d50,D50,Anemias por deficiencia de hierro
+lavish_hr_payroll.cie10_d51,D51,Anemia por deficiencia de vitamina B12
+lavish_hr_payroll.cie10_d52,D52,Anemia por deficiencia de folatos
+lavish_hr_payroll.cie10_d53,D53,Otras anemias nutricionales
+lavish_hr_payroll.cie10_d55,D55,Anemia debida a trastornos enzimaticos
+lavish_hr_payroll.cie10_d56,D56,Talasemia
+lavish_hr_payroll.cie10_d57,D57,Trastornos falciformes
+lavish_hr_payroll.cie10_d58,D58,Otras anemias hemoliticas hereditarias
+lavish_hr_payroll.cie10_d59,D59,Anemia hemolitica adquirida
+lavish_hr_payroll.cie10_d60,D60,Aplasia adquirida exclusiva de la serie roja (eritroblastopenia)
+lavish_hr_payroll.cie10_d61,D61,Otras anemias aplasticas
+lavish_hr_payroll.cie10_d62,D62,Anemia posthemorragica aguda
+lavish_hr_payroll.cie10_d63,D63,Anemia en enfermedades cronicas clasificadas en otra parte
+lavish_hr_payroll.cie10_d64,D64,Otras anemias
+lavish_hr_payroll.cie10_e10,E10,Diabetes mellitus insulinodependiente
+lavish_hr_payroll.cie10_e11,E11,Diabetes mellitus no insulinodependiente
+lavish_hr_payroll.cie10_e12,E12,Diabetes mellitus asociada con desnutricion
+lavish_hr_payroll.cie10_e13,E13,Otras diabetes mellitus especificadas
+lavish_hr_payroll.cie10_e14,E14,Diabetes mellitus no especificada
+lavish_hr_payroll.cie10_e66,E66,Obesidad
+lavish_hr_payroll.cie10_e78,E78,Trastornos del metabolismo de las lipoproteinas y otras lipidemias
+lavish_hr_payroll.cie10_f00,F00,Demencia en la enfermedad de Alzheimer
+lavish_hr_payroll.cie10_f01,F01,Demencia vascular
+lavish_hr_payroll.cie10_f02,F02,Demencia en otras enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_f03,F03,Demencia sin otra especificacion
+lavish_hr_payroll.cie10_f04,F04,Sindrome amnesico organico no inducido por alcohol u otras sustancias psicoactivas
+lavish_hr_payroll.cie10_f05,F05,Delirio no inducido por alcohol u otras sustancias psicoactivas
+lavish_hr_payroll.cie10_f06,F06,Otros trastornos mentales debidos a lesion y disfuncion cerebral y a enfermedad fisica
+lavish_hr_payroll.cie10_f07,F07,Trastornos de la personalidad y del comportamiento debidos a enfermedad lesion y disfuncion cerebral
+lavish_hr_payroll.cie10_f09,F09,Trastorno mental organico o sintomatico no especificado
+lavish_hr_payroll.cie10_f10,F10,Trastornos mentales y del comportamiento debidos al uso del alcohol
+lavish_hr_payroll.cie10_f11,F11,Trastornos mentales y del comportamiento debidos al uso de opioides
+lavish_hr_payroll.cie10_f12,F12,Trastornos mentales y del comportamiento debidos al uso de cannabinoides
+lavish_hr_payroll.cie10_f13,F13,Trastornos mentales y del comportamiento debidos al uso de sedantes o hipnoticos
+lavish_hr_payroll.cie10_f14,F14,Trastornos mentales y del comportamiento debidos al uso de cocaina
+lavish_hr_payroll.cie10_f15,F15,Trastornos mentales y del comportamiento debidos al uso de otros estimulantes incluida la cafeina
+lavish_hr_payroll.cie10_f16,F16,Trastornos mentales y del comportamiento debidos al uso de alucinogenos
+lavish_hr_payroll.cie10_f17,F17,Trastornos mentales y del comportamiento debidos al uso de tabaco
+lavish_hr_payroll.cie10_f18,F18,Trastornos mentales y del comportamiento debidos al uso de disolventes volatiles
+lavish_hr_payroll.cie10_f19,F19,Trastornos mentales y del comportamiento debidos al uso de multiples drogas y al uso de otras sustancias psicoactivas
+lavish_hr_payroll.cie10_f20,F20,Esquizofrenia
+lavish_hr_payroll.cie10_f21,F21,Trastorno esquizotipico
+lavish_hr_payroll.cie10_f22,F22,Trastornos delirantes persistentes
+lavish_hr_payroll.cie10_f23,F23,Trastornos psicoticos agudos y transitorios
+lavish_hr_payroll.cie10_f24,F24,Trastorno delirante inducido
+lavish_hr_payroll.cie10_f25,F25,Trastornos esquizoafectivos
+lavish_hr_payroll.cie10_f28,F28,Otros trastornos psicoticos de origen no organico
+lavish_hr_payroll.cie10_f29,F29,Psicosis de origen no organico no especificada
+lavish_hr_payroll.cie10_f30,F30,Episodio maniaco
+lavish_hr_payroll.cie10_f31,F31,Trastorno afectivo bipolar
+lavish_hr_payroll.cie10_f32,F32,Episodio depresivo
+lavish_hr_payroll.cie10_f33,F33,Trastorno depresivo recurrente
+lavish_hr_payroll.cie10_f34,F34,Trastornos del humor (afectivos) persistentes
+lavish_hr_payroll.cie10_f38,F38,Otros trastornos del humor (afectivos)
+lavish_hr_payroll.cie10_f39,F39,Trastorno del humor (afectivo) no especificado
+lavish_hr_payroll.cie10_f40,F40,Trastornos fobicos de ansiedad
+lavish_hr_payroll.cie10_f41,F41,Otros trastornos de ansiedad
+lavish_hr_payroll.cie10_f42,F42,Trastorno obsesivo compulsivo
+lavish_hr_payroll.cie10_f43,F43,Reaccion al estres grave y trastornos de adaptacion
+lavish_hr_payroll.cie10_f44,F44,Trastornos disociativos (de conversion)
+lavish_hr_payroll.cie10_f45,F45,Trastornos somatomorfos
+lavish_hr_payroll.cie10_f48,F48,Otros trastornos neuroticos
+lavish_hr_payroll.cie10_f50,F50,Trastornos de la ingestión de alimentos
+lavish_hr_payroll.cie10_f51,F51,Trastornos no organicos del sueno
+lavish_hr_payroll.cie10_f52,F52,Disfuncion sexual no ocasionada por trastorno ni enfermedad organicos
+lavish_hr_payroll.cie10_f53,F53,Trastornos mentales y del comportamiento asociados con el puerperio no clasificados en otra parte
+lavish_hr_payroll.cie10_f54,F54,Factores psicologicos y del comportamiento asociados con trastornos o enfermedades clasificados en otra parte
+lavish_hr_payroll.cie10_f55,F55,Abuso de sustancias que no producen dependencia
+lavish_hr_payroll.cie10_f59,F59,Sindromes del comportamiento asociados con alteraciones fisiologicas y factores fisicos no especificados
+lavish_hr_payroll.cie10_f60,F60,Trastornos especificos de la personalidad
+lavish_hr_payroll.cie10_f61,F61,Trastornos mixtos y otros trastornos de la personalidad
+lavish_hr_payroll.cie10_f62,F62,Cambios perdurables de la personalidad no atribuibles a lesion o enfermedad cerebral
+lavish_hr_payroll.cie10_f63,F63,Trastornos de los habitos y de los impulsos
+lavish_hr_payroll.cie10_f64,F64,Trastornos de la identidad de genero
+lavish_hr_payroll.cie10_f65,F65,Trastornos de la preferencia sexual
+lavish_hr_payroll.cie10_f66,F66,Trastornos psicologicos y del comportamiento asociados con el desarrollo y con la orientacion sexuales
+lavish_hr_payroll.cie10_f68,F68,Otros trastornos de la personalidad y del comportamiento en adultos
+lavish_hr_payroll.cie10_f69,F69,Trastorno de la personalidad y del comportamiento en adultos no especificado
+lavish_hr_payroll.cie10_f70,F70,Retraso mental leve
+lavish_hr_payroll.cie10_f71,F71,Retraso mental moderado
+lavish_hr_payroll.cie10_f72,F72,Retraso mental grave
+lavish_hr_payroll.cie10_f73,F73,Retraso mental profundo
+lavish_hr_payroll.cie10_f78,F78,Otros tipos de retraso mental
+lavish_hr_payroll.cie10_f79,F79,Retraso mental no especificado
+lavish_hr_payroll.cie10_f80,F80,Trastornos especificos del desarrollo del habla y del lenguaje
+lavish_hr_payroll.cie10_f81,F81,Trastornos especificos del desarrollo de las habilidades escolares
+lavish_hr_payroll.cie10_f82,F82,Trastorno especifico del desarrollo de la funcion motriz
+lavish_hr_payroll.cie10_f83,F83,Trastornos especificos mixtos del desarrollo
+lavish_hr_payroll.cie10_f84,F84,Trastornos generalizados del desarrollo
+lavish_hr_payroll.cie10_f88,F88,Otros trastornos del desarrollo psicologico
+lavish_hr_payroll.cie10_f89,F89,Trastorno del desarrollo psicologico no especificado
+lavish_hr_payroll.cie10_f90,F90,Trastornos hipercineticos
+lavish_hr_payroll.cie10_f91,F91,Trastornos de la conducta
+lavish_hr_payroll.cie10_f92,F92,Trastornos mixtos de la conducta y de las emociones
+lavish_hr_payroll.cie10_f93,F93,Trastornos emocionales de comienzo especifico en la ninez
+lavish_hr_payroll.cie10_f94,F94,Trastornos del comportamiento social de comienzo especifico en la ninez y en la adolescencia
+lavish_hr_payroll.cie10_f95,F95,Trastornos por tics
+lavish_hr_payroll.cie10_f98,F98,Otros trastornos emocionales y del comportamiento que aparecen habitualmente en la ninez y en la adolescencia
+lavish_hr_payroll.cie10_f99,F99,Trastorno mental no especificado
+lavish_hr_payroll.cie10_g00,G00,Meningitis bacteriana no clasificada en otra parte
+lavish_hr_payroll.cie10_g01,G01,Meningitis en enfermedades bacterianas clasificadas en otra parte
+lavish_hr_payroll.cie10_g02,G02,Meningitis en otras enfermedades infecciosas y parasitarias clasificadas en otra parte
+lavish_hr_payroll.cie10_g03,G03,Meningitis debida a otras causas y a las no especificadas
+lavish_hr_payroll.cie10_g04,G04,Encefalitis mielitis y encefalomielitis
+lavish_hr_payroll.cie10_g05,G05,Encefalitis mielitis y encefalomielitis en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g06,G06,Absceso y granuloma intracraneal e intrarraquideo
+lavish_hr_payroll.cie10_g07,G07,Absceso y granuloma intracraneal e intrarraquideo en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g08,G08,Flebitis y tromboflebitis intracraneal e intrarraquidea
+lavish_hr_payroll.cie10_g09,G09,Secuelas de enfermedades inflamatorias del sistema nervioso central
+lavish_hr_payroll.cie10_g10,G10,Enfermedad de Huntington
+lavish_hr_payroll.cie10_g11,G11,Ataxia hereditaria
+lavish_hr_payroll.cie10_g12,G12,Atrofia muscular espinal y sindromes afines
+lavish_hr_payroll.cie10_g13,G13,Atrofias sistemicas que afectan primariamente el sistema nervioso central en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g20,G20,Enfermedad de Parkinson
+lavish_hr_payroll.cie10_g21,G21,Parkinsonismo secundario
+lavish_hr_payroll.cie10_g22,G22,Parkinsonismo en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g23,G23,Otras enfermedades degenerativas de los ganglios basales
+lavish_hr_payroll.cie10_g24,G24,Distonia
+lavish_hr_payroll.cie10_g25,G25,Otros trastornos extrapiramidales y del movimiento
+lavish_hr_payroll.cie10_g26,G26,Trastornos extrapiramidales y del movimiento en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g30,G30,Enfermedad de Alzheimer
+lavish_hr_payroll.cie10_g31,G31,Otras enfermedades degenerativas del sistema nervioso no clasificadas en otra parte
+lavish_hr_payroll.cie10_g32,G32,Otros trastornos degenerativos del sistema nervioso en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g35,G35,Esclerosis multiple
+lavish_hr_payroll.cie10_g36,G36,Otras desmielinizaciones agudas diseminadas
+lavish_hr_payroll.cie10_g37,G37,Otras enfermedades desmielinizantes del sistema nervioso central
+lavish_hr_payroll.cie10_g40,G40,Epilepsia
+lavish_hr_payroll.cie10_g41,G41,Estado de mal epileptico
+lavish_hr_payroll.cie10_g43,G43,Migrana
+lavish_hr_payroll.cie10_g44,G44,Otros sindromes de cefalea
+lavish_hr_payroll.cie10_g45,G45,Ataques de isquemia cerebral transitoria y sindromes afines
+lavish_hr_payroll.cie10_g46,G46,Sindromes vasculares encefalicos en enfermedades cerebrovasculares
+lavish_hr_payroll.cie10_g47,G47,Trastornos del sueno
+lavish_hr_payroll.cie10_g50,G50,Trastornos del nervio trigemino
+lavish_hr_payroll.cie10_g51,G51,Trastornos del nervio facial
+lavish_hr_payroll.cie10_g52,G52,Trastornos de otros nervios craneales
+lavish_hr_payroll.cie10_g53,G53,Trastornos de los nervios craneales en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g54,G54,Trastornos de las raices y de los plexos nerviosos
+lavish_hr_payroll.cie10_g55,G55,Compresiones de las raices y de los plexos nerviosos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g56,G56,Mononeuropatias del miembro superior
+lavish_hr_payroll.cie10_g57,G57,Mononeuropatias del miembro inferior
+lavish_hr_payroll.cie10_g58,G58,Otras mononeuropatias
+lavish_hr_payroll.cie10_g59,G59,Mononeuropatia en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g60,G60,Neuropatia hereditaria e idiopatica
+lavish_hr_payroll.cie10_g61,G61,Polineuropatia inflamatoria
+lavish_hr_payroll.cie10_g62,G62,Otras polineuropatias
+lavish_hr_payroll.cie10_g63,G63,Polineuropatia en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g64,G64,Otros trastornos del sistema nervioso periferico
+lavish_hr_payroll.cie10_g70,G70,Miastenia gravis y otros trastornos neuromusculares
+lavish_hr_payroll.cie10_g71,G71,Trastornos primarios de los musculos
+lavish_hr_payroll.cie10_g72,G72,Otras miopatias
+lavish_hr_payroll.cie10_g73,G73,Trastornos del musculo y de la union neuromuscular en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g80,G80,Paralisis cerebral infantil
+lavish_hr_payroll.cie10_g81,G81,Hemiplejia
+lavish_hr_payroll.cie10_g82,G82,Paraplejia y cuadriplejia
+lavish_hr_payroll.cie10_g83,G83,Otros sindromes paraliticos
+lavish_hr_payroll.cie10_g90,G90,Trastornos del sistema nervioso autonomo
+lavish_hr_payroll.cie10_g91,G91,Hidrocefalo
+lavish_hr_payroll.cie10_g92,G92,Encefalopatia toxica
+lavish_hr_payroll.cie10_g93,G93,Otros trastornos del encefalo
+lavish_hr_payroll.cie10_g94,G94,Otros trastornos del encefalo en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_g95,G95,Otras enfermedades de la medula espinal
+lavish_hr_payroll.cie10_g96,G96,Otros trastornos del sistema nervioso central
+lavish_hr_payroll.cie10_g97,G97,Trastornos del sistema nervioso consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_g98,G98,Otros trastornos del sistema nervioso no clasificados en otra parte
+lavish_hr_payroll.cie10_g99,G99,Otros trastornos del sistema nervioso en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h00,H00,Orzuelo y calacio
+lavish_hr_payroll.cie10_h01,H01,Otras inflamaciones del parpado
+lavish_hr_payroll.cie10_h02,H02,Otros trastornos de los parpados
+lavish_hr_payroll.cie10_h04,H04,Trastornos del aparato lagrimal
+lavish_hr_payroll.cie10_h05,H05,Trastornos de la orbita
+lavish_hr_payroll.cie10_h10,H10,Conjuntivitis
+lavish_hr_payroll.cie10_h11,H11,Otros trastornos de la conjuntiva
+lavish_hr_payroll.cie10_h15,H15,Trastornos de la esclerotica
+lavish_hr_payroll.cie10_h16,H16,Queratitis
+lavish_hr_payroll.cie10_h17,H17,Opacidades y cicatrices corneales
+lavish_hr_payroll.cie10_h18,H18,Otros trastornos de la cornea
+lavish_hr_payroll.cie10_h19,H19,Trastornos de la esclerotica y de la cornea en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h20,H20,Iridociclitis
+lavish_hr_payroll.cie10_h21,H21,Otros trastornos del iris y del cuerpo ciliar
+lavish_hr_payroll.cie10_h22,H22,Trastornos del iris y del cuerpo ciliar en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h25,H25,Catarata senil
+lavish_hr_payroll.cie10_h26,H26,Otras cataratas
+lavish_hr_payroll.cie10_h27,H27,Otros trastornos del cristalino
+lavish_hr_payroll.cie10_h28,H28,Catarata y otros trastornos del cristalino en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h30,H30,Inflamacion coriorretiniana
+lavish_hr_payroll.cie10_h31,H31,Otros trastornos de la coroides
+lavish_hr_payroll.cie10_h32,H32,Trastornos coriorretinianos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h33,H33,Desprendimiento y desgarro de la retina
+lavish_hr_payroll.cie10_h34,H34,Oclusion vascular de la retina
+lavish_hr_payroll.cie10_h35,H35,Otros trastornos de la retina
+lavish_hr_payroll.cie10_h36,H36,Trastornos de la retina en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h40,H40,Glaucoma
+lavish_hr_payroll.cie10_h42,H42,Glaucoma en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h43,H43,Trastornos del cuerpo vitreo
+lavish_hr_payroll.cie10_h44,H44,Trastornos del globo ocular
+lavish_hr_payroll.cie10_h45,H45,Trastornos del cuerpo vitreo y del globo ocular en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h46,H46,Neuritis optica
+lavish_hr_payroll.cie10_h47,H47,Otros trastornos del nervio optico y de las vias opticas
+lavish_hr_payroll.cie10_h48,H48,Trastornos del nervio optico y de las vias opticas en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h49,H49,Estrabismo paralitico
+lavish_hr_payroll.cie10_h50,H50,Otros estrabismos
+lavish_hr_payroll.cie10_h51,H51,Otros trastornos de los movimientos binoculares
+lavish_hr_payroll.cie10_h52,H52,Trastornos de la acomodacion y de la refraccion
+lavish_hr_payroll.cie10_h53,H53,Alteraciones de la vision
+lavish_hr_payroll.cie10_h54,H54,Ceguera y disminucion de la agudeza visual
+lavish_hr_payroll.cie10_h55,H55,Nistagmo y otros movimientos oculares irregulares
+lavish_hr_payroll.cie10_h57,H57,Otros trastornos del ojo y sus anexos
+lavish_hr_payroll.cie10_h58,H58,Otros trastornos del ojo y sus anexos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h59,H59,Trastornos del ojo y sus anexos consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_h60,H60,Otitis externa
+lavish_hr_payroll.cie10_h61,H61,Otros trastornos del oido externo
+lavish_hr_payroll.cie10_h62,H62,Trastornos del oido externo en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h65,H65,Otitis media no supurativa
+lavish_hr_payroll.cie10_h66,H66,Otitis media supurativa y la no especificada
+lavish_hr_payroll.cie10_h67,H67,Otitis media en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h68,H68,Inflamacion y obstruccion de la trompa de Eustaquio
+lavish_hr_payroll.cie10_h69,H69,Otros trastornos de la trompa de Eustaquio
+lavish_hr_payroll.cie10_h70,H70,Mastoiditis y afecciones relacionadas
+lavish_hr_payroll.cie10_h71,H71,Colesteatoma del oido medio
+lavish_hr_payroll.cie10_h72,H72,Perforacion de la membrana timpanica
+lavish_hr_payroll.cie10_h73,H73,Otros trastornos de la membrana timpanica
+lavish_hr_payroll.cie10_h74,H74,Otros trastornos del oido medio y de la apofisis mastoides
+lavish_hr_payroll.cie10_h75,H75,Otros trastornos del oido medio y de la apofisis mastoides en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h80,H80,Otosclerosis
+lavish_hr_payroll.cie10_h81,H81,Trastornos de la funcion vestibular
+lavish_hr_payroll.cie10_h82,H82,Sindromes vertiginosos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h83,H83,Otros trastornos del oido interno
+lavish_hr_payroll.cie10_h90,H90,Hipoacusia conductiva y neurosensorial
+lavish_hr_payroll.cie10_h91,H91,Otras hipoacusias
+lavish_hr_payroll.cie10_h92,H92,Otalgia y secrecion del oido
+lavish_hr_payroll.cie10_h93,H93,Otros trastornos del oido no clasificados en otra parte
+lavish_hr_payroll.cie10_h94,H94,Otros trastornos del oido en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_h95,H95,Trastornos del oido y de la apofisis mastoides consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_i10,I10,Hipertension esencial (primaria)
+lavish_hr_payroll.cie10_i11,I11,Enfermedad cardiaca hipertensiva
+lavish_hr_payroll.cie10_i12,I12,Enfermedad renal hipertensiva
+lavish_hr_payroll.cie10_i13,I13,Enfermedad cardiorrenal hipertensiva
+lavish_hr_payroll.cie10_i15,I15,Hipertension secundaria
+lavish_hr_payroll.cie10_i20,I20,Angina de pecho
+lavish_hr_payroll.cie10_i21,I21,Infarto agudo del miocardio
+lavish_hr_payroll.cie10_i22,I22,Infarto subsecuente del miocardio
+lavish_hr_payroll.cie10_i23,I23,Ciertas complicaciones presentes posteriores al infarto agudo del miocardio
+lavish_hr_payroll.cie10_i24,I24,Otras enfermedades isquemicas agudas del corazon
+lavish_hr_payroll.cie10_i25,I25,Enfermedad isquemica cronica del corazon
+lavish_hr_payroll.cie10_i26,I26,Embolia pulmonar
+lavish_hr_payroll.cie10_i27,I27,Otras enfermedades cardiopulmonares
+lavish_hr_payroll.cie10_i28,I28,Otras enfermedades de los vasos pulmonares
+lavish_hr_payroll.cie10_i30,I30,Pericarditis aguda
+lavish_hr_payroll.cie10_i31,I31,Otras enfermedades del pericardio
+lavish_hr_payroll.cie10_i32,I32,Pericarditis en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_i33,I33,Endocarditis aguda y subaguda
+lavish_hr_payroll.cie10_i34,I34,Trastornos no reumaticos de la valvula mitral
+lavish_hr_payroll.cie10_i35,I35,Trastornos no reumaticos de la valvula aortica
+lavish_hr_payroll.cie10_i36,I36,Trastornos no reumaticos de la valvula tricuspide
+lavish_hr_payroll.cie10_i37,I37,Trastornos de la valvula pulmonar
+lavish_hr_payroll.cie10_i38,I38,Endocarditis valvula no especificada
+lavish_hr_payroll.cie10_i39,I39,Endocarditis y trastornos valvulares cardiacos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_i40,I40,Miocarditis aguda
+lavish_hr_payroll.cie10_i41,I41,Miocarditis en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_i42,I42,Cardiomiopatia
+lavish_hr_payroll.cie10_i43,I43,Cardiomiopatia en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_i44,I44,Bloqueo auriculoventricular y de rama izquierda del haz
+lavish_hr_payroll.cie10_i45,I45,Otros trastornos de la conduccion
+lavish_hr_payroll.cie10_i46,I46,Paro cardiaco
+lavish_hr_payroll.cie10_i47,I47,Taquicardia paroxistica
+lavish_hr_payroll.cie10_i48,I48,Fibrilacion y aleteo auricular
+lavish_hr_payroll.cie10_i49,I49,Otras arritmias cardiacas
+lavish_hr_payroll.cie10_i50,I50,Insuficiencia cardiaca
+lavish_hr_payroll.cie10_i51,I51,Complicaciones y descripciones mal definidas de enfermedad cardiaca
+lavish_hr_payroll.cie10_i52,I52,Otros trastornos cardiacos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_i60,I60,Hemorragia subaracnoidea
+lavish_hr_payroll.cie10_i61,I61,Hemorragia intracerebral
+lavish_hr_payroll.cie10_i62,I62,Otras hemorragias intracraneales no traumaticas
+lavish_hr_payroll.cie10_i63,I63,Infarto cerebral
+lavish_hr_payroll.cie10_i64,I64,Accidente vascular encefalico agudo no especificado como hemorragico o isquemico
+lavish_hr_payroll.cie10_i65,I65,Oclusion y estenosis de las arterias precerebrales sin ocasionar infarto cerebral
+lavish_hr_payroll.cie10_i66,I66,Oclusion y estenosis de las arterias cerebrales sin ocasionar infarto cerebral
+lavish_hr_payroll.cie10_i67,I67,Otras enfermedades cerebrovasculares
+lavish_hr_payroll.cie10_i68,I68,Trastornos cerebrovasculares en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_i69,I69,Secuelas de enfermedad cerebrovascular
+lavish_hr_payroll.cie10_i70,I70,Aterosclerosis
+lavish_hr_payroll.cie10_i71,I71,Aneurisma y diseccion aorticos
+lavish_hr_payroll.cie10_i72,I72,Otros aneurismas
+lavish_hr_payroll.cie10_i73,I73,Otras enfermedades vasculares perifericas
+lavish_hr_payroll.cie10_i74,I74,Embolia y trombosis arteriales
+lavish_hr_payroll.cie10_i77,I77,Otros trastornos arteriales o arteriolares
+lavish_hr_payroll.cie10_i78,I78,Enfermedades de los capilares
+lavish_hr_payroll.cie10_i79,I79,Trastornos de las arterias arteriolas y capilares en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_i80,I80,Flebitis y tromboflebitis
+lavish_hr_payroll.cie10_i81,I81,Trombosis de la vena porta
+lavish_hr_payroll.cie10_i82,I82,Otras embolias y trombosis venosas
+lavish_hr_payroll.cie10_i83,I83,Venas varicosas de los miembros inferiores
+lavish_hr_payroll.cie10_i84,I84,Hemorroides
+lavish_hr_payroll.cie10_i85,I85,Varices esofagicas
+lavish_hr_payroll.cie10_i86,I86,Varices de otros sitios
+lavish_hr_payroll.cie10_i87,I87,Otros trastornos de las venas
+lavish_hr_payroll.cie10_i88,I88,Linfadenitis inespecifica
+lavish_hr_payroll.cie10_i89,I89,Otros trastornos no infecciosos de los vasos y ganglios linfaticos
+lavish_hr_payroll.cie10_i95,I95,Hipotension
+lavish_hr_payroll.cie10_i97,I97,Trastornos del sistema circulatorio consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_i99,I99,Otros trastornos y los no especificados del sistema circulatorio
+lavish_hr_payroll.cie10_j00,J00,Rinofaringitis aguda (resfriado comun)
+lavish_hr_payroll.cie10_j01,J01,Sinusitis aguda
+lavish_hr_payroll.cie10_j02,J02,Faringitis aguda
+lavish_hr_payroll.cie10_j03,J03,Amigdalitis aguda
+lavish_hr_payroll.cie10_j04,J04,Laringitis y traqueitis agudas
+lavish_hr_payroll.cie10_j05,J05,Laringitis obstructiva aguda (crup) y epiglotitis
+lavish_hr_payroll.cie10_j06,J06,Infecciones agudas de las vias respiratorias superiores de sitios multiples o no especificados
+lavish_hr_payroll.cie10_j09,J09,Influenza debida a ciertos virus de la influenza identificados
+lavish_hr_payroll.cie10_j10,J10,Influenza debida a otro virus de la influenza identificado
+lavish_hr_payroll.cie10_j11,J11,Influenza virus no identificado
+lavish_hr_payroll.cie10_j12,J12,Neumonia viral no clasificada en otra parte
+lavish_hr_payroll.cie10_j13,J13,Neumonia debida a Streptococcus pneumoniae
+lavish_hr_payroll.cie10_j14,J14,Neumonia debida a Haemophilus influenzae
+lavish_hr_payroll.cie10_j15,J15,Neumonia bacteriana no clasificada en otra parte
+lavish_hr_payroll.cie10_j16,J16,Neumonia debida a otros microorganismos infecciosos no clasificados en otra parte
+lavish_hr_payroll.cie10_j17,J17,Neumonia en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_j18,J18,Neumonia organismo no especificado
+lavish_hr_payroll.cie10_j20,J20,Bronquitis aguda
+lavish_hr_payroll.cie10_j21,J21,Bronquiolitis aguda
+lavish_hr_payroll.cie10_j22,J22,Infeccion aguda no especificada de las vias respiratorias inferiores
+lavish_hr_payroll.cie10_j30,J30,Rinitis alergica y vasomotora
+lavish_hr_payroll.cie10_j31,J31,Rinitis faringitis y rinofaringitis cronicas
+lavish_hr_payroll.cie10_j32,J32,Sinusitis cronica
+lavish_hr_payroll.cie10_j33,J33,Polipo nasal
+lavish_hr_payroll.cie10_j34,J34,Otros trastornos de la nariz y de los senos paranasales
+lavish_hr_payroll.cie10_j35,J35,Enfermedades cronicas de las amigdalas y de las adenoides
+lavish_hr_payroll.cie10_j36,J36,Absceso periamigdalino
+lavish_hr_payroll.cie10_j37,J37,Laringitis y laringotraqueitis cronicas
+lavish_hr_payroll.cie10_j38,J38,Enfermedades de las cuerdas vocales y de la laringe no clasificadas en otra parte
+lavish_hr_payroll.cie10_j39,J39,Otras enfermedades de las vias respiratorias superiores
+lavish_hr_payroll.cie10_j40,J40,Bronquitis no especificada como aguda o cronica
+lavish_hr_payroll.cie10_j41,J41,Bronquitis cronica simple y mucopurulenta
+lavish_hr_payroll.cie10_j42,J42,Bronquitis cronica no especificada
+lavish_hr_payroll.cie10_j43,J43,Enfisema
+lavish_hr_payroll.cie10_j44,J44,Otras enfermedades pulmonares obstructivas cronicas
+lavish_hr_payroll.cie10_j45,J45,Asma
+lavish_hr_payroll.cie10_j46,J46,Estado asmatico
+lavish_hr_payroll.cie10_j47,J47,Bronquiectasia
+lavish_hr_payroll.cie10_j60,J60,Neumoconiosis de los mineros del carbon
+lavish_hr_payroll.cie10_j61,J61,Neumoconiosis debida al asbesto y a otras fibras minerales
+lavish_hr_payroll.cie10_j62,J62,Neumoconiosis debida a polvo de silice
+lavish_hr_payroll.cie10_j63,J63,Neumoconiosis debida a otros polvos inorganicos
+lavish_hr_payroll.cie10_j64,J64,Neumoconiosis no especificada
+lavish_hr_payroll.cie10_j65,J65,Neumoconiosis asociada con tuberculosis
+lavish_hr_payroll.cie10_j66,J66,Enfermedades de las vias aereas debidas a polvos organicos especificos
+lavish_hr_payroll.cie10_j67,J67,Neumonitis debida a hipersensibilidad a polvo organico
+lavish_hr_payroll.cie10_j68,J68,Afecciones respiratorias debidas a inhalacion de gases humos vapores y sustancias quimicas
+lavish_hr_payroll.cie10_j69,J69,Neumonitis debida a solidos y liquidos
+lavish_hr_payroll.cie10_j70,J70,Afecciones respiratorias debidas a otros agentes externos
+lavish_hr_payroll.cie10_j80,J80,Sindrome de dificultad respiratoria del adulto
+lavish_hr_payroll.cie10_j81,J81,Edema pulmonar
+lavish_hr_payroll.cie10_j82,J82,Eosinofilia pulmonar no clasificada en otra parte
+lavish_hr_payroll.cie10_j84,J84,Otras enfermedades pulmonares intersticiales
+lavish_hr_payroll.cie10_j85,J85,Absceso del pulmon y del mediastino
+lavish_hr_payroll.cie10_j86,J86,Piotorax
+lavish_hr_payroll.cie10_j90,J90,Derrame pleural no clasificado en otra parte
+lavish_hr_payroll.cie10_j91,J91,Derrame pleural en afecciones clasificadas en otra parte
+lavish_hr_payroll.cie10_j92,J92,Paquipleuritis
+lavish_hr_payroll.cie10_j93,J93,Neumotorax
+lavish_hr_payroll.cie10_j94,J94,Otras afecciones de la pleura
+lavish_hr_payroll.cie10_j95,J95,Trastornos del sistema respiratorio consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_j96,J96,Insuficiencia respiratoria no clasificada en otra parte
+lavish_hr_payroll.cie10_j98,J98,Otros trastornos respiratorios
+lavish_hr_payroll.cie10_j99,J99,Trastornos respiratorios en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_k00,K00,Trastornos del desarrollo y de la erupcion de los dientes
+lavish_hr_payroll.cie10_k01,K01,Dientes incluidos e impactados
+lavish_hr_payroll.cie10_k02,K02,Caries dental
+lavish_hr_payroll.cie10_k03,K03,Otras enfermedades de los tejidos duros de los dientes
+lavish_hr_payroll.cie10_k04,K04,Enfermedades de la pulpa y de los tejidos periapicales
+lavish_hr_payroll.cie10_k05,K05,Gingivitis y enfermedades periodontales
+lavish_hr_payroll.cie10_k06,K06,Otros trastornos de la encia y de la zona edentula
+lavish_hr_payroll.cie10_k07,K07,Anomalias dentofaciales (incluso la maloclusion)
+lavish_hr_payroll.cie10_k08,K08,Otros trastornos de los dientes y de sus estructuras de sosten
+lavish_hr_payroll.cie10_k09,K09,Quistes de la region bucal no clasificados en otra parte
+lavish_hr_payroll.cie10_k10,K10,Otras enfermedades de los maxilares
+lavish_hr_payroll.cie10_k11,K11,Enfermedades de las glandulas salivales
+lavish_hr_payroll.cie10_k12,K12,Estomatitis y lesiones afines
+lavish_hr_payroll.cie10_k13,K13,Otras enfermedades de los labios y de la mucosa bucal
+lavish_hr_payroll.cie10_k14,K14,Enfermedades de la lengua
+lavish_hr_payroll.cie10_k20,K20,Esofagitis
+lavish_hr_payroll.cie10_k21,K21,Enfermedad del reflujo gastroesofagico
+lavish_hr_payroll.cie10_k22,K22,Otras enfermedades del esofago
+lavish_hr_payroll.cie10_k23,K23,Trastornos del esofago en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_k25,K25,Ulcera gastrica
+lavish_hr_payroll.cie10_k26,K26,Ulcera duodenal
+lavish_hr_payroll.cie10_k27,K27,Ulcera peptica de sitio no especificado
+lavish_hr_payroll.cie10_k28,K28,Ulcera gastroyeyunal
+lavish_hr_payroll.cie10_k29,K29,Gastritis y duodenitis
+lavish_hr_payroll.cie10_k30,K30,Dispepsia
+lavish_hr_payroll.cie10_k31,K31,Otras enfermedades del estomago y del duodeno
+lavish_hr_payroll.cie10_k35,K35,Apendicitis aguda
+lavish_hr_payroll.cie10_k36,K36,Otros tipos de apendicitis
+lavish_hr_payroll.cie10_k37,K37,Apendicitis no especificada
+lavish_hr_payroll.cie10_k38,K38,Otras enfermedades del apendice
+lavish_hr_payroll.cie10_k40,K40,Hernia inguinal
+lavish_hr_payroll.cie10_k41,K41,Hernia femoral
+lavish_hr_payroll.cie10_k42,K42,Hernia umbilical
+lavish_hr_payroll.cie10_k43,K43,Hernia ventral
+lavish_hr_payroll.cie10_k44,K44,Hernia diafragmatica
+lavish_hr_payroll.cie10_k45,K45,Otras hernias de la cavidad abdominal
+lavish_hr_payroll.cie10_k46,K46,Hernia no especificada de la cavidad abdominal
+lavish_hr_payroll.cie10_k50,K50,Enfermedad de Crohn (enteritis regional)
+lavish_hr_payroll.cie10_k51,K51,Colitis ulcerativa
+lavish_hr_payroll.cie10_k52,K52,Otras colitis y gastroenteritis no infecciosas
+lavish_hr_payroll.cie10_k55,K55,Trastornos vasculares del intestino
+lavish_hr_payroll.cie10_k56,K56,Ileo paralitico y obstruccion intestinal sin hernia
+lavish_hr_payroll.cie10_k57,K57,Enfermedad diverticular del intestino
+lavish_hr_payroll.cie10_k58,K58,Sindrome del colon irritable
+lavish_hr_payroll.cie10_k59,K59,Otros trastornos funcionales del intestino
+lavish_hr_payroll.cie10_k60,K60,Fisura y fistula de las regiones anal y rectal
+lavish_hr_payroll.cie10_k61,K61,Absceso de las regiones anal y rectal
+lavish_hr_payroll.cie10_k62,K62,Otras enfermedades del ano y del recto
+lavish_hr_payroll.cie10_k63,K63,Otras enfermedades del intestino
+lavish_hr_payroll.cie10_k65,K65,Peritonitis
+lavish_hr_payroll.cie10_k66,K66,Otros trastornos del peritoneo
+lavish_hr_payroll.cie10_k67,K67,Trastornos del peritoneo en enfermedades infecciosas clasificadas en otra parte
+lavish_hr_payroll.cie10_k70,K70,Enfermedad alcoholica del higado
+lavish_hr_payroll.cie10_k71,K71,Enfermedad toxica del higado
+lavish_hr_payroll.cie10_k72,K72,Insuficiencia hepatica no clasificada en otra parte
+lavish_hr_payroll.cie10_k73,K73,Hepatitis cronica no clasificada en otra parte
+lavish_hr_payroll.cie10_k74,K74,Fibrosis y cirrosis del higado
+lavish_hr_payroll.cie10_k75,K75,Otras enfermedades inflamatorias del higado
+lavish_hr_payroll.cie10_k76,K76,Otras enfermedades del higado
+lavish_hr_payroll.cie10_k77,K77,Trastornos del higado en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_k80,K80,Colelitiasis
+lavish_hr_payroll.cie10_k81,K81,Colecistitis
+lavish_hr_payroll.cie10_k82,K82,Otras enfermedades de la vesicula biliar
+lavish_hr_payroll.cie10_k83,K83,Otras enfermedades de las vias biliares
+lavish_hr_payroll.cie10_k85,K85,Pancreatitis aguda
+lavish_hr_payroll.cie10_k86,K86,Otras enfermedades del pancreas
+lavish_hr_payroll.cie10_k87,K87,Trastornos de la vesicula biliar del tracto biliar y del pancreas en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_k90,K90,Malabsorcion intestinal
+lavish_hr_payroll.cie10_k91,K91,Trastornos del sistema digestivo consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_k92,K92,Otras enfermedades del sistema digestivo
+lavish_hr_payroll.cie10_k93,K93,Trastornos de otros organos digestivos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_l00,L00,Sindrome estafilococico de la piel escaldada
+lavish_hr_payroll.cie10_l01,L01,Impetigo
+lavish_hr_payroll.cie10_l02,L02,Absceso cutaneo furunculo y antrax
+lavish_hr_payroll.cie10_l03,L03,Celulitis
+lavish_hr_payroll.cie10_l04,L04,Linfadenitis aguda
+lavish_hr_payroll.cie10_l05,L05,Quiste pilonidal
+lavish_hr_payroll.cie10_l08,L08,Otras infecciones locales de la piel y del tejido subcutaneo
+lavish_hr_payroll.cie10_l10,L10,Penfigo
+lavish_hr_payroll.cie10_l11,L11,Otros trastornos acantoliticos
+lavish_hr_payroll.cie10_l12,L12,Penfigoide
+lavish_hr_payroll.cie10_l13,L13,Otros trastornos flictenulares
+lavish_hr_payroll.cie10_l14,L14,Trastornos flictenulares de la piel en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_l20,L20,Dermatitis atopica
+lavish_hr_payroll.cie10_l21,L21,Dermatitis seborreica
+lavish_hr_payroll.cie10_l22,L22,Dermatitis del panal
+lavish_hr_payroll.cie10_l23,L23,Dermatitis alergica de contacto
+lavish_hr_payroll.cie10_l24,L24,Dermatitis de contacto por irritantes
+lavish_hr_payroll.cie10_l25,L25,Dermatitis de contacto de tipo no especificado
+lavish_hr_payroll.cie10_l26,L26,Dermatitis exfoliativa
+lavish_hr_payroll.cie10_l27,L27,Dermatitis debida a sustancias ingeridas
+lavish_hr_payroll.cie10_l28,L28,Liquen simple cronico y prurigo
+lavish_hr_payroll.cie10_l29,L29,Prurito
+lavish_hr_payroll.cie10_l30,L30,Otras dermatitis
+lavish_hr_payroll.cie10_l40,L40,Psoriasis
+lavish_hr_payroll.cie10_l41,L41,Parapsoriasis
+lavish_hr_payroll.cie10_l42,L42,Pitiriasis rosada
+lavish_hr_payroll.cie10_l43,L43,Liquen plano
+lavish_hr_payroll.cie10_l44,L44,Otros trastornos papuloescamosos
+lavish_hr_payroll.cie10_l45,L45,Trastornos papuloescamosos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_l50,L50,Urticaria
+lavish_hr_payroll.cie10_l51,L51,Eritema multiforme
+lavish_hr_payroll.cie10_l52,L52,Eritema nodoso
+lavish_hr_payroll.cie10_l53,L53,Otras afecciones eritematosas
+lavish_hr_payroll.cie10_l54,L54,Eritema en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_l55,L55,Quemadura solar
+lavish_hr_payroll.cie10_l56,L56,Otros cambios agudos de la piel debidos a radiacion ultravioleta
+lavish_hr_payroll.cie10_l57,L57,Cambios de la piel debidos a exposicion cronica a radiacion no ionizante
+lavish_hr_payroll.cie10_l58,L58,Radiodermatitis
+lavish_hr_payroll.cie10_l59,L59,Otros trastornos de la piel y del tejido subcutaneo relacionados con radiacion
+lavish_hr_payroll.cie10_l60,L60,Trastornos de las unas
+lavish_hr_payroll.cie10_l62,L62,Trastornos de las unas en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_l63,L63,Alopecia areata
+lavish_hr_payroll.cie10_l64,L64,Alopecia androgena
+lavish_hr_payroll.cie10_l65,L65,Otra perdida no cicatricial del pelo
+lavish_hr_payroll.cie10_l66,L66,Alopecia cicatricial (perdida cicatricial del pelo)
+lavish_hr_payroll.cie10_l67,L67,Anormalidades del tallo y del color del pelo
+lavish_hr_payroll.cie10_l68,L68,Hipertricosis
+lavish_hr_payroll.cie10_l70,L70,Acne
+lavish_hr_payroll.cie10_l71,L71,Rosacea
+lavish_hr_payroll.cie10_l72,L72,Quistes foliculares de la piel y del tejido subcutaneo
+lavish_hr_payroll.cie10_l73,L73,Otros trastornos foliculares
+lavish_hr_payroll.cie10_l74,L74,Trastornos sudoriparos ecrinos
+lavish_hr_payroll.cie10_l75,L75,Trastornos sudoriparos apocrinos
+lavish_hr_payroll.cie10_l80,L80,Vitiligo
+lavish_hr_payroll.cie10_l81,L81,Otros trastornos de la pigmentacion
+lavish_hr_payroll.cie10_l82,L82,Queratosis seborreica
+lavish_hr_payroll.cie10_l83,L83,Acantosis nigricans
+lavish_hr_payroll.cie10_l84,L84,Callos y callosidades
+lavish_hr_payroll.cie10_l85,L85,Otros tipos de engrosamiento epidermico
+lavish_hr_payroll.cie10_l86,L86,Queratodermia en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_l87,L87,Trastornos de eliminacion transepidermica
+lavish_hr_payroll.cie10_l88,L88,Pioderma gangrenoso
+lavish_hr_payroll.cie10_l89,L89,Ulcera de decubito
+lavish_hr_payroll.cie10_l90,L90,Trastornos atroficos de la piel
+lavish_hr_payroll.cie10_l91,L91,Trastornos hipertroficos de la piel
+lavish_hr_payroll.cie10_l92,L92,Trastornos granulomatosos de la piel y del tejido subcutaneo
+lavish_hr_payroll.cie10_l93,L93,Lupus eritematoso
+lavish_hr_payroll.cie10_l94,L94,Otros trastornos localizados del tejido conjuntivo
+lavish_hr_payroll.cie10_l95,L95,Vasculitis limitada a la piel no clasificada en otra parte
+lavish_hr_payroll.cie10_l97,L97,Ulcera de miembro inferior no clasificada en otra parte
+lavish_hr_payroll.cie10_l98,L98,Otros trastornos de la piel y del tejido subcutaneo no clasificados en otra parte
+lavish_hr_payroll.cie10_l99,L99,Otros trastornos de la piel y del tejido subcutaneo en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m00,M00,Artritis piogena
+lavish_hr_payroll.cie10_m01,M01,Infecciones directas de articulaciones en enfermedades infecciosas y parasitarias clasificadas en otra parte
+lavish_hr_payroll.cie10_m02,M02,Artropatias reactivas
+lavish_hr_payroll.cie10_m03,M03,Artropatias posnfecciosas y reactivas en enfermedades infecciosas clasificadas en otra parte
+lavish_hr_payroll.cie10_m05,M05,Artritis reumatoide seropositiva
+lavish_hr_payroll.cie10_m06,M06,Otras artritis reumatoideas
+lavish_hr_payroll.cie10_m07,M07,Artropatias psoriasica y enteropatica
+lavish_hr_payroll.cie10_m08,M08,Artritis juvenil
+lavish_hr_payroll.cie10_m09,M09,Artritis juvenil en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m10,M10,Gota
+lavish_hr_payroll.cie10_m11,M11,Otras artropatias por cristales
+lavish_hr_payroll.cie10_m12,M12,Otras artropatias especificadas
+lavish_hr_payroll.cie10_m13,M13,Otras artritis
+lavish_hr_payroll.cie10_m14,M14,Artropatias en otras enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m15,M15,Poliartrosis
+lavish_hr_payroll.cie10_m16,M16,Coxartrosis (artrosis de la cadera)
+lavish_hr_payroll.cie10_m17,M17,Gonartrosis (artrosis de la rodilla)
+lavish_hr_payroll.cie10_m18,M18,Artrosis de la primera articulacion carpometacarpiana
+lavish_hr_payroll.cie10_m19,M19,Otras artrosis
+lavish_hr_payroll.cie10_m20,M20,Deformidades adquiridas de los dedos de la mano y del pie
+lavish_hr_payroll.cie10_m21,M21,Otras deformidades adquiridas de los miembros
+lavish_hr_payroll.cie10_m22,M22,Trastornos de la rotula
+lavish_hr_payroll.cie10_m23,M23,Trastorno interno de la rodilla
+lavish_hr_payroll.cie10_m24,M24,Otros trastornos articulares especificos
+lavish_hr_payroll.cie10_m25,M25,Otros trastornos articulares no clasificados en otra parte
+lavish_hr_payroll.cie10_m30,M30,Poliarteritis nudosa y afecciones relacionadas
+lavish_hr_payroll.cie10_m31,M31,Otras vasculopatias necrotizantes
+lavish_hr_payroll.cie10_m32,M32,Lupus eritematoso sistemico
+lavish_hr_payroll.cie10_m33,M33,Dermatopolimiositis
+lavish_hr_payroll.cie10_m34,M34,Esclerosis sistemica
+lavish_hr_payroll.cie10_m35,M35,Otro compromiso sistemico del tejido conjuntivo
+lavish_hr_payroll.cie10_m36,M36,Trastornos sistemicos del tejido conjuntivo en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m40,M40,Cifosis y lordosis
+lavish_hr_payroll.cie10_m41,M41,Escoliosis
+lavish_hr_payroll.cie10_m42,M42,Osteocondrosis de la columna vertebral
+lavish_hr_payroll.cie10_m43,M43,Otras dorsopatias deformantes
+lavish_hr_payroll.cie10_m45,M45,Espondilitis anquilosante
+lavish_hr_payroll.cie10_m46,M46,Otras espondilopatias inflamatorias
+lavish_hr_payroll.cie10_m47,M47,Espondilosis
+lavish_hr_payroll.cie10_m48,M48,Otras espondilopatias
+lavish_hr_payroll.cie10_m49,M49,Espondilopatias en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m50,M50,Trastornos de disco cervical
+lavish_hr_payroll.cie10_m51,M51,Otros trastornos de los discos intervertebrales
+lavish_hr_payroll.cie10_m53,M53,Otras dorsopatias no clasificadas en otra parte
+lavish_hr_payroll.cie10_m54,M54,Dorsalgia
+lavish_hr_payroll.cie10_m60,M60,Miositis
+lavish_hr_payroll.cie10_m61,M61,Calcificacion y osificacion del musculo
+lavish_hr_payroll.cie10_m62,M62,Otros trastornos de los musculos
+lavish_hr_payroll.cie10_m63,M63,Trastornos de los musculos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m65,M65,Sinovitis y tenosinovitis
+lavish_hr_payroll.cie10_m66,M66,Ruptura espontanea de la sinovia y del tendon
+lavish_hr_payroll.cie10_m67,M67,Otros trastornos de la sinovia y del tendon
+lavish_hr_payroll.cie10_m68,M68,Trastornos de la sinovia y del tendon en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m70,M70,Trastornos de los tejidos blandos relacionados con el uso el uso excesivo y la presion
+lavish_hr_payroll.cie10_m71,M71,Otras bursopatias
+lavish_hr_payroll.cie10_m72,M72,Trastornos fibroblasticos
+lavish_hr_payroll.cie10_m73,M73,Trastornos de los tejidos blandos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m75,M75,Lesiones del hombro
+lavish_hr_payroll.cie10_m76,M76,Entesopatias del miembro inferior excluido el pie
+lavish_hr_payroll.cie10_m77,M77,Otras entesopatias
+lavish_hr_payroll.cie10_m79,M79,Otros trastornos de los tejidos blandos no clasificados en otra parte
+lavish_hr_payroll.cie10_m80,M80,Osteoporosis con fractura patologica
+lavish_hr_payroll.cie10_m81,M81,Osteoporosis sin fractura patologica
+lavish_hr_payroll.cie10_m82,M82,Osteoporosis en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m83,M83,Osteomalacia del adulto
+lavish_hr_payroll.cie10_m84,M84,Trastornos de la continuidad del hueso
+lavish_hr_payroll.cie10_m85,M85,Otros trastornos de la densidad y de la estructura oseas
+lavish_hr_payroll.cie10_m86,M86,Osteomielitis
+lavish_hr_payroll.cie10_m87,M87,Osteonecrosis
+lavish_hr_payroll.cie10_m88,M88,Enfermedad de Paget de los huesos (osteitis deformante)
+lavish_hr_payroll.cie10_m89,M89,Otros trastornos del hueso
+lavish_hr_payroll.cie10_m90,M90,Osteopatias en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_m91,M91,Osteocondrosis juvenil de la cadera y de la pelvis
+lavish_hr_payroll.cie10_m92,M92,Otras osteocondrosis juveniles
+lavish_hr_payroll.cie10_m93,M93,Otras osteocondropatias
+lavish_hr_payroll.cie10_m94,M94,Otros trastornos del cartilago
+lavish_hr_payroll.cie10_m95,M95,Otras deformidades adquiridas del sistema osteomuscular y del tejido conjuntivo
+lavish_hr_payroll.cie10_m96,M96,Trastornos osteomusculares consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_m99,M99,Lesiones biomecanicas no clasificadas en otra parte
+lavish_hr_payroll.cie10_n00,N00,Sindrome nefritico agudo
+lavish_hr_payroll.cie10_n01,N01,Sindrome nefritico rapidamente progresivo
+lavish_hr_payroll.cie10_n02,N02,Hematuria recurrente y persistente
+lavish_hr_payroll.cie10_n03,N03,Sindrome nefritico cronico
+lavish_hr_payroll.cie10_n04,N04,Sindrome nefrotico
+lavish_hr_payroll.cie10_n05,N05,Sindrome nefritico no especificado
+lavish_hr_payroll.cie10_n06,N06,Proteinuria aislada con lesion morfologica especificada
+lavish_hr_payroll.cie10_n07,N07,Nefropatia hereditaria no clasificada en otra parte
+lavish_hr_payroll.cie10_n08,N08,Trastornos glomerulares en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n10,N10,Nefritis tubuloinstersticial aguda
+lavish_hr_payroll.cie10_n11,N11,Nefritis tubuloinstersticial cronica
+lavish_hr_payroll.cie10_n12,N12,Nefritis tubuloinstersticial no especificada como aguda o cronica
+lavish_hr_payroll.cie10_n13,N13,Uropatia obstructiva y por reflujo
+lavish_hr_payroll.cie10_n14,N14,Afecciones tubulares y tubulointersticiales inducidas por drogas y metales pesados
+lavish_hr_payroll.cie10_n15,N15,Otras enfermedades renales tubulointersticiales
+lavish_hr_payroll.cie10_n16,N16,Trastornos renales tubulointersticiales en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n17,N17,Insuficiencia renal aguda
+lavish_hr_payroll.cie10_n18,N18,Enfermedad renal cronica
+lavish_hr_payroll.cie10_n19,N19,Insuficiencia renal no especificada
+lavish_hr_payroll.cie10_n20,N20,Calculo del rinon y del ureter
+lavish_hr_payroll.cie10_n21,N21,Calculo de las vias urinarias inferiores
+lavish_hr_payroll.cie10_n22,N22,Calculo de las vias urinarias en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n23,N23,Colico renal no especificado
+lavish_hr_payroll.cie10_n25,N25,Trastornos resultantes de la funcion tubular renal alterada
+lavish_hr_payroll.cie10_n26,N26,Rinon contraido no especificado
+lavish_hr_payroll.cie10_n27,N27,Rinon pequeno de causa desconocida
+lavish_hr_payroll.cie10_n28,N28,Otros trastornos del rinon y del ureter no clasificados en otra parte
+lavish_hr_payroll.cie10_n29,N29,Otros trastornos del rinon y del ureter en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n30,N30,Cistitis
+lavish_hr_payroll.cie10_n31,N31,Disfuncion neuromuscular de la vejiga no clasificada en otra parte
+lavish_hr_payroll.cie10_n32,N32,Otros trastornos de la vejiga
+lavish_hr_payroll.cie10_n33,N33,Trastornos de la vejiga en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n34,N34,Uretritis y sindrome uretral
+lavish_hr_payroll.cie10_n35,N35,Estrechez uretral
+lavish_hr_payroll.cie10_n36,N36,Otros trastornos de la uretra
+lavish_hr_payroll.cie10_n37,N37,Trastornos de la uretra en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n39,N39,Otros trastornos del sistema urinario
+lavish_hr_payroll.cie10_n40,N40,Hiperplasia de la prostata
+lavish_hr_payroll.cie10_n41,N41,Enfermedades inflamatorias de la prostata
+lavish_hr_payroll.cie10_n42,N42,Otros trastornos de la prostata
+lavish_hr_payroll.cie10_n43,N43,Hidrocele y espermatocele
+lavish_hr_payroll.cie10_n44,N44,Torsion del testiculo
+lavish_hr_payroll.cie10_n45,N45,Orquitis y epididimitis
+lavish_hr_payroll.cie10_n46,N46,Infertilidad masculina
+lavish_hr_payroll.cie10_n47,N47,Prepucio redundante fimosis y parafimosis
+lavish_hr_payroll.cie10_n48,N48,Otros trastornos del pene
+lavish_hr_payroll.cie10_n49,N49,Trastornos inflamatorios de los organos genitales masculinos no clasificados en otra parte
+lavish_hr_payroll.cie10_n50,N50,Otros trastornos de los organos genitales masculinos
+lavish_hr_payroll.cie10_n51,N51,Trastornos de los organos genitales masculinos en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n60,N60,Displasia mamaria benigna
+lavish_hr_payroll.cie10_n61,N61,Trastornos inflamatorios de la mama
+lavish_hr_payroll.cie10_n62,N62,Hipertrofia de la mama
+lavish_hr_payroll.cie10_n63,N63,Masa no especificada en la mama
+lavish_hr_payroll.cie10_n64,N64,Otros trastornos de la mama
+lavish_hr_payroll.cie10_n70,N70,Salpingitis y ooforitis
+lavish_hr_payroll.cie10_n71,N71,Enfermedad inflamatoria del utero excepto del cuello uterino
+lavish_hr_payroll.cie10_n72,N72,Enfermedad inflamatoria del cuello uterino
+lavish_hr_payroll.cie10_n73,N73,Otras enfermedades pelvicas inflamatorias femeninas
+lavish_hr_payroll.cie10_n74,N74,Trastornos inflamatorios de la pelvis femenina en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n75,N75,Enfermedades de la glandula de Bartholin
+lavish_hr_payroll.cie10_n76,N76,Otras afecciones inflamatorias de la vagina y de la vulva
+lavish_hr_payroll.cie10_n77,N77,Ulceracion e inflamacion vulvovaginal en enfermedades clasificadas en otra parte
+lavish_hr_payroll.cie10_n80,N80,Endometriosis
+lavish_hr_payroll.cie10_n81,N81,Prolapso genital femenino
+lavish_hr_payroll.cie10_n82,N82,Fistulas del tracto genital femenino
+lavish_hr_payroll.cie10_n83,N83,Trastornos no inflamatorios del ovario de la trompa de Falopio y del ligamento ancho
+lavish_hr_payroll.cie10_n84,N84,Polipo del tracto genital femenino
+lavish_hr_payroll.cie10_n85,N85,Otros trastornos no inflamatorios del utero excepto del cuello
+lavish_hr_payroll.cie10_n86,N86,Erosion y ectropion del cuello uterino
+lavish_hr_payroll.cie10_n87,N87,Displasia del cuello uterino
+lavish_hr_payroll.cie10_n88,N88,Otros trastornos no inflamatorios del cuello del utero
+lavish_hr_payroll.cie10_n89,N89,Otros trastornos no inflamatorios de la vagina
+lavish_hr_payroll.cie10_n90,N90,Otros trastornos no inflamatorios de la vulva y del perineo
+lavish_hr_payroll.cie10_n91,N91,Menstruacion ausente escasa o rara
+lavish_hr_payroll.cie10_n92,N92,Menstruacion excesiva frecuente e irregular
+lavish_hr_payroll.cie10_n93,N93,Otras hemorragias uterinas o vaginales anormales
+lavish_hr_payroll.cie10_n94,N94,Dolor y otras afecciones relacionadas con los organos genitales femeninos y con el ciclo menstrual
+lavish_hr_payroll.cie10_n95,N95,Trastornos menopausicosyy otros trastornos perimenopausicos
+lavish_hr_payroll.cie10_n96,N96,Abortadora habitual
+lavish_hr_payroll.cie10_n97,N97,Infertilidad femenina
+lavish_hr_payroll.cie10_n98,N98,Complicaciones asociadas con la fecundacion artificial
+lavish_hr_payroll.cie10_n99,N99,Trastornos del sistema genitourinario consecutivos a procedimientos no clasificados en otra parte
+lavish_hr_payroll.cie10_o00,O00,Embarazo ectopico
+lavish_hr_payroll.cie10_o01,O01,Mola hidatiforme
+lavish_hr_payroll.cie10_o02,O02,Otros productos anormales de la concepcion
+lavish_hr_payroll.cie10_o03,O03,Aborto espontaneo
+lavish_hr_payroll.cie10_o04,O04,Aborto medico
+lavish_hr_payroll.cie10_o05,O05,Otro aborto
+lavish_hr_payroll.cie10_o06,O06,Aborto no especificado
+lavish_hr_payroll.cie10_o07,O07,Intento fallido de aborto
+lavish_hr_payroll.cie10_o08,O08,Complicaciones consecutivas al aborto al embarazo ectopico y al embarazo molar
+lavish_hr_payroll.cie10_o10,O10,Hipertension preexistente que complica el embarazo el parto y el puerperio
+lavish_hr_payroll.cie10_o11,O11,Trastornos hipertensivos preexistentes con proteinuria agregada
+lavish_hr_payroll.cie10_o12,O12,Edema y proteinuria gestacionales (inducidos por el embarazo) sin hipertension
+lavish_hr_payroll.cie10_o13,O13,Hipertension gestacional (inducida por el embarazo) sin proteinuria significativa
+lavish_hr_payroll.cie10_o14,O14,Hipertension gestacional (inducida por el embarazo) con proteinuria significativa
+lavish_hr_payroll.cie10_o15,O15,Eclampsia
+lavish_hr_payroll.cie10_o16,O16,Hipertension materna no especificada
+lavish_hr_payroll.cie10_o20,O20,Hemorragia precoz del embarazo
+lavish_hr_payroll.cie10_o21,O21,Vomitos excesivos en el embarazo
+lavish_hr_payroll.cie10_o22,O22,Complicaciones venosas en el embarazo
+lavish_hr_payroll.cie10_o23,O23,Infecciones de las vias genitourinarias en el embarazo
+lavish_hr_payroll.cie10_o24,O24,Diabetes mellitus en el embarazo
+lavish_hr_payroll.cie10_o25,O25,Desnutricion en el embarazo
+lavish_hr_payroll.cie10_o26,O26,Atencion a la madre por otras complicaciones principalmente relacionadas con el embarazo
+lavish_hr_payroll.cie10_o28,O28,Hallazgos anormales en el examen prenatal de la madre
+lavish_hr_payroll.cie10_o29,O29,Complicaciones de la anestesia administrada durante el embarazo
+lavish_hr_payroll.cie10_o30,O30,Embarazo multiple
+lavish_hr_payroll.cie10_o31,O31,Complicaciones especificas del embarazo multiple
+lavish_hr_payroll.cie10_o32,O32,Atencion materna por presentacion anormal del feto conocida o presunta
+lavish_hr_payroll.cie10_o33,O33,Atencion materna por desproporcion conocida o presunta
+lavish_hr_payroll.cie10_o34,O34,Atencion materna por anormalidades conocidas o presuntas de los organos pelvianos de la madre
+lavish_hr_payroll.cie10_o35,O35,Atencion materna por anormalidad y lesion fetal conocida o presunta
+lavish_hr_payroll.cie10_o36,O36,Atencion materna por otros problemas fetales conocidos o presuntos
+lavish_hr_payroll.cie10_o40,O40,Polihidramnios
+lavish_hr_payroll.cie10_o41,O41,Otros trastornos del liquido amniotico y de las membranas
+lavish_hr_payroll.cie10_o42,O42,Ruptura prematura de las membranas
+lavish_hr_payroll.cie10_o43,O43,Trastornos placentarios
+lavish_hr_payroll.cie10_o44,O44,Placenta previa
+lavish_hr_payroll.cie10_o45,O45,Desprendimiento prematuro de la placenta (abruptio placentae)
+lavish_hr_payroll.cie10_o46,O46,Hemorragia anteparto no clasificada en otra parte
+lavish_hr_payroll.cie10_o47,O47,Falso trabajo de parto
+lavish_hr_payroll.cie10_o48,O48,Embarazo prolongado
+lavish_hr_payroll.cie10_r00,R00,Anormalidades del latido cardiaco
+lavish_hr_payroll.cie10_r01,R01,Soplos y otros sonidos cardiacos
+lavish_hr_payroll.cie10_r02,R02,Gangrena no clasificada en otra parte
+lavish_hr_payroll.cie10_r03,R03,Lectura de presion sanguinea anormal sin diagnostico
+lavish_hr_payroll.cie10_r04,R04,Hemorragia de las vias respiratorias
+lavish_hr_payroll.cie10_r05,R05,Tos
+lavish_hr_payroll.cie10_r06,R06,Anormalidades de la respiracion
+lavish_hr_payroll.cie10_r07,R07,Dolor de garganta y en el pecho
+lavish_hr_payroll.cie10_r09,R09,Otros sintomas y signos que involucran los sistemas circulatorio y respiratorio
+lavish_hr_payroll.cie10_r10,R10,Dolor abdominal y pelvico
+lavish_hr_payroll.cie10_r11,R11,Nausea y vomito
+lavish_hr_payroll.cie10_r12,R12,Acidez
+lavish_hr_payroll.cie10_r13,R13,Disfagia
+lavish_hr_payroll.cie10_r14,R14,Flatulencia y afecciones afines
+lavish_hr_payroll.cie10_r15,R15,Incontinencia fecal
+lavish_hr_payroll.cie10_r16,R16,Hepatomegalia y esplenomegalia no clasificadas en otra parte
+lavish_hr_payroll.cie10_r17,R17,Ictericia no especificada
+lavish_hr_payroll.cie10_r18,R18,Ascitis
+lavish_hr_payroll.cie10_r19,R19,Otros sintomas y signos que involucran el sistema digestivo y el abdomen
+lavish_hr_payroll.cie10_r20,R20,Alteraciones de la sensibilidad cutanea
+lavish_hr_payroll.cie10_r21,R21,Salpullido (erupcion cutanea) y otras erupciones cutaneas no especificadas
+lavish_hr_payroll.cie10_r22,R22,Tumefaccion masa o prominencia de la piel y del tejido subcutaneo localizadas
+lavish_hr_payroll.cie10_r23,R23,Otros cambios de la piel
+lavish_hr_payroll.cie10_r25,R25,Movimientos involuntarios anormales
+lavish_hr_payroll.cie10_r26,R26,Anormalidades de la marcha y de la movilidad
+lavish_hr_payroll.cie10_r27,R27,Otras fallas de coordinacion
+lavish_hr_payroll.cie10_r29,R29,Otros sintomas y signos que involucran los sistemas nervioso y osteomuscular
+lavish_hr_payroll.cie10_r30,R30,Dolor asociado con la miccion
+lavish_hr_payroll.cie10_r31,R31,Hematuria no especificada
+lavish_hr_payroll.cie10_r32,R32,Incontinencia urinaria no especificada
+lavish_hr_payroll.cie10_r33,R33,Retencion de orina
+lavish_hr_payroll.cie10_r34,R34,Anuria y oliguria
+lavish_hr_payroll.cie10_r35,R35,Poliuria
+lavish_hr_payroll.cie10_r36,R36,Secrecion uretral
+lavish_hr_payroll.cie10_r39,R39,Otros sintomas y signos que involucran el sistema urinario
+lavish_hr_payroll.cie10_r40,R40,Somnolencia estupor y coma
+lavish_hr_payroll.cie10_r41,R41,Otros sintomas y signos que involucran la funcion cognoscitiva y la conciencia
+lavish_hr_payroll.cie10_r42,R42,Mareo y desvanecimiento
+lavish_hr_payroll.cie10_r43,R43,Trastornos del olfato y del gusto
+lavish_hr_payroll.cie10_r44,R44,Otros sintomas y signos que involucran las sensaciones y percepciones generales
+lavish_hr_payroll.cie10_r45,R45,Sintomas y signos que involucran el estado emocional
+lavish_hr_payroll.cie10_r46,R46,Sintomas y signos que involucran la apariencia y el comportamiento
+lavish_hr_payroll.cie10_r47,R47,Alteraciones del habla no clasificadas en otra parte
+lavish_hr_payroll.cie10_r48,R48,Dislexia y otras disfunciones simbolicas no clasificadas en otra parte
+lavish_hr_payroll.cie10_r49,R49,Alteraciones de la voz
+lavish_hr_payroll.cie10_r50,R50,Fiebre de otro origen y de origen desconocido
+lavish_hr_payroll.cie10_r51,R51,Cefalea
+lavish_hr_payroll.cie10_r52,R52,Dolor no clasificado en otra parte
+lavish_hr_payroll.cie10_r53,R53,Malestar y fatiga
+lavish_hr_payroll.cie10_r54,R54,Senilidad
+lavish_hr_payroll.cie10_r55,R55,Sincope y colapso
+lavish_hr_payroll.cie10_r56,R56,Convulsiones no clasificadas en otra parte
+lavish_hr_payroll.cie10_r57,R57,Choque no clasificado en otra parte
+lavish_hr_payroll.cie10_r58,R58,Hemorragia no clasificada en otra parte
+lavish_hr_payroll.cie10_r59,R59,Adenomegalia
+lavish_hr_payroll.cie10_r60,R60,Edema no clasificado en otra parte
+lavish_hr_payroll.cie10_r61,R61,Hiperhidrosis
+lavish_hr_payroll.cie10_r62,R62,Falta del desarrollo fisiologico normal esperado
+lavish_hr_payroll.cie10_r63,R63,Sintomas y signos concernientes a la alimentacion y a la ingestion de liquidos
+lavish_hr_payroll.cie10_r64,R64,Caquexia
+lavish_hr_payroll.cie10_r68,R68,Otros sintomas y signos generales
+lavish_hr_payroll.cie10_r69,R69,Causas de morbilidad desconocidas y no especificadas
+lavish_hr_payroll.cie10_r70,R70,Velocidad de eritrosedimentacion elevada y otras anormalidades de la viscosidad del plasma
+lavish_hr_payroll.cie10_r71,R71,Anormalidad de los eritrocitos
+lavish_hr_payroll.cie10_r72,R72,Anormalidad de los leucocitos no clasificada en otra parte
+lavish_hr_payroll.cie10_r73,R73,Nivel elevado de glucosa en sangre
+lavish_hr_payroll.cie10_r74,R74,Nivel anormal de enzimas en suero
+lavish_hr_payroll.cie10_r75,R75,Evidencia de laboratorio del virus de la inmunodeficiencia humana (VIH)
+lavish_hr_payroll.cie10_r76,R76,Otros hallazgos inmunologicos anormales en suero
+lavish_hr_payroll.cie10_r77,R77,Otras anormalidades de las proteinas plasmaticas
+lavish_hr_payroll.cie10_r78,R78,Hallazgo de drogas y de otras sustancias que normalmente no se encuentran en la sangre
+lavish_hr_payroll.cie10_r79,R79,Otros hallazgos anormales en la quimica sanguinea
+lavish_hr_payroll.cie10_r80,R80,Proteinuria aislada
+lavish_hr_payroll.cie10_r81,R81,Glucosuria
+lavish_hr_payroll.cie10_r82,R82,Otros hallazgos anormales en la orina
+lavish_hr_payroll.cie10_r83,R83,Hallazgos anormales en el liquido cefalorraquideo
+lavish_hr_payroll.cie10_r84,R84,Hallazgos anormales en muestras tomadas de organos respiratorios y toracicos
+lavish_hr_payroll.cie10_r85,R85,Hallazgos anormales en muestras tomadas de organos digestivos y de la cavidad abdominal
+lavish_hr_payroll.cie10_r86,R86,Hallazgos anormales en muestras tomadas de organos genitales masculinos
+lavish_hr_payroll.cie10_r87,R87,Hallazgos anormales en muestras tomadas de organos genitales femeninos
+lavish_hr_payroll.cie10_r89,R89,Hallazgos anormales en muestras tomadas de otros organos sistemas y tejidos
+lavish_hr_payroll.cie10_r90,R90,Hallazgos anormales en diagnostico por imagen del sistema nervioso central
+lavish_hr_payroll.cie10_r91,R91,Hallazgos anormales en diagnostico por imagen del pulmon
+lavish_hr_payroll.cie10_r92,R92,Hallazgos anormales en diagnostico por imagen de la mama
+lavish_hr_payroll.cie10_r93,R93,Hallazgos anormales en diagnostico por imagen de otras estructuras del cuerpo
+lavish_hr_payroll.cie10_r94,R94,Resultados anormales de estudios funcionales
+lavish_hr_payroll.cie10_r95,R95,Sindrome de la muerte subita infantil
+lavish_hr_payroll.cie10_r96,R96,Otras muertes subitas de causa desconocida
+lavish_hr_payroll.cie10_r98,R98,Muerte sin asistencia
+lavish_hr_payroll.cie10_r99,R99,Otras causas mal definidas y las no especificadas de mortalidad
+lavish_hr_payroll.cie10_s00,S00,Traumatismo superficial de la cabeza
+lavish_hr_payroll.cie10_s01,S01,Herida de la cabeza
+lavish_hr_payroll.cie10_s02,S02,Fractura de huesos del craneo y de la cara
+lavish_hr_payroll.cie10_s03,S03,Luxacion esguince y torcedura de articulaciones y de ligamentos de la cabeza
+lavish_hr_payroll.cie10_s04,S04,Traumatismo de nervios craneales
+lavish_hr_payroll.cie10_s05,S05,Traumatismo del ojo y de la orbita
+lavish_hr_payroll.cie10_s06,S06,Traumatismo intracraneal
+lavish_hr_payroll.cie10_s07,S07,Traumatismo por aplastamiento de la cabeza
+lavish_hr_payroll.cie10_s08,S08,Amputacion traumatica de parte de la cabeza
+lavish_hr_payroll.cie10_s09,S09,Otros traumatismos de la cabeza y los no especificados
+lavish_hr_payroll.cie10_s10,S10,Traumatismo superficial del cuello
+lavish_hr_payroll.cie10_s11,S11,Herida del cuello
+lavish_hr_payroll.cie10_s12,S12,Fractura del cuello
+lavish_hr_payroll.cie10_s13,S13,Luxacion esguince y torcedura de articulaciones y ligamentos del cuello
+lavish_hr_payroll.cie10_s14,S14,Traumatismo de la medula espinal y de nervios a nivel del cuello
+lavish_hr_payroll.cie10_s15,S15,Traumatismo de vasos sanguineos a nivel del cuello
+lavish_hr_payroll.cie10_s16,S16,Traumatismo de tendon y musculos a nivel del cuello
+lavish_hr_payroll.cie10_s17,S17,Traumatismo por aplastamiento del cuello
+lavish_hr_payroll.cie10_s18,S18,Amputacion traumatica a nivel del cuello
+lavish_hr_payroll.cie10_s19,S19,Otros traumatismos del cuello y los no especificados
+lavish_hr_payroll.cie10_s20,S20,Traumatismo superficial del torax
+lavish_hr_payroll.cie10_s21,S21,Herida del torax
+lavish_hr_payroll.cie10_s22,S22,Fractura de las costillas del esternon y de la columna toracica (dorsal)
+lavish_hr_payroll.cie10_s23,S23,Luxacion esguince y torcedura de articulaciones y ligamentos del torax
+lavish_hr_payroll.cie10_s24,S24,Traumatismo de nervios y de la medula espinal a nivel del torax
+lavish_hr_payroll.cie10_s25,S25,Traumatismo de vasos sanguineos del torax
+lavish_hr_payroll.cie10_s26,S26,Traumatismo del corazon
+lavish_hr_payroll.cie10_s27,S27,Traumatismo de otros organos intratoracicos y de los no especificados
+lavish_hr_payroll.cie10_s28,S28,Traumatismo por aplastamiento del torax y amputacion traumatica de parte del torax
+lavish_hr_payroll.cie10_s29,S29,Otros traumatismos del torax y los no especificados
+lavish_hr_payroll.cie10_s30,S30,Traumatismo superficial del abdomen de la region lumbosacra y de la pelvis
+lavish_hr_payroll.cie10_s31,S31,Herida del abdomen de la region lumbosacra y de la pelvis
+lavish_hr_payroll.cie10_s32,S32,Fractura de la columna lumbar y de la pelvis
+lavish_hr_payroll.cie10_s33,S33,Luxacion esguince y torcedura de articulaciones y ligamentos de la columna lumbar y de la pelvis
+lavish_hr_payroll.cie10_s34,S34,Traumatismo de los nervios y de la medula espinal lumbar a nivel del abdomen de la region lumbosacra y de la pelvis
+lavish_hr_payroll.cie10_s35,S35,Traumatismo de vasos sanguineos a nivel del abdomen de la region lumbosacra y de la pelvis
+lavish_hr_payroll.cie10_s36,S36,Traumatismo de organos intraabdominales
+lavish_hr_payroll.cie10_s37,S37,Traumatismo de los organos pelvicos y de los urinarios
+lavish_hr_payroll.cie10_s38,S38,Traumatismo por aplastamiento y amputacion traumatica de parte del abdomen de la region lumbosacra y de la pelvis
+lavish_hr_payroll.cie10_s39,S39,Otros traumatismos del abdomen de la region lumbosacra y de la pelvis y los no especificados
+lavish_hr_payroll.cie10_s40,S40,Traumatismo superficial del hombro y del brazo
+lavish_hr_payroll.cie10_s41,S41,Herida del hombro y del brazo
+lavish_hr_payroll.cie10_s42,S42,Fractura del hombro y del brazo
+lavish_hr_payroll.cie10_s43,S43,Luxacion esguince y torcedura de articulaciones y ligamentos de la cintura escapular
+lavish_hr_payroll.cie10_s44,S44,Traumatismo de nervios a nivel del hombro y del brazo
+lavish_hr_payroll.cie10_s45,S45,Traumatismo de vasos sanguineos a nivel del hombro y del brazo
+lavish_hr_payroll.cie10_s46,S46,Traumatismo de tendon y musculo a nivel del hombro y del brazo
+lavish_hr_payroll.cie10_s47,S47,Traumatismo por aplastamiento del hombro y del brazo
+lavish_hr_payroll.cie10_s48,S48,Amputacion traumatica del hombro y del brazo
+lavish_hr_payroll.cie10_s49,S49,Otros traumatismos del hombro y del brazo y los no especificados
+lavish_hr_payroll.cie10_s50,S50,Traumatismo superficial del antebrazo y del codo
+lavish_hr_payroll.cie10_s51,S51,Herida del antebrazo y del codo
+lavish_hr_payroll.cie10_s52,S52,Fractura del antebrazo
+lavish_hr_payroll.cie10_s53,S53,Luxacion esguince y torcedura de articulaciones y ligamentos del codo
+lavish_hr_payroll.cie10_s54,S54,Traumatismo de nervios a nivel del antebrazo
+lavish_hr_payroll.cie10_s55,S55,Traumatismo de los vasos sanguineos a nivel del antebrazo
+lavish_hr_payroll.cie10_s56,S56,Traumatismo de tendon y musculo a nivel del antebrazo
+lavish_hr_payroll.cie10_s57,S57,Traumatismo por aplastamiento del antebrazo
+lavish_hr_payroll.cie10_s58,S58,Amputacion traumatica del antebrazo
+lavish_hr_payroll.cie10_s59,S59,Otros traumatismos del antebrazo y del codo y los no especificados
+lavish_hr_payroll.cie10_s60,S60,Traumatismo superficial de la muneca y de la mano
+lavish_hr_payroll.cie10_s61,S61,Herida de la muneca y de la mano
+lavish_hr_payroll.cie10_s62,S62,Fractura a nivel de la muneca y de la mano
+lavish_hr_payroll.cie10_s63,S63,Luxacion esguince y torcedura de articulaciones y ligamentos a nivel de la muneca y de la mano
+lavish_hr_payroll.cie10_s64,S64,Traumatismo de nervios a nivel de la muneca y de la mano
+lavish_hr_payroll.cie10_s65,S65,Traumatismo de vasos sanguineos a nivel de la muneca y de la mano
+lavish_hr_payroll.cie10_s66,S66,Traumatismo de tendon y musculo a nivel de la muneca y de la mano
+lavish_hr_payroll.cie10_s67,S67,Traumatismo por aplastamiento de la muneca y de la mano
+lavish_hr_payroll.cie10_s68,S68,Amputacion traumatica de la muneca y de la mano
+lavish_hr_payroll.cie10_s69,S69,Otros traumatismos de la muneca y de la mano y los no especificados
+lavish_hr_payroll.cie10_s70,S70,Traumatismo superficial de la cadera y del muslo
+lavish_hr_payroll.cie10_s71,S71,Herida de la cadera y del muslo
+lavish_hr_payroll.cie10_s72,S72,Fractura del femur
+lavish_hr_payroll.cie10_s73,S73,Luxacion esguince y torcedura de la articulacion y de los ligamentos de la cadera
+lavish_hr_payroll.cie10_s74,S74,Traumatismo de nervios a nivel de la cadera y del muslo
+lavish_hr_payroll.cie10_s75,S75,Traumatismo de vasos sanguineos a nivel de la cadera y del muslo
+lavish_hr_payroll.cie10_s76,S76,Traumatismo de tendon y musculo a nivel de la cadera y del muslo
+lavish_hr_payroll.cie10_s77,S77,Traumatismo por aplastamiento de la cadera y del muslo
+lavish_hr_payroll.cie10_s78,S78,Amputacion traumatica de la cadera y del muslo
+lavish_hr_payroll.cie10_s79,S79,Otros traumatismos de la cadera y del muslo y los no especificados
+lavish_hr_payroll.cie10_s80,S80,Traumatismo superficial de la pierna
+lavish_hr_payroll.cie10_s81,S81,Herida de la pierna
+lavish_hr_payroll.cie10_s82,S82,Fractura de la pierna inclusive el tobillo
+lavish_hr_payroll.cie10_s83,S83,Luxacion esguince y torcedura de articulaciones y ligamentos de la rodilla
+lavish_hr_payroll.cie10_s84,S84,Traumatismo de nervios a nivel de la pierna
+lavish_hr_payroll.cie10_s85,S85,Traumatismo de vasos sanguineos a nivel de la pierna
+lavish_hr_payroll.cie10_s86,S86,Traumatismo de tendon y musculo a nivel de la pierna
+lavish_hr_payroll.cie10_s87,S87,Traumatismo por aplastamiento de la pierna
+lavish_hr_payroll.cie10_s88,S88,Amputacion traumatica de la pierna
+lavish_hr_payroll.cie10_s89,S89,Otros traumatismos de la pierna y los no especificados
+lavish_hr_payroll.cie10_s90,S90,Traumatismo superficial del tobillo y del pie
+lavish_hr_payroll.cie10_s91,S91,Herida del tobillo y del pie
+lavish_hr_payroll.cie10_s92,S92,Fractura del pie excepto del tobillo
+lavish_hr_payroll.cie10_s93,S93,Luxacion esguince y torcedura de articulaciones y ligamentos del tobillo y del pie
+lavish_hr_payroll.cie10_s94,S94,Traumatismo de nervios a nivel del tobillo y del pie
+lavish_hr_payroll.cie10_s95,S95,Traumatismo de vasos sanguineos a nivel del tobillo y del pie
+lavish_hr_payroll.cie10_s96,S96,Traumatismo de tendon y musculo a nivel del tobillo y del pie
+lavish_hr_payroll.cie10_s97,S97,Traumatismo por aplastamiento del tobillo y del pie
+lavish_hr_payroll.cie10_s98,S98,Amputacion traumatica del tobillo y del pie
+lavish_hr_payroll.cie10_s99,S99,Otros traumatismos del tobillo y del pie y los no especificados
+lavish_hr_payroll.cie10_t00,T00,Traumatismos superficiales que afectan multiples regiones del cuerpo
+lavish_hr_payroll.cie10_t01,T01,Heridas que afectan multiples regiones del cuerpo
+lavish_hr_payroll.cie10_t02,T02,Fracturas que afectan multiples regiones del cuerpo
+lavish_hr_payroll.cie10_t03,T03,Luxaciones esguinces y torceduras que afectan multiples regiones del cuerpo
+lavish_hr_payroll.cie10_t04,T04,Traumatismos por aplastamiento que afectan multiples regiones del cuerpo
+lavish_hr_payroll.cie10_t05,T05,Amputaciones traumaticas que afectan multiples regiones del cuerpo
+lavish_hr_payroll.cie10_t06,T06,Otros traumatismos que afectan multiples regiones del cuerpo no clasificados en otra parte
+lavish_hr_payroll.cie10_t07,T07,Traumatismos multiples no especificados
+lavish_hr_payroll.cie10_t08,T08,Fractura de la columna vertebral nivel no especificado
+lavish_hr_payroll.cie10_t09,T09,Otros traumatismos de la columna vertebral y del tronco nivel no especificado
+lavish_hr_payroll.cie10_t10,T10,Fractura del miembro superior nivel no especificado
+lavish_hr_payroll.cie10_t11,T11,Otros traumatismos del miembro superior nivel no especificado
+lavish_hr_payroll.cie10_t12,T12,Fractura de miembro inferior nivel no especificado
+lavish_hr_payroll.cie10_t13,T13,Otros traumatismos del miembro inferior nivel no especificado
+lavish_hr_payroll.cie10_t14,T14,Traumatismo de regiones no especificadas del cuerpo
+lavish_hr_payroll.cie10_t15,T15,Cuerpo extrano en parte externa del ojo
+lavish_hr_payroll.cie10_t16,T16,Cuerpo extrano en el oido
+lavish_hr_payroll.cie10_t17,T17,Cuerpo extrano en las vias respiratorias
+lavish_hr_payroll.cie10_t18,T18,Cuerpo extrano en el tubo digestivo
+lavish_hr_payroll.cie10_t19,T19,Cuerpo extrano en las vias genitourinarias
+lavish_hr_payroll.cie10_t20,T20,Quemadura y corrosion de la cabeza y del cuello
+lavish_hr_payroll.cie10_t21,T21,Quemadura y corrosion del tronco
+lavish_hr_payroll.cie10_t22,T22,Quemadura y corrosion del hombro y del miembro superior excepto de la muneca y de la mano
+lavish_hr_payroll.cie10_t23,T23,Quemadura y corrosion de la muneca y de la mano
+lavish_hr_payroll.cie10_t24,T24,Quemadura y corrosion de la cadera y del miembro inferior excepto tobillo y pie
+lavish_hr_payroll.cie10_t25,T25,Quemadura y corrosion del tobillo y del pie
+lavish_hr_payroll.cie10_t26,T26,Quemadura y corrosion limitada al ojo y sus anexos
+lavish_hr_payroll.cie10_t27,T27,Quemadura y corrosion de las vias respiratorias
+lavish_hr_payroll.cie10_t28,T28,Quemadura y corrosion de otros organos internos
+lavish_hr_payroll.cie10_t29,T29,Quemaduras y corrosiones de multiples regiones del cuerpo
+lavish_hr_payroll.cie10_t30,T30,Quemadura y corrosion region del cuerpo no especificada
+lavish_hr_payroll.cie10_t31,T31,Quemaduras clasificadas segun la extension de la superficie del cuerpo afectada
+lavish_hr_payroll.cie10_t32,T32,Corrosiones clasificadas segun la extension de la superficie del cuerpo afectada
+lavish_hr_payroll.cie10_t33,T33,Congelamiento superficial
+lavish_hr_payroll.cie10_t34,T34,Congelamiento con necrosis tisular
+lavish_hr_payroll.cie10_t35,T35,Congelamiento que afecta multiples regiones del cuerpo y congelamiento no especificado
+lavish_hr_payroll.cie10_t36,T36,Envenenamiento por antibioticos sistemicos
+lavish_hr_payroll.cie10_t37,T37,Envenenamiento por otros antiinfecciosos y antiparasitarios sistemicos
+lavish_hr_payroll.cie10_t38,T38,Envenenamiento por hormonas y sus sustitutos y antagonistas sinteticos no clasificados en otra parte
+lavish_hr_payroll.cie10_t39,T39,Envenenamiento por analgesicos no narcoticos antipireticos y antirreumaticos
+lavish_hr_payroll.cie10_t40,T40,Envenenamiento por narcoticos y psicodislepticos (alucinogenos)
+lavish_hr_payroll.cie10_t41,T41,Envenenamiento por anestesicos y gases terapeuticos
+lavish_hr_payroll.cie10_t42,T42,Envenenamiento por antiepilepticos sedantes hipnoticos y antiparkinsonianos
+lavish_hr_payroll.cie10_t43,T43,Envenenamiento por drogas psicotropicas no clasificadas en otra parte
+lavish_hr_payroll.cie10_t44,T44,Envenenamiento por drogas que afectan principalmente el sistema nervioso autonomo
+lavish_hr_payroll.cie10_t45,T45,Envenenamiento por agentes principalmente sistemicos y hematologicos no clasificados en otra parte
+lavish_hr_payroll.cie10_t46,T46,Envenenamiento por agentes que afectan principalmente el sistema cardiovascular
+lavish_hr_payroll.cie10_t47,T47,Envenenamiento por agentes que afectan principalmente el sistema gastrointestinal
+lavish_hr_payroll.cie10_t48,T48,Envenenamiento por agentes que actuan principalmente sobre los musculos lisos y estriados y sobre el sistema respiratorio
+lavish_hr_payroll.cie10_t49,T49,Envenenamiento por agentes topicos que afectan principalmente la piel y las membranas mucosas y por drogas oftalmologicas otorrinolaringologicas y dentales
+lavish_hr_payroll.cie10_t50,T50,Envenenamiento por diureticos y otras drogas medicamentos y sustancias biologicas no especificados
+lavish_hr_payroll.cie10_t51,T51,Efecto toxico del alcohol
+lavish_hr_payroll.cie10_t52,T52,Efecto toxico de disolventes organicos
+lavish_hr_payroll.cie10_t53,T53,Efecto toxico de los derivados halogenados de los hidrocarburos alifaticos y aromaticos
+lavish_hr_payroll.cie10_t54,T54,Efecto toxico de sustancias corrosivas
+lavish_hr_payroll.cie10_t55,T55,Efecto toxico de jabones y detergentes
+lavish_hr_payroll.cie10_t56,T56,Efecto toxico de los metales
+lavish_hr_payroll.cie10_t57,T57,Efecto toxico de otras sustancias inorganicas
+lavish_hr_payroll.cie10_t58,T58,Efecto toxico del monoxido de carbono
+lavish_hr_payroll.cie10_t59,T59,Efecto toxico de otros gases humos y vapores
+lavish_hr_payroll.cie10_t60,T60,Efecto toxico de plaguicidas (pesticidas)
+lavish_hr_payroll.cie10_t61,T61,Efecto toxico de sustancias nocivas ingeridas como alimentos marinos
+lavish_hr_payroll.cie10_t62,T62,Efecto toxico de otras sustancias nocivas ingeridas como alimento
+lavish_hr_payroll.cie10_t63,T63,Efecto toxico del contacto con animales venenosos
+lavish_hr_payroll.cie10_t64,T64,Efecto toxico de la aflatoxina y otras micotoxinas contaminantes de alimentos
+lavish_hr_payroll.cie10_t65,T65,Efecto toxico de otras sustancias y las no especificadas
+lavish_hr_payroll.cie10_t66,T66,Efectos no especificados de la radiacion
+lavish_hr_payroll.cie10_t67,T67,Efectos del calor y de la luz
+lavish_hr_payroll.cie10_t68,T68,Hipotermia
+lavish_hr_payroll.cie10_t69,T69,Otros efectos de la reduccion de la temperatura
+lavish_hr_payroll.cie10_t70,T70,Efectos de la presion del aire y del agua
+lavish_hr_payroll.cie10_t71,T71,Asfixia
+lavish_hr_payroll.cie10_t73,T73,Efectos de otras privaciones
+lavish_hr_payroll.cie10_t74,T74,Sindromes del maltrato
+lavish_hr_payroll.cie10_t75,T75,Efectos de otras causas externas
+lavish_hr_payroll.cie10_t78,T78,Efectos adversos no clasificados en otra parte
+lavish_hr_payroll.cie10_t79,T79,Algunas complicaciones precoces de los traumatismos no clasificadas en otra parte
+lavish_hr_payroll.cie10_t80,T80,Complicaciones consecutivas a infusion transfusion e inyeccion terapeutica
+lavish_hr_payroll.cie10_t81,T81,Complicaciones de procedimientos no clasificadas en otra parte
+lavish_hr_payroll.cie10_t82,T82,Complicaciones de dispositivos protesicos implantes e injertos cardiovasculares
+lavish_hr_payroll.cie10_t83,T83,Complicaciones de dispositivos protesicos implantes e injertos genitourinarios
+lavish_hr_payroll.cie10_t84,T84,Complicaciones de dispositivos protesicos implantes e injertos ortopedicos internos
+lavish_hr_payroll.cie10_t85,T85,Complicaciones de otros dispositivos protesicos implantes e injertos internos
+lavish_hr_payroll.cie10_t86,T86,Falla y rechazo de organos y tejidos transplantados
+lavish_hr_payroll.cie10_t87,T87,Complicaciones propias de la reinsercion y amputacion
+lavish_hr_payroll.cie10_t88,T88,Otras complicaciones de la atencion medica y quirurgica no clasificadas en otra parte
+lavish_hr_payroll.cie10_t90,T90,Secuelas de traumatismos de la cabeza
+lavish_hr_payroll.cie10_t91,T91,Secuelas de traumatismos del cuello y del tronco
+lavish_hr_payroll.cie10_t92,T92,Secuelas de traumatismos del miembro superior
+lavish_hr_payroll.cie10_t93,T93,Secuelas de traumatismos del miembro inferior
+lavish_hr_payroll.cie10_t94,T94,Secuelas de traumatismos que afectan multiples regiones del cuerpo y las no especificadas
+lavish_hr_payroll.cie10_t95,T95,Secuelas de quemaduras corrosiones y congelamientos
+lavish_hr_payroll.cie10_t96,T96,Secuelas de envenenamiento por drogas medicamentos y sustancias biologicas
+lavish_hr_payroll.cie10_t97,T97,Secuelas de efectos toxicos de sustancias de procedencia principalmente no medicinal
+lavish_hr_payroll.cie10_t98,T98,Secuelas de otros efectos y los no especificados de causas externas
+lavish_hr_payroll.cie10_z00,Z00,Examen general e investigacion de personas sin quejas o sin diagnostico informado
+lavish_hr_payroll.cie10_z01,Z01,Otros examenes especiales e investigaciones de personas sin quejas o sin diagnostico informado
+lavish_hr_payroll.cie10_z02,Z02,Examen y observacion con otros fines administrativos
+lavish_hr_payroll.cie10_z03,Z03,Observacion y evaluacion medicas por sospecha de enfermedades y afecciones
+lavish_hr_payroll.cie10_z04,Z04,Examen y observacion por otras razones
+lavish_hr_payroll.cie10_z08,Z08,Examen de seguimiento consecutivo al tratamiento por tumor maligno
+lavish_hr_payroll.cie10_z09,Z09,Examen de seguimiento consecutivo a tratamiento por otras afecciones diferentes a tumores malignos
+lavish_hr_payroll.cie10_z10,Z10,Control general de salud de rutina de una subpoblacion definida
+lavish_hr_payroll.cie10_z11,Z11,Examen de pesquisa especial para enfermedades infecciosas y parasitarias
+lavish_hr_payroll.cie10_z12,Z12,Examen de pesquisa especial para tumores
+lavish_hr_payroll.cie10_z13,Z13,Examen de pesquisa especial para otras enfermedades y trastornos
+lavish_hr_payroll.cie10_z20,Z20,Contacto con y exposicion a enfermedades transmisibles
+lavish_hr_payroll.cie10_z21,Z21,Estado de infeccion asintomatica por el virus de la inmunodeficiencia humana (VIH)
+lavish_hr_payroll.cie10_z22,Z22,Portador de enfermedad infecciosa
+lavish_hr_payroll.cie10_z23,Z23,Necesidad de inmunizacion contra enfermedades bacterianas aisladas
+lavish_hr_payroll.cie10_z24,Z24,Necesidad de inmunizacion contra ciertas enfermedades virales aisladas
+lavish_hr_payroll.cie10_z25,Z25,Necesidad de inmunizacion contra otras enfermedades virales aisladas
+lavish_hr_payroll.cie10_z26,Z26,Necesidad de inmunizacion contra otras enfermedades infecciosas aisladas
+lavish_hr_payroll.cie10_z27,Z27,Necesidad de inmunizacion contra combinaciones de enfermedades infecciosas
+lavish_hr_payroll.cie10_z28,Z28,Inmunizacion no realizada
+lavish_hr_payroll.cie10_z29,Z29,Necesidad de otras medidas profilacticas
+lavish_hr_payroll.cie10_z30,Z30,Asistencia para la anticoncepcion
+lavish_hr_payroll.cie10_z31,Z31,Asistencia para la procreacion
+lavish_hr_payroll.cie10_z32,Z32,Examen y prueba del embarazo
+lavish_hr_payroll.cie10_z33,Z33,Embarazo confirmado
+lavish_hr_payroll.cie10_z34,Z34,Supervision de embarazo normal
+lavish_hr_payroll.cie10_z35,Z35,Supervision de embarazo de alto riesgo
+lavish_hr_payroll.cie10_z36,Z36,Pesquisa prenatal
+lavish_hr_payroll.cie10_z37,Z37,Producto del parto
+lavish_hr_payroll.cie10_z38,Z38,Nacidos vivos segun lugar de nacimiento
+lavish_hr_payroll.cie10_z39,Z39,Examen y atencion del posparto
+lavish_hr_payroll.cie10_z40,Z40,Cirugia profilactica
+lavish_hr_payroll.cie10_z41,Z41,Procedimientos para otros propositos que no sean mejorar el estado de salud
+lavish_hr_payroll.cie10_z42,Z42,Seguimiento que incluye cirugia plastica y reconstructiva
+lavish_hr_payroll.cie10_z43,Z43,Atencion de aberturas artificiales
+lavish_hr_payroll.cie10_z44,Z44,Prueba y ajuste de dispositivos protesicos externos
+lavish_hr_payroll.cie10_z45,Z45,Ajuste y manejo de dispositivo implantado
+lavish_hr_payroll.cie10_z46,Z46,Prueba y ajuste de otros dispositivos
+lavish_hr_payroll.cie10_z47,Z47,Otra atencion de seguimiento ortopedico
+lavish_hr_payroll.cie10_z48,Z48,Otros cuidados posteriores a la cirugia
+lavish_hr_payroll.cie10_z49,Z49,Asistencia que incluye dialisis
+lavish_hr_payroll.cie10_z50,Z50,Atencion por el uso de procedimientos de rehabilitacion
+lavish_hr_payroll.cie10_z51,Z51,Otra atencion medica
+lavish_hr_payroll.cie10_z52,Z52,Donantes de organos y tejidos
+lavish_hr_payroll.cie10_z53,Z53,Personas que acuden a los servicios de salud para procedimientos especificos no realizados
+lavish_hr_payroll.cie10_z54,Z54,Estado de convalecencia
+lavish_hr_payroll.cie10_z55,Z55,Problemas relacionados con la educacion y la alfabetizacion
+lavish_hr_payroll.cie10_z56,Z56,Problemas relacionados con el empleo y el desempleo
+lavish_hr_payroll.cie10_z57,Z57,Exposicion a factores de riesgo ocupacional
+lavish_hr_payroll.cie10_z58,Z58,Problemas relacionados con el ambiente fisico
+lavish_hr_payroll.cie10_z59,Z59,Problemas relacionados con la vivienda y las circunstancias economicas
+lavish_hr_payroll.cie10_z60,Z60,Problemas relacionados con el ambiente social
+lavish_hr_payroll.cie10_z61,Z61,Problemas relacionados con hechos negativos en la ninez
+lavish_hr_payroll.cie10_z62,Z62,Otros problemas relacionados con la crianza del nino
+lavish_hr_payroll.cie10_z63,Z63,Otros problemas relacionados con el grupo primario de apoyo inclusive circunstancias familiares
+lavish_hr_payroll.cie10_z64,Z64,Problemas relacionados con ciertas circunstancias psicosociales
+lavish_hr_payroll.cie10_z65,Z65,Problemas relacionados con otras circunstancias psicosociales
+lavish_hr_payroll.cie10_z70,Z70,Consejo relacionado con la actitud aptitud y comportamiento sexuales
+lavish_hr_payroll.cie10_z71,Z71,Personas que acuden a los servicios de salud para otras consultas y consejos medicos no clasificados en otra parte
+lavish_hr_payroll.cie10_z72,Z72,Problemas relacionados con el estilo de vida
+lavish_hr_payroll.cie10_z73,Z73,Problemas relacionados con dificultades para afrontar la vida
+lavish_hr_payroll.cie10_z74,Z74,Problemas relacionados con dependencia del prestador de servicios
+lavish_hr_payroll.cie10_z75,Z75,Problemas relacionados con instalaciones medicas y otros tipos de atencion de la salud
+lavish_hr_payroll.cie10_z76,Z76,Personas en contacto con los servicios de salud por otras circunstancias
+lavish_hr_payroll.cie10_z80,Z80,Historia familiar de tumor maligno
+lavish_hr_payroll.cie10_z81,Z81,Historia familiar de trastornos mentales y del comportamiento
+lavish_hr_payroll.cie10_z82,Z82,Historia familiar de ciertas discapacidades y enfermedades cronicas incapacitantes
+lavish_hr_payroll.cie10_z83,Z83,Historia familiar de otros trastornos especificos
+lavish_hr_payroll.cie10_z84,Z84,Historia familiar de otras afecciones
+lavish_hr_payroll.cie10_z85,Z85,Historia personal de tumor maligno
+lavish_hr_payroll.cie10_z86,Z86,Historia personal de algunas otras enfermedades
+lavish_hr_payroll.cie10_z87,Z87,Historia personal de otras enfermedades y afecciones
+lavish_hr_payroll.cie10_z88,Z88,Historia personal de alergia a drogas medicamentos y sustancias biologicas
+lavish_hr_payroll.cie10_z89,Z89,Ausencia adquirida de miembros
+lavish_hr_payroll.cie10_z90,Z90,Ausencia adquirida de organos no clasificada en otra parte
+lavish_hr_payroll.cie10_z91,Z91,Historia personal de factores de riesgo no clasificados en otra parte
+lavish_hr_payroll.cie10_z92,Z92,Historia personal de tratamiento medico
+lavish_hr_payroll.cie10_z93,Z93,Estado de abertura artificial
+lavish_hr_payroll.cie10_z94,Z94,Estado de trasplante de organos y tejidos
+lavish_hr_payroll.cie10_z95,Z95,Presencia de implantes e injertos cardiovasculares
+lavish_hr_payroll.cie10_z96,Z96,Presencia de otros implantes funcionales
+lavish_hr_payroll.cie10_z97,Z97,Presencia de otros dispositivos
+lavish_hr_payroll.cie10_z98,Z98,Otros estados postquirurgicos
+lavish_hr_payroll.cie10_z99,Z99,Dependencia de maquinas y dispositivos capacitantes no clasificada en otra parte

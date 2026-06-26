@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.PendingLeavesCard">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <lord-icon
+                        src="/lavish_hr_payroll/static/src/lib/lottie/icons/kbtmbyzy.json"
+                        trigger="hover"
+                        colors="primary:#ffc107,secondary:#0d6efd"
+                        style="width:28px;height:28px;vertical-align:middle;">
+                    </lord-icon>
+                    Licencias Pendientes
+                </h5>
+                <div class="d-flex gap-1">
+                    <button class="btn btn-sm btn-success" t-on-click="onCreateLeave" title="Crear Ausencia Manual">
+                        <i class="fa fa-plus"/>
+                    </button>
+                    <button class="btn btn-sm btn-light" t-on-click="onViewAllLeaves" t-if="hasData" title="Ver Todas">
+                        <i class="fa fa-external-link"/>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <t t-if="!hasData">
+                    <div class="text-center text-muted py-4">
+                        <lord-icon
+                            src="/lavish_hr_payroll/static/src/lib/lottie/icons/lomfljuq.json"
+                            trigger="loop"
+                            delay="2000"
+                            colors="primary:#28a745"
+                            style="width:64px;height:64px;">
+                        </lord-icon>
+                        <p class="mt-2 mb-0">No hay licencias pendientes por aprobar</p>
+                        <button class="btn btn-sm btn-outline-success mt-3" t-on-click="onCreateLeave">
+                            <i class="fa fa-plus me-1"/> Crear Ausencia Manual
+                        </button>
+                    </div>
+                </t>
+                <t t-else="">
+                    <!-- Summary Badges -->
+                    <div class="d-flex justify-content-around py-3 border-bottom bg-light">
+                        <div class="text-center" t-if="criticalCount > 0">
+                            <span class="badge bg-danger rounded-pill px-3 py-2">
+                                <lord-icon
+                                    src="/lavish_hr_payroll/static/src/lib/lottie/icons/tdrtiskw.json"
+                                    trigger="loop"
+                                    delay="1000"
+                                    colors="primary:#ffffff"
+                                    style="width:16px;height:16px;vertical-align:middle;">
+                                </lord-icon>
+                                <t t-esc="criticalCount"/> Crítico
+                            </span>
+                            <small class="text-muted d-block mt-1">&gt; 7 días</small>
+                        </div>
+                        <div class="text-center" t-if="highCount > 0">
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                                <i class="fa fa-exclamation-triangle me-1"/>
+                                <t t-esc="highCount"/> Alto
+                            </span>
+                            <small class="text-muted d-block mt-1">5-7 días</small>
+                        </div>
+                        <div class="text-center" t-if="mediumCount > 0">
+                            <span class="badge bg-info rounded-pill px-3 py-2">
+                                <i class="fa fa-info-circle me-1"/>
+                                <t t-esc="mediumCount"/> Medio
+                            </span>
+                            <small class="text-muted d-block mt-1">&lt; 5 días</small>
+                        </div>
+                    </div>
+
+                    <!-- Leaves List -->
+                    <div class="list-group list-group-flush scrollable-list" style="max-height: 300px;">
+                        <t t-foreach="leaves" t-as="leave" t-key="leave.id">
+                            <div class="list-group-item list-group-item-action px-3 py-2 cursor-pointer"
+                                 t-on-click="() => this.onViewLeave(leave.id)"
+                                 style="cursor: pointer;">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <i t-att-class="'fa ' + getUrgencyIcon(leave.urgency) + ' text-' + getUrgencyClass(leave.urgency)"/>
+                                            <i t-att-class="'fa ' + getLeaveTypeIcon(leave.leave_type) + ' text-muted'"/>
+                                            <strong t-esc="leave.employee_name"/>
+                                        </div>
+                                        <small class="text-muted d-block">
+                                            <i class="fa fa-tag me-1"/>
+                                            <t t-esc="leave.leave_type"/>
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fa fa-calendar me-1"/>
+                                            <t t-esc="leave.date_from_formatted"/> - <t t-esc="leave.date_to_formatted"/>
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <i class="fa fa-clock me-1"/>
+                                            <t t-esc="leave.number_of_days"/> día(s)
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span t-att-class="'badge bg-' + getUrgencyClass(leave.urgency)">
+                                            <t t-esc="leave.request_age_days"/> días pendiente
+                                        </span>
+                                        <small class="text-muted d-block mt-1">
+                                            <i class="fa fa-calendar-plus me-1"/>
+                                            <t t-esc="leave.request_date_formatted"/>
+                                        </small>
+                                        <div class="mt-1">
+                                            <i class="fa fa-chevron-right text-primary"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+
+                    <!-- Show more indicator -->
+                    <div class="py-2 text-center border-top" t-if="totalLeaves > 5">
+                        <button class="btn btn-sm btn-link" t-on-click="onViewAllLeaves">
+                            <lord-icon
+                                src="/lavish_hr_payroll/static/src/lib/lottie/icons/zmkotitn.json"
+                                trigger="hover"
+                                colors="primary:#0d6efd"
+                                style="width:20px;height:20px;vertical-align:middle;">
+                            </lord-icon>
+                            Ver todas (<t t-esc="totalLeaves"/> licencias)
+                        </button>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

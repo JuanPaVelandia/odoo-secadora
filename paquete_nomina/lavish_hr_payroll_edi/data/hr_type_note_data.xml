@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo noupdate="1">
+    <record id="hr_type_note_1" model="hr.type.note">
+        <field name="code">1</field>
+        <field name="name">Reemplazar</field>
+    </record>
+    <record id="hr_type_note_2" model="hr.type.note">
+        <field name="code">2</field>
+        <field name="name">Eliminar</field>
+    </record>
+</odoo>

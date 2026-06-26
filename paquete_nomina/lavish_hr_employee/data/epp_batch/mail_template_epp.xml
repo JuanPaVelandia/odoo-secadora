@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================================= -->
+        <!-- PLANTILLA DE CORREO: ENTREGA DE EPP/DOTACIÓN                 -->
+        <!-- ============================================================= -->
+
+        <record id="email_template_epp_delivery" model="mail.template">
+            <field name="name">Entrega de EPP/Dotación</field>
+            <field name="model_id" ref="lavish_hr_employee.model_hr_epp_request"/>
+            <field name="subject">Entrega de ${object.type} - ${object.name}</field>
+            <field name="email_to">${object.employee_id.work_email}</field>
+            <field name="email_from">${object.company_id.email or user.email}</field>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+                        <h2 style="color: #2c3e50; margin-top: 0;">
+                            Entrega de EPP/Dotación
+                        </h2>
+                    </div>
+
+                    <p style="font-size: 14px;">Estimado/a <strong>${object.employee_id.name}</strong>,</p>
+
+                    <p style="font-size: 14px;">
+                        Se ha programado la entrega de elementos de protección personal o dotación con los siguientes detalles:
+                    </p>
+
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Número de Solicitud:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.name}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Tipo:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.type}</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Fecha de Entrega:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.delivery_date or 'Por definir'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Departamento:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.department_id.name or '-'}</td>
+                        </tr>
+                    </table>
+
+                    <h3 style="color: #2c3e50; font-size: 16px;">Items a Entregar:</h3>
+
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+                        <thead style="background-color: #2c3e50; color: white;">
+                            <tr>
+                                <th style="padding: 10px; text-align: left;">Descripción</th>
+                                <th style="padding: 10px; text-align: center;">Cantidad</th>
+                                <th style="padding: 10px; text-align: center;">Talla</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="object.line_ids" t-as="line">
+                                <tr style="border-bottom: 1px solid #dee2e6;">
+                                    <td style="padding: 10px;"><t t-out="line.name"/></td>
+                                    <td style="padding: 10px; text-align: center;"><t t-out="line.quantity"/></td>
+                                    <td style="padding: 10px; text-align: center;"><t t-out="line.size or '-'"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+                        <strong> Importante:</strong>
+                        <p style="margin-bottom: 0; font-size: 14px;">
+                            Por favor, presente su identificación para recibir los elementos.
+                        </p>
+                    </div>
+
+                    <p style="margin-top: 30px; font-size: 14px;">
+                        Atentamente,<br/>
+                        <strong>${object.company_id.name}</strong>
+                    </p>
+
+                    <div style="border-top: 2px solid #dee2e6; margin-top: 30px; padding-top: 15px; text-align: center; color: #6c757d; font-size: 12px;">
+                        <p>Este es un correo automático, por favor no responder.</p>
+                    </div>
+                </div>
+            </field>
+        </record>
+
+        <!-- ============================================================= -->
+        <!-- PLANTILLA DE CORREO: EXAMEN MÉDICO PROGRAMADO                -->
+        <!-- ============================================================= -->
+
+        <record id="email_template_medical_certificate" model="mail.template">
+            <field name="name">Programación Examen Médico</field>
+            <field name="model_id" ref="lavish_hr_employee.model_hr_medical_certificate"/>
+            <field name="subject">Examen Médico Programado - ${object.name}</field>
+            <field name="email_to">${object.employee_id.work_email}</field>
+            <field name="email_from">${object.company_id.email or user.email}</field>
+            <field name="body_html" type="html">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="background-color: #e3f2fd; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+                        <h2 style="color: #1976d2; margin-top: 0;">
+                             Examen Médico Programado
+                        </h2>
+                    </div>
+
+                    <p style="font-size: 14px;">Estimado/a <strong>${object.employee_id.name}</strong>,</p>
+
+                    <p style="font-size: 14px;">
+                        Se ha programado un examen médico ocupacional con los siguientes detalles:
+                    </p>
+
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px;">
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Tipo de Examen:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.certificate_type}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Proveedor Médico:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.provider_id.name}</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Dirección:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.provider_id.street or 'No especificada'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Ciudad:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.provider_id.city or ''}</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Teléfono:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.provider_id.phone or 'No especificado'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Fecha Programada:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">${object.schedule_date or 'Por confirmar'}</td>
+                        </tr>
+                        <tr style="background-color: #f8f9fa;">
+                            <td style="padding: 10px; border: 1px solid #dee2e6;"><strong>Vigencia del Certificado:</strong></td>
+                            <td style="padding: 10px; border: 1px solid #dee2e6;">Hasta ${object.expiry_date}</td>
+                        </tr>
+                    </table>
+
+                    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0;">
+                        <strong> Recomendaciones Importantes:</strong>
+                        <ul style="margin-bottom: 0; font-size: 14px;">
+                            <li>Llegar en ayunas de 8 horas (si aplica para el examen)</li>
+                            <li>Traer documento de identidad original</li>
+                            <li>Llevar ropa cómoda</li>
+                            <li>Llegar con 15 minutos de anticipación</li>
+                        </ul>
+                    </div>
+
+                    <t t-if="object.service_ids">
+                        <h3 style="color: #2c3e50; font-size: 16px;">Servicios Incluidos:</h3>
+                        <ul style="font-size: 14px;">
+                            <t t-foreach="object.service_ids" t-as="service">
+                                <li><t t-out="service.name"/></li>
+                            </t>
+                        </ul>
+                    </t>
+
+                    <p style="margin-top: 30px; font-size: 14px;">
+                        Atentamente,<br/>
+                        <strong>${object.company_id.name}</strong><br/>
+                        <span style="color: #6c757d; font-size: 12px;">Departamento de Seguridad y Salud en el Trabajo</span>
+                    </p>
+
+                    <div style="border-top: 2px solid #dee2e6; margin-top: 30px; padding-top: 15px; text-align: center; color: #6c757d; font-size: 12px;">
+                        <p>Este es un correo automático, por favor no responder.</p>
+                    </div>
+                </div>
+            </field>
+        </record>
+
+    </data>
+</odoo>

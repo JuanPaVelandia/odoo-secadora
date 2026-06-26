@@ -1,0 +1,295 @@
+<odoo>
+    <data>
+        <!-- Tipos de horas extra -->
+        <record model="ir.actions.act_window" id="hr_type_overtime_action">
+            <field name="name">Tipos de horas extra</field>
+            <field name="res_model">hr.type.overtime</field>
+            <field name="target">current</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_group_type': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear tipo de hora extra
+                </p>
+                <p>
+                    Configure los porcentajes de horas extras y recargos segun la Ley 2466/2025.
+                    Cada tipo puede tener multiples registros con diferentes rangos de fechas
+                    para manejar la gradualidad de la ley.
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_type_overtime_view_tree">
+            <field name="name">Tipos de horas extra</field>
+            <field name="model">hr.type.overtime</field>
+            <field name="arch" type="xml">
+                <list decoration-info="valid_to == False" decoration-muted="not active">
+                    <field name="type_overtime"/>
+                    <field name="name"/>
+                    <field name="percentage"/>
+                    <field name="multiplier" optional="hide"/>
+                    <field name="valid_from"/>
+                    <field name="valid_to"/>
+                    <field name="start_time" widget="float_time"/>
+                    <field name="end_time" widget="float_time"/>
+                    <field name="legal_reference" optional="show"/>
+                    <field name="salary_rule" optional="hide"/>
+                    <field name="active" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_type_overtime_search">
+            <field name="name">hr.type.overtime.search</field>
+            <field name="model">hr.type.overtime</field>
+            <field name="arch" type="xml">
+                <search string="Tipos de horas extra">
+                    <field name="name"/>
+                    <field name="type_overtime"/>
+                    <field name="legal_reference"/>
+                    <separator/>
+                    <filter string="Vigentes" name="filter_active" domain="[('active', '=', True)]"/>
+                    <filter string="Archivados" name="filter_archived" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="Recargos" name="filter_recargos" domain="[('type_overtime', 'in', ['overtime_rn', 'overtime_rdf', 'overtime_rndf'])]"/>
+                    <filter string="Horas Extra" name="filter_extras" domain="[('type_overtime', 'in', ['overtime_ext_d', 'overtime_ext_n', 'overtime_eddf', 'overtime_endf'])]"/>
+                    <filter string="Dom/Festivo" name="filter_domfest" domain="[('contains_holidays', '=', True)]"/>
+                    <separator/>
+                    <group name="group_by">
+                        <filter string="Tipo" name="group_type" context="{'group_by': 'type_overtime'}"/>
+                        <filter string="Vigente desde" name="group_valid_from" context="{'group_by': 'valid_from'}"/>
+                        <filter string="Base legal" name="group_legal" context="{'group_by': 'legal_reference'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="hr_type_overtime_form" model="ir.ui.view">
+            <field name="name">Tipos de horas extra</field>
+            <field name="model">hr.type.overtime</field>
+            <field name="arch" type="xml">
+                <form string="Tipos de horas extra">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" placeholder="Ej: Recargo nocturno (35%)"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group string="Configuracion">
+                                <field name="type_overtime"/>
+                                <field name="salary_rule"/>
+                                <field name="percentage"/>
+                                <field name="multiplier"/>
+                                <field name="active" widget="boolean_toggle"/>
+                            </group>
+                            <group string="Vigencia (Ley 2466/2025)">
+                                <field name="valid_from"/>
+                                <field name="valid_to"/>
+                                <field name="legal_reference" placeholder="Ej: Ley 2466/2025 Art. 10"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Horarios" name="schedule">
+                                <div class="alert alert-info" role="alert">
+                                    <p><strong>Ley 2466/2025:</strong> La jornada nocturna cambio de 9pm-6am a <strong>7pm-6am</strong> desde el 25 de diciembre de 2025.</p>
+                                </div>
+                                <group>
+                                    <group string="Horario Principal">
+                                        <field name="start_time" widget="float_time"/>
+                                        <field name="end_time" widget="float_time"/>
+                                    </group>
+                                    <group string="Horario Secundario (opcional)">
+                                        <field name="start_time_two" widget="float_time"/>
+                                        <field name="end_time_two" widget="float_time"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="Dias de aplicacion">
+                                        <div class="d-flex gap-2">
+                                            <field name="mon" widget="boolean_toggle"/>
+                                            <label for="mon"/>
+                                            <field name="tue" widget="boolean_toggle"/>
+                                            <label for="tue"/>
+                                            <field name="wed" widget="boolean_toggle"/>
+                                            <label for="wed"/>
+                                            <field name="thu" widget="boolean_toggle"/>
+                                            <label for="thu"/>
+                                            <field name="fri" widget="boolean_toggle"/>
+                                            <label for="fri"/>
+                                            <field name="sat" widget="boolean_toggle"/>
+                                            <label for="sat"/>
+                                            <field name="sun" widget="boolean_toggle"/>
+                                            <label for="sun"/>
+                                        </div>
+                                    </group>
+                                    <group string="Opciones">
+                                        <field name="contains_holidays" widget="boolean_toggle"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Informacion Adicional" name="additional">
+                                <group>
+                                    <group>
+                                        <field name="equivalence_number_ne"/>
+                                        <field name="company_id" groups="base.group_multi_company"/>
+                                    </group>
+                                    <group>
+                                        <field name="notes" placeholder="Observaciones..."/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Crear record rule para filtrar tipos de horas extra por compañia -->
+        <record id="rule_hr_type_overtime" model="ir.rule">
+            <field name="name">Permisos compañia Tipos horas extras</field>
+            <field name="model_id" ref="model_hr_type_overtime"/>
+            <field name="domain_force">['|',('company_id','=',False),('company_id', 'in',
+                company_ids)]
+            </field>
+        </record>
+
+        <!-- Vista de captura horas extra -->
+        <record model="ir.actions.act_window" id="hr_overtime_action">
+            <field name="name">Horas extra</field>
+            <field name="res_model">hr.overtime</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <!-- Crear record rule para filtrar las compañias-->
+        <record id="rule_hr_overtime" model="ir.rule">
+            <field name="name">Permisos compañia Horas extras</field>
+            <field name="model_id" ref="model_hr_overtime"/>
+            <field name="domain_force">['|',('employee_id.company_id','=',False),('employee_id.company_id', 'in',
+                company_ids)]
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_overtime_view_tree">
+            <field name="name">Horas extra</field>
+            <field name="model">hr.overtime</field>
+            <field name="arch" type="xml">
+                <list editable="top">
+                    <!-- <field name="branch_id"/> -->
+                    <field name="date"/>
+                    <field name="date_end"/>
+                    <field name="date_only" optional="hide"/>
+                    <field name="date_end_only" optional="hide"/>
+                    <field name="employee_id" required="1"/>
+                    <field name="department_id"/>
+                    <field name="job_id"/>
+                    <field name="shift_hours"/>
+                    <field name="overtime_rn"/>
+                    <field name="overtime_ext_d"/>
+                    <field name="overtime_ext_n"/>
+                    <field name="overtime_eddf"/>
+                    <field name="overtime_endf"/>
+                    <field name="overtime_dof"/>
+                    <field name="overtime_rndf"/>
+                    <field name="overtime_rdf"/>
+                    <field name="overtime_rnf"/>
+                    <field name="total_hours" sum="Total" optional="show"/>
+                    <field name="days_actually_worked"/>
+                    <field name="days_snack"/>
+                    <field name="justification"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_overtime_view_form">
+            <field name="name">Horas extra Form</field>
+            <field name="model">hr.overtime</field>
+            <field name="arch" type="xml">
+                <form string="Horas Extra">
+                    <sheet>
+                        <group>
+                            <group string="Periodo">
+                                <field name="date"/>
+                                <field name="date_end"/>
+                                <field name="date_only" invisible="1"/>
+                                <field name="date_end_only" invisible="1"/>
+                            </group>
+                            <group string="Empleado">
+                                <field name="employee_id"/>
+                                <field name="employee_identification"/>
+                                <field name="department_id"/>
+                                <field name="job_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Horas Extras" name="overtime">
+                                <group>
+                                    <group string="Recargos">
+                                        <field name="overtime_rn"/>
+                                        <field name="overtime_rdf"/>
+                                        <field name="overtime_rndf"/>
+                                        <field name="overtime_rnf"/>
+                                    </group>
+                                    <group string="Horas Extra">
+                                        <field name="overtime_ext_d"/>
+                                        <field name="overtime_ext_n"/>
+                                        <field name="overtime_eddf"/>
+                                        <field name="overtime_endf"/>
+                                        <field name="overtime_dof"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="shift_hours"/>
+                                        <field name="total_hours"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Otros" name="other">
+                                <group>
+                                    <field name="days_actually_worked"/>
+                                    <field name="days_snack"/>
+                                    <field name="justification"/>
+                                    <field name="state"/>
+                                    <field name="payslip_run_id"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="hr_overtime_search_view">
+            <field name="name">hr_overtime_search_view</field>
+            <field name="model">hr.overtime</field>
+            <field name="arch" type="xml">
+                <search string="Horas Extra">
+                    <field name="employee_id"/>
+                    <field name="department_id"/>
+                    <field name="justification"/>
+                    <separator/>
+                    <filter string="Este mes" name="filter_this_month"
+                            domain="[('date_only', '&gt;=', (context_today() - relativedelta(day=1)).strftime('%%Y-%%m-%%d')),
+                                     ('date_only', '&lt;=', (context_today() + relativedelta(months=1, day=1, days=-1)).strftime('%%Y-%%m-%%d'))]"/>
+                    <filter string="Mes anterior" name="filter_last_month"
+                            domain="[('date_only', '&gt;=', (context_today() - relativedelta(months=1, day=1)).strftime('%%Y-%%m-%%d')),
+                                     ('date_only', '&lt;=', (context_today() - relativedelta(day=1, days=1)).strftime('%%Y-%%m-%%d'))]"/>
+                    <separator/>
+                    <filter string="Nuevas" name="filter_new" domain="[('state', '=', 'nuevo')]"/>
+                    <filter string="Procesadas" name="filter_processed" domain="[('state', '=', 'procesado')]"/>
+                    <filter string="Revertidas" name="filter_reverted" domain="[('state', '=', 'revertido')]"/>
+                    <separator/>
+                    <group name="group_by">
+                        <filter string="Empleado" name="group_employee" context="{'group_by': 'employee_id'}"/>
+                        <filter string="Departamento" name="group_department" context="{'group_by': 'department_id'}"/>
+                        <filter string="Fecha" name="group_date" context="{'group_by': 'date_only'}"/>
+                        <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Wizard Auditoría IBC Individual -->
+    <record id="hr_ibc_audit_wizard_form" model="ir.ui.view">
+        <field name="name">hr.ibc.audit.wizard.form</field>
+        <field name="model">hr.ibc.audit.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Auditoría de IBC">
+                <group>
+                    <group>
+                        <field name="payslip_id" readonly="1"/>
+                        <field name="employee_id" readonly="1"/>
+                    </group>
+                    <group>
+                        <field name="date_from" readonly="1"/>
+                        <field name="date_to" readonly="1"/>
+                    </group>
+                </group>
+                <group invisible="not audit_html">
+                    <field name="has_differences" invisible="1"/>
+                    <div class="alert alert-danger" role="alert" invisible="not has_differences">
+                        <strong>Atención:</strong> Se encontraron diferencias en el cálculo del IBC.
+                    </div>
+                    <div class="alert alert-success" role="alert" invisible="has_differences">
+                        <strong>OK:</strong> No se encontraron diferencias significativas.
+                    </div>
+                </group>
+                <notebook invisible="not audit_html">
+                    <page string="Detalle de Auditoría">
+                        <field name="audit_html" nolabel="1" readonly="1"/>
+                    </page>
+                </notebook>
+                <footer>
+                    <button string="Generar Auditoría" name="action_generate_audit" type="object" class="btn-primary" invisible="audit_html"/>
+                    <button string="Regenerar" name="action_generate_audit" type="object" class="btn-secondary" invisible="not audit_html"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Wizard Auditoría IBC por Lotes -->
+    <record id="hr_ibc_audit_batch_wizard_form" model="ir.ui.view">
+        <field name="name">hr.ibc.audit.batch.wizard.form</field>
+        <field name="model">hr.ibc.audit.batch.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Auditoría de IBC por Lotes">
+                <group>
+                    <group string="Selección de Lote">
+                        <field name="payslip_run_id" options="{'no_create': True}"/>
+                        <field name="date_from" readonly="1"/>
+                        <field name="date_to" readonly="1"/>
+                    </group>
+                    <group string="Tipo de Reporte">
+                        <field name="report_type" widget="radio"/>
+                    </group>
+                </group>
+                <group invisible="not file_data">
+                    <div class="alert alert-success" role="alert">
+                        <strong>Archivo generado correctamente.</strong>
+                        Haga clic en el botón de descarga para obtener el reporte Excel.
+                    </div>
+                    <field name="file_data" filename="file_name" readonly="1"/>
+                    <field name="file_name" invisible="1"/>
+                </group>
+                <separator string="Hojas incluidas en el Excel" invisible="file_data"/>
+                <div class="text-muted" invisible="file_data">
+                    <p><strong>Reporte Estándar (Resumen Ejecutivo):</strong></p>
+                    <ul>
+                        <li>Resumen Ejecutivo: IBC calculado vs nómina, aportes de salud y pensión con diferencias</li>
+                    </ul>
+                    <p><strong>Reporte Detallado:</strong></p>
+                    <ul>
+                        <li>Detalle IBC: Cálculo paso a paso del IBC (Dev. Salarial, No Salarial, Regla 40%, etc.)</li>
+                        <li>Conceptos por Empleado: Todos los devengos con categoría y marca de Base SS</li>
+                        <li>Simulación SS: Cálculo completo de aportes (Salud, Pensión, ARL, Parafiscales)</li>
+                    </ul>
+                </div>
+                <footer>
+                    <button string="Generar Excel" name="action_generate_excel" type="object" class="btn-primary" invisible="file_data"/>
+                    <button string="Regenerar Excel" name="action_generate_excel" type="object" class="btn-secondary" invisible="not file_data"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir Auditoría IBC desde menú -->
+    <record id="action_hr_ibc_audit_batch_wizard" model="ir.actions.act_window">
+        <field name="name">Auditoría de IBC</field>
+        <field name="res_model">hr.ibc.audit.batch.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Heredar vista de nómina para agregar botón de auditoría -->
+    <record id="view_hr_payslip_form_inherit_ibc_audit" model="ir.ui.view">
+        <field name="name">hr.payslip.form.inherit.ibc.audit</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_open_ibc_audit"
+                        string="Auditoría IBC"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state not in ('verify', 'done', 'paid')"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

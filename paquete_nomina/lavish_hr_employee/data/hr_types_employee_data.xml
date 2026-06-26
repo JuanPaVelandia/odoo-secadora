@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="hr_type_employee_1" model="hr.types.employee">
+        <field name="code">1</field>
+        <field name="name">Empleado</field>
+        <field name="description">Tipo base de empleado para compatibilidad con reglas salariales heredadas.</field>
+    </record>
+</odoo>

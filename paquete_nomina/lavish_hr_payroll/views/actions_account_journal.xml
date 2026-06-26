@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="Account_journal_inherit" model="ir.ui.view">
+            <field name="name">account.journal.inherit</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='bank_account_id']" position="after">
+                    <field name="is_payroll_spreader"/>
+                    <field name="plane_type" invisible="is_payroll_spreader == False"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- =================================================================
+        SECUENCIAS DEL MÓDULO lavish_hr_employee
+        ================================================================= -->
+
+        <!-- CERTIFICADOS -->
+        <record id="seq_labor_certificate" model="ir.sequence">
+            <field name="name">Secuencia Certificado Laboral</field>
+            <field name="code">hr.labor.certificate.history</field>
+            <field name="prefix">CERT-%(year)s-</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_retirement_severance_pay" model="ir.sequence">
+            <field name="name">Secuencia Carta Retiro Cesantías</field>
+            <field name="code">lavish.retirement.severance.pay</field>
+            <field name="prefix">CRC-%(year)s-</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <!-- EPP Y DOTACIÓN -->
+        <record id="seq_hr_epp_batch" model="ir.sequence">
+            <field name="name">Lote EPP</field>
+            <field name="code">hr.epp.batch</field>
+            <field name="prefix">BATCH-EPP-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_hr_dotacion_batch" model="ir.sequence">
+            <field name="name">Lote Dotación</field>
+            <field name="code">hr.dotacion.batch</field>
+            <field name="prefix">BATCH-DOT-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_hr_medical_batch" model="ir.sequence">
+            <field name="name">Lote Exámenes Médicos</field>
+            <field name="code">hr.medical.batch</field>
+            <field name="prefix">BATCH-MED-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

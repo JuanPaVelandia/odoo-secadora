@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="lavish_hr_payroll.CityMapCard">
+        <div class="card city-map-card h-100">
+            <div class="card-header bg-light">
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0">
+                        <i class="fa fa-map-marker text-primary me-2"/>
+                        Distribucion por ciudad
+                    </h5>
+                    <span class="badge bg-primary" t-if="hasData">
+                        Total: <t t-esc="totalEmployees"/>
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <t t-if="!hasData">
+                    <div class="text-center text-muted py-4">
+                        <i class="fa fa-info-circle fa-2x mb-2"/>
+                        <p class="mb-0">No hay datos de ciudades para el periodo</p>
+                    </div>
+                </t>
+                <t t-else="">
+                    <div class="city-map-layout">
+                        <div class="city-map-area">
+                            <div class="city-map-container" t-ref="mapContainer"/>
+                            <div class="city-map-footnote text-muted">
+                                <i class="fa fa-circle me-1 text-primary"/>
+                                Ciudades con mayor concentracion de empleados
+                            </div>
+                        </div>
+                        <div class="city-map-list">
+                            <div class="list-group list-group-flush">
+                                <t t-foreach="topCities" t-as="city" t-key="city.key">
+                                    <div class="list-group-item px-2 py-2 d-flex justify-content-between align-items-center">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-light text-dark border">
+                                                <t t-esc="city.rank"/>
+                                            </span>
+                                            <div>
+                                                <div class="fw-bold" t-esc="city.name"/>
+                                                <small class="text-muted"><t t-esc="city.percent"/>%</small>
+                                            </div>
+                                        </div>
+                                        <div class="text-end">
+                                            <strong><t t-esc="city.count"/></strong>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-if="otherCities.length > 0">
+                                    <div class="list-group-item px-2 py-2 text-muted small">
+                                        +<t t-esc="otherCities.length"/> ciudades adicionales
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

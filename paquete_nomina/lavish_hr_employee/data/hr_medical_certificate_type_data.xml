@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- =================================================================
+        TIPOS DE CERTIFICADOS MÉDICOS - Datos Iniciales
+        ================================================================= -->
+
+        <!-- ===================== CATEGORÍAS PRINCIPALES ===================== -->
+
+        <record id="cert_type_ocupacional" model="hr.medical.certificate.type">
+            <field name="name">Exámenes Ocupacionales</field>
+            <field name="code">OCUP</field>
+            <field name="sequence">10</field>
+            <field name="description">Exámenes médicos ocupacionales requeridos por ley</field>
+        </record>
+
+        <record id="cert_type_especial" model="hr.medical.certificate.type">
+            <field name="name">Certificaciones Especiales</field>
+            <field name="code">ESP</field>
+            <field name="sequence">20</field>
+            <field name="description">Certificaciones para trabajos de alto riesgo</field>
+        </record>
+
+        <record id="cert_type_pruebas" model="hr.medical.certificate.type">
+            <field name="name">Pruebas y Evaluaciones</field>
+            <field name="code">PRUEBA</field>
+            <field name="sequence">30</field>
+            <field name="description">Pruebas adicionales y evaluaciones especiales</field>
+        </record>
+
+        <!-- ===================== EXÁMENES OCUPACIONALES ===================== -->
+
+        <record id="cert_type_aptitude" model="hr.medical.certificate.type">
+            <field name="name">Certificado de Aptitud Laboral</field>
+            <field name="code">aptitude</field>
+            <field name="parent_id" ref="cert_type_ocupacional"/>
+            <field name="sequence">10</field>
+            <field name="validity_months">12</field>
+            <field name="is_mandatory">True</field>
+            <field name="description">Certificado general de aptitud para laborar</field>
+        </record>
+
+        <record id="cert_type_occupational" model="hr.medical.certificate.type">
+            <field name="name">Examen Ocupacional</field>
+            <field name="code">occupational</field>
+            <field name="parent_id" ref="cert_type_ocupacional"/>
+            <field name="sequence">20</field>
+            <field name="validity_months">12</field>
+            <field name="is_mandatory">True</field>
+            <field name="description">Examen médico ocupacional de ingreso</field>
+        </record>
+
+        <record id="cert_type_periodic" model="hr.medical.certificate.type">
+            <field name="name">Examen Periódico</field>
+            <field name="code">periodic</field>
+            <field name="parent_id" ref="cert_type_ocupacional"/>
+            <field name="sequence">30</field>
+            <field name="validity_months">12</field>
+            <field name="is_mandatory">True</field>
+            <field name="description">Examen médico ocupacional periódico anual</field>
+        </record>
+
+        <record id="cert_type_retirement" model="hr.medical.certificate.type">
+            <field name="name">Examen de Retiro</field>
+            <field name="code">retirement</field>
+            <field name="parent_id" ref="cert_type_ocupacional"/>
+            <field name="sequence">40</field>
+            <field name="validity_months">0</field>
+            <field name="is_mandatory">True</field>
+            <field name="description">Examen médico ocupacional de egreso/retiro</field>
+        </record>
+
+        <!-- ===================== CERTIFICACIONES ESPECIALES ===================== -->
+
+        <record id="cert_type_height_work" model="hr.medical.certificate.type">
+            <field name="name">Trabajo en Alturas</field>
+            <field name="code">height_work</field>
+            <field name="parent_id" ref="cert_type_especial"/>
+            <field name="sequence">10</field>
+            <field name="validity_months">12</field>
+            <field name="requires_height_certification">True</field>
+            <field name="renewal_alert_days">45</field>
+            <field name="description">Certificación para trabajo en alturas (Res. 4272/2021)</field>
+        </record>
+
+        <record id="cert_type_confined_spaces" model="hr.medical.certificate.type">
+            <field name="name">Espacios Confinados</field>
+            <field name="code">confined_spaces</field>
+            <field name="parent_id" ref="cert_type_especial"/>
+            <field name="sequence">20</field>
+            <field name="validity_months">12</field>
+            <field name="renewal_alert_days">45</field>
+            <field name="description">Certificación para trabajo en espacios confinados</field>
+        </record>
+
+        <record id="cert_type_psychosensory" model="hr.medical.certificate.type">
+            <field name="name">Psicosensométrico</field>
+            <field name="code">psychosensory</field>
+            <field name="parent_id" ref="cert_type_especial"/>
+            <field name="sequence">30</field>
+            <field name="validity_months">24</field>
+            <field name="description">Examen psicosensométrico para conductores</field>
+        </record>
+
+        <!-- ===================== PRUEBAS Y EVALUACIONES ===================== -->
+
+        <record id="cert_type_drug_test" model="hr.medical.certificate.type">
+            <field name="name">Prueba de Drogas</field>
+            <field name="code">drug_test</field>
+            <field name="parent_id" ref="cert_type_pruebas"/>
+            <field name="sequence">10</field>
+            <field name="validity_months">6</field>
+            <field name="description">Prueba de detección de sustancias psicoactivas</field>
+        </record>
+
+        <record id="cert_type_other" model="hr.medical.certificate.type">
+            <field name="name">Otro</field>
+            <field name="code">other</field>
+            <field name="parent_id" ref="cert_type_pruebas"/>
+            <field name="sequence">99</field>
+            <field name="validity_months">12</field>
+            <field name="description">Otros tipos de exámenes o certificados</field>
+        </record>
+
+    </data>
+</odoo>

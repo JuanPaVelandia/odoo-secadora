@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Container for split screen -->
+    <t t-name="lavish_hr_payroll.SplitScreenContainer">
+        <SplitScreen/>
+    </t>
+
+    <!-- Split Screen Component -->
+    <t t-name="lavish_hr_payroll.SplitScreen">
+        <!-- Split View Overlay - shows second panel as iframe -->
+        <div t-if="isVisible" class="lavish-split-overlay">
+            <div class="split-panel-container" t-att-class="'mode-' + state.mode">
+                <!-- Panel 2 (iframe with duplicate view) -->
+                <div class="lavish-split-panel"
+                     t-att-class="{'active': state.activePanel === 2}"
+                     t-on-click="() => this.setActivePanel(2)">
+                    <div class="split-panel-header">
+                        <div class="panel-title">
+                            <i class="fa fa-window-maximize"/>
+                            <span>Vista 2</span>
+                        </div>
+                        <div class="panel-actions">
+                            <button class="btn-swap" title="Intercambiar" t-on-click.stop="swapPanels">
+                                <i class="fa fa-exchange"/>
+                            </button>
+                            <button class="btn-external" title="Abrir en ventana nueva" t-on-click.stop="openNewWindow">
+                                <i class="fa fa-external-link"/>
+                            </button>
+                            <button class="btn-close" title="Cerrar panel" t-on-click.stop="() => this.closePanel(2)">
+                                <i class="fa fa-times"/>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="split-panel-content">
+                        <iframe t-att-src="state.panel2Url" allow="same-origin"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Toolbar (always visible in bottom-right) -->
+        <div class="lavish-split-toolbar" t-if="state.showToolbar">
+            <button class="toolbar-btn"
+                    t-att-class="{'active': state.mode === 'vertical' and state.isEnabled}"
+                    t-on-click="() => this.toggleSplit('vertical')"
+                    title="Vista dividida vertical">
+                <i class="fa fa-columns"/>
+                <span>Dividir</span>
+            </button>
+            <button class="toolbar-btn"
+                    t-att-class="{'active': state.mode === 'horizontal' and state.isEnabled}"
+                    t-on-click="() => this.toggleSplit('horizontal')"
+                    title="Vista dividida horizontal">
+                <i class="fa fa-bars"/>
+                <span>Horizontal</span>
+            </button>
+            <div class="toolbar-divider"/>
+            <button class="toolbar-btn" t-on-click="openNewWindow" title="Abrir en nueva ventana">
+                <i class="fa fa-external-link"/>
+                <span>Ventana</span>
+            </button>
+            <t t-if="state.isEnabled">
+                <div class="toolbar-divider"/>
+                <button class="toolbar-btn" t-on-click="closeSplit" title="Cerrar vista dividida">
+                    <i class="fa fa-times"/>
+                    <span>Cerrar</span>
+                </button>
+            </t>
+        </div>
+    </t>
+
+</templates>
