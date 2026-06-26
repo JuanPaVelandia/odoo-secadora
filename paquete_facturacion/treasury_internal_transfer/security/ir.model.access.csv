@@ -1,3 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_treasury_internal_transfer_user,treasury.internal.transfer.user,model_treasury_internal_transfer,custom_account_treasury.group_treasury_user,1,1,1,0
-access_treasury_internal_transfer_manager,treasury.internal.transfer.manager,model_treasury_internal_transfer,custom_account_treasury.group_treasury_manager,1,1,1,1
