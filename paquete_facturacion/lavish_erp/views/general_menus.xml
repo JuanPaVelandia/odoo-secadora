@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <!-- Top menu item -->
+        <menuitem name="Localización" id="lavish_erp.menu_root" web_icon="lavish_erp,static/description/icon.png"/>
+            <!-- menu city -->
+            <menuitem name="Ciudades" id="lavish_erp.menu_city" sequence="1" parent="lavish_erp.menu_root" action="lavish_erp.lavish_menu_action_city"/>
+            <!-- menu ciiu -->
+            <menuitem name="CIIU" id="lavish_erp.menu_ciiu_parent" parent="lavish_erp.menu_root" sequence="2"/>
+                <menuitem name="Todas las Actividades" id="lavish_erp.menu_ciiu_all" parent="lavish_erp.menu_ciiu_parent" sequence="1" action="lavish_erp.action_hierarchy_ciiu"/>
+                <menuitem name="Solo Clases" id="lavish_erp.menu_ciiu_classes" parent="lavish_erp.menu_ciiu_parent" sequence="2" action="lavish_erp.action_ciiu_classes"/>
+
+            <!-- menu Parametrizacion -->
+            <menuitem name="Parametrizacion" id="lavish_erp.menus_parameterization" sequence="10" parent="lavish_erp.menu_root"/>
+                <menuitem name="Dias festivos" id="lavish_erp.menu_holidays" parent="lavish_erp.menus_parameterization" sequence="1" action="lavish_erp.lavish_menu_action_holidays"/>
+                <!-- ICA tariffs menu is in ica_tariffs_view.xml -->
+
+            <!-- menu Configuracion DIAN -->
+            <menuitem name="Configuracion DIAN" id="lavish_erp.menus_dian_config" sequence="20" parent="lavish_erp.menu_root"/>
+                <menuitem name="Codigos DIAN" id="lavish_erp.menu_dian_type_code" parent="lavish_erp.menus_dian_config" sequence="1" action="lavish_erp.action_dian_type_code"/>
+                <menuitem name="Tipos de Impuesto DIAN" id="lavish_erp.menu_dian_tax_type" parent="lavish_erp.menus_dian_config" sequence="2" action="lavish_erp.action_dian_tax_type"/>
+                <menuitem name="Unidades de Medida DIAN" id="lavish_erp.menu_dian_uom_code" parent="lavish_erp.menus_dian_config" sequence="3" action="lavish_erp.action_dian_uom_code"/>
+                <menuitem name="Tipos de Identificacion" id="lavish_erp.menu_identification_type" parent="lavish_erp.menus_dian_config" sequence="4" action="lavish_erp.action_identification_type"/>
+
+            <!-- menu Direcciones -->
+            <menuitem name="Direcciones" id="lavish_erp.menus_address_config" sequence="30" parent="lavish_erp.menu_root"/>
+                <menuitem name="Codigos de Nomenclatura" id="lavish_erp.menu_nomenclature_code" parent="lavish_erp.menus_address_config" sequence="1" action="lavish_erp.action_nomenclature_code"/>
+                <menuitem name="Barrios" id="lavish_erp.menu_neighborhood" parent="lavish_erp.menus_address_config" sequence="2" action="lavish_erp.action_res_city_neighborhood"/>
+    </data>
+</odoo>

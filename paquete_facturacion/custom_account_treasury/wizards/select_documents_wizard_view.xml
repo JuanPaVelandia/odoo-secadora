@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista del Wizard de Selección de Documentos -->
+    <record id="view_select_documents_wizard_form" model="ir.ui.view">
+        <field name="name">select.documents.wizard.form</field>
+        <field name="model">select.documents.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Seleccionar Documentos">
+                <sheet>
+                    <field name="payment_id" invisible="1"/>
+                    <field name="payment_type" invisible="1"/>
+                    <field name="partner_type" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+
+                    <div class="oe_title mb-3">
+                        <h2>Seleccionar Documentos a Pagar/Cobrar</h2>
+                    </div>
+
+                    <!-- Filtros -->
+                    <group string="Filtros" col="4">
+                        <field name="document_type" string="Tipo"/>
+                        <field name="filter_due_status" string="Estado Vencimiento" widget="radio" options="{'horizontal': True}"/>
+                        <field name="filter_partner_ids"
+                               string="Terceros"
+                               widget="many2many_tags"
+                               options="{'no_create': True}"
+                               placeholder="Todos los terceros..."/>
+                        <field name="filter_account_ids"
+                               string="Cuentas"
+                               widget="many2many_tags"
+                               options="{'no_create': True}"
+                               domain="[('account_type', 'in', ['asset_receivable', 'liability_payable'])]"/>
+                        <field name="filter_date_from" string="Desde"/>
+                        <field name="filter_date_to" string="Hasta"/>
+                        <field name="filter_amount_min" string="Monto Min"/>
+                        <field name="filter_amount_max" string="Monto Max"/>
+                    </group>
+
+                    <!-- Botones de acción -->
+                    <div class="d-flex gap-2 mb-3">
+                        <button name="action_load_documents"
+                                string="Buscar"
+                                type="object"
+                                class="btn-primary"
+                                icon="fa-search"/>
+                        <button name="action_select_all"
+                                string="Seleccionar Todo"
+                                type="object"
+                                class="btn-outline-success"
+                                icon="fa-check-square-o"/>
+                        <button name="action_deselect_all"
+                                string="Deseleccionar Todo"
+                                type="object"
+                                class="btn-outline-secondary"
+                                icon="fa-square-o"/>
+                        <button name="action_select_by_partner"
+                                string="Seleccionar por Tercero"
+                                type="object"
+                                class="btn-outline-info"
+                                icon="fa-users"
+                                invisible="not filter_partner_ids"/>
+                    </div>
+
+                    <!-- Lista de documentos -->
+                    <field name="line_ids" nolabel="1">
+                        <list editable="bottom"
+                              decoration-success="selected"
+                              decoration-muted="not selected"
+                              default_order="partner_id, account_id, date">
+                            <field name="selected" string="Sel." widget="boolean_toggle" width="50px"/>
+                            <field name="partner_id" string="Tercero" readonly="1"/>
+                            <field name="account_id" string="Cuenta" readonly="1" optional="show"/>
+                            <field name="move_id" string="Documento" readonly="1"/>
+                            <field name="name" string="Referencia" readonly="1" optional="show"/>
+                            <field name="date" string="Fecha" readonly="1"/>
+                            <field name="date_maturity" string="Vence" readonly="1" optional="show"/>
+                            <field name="amount_residual" string="Saldo" readonly="1"/>
+                            <field name="amount_to_pay" string="A Pagar"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="move_line_id" column_invisible="1"/>
+                        </list>
+                    </field>
+
+                    <!-- Resumen -->
+                    <group col="4" class="mt-3">
+                        <group>
+                            <div class="alert alert-info py-2" role="status">
+                                <strong>Documentos seleccionados:</strong>
+                                <field name="total_documents" class="ms-2" nolabel="1"/>
+                            </div>
+                        </group>
+                        <group>
+                            <div class="alert alert-success py-2" role="status">
+                                <strong>Total a pagar:</strong>
+                                <field name="total_selected" class="ms-2" nolabel="1"/>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_confirm"
+                            string="Agregar Seleccionados"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-plus"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir el wizard -->
+    <record id="action_select_documents_wizard" model="ir.actions.act_window">
+        <field name="name">Seleccionar Documentos</field>
+        <field name="res_model">select.documents.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_payment_id': active_id}</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================= -->
+    <!-- PDF TEMPLATE - BALANCE DE PRUEBA POR TERCERO                      -->
+    <!-- Nota: El HTML se genera dinámicamente en Python para evitar       -->
+    <!-- problemas de wkhtmltopdf con recursos externos.                   -->
+    <!-- Ver: account_report_extend.py -> _get_trial_balance_partner_pdf_html -->
+    <!-- ================================================================= -->
+
+    <!-- Template placeholder - requerido por la configuración del reporte -->
+    <template id="pdf_trial_balance_partner_main">
+        <t t-call="account_reports.pdf_export_main"/>
+    </template>
+
+</odoo>

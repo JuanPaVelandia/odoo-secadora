@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Purchase Order Form View -->
+    <record id="view_purchase_order_form_inherit_payment_request" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.payment.request</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_payment_requests"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-money"
+                        invisible="payment_request_count == 0">
+                    <field name="payment_request_count" widget="statinfo" string="Solicitudes"/>
+                </button>
+            </xpath>
+
+            <xpath expr="//header" position="inside">
+                <button name="action_create_payment_request"
+                        string="Crear Solicitud de Anticipo"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state not in ('draft', 'sent', 'purchase') or payment_request_count > 0"
+                        help="Crear una nueva solicitud de anticipo para esta orden"/>
+                <button name="action_add_to_payment_request"
+                        string="Agregar a Solicitud Existente"
+                        type="object"
+                        class="btn-secondary"
+                        invisible="state not in ('draft', 'sent', 'purchase')"
+                        help="Agregar esta orden a una solicitud de anticipo existente"/>
+            </xpath>
+
+            <!-- Agregar Tab de Solicitudes de Pago -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Solicitudes de Pago" name="payment_requests" invisible="not payment_request_ids">
+                    <field name="payment_request_ids" readonly="1">
+                        <list string="Solicitudes de Pago Asociadas" create="false" edit="false">
+                            <field name="name" decoration-bf="1"/>
+                            <field name="date_request"/>
+                            <field name="memo"/>
+                            <field name="request_type" widget="badge"/>
+                            <field name="advance_type_id" optional="show"/>
+                            <field name="amount" sum="Total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="state" widget="badge"
+                                   decoration-success="state == 'paid'"
+                                   decoration-info="state == 'approved'"
+                                   decoration-warning="state == 'requested'"
+                                   decoration-danger="state == 'cancelled'"/>
+                            <button name="%(custom_account_treasury.action_payment_request)d"
+                                    string="Ver"
+                                    type="action"
+                                    icon="fa-external-link"/>
+                        </list>
+                    </field>
+                    <group class="mt-3">
+                        <div class="alert alert-info" role="alert">
+                            <i class="fa fa-info-circle me-2"/>
+                            <strong>Solicitudes Asociadas:</strong>
+                            Esta orden está vinculada a <field name="payment_request_count" readonly="1" class="fw-bold"/> solicitud(es) de pago/anticipo.
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

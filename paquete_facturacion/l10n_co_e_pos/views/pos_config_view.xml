@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data>
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.pos_retail</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <block id="pos_inventory_section" position="after">
+                    <block id="ei_col" title="Diario Electronico">
+                        <setting string="Elija el diario Electronico">
+                            <field name="pos_electronic_invoice_journal_id"/>
+                        </setting>
+                        <setting help="Facturar automáticamente un nuevo pedido">
+                            <field name="order_auto_invoice"/>
+                        </setting>
+                    </block>
+                </block>
+            </field>
+        </record>
+        <record id="view_move_form_inherit_pos" model="ir.ui.view">
+            <field name="name">account.move.form.inherit.pos</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button name="action_view_pos_orders" type="object" class="oe_stat_button" icon="fa-cash-register" invisible="pos_order_count == 0">
+                        <span class="o_stat_value"><field widget="statinfo" name="pos_order_count"/></span>
+                        <span class="o_stat_text">Orden del POS</span>
+                    </button>
+                    <button name="action_view_pos_payments" type="object" class="oe_stat_button" icon="fa-credit-card"  invisible="pos_payment_count == 0">
+                        <span class="o_stat_value"><field widget="statinfo" name="pos_payment_count"/></span>
+                        <span class="o_stat_text">Pago desde POS</span>
+                    </button>
+                    <button name="action_view_refunded_invoices" type="object" class="oe_stat_button"   icon="fa-exchange-alt" invisible="pos_refunded_invoice_count == 0">
+                        <span class="o_stat_value"><field widget="statinfo" name="pos_refunded_invoice_count"/></span>
+                        <span class="o_stat_text">Notas Creditos POS</span>
+                    </button>
+                    <button name="action_view_pos_session" type="object" class="oe_stat_button" icon="fa-desktop"  invisible="not pos_session_id">
+                        <field widget="statinfo" name="pos_session_id" invisible="1"/>
+                        <span class="o_stat_text">1</span>
+                        <span class="o_stat_text">Session POS</span>
+                    </button>
+                </div>
+            </field>
+        </record>
+    </data>
+
+</odoo>

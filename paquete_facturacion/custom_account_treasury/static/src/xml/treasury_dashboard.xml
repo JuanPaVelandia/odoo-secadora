@@ -1,0 +1,830 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="custom_account_treasury.TreasuryDashboard">
+        <div class="o_treasury_dashboard">
+            <!-- Loading State -->
+            <t t-if="state.loading">
+                <div class="o_loading_screen d-flex justify-content-center align-items-center" style="min-height: 400px;">
+                    <div class="text-center">
+                        <i class="fa fa-spinner fa-spin fa-3x text-primary mb-3"/>
+                        <p>Cargando Dashboard de Tesorería...</p>
+                    </div>
+                </div>
+            </t>
+
+            <!-- Dashboard Content -->
+            <t t-else="">
+                <!-- Header with User Info and Period Filter -->
+                <div class="o_dashboard_header bg-gradient p-3 mb-4 shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div class="d-flex align-items-center">
+                            <img t-att-src="state.dashboardData.user_info.avatar_url"
+                                 class="rounded-circle me-3"
+                                 style="width: 50px; height: 50px;"
+                                 alt="Avatar"/>
+                            <div>
+                                <h4 class="mb-0 text-dark"><t t-esc="state.dashboardData.user_info.name"/></h4>
+                                <small class="text-dark"><t t-esc="state.dashboardData.user_info.company"/></small>
+                            </div>
+                        </div>
+
+                        <!-- Filtro de Periodo -->
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <div class="input-group input-group-sm" style="width: auto;">
+                                <span class="input-group-text bg-white"><i class="fa fa-calendar"/></span>
+                                <select class="form-select form-select-sm"
+                                        t-on-change="(ev) => this.onPeriodChange(ev)">
+                                    <option value="today" t-att-selected="state.selectedPeriod === 'today'">Hoy</option>
+                                    <option value="week" t-att-selected="state.selectedPeriod === 'week'">Esta Semana</option>
+                                    <option value="month" t-att-selected="state.selectedPeriod === 'month'">Este Mes</option>
+                                    <option value="quarter" t-att-selected="state.selectedPeriod === 'quarter'">Este Trimestre</option>
+                                    <option value="year" t-att-selected="state.selectedPeriod === 'year'">Este Año</option>
+                                    <option value="custom" t-att-selected="state.selectedPeriod === 'custom'">Personalizado</option>
+                                </select>
+                            </div>
+
+                            <!-- Mostrar fechas del periodo seleccionado -->
+                            <span class="badge bg-secondary">
+                                <t t-esc="state.dateFrom"/> - <t t-esc="state.dateTo"/>
+                            </span>
+
+                            <t t-if="state.selectedPeriod === 'custom'">
+                                <div class="input-group input-group-sm" style="width: auto;">
+                                    <span class="input-group-text bg-white">Desde</span>
+                                    <input type="date" class="form-control form-control-sm"
+                                           t-att-value="state.dateFrom"
+                                           t-on-change="(ev) => this.onDateFromChange(ev)"/>
+                                </div>
+                                <div class="input-group input-group-sm" style="width: auto;">
+                                    <span class="input-group-text bg-white">Hasta</span>
+                                    <input type="date" class="form-control form-control-sm"
+                                           t-att-value="state.dateTo"
+                                           t-on-change="(ev) => this.onDateToChange(ev)"/>
+                                </div>
+                            </t>
+
+                            <button class="btn btn-light btn-sm" t-on-click="() => this.refreshDashboard()">
+                                <i class="fa fa-refresh"/> Actualizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Metrics Cards -->
+                <div class="row g-2 mb-3">
+                    <!-- Liquidez Total -->
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card border-0 shadow-sm h-100 metric-card success">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted d-block">Liquidez Total</small>
+                                        <h4 class="mb-0 text-success">
+                                            <t t-esc="formatCurrency(state.dashboardData.liquidity.total_liquidity)"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            <i class="fa fa-university"/> <t t-esc="state.dashboardData.liquidity.bank_count"/> |
+                                            <i class="fa fa-money"/> <t t-esc="state.dashboardData.liquidity.cash_count"/>
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-usd fa-2x text-success opacity-50"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Flujo del Día -->
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card border-0 shadow-sm h-100 metric-card info">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted d-block">Flujo del Día</small>
+                                        <h4 class="mb-0" t-att-class="state.dashboardData.daily_flow.today_net_flow >= 0 ? 'text-success' : 'text-danger'">
+                                            <t t-esc="formatCurrency(state.dashboardData.daily_flow.today_net_flow)"/>
+                                        </h4>
+                                        <small>
+                                            <span class="text-success">↑<t t-esc="formatCurrency(state.dashboardData.daily_flow.today_income)"/></span>
+                                            <span class="text-danger ms-1">↓<t t-esc="formatCurrency(state.dashboardData.daily_flow.today_expenses)"/></span>
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-exchange fa-2x text-info opacity-50"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Por Cobrar -->
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card border-0 shadow-sm h-100 metric-card warning" style="cursor: pointer;" t-on-click="() => this.openPendingCustomerInvoices()">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted d-block">Por Cobrar</small>
+                                        <h4 class="mb-0 text-warning">
+                                            <t t-esc="formatCurrency(state.dashboardData.pending_payments.pending_customer_payments)"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            <t t-esc="state.dashboardData.pending_payments.customer_count"/> facturas
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-arrow-circle-down fa-2x text-warning opacity-50"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Por Pagar -->
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card border-0 shadow-sm h-100 metric-card danger" style="cursor: pointer;" t-on-click="() => this.openPendingSupplierInvoices()">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted d-block">Por Pagar</small>
+                                        <h4 class="mb-0 text-danger">
+                                            <t t-esc="formatCurrency(state.dashboardData.pending_payments.pending_supplier_payments)"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            <t t-esc="state.dashboardData.pending_payments.supplier_count"/> facturas
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-arrow-circle-up fa-2x text-danger opacity-50"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Vencimientos por Rango de Fecha -->
+                <div class="row g-3 mb-3">
+                    <!-- Por Cobrar por Periodo -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-warning text-dark py-2 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fa fa-arrow-circle-down"/> Por Cobrar - Análisis de Vencimiento</h6>
+                                <span class="badge bg-light text-dark fs-6 border">
+                                    Total: <t t-esc="formatCurrency(state.dashboardData.upcoming_due?.receivable?.total?.amount || 0)"/>
+                                </span>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Periodo</th>
+                                            <th class="text-center">Facturas</th>
+                                            <th class="text-end">Monto</th>
+                                            <th class="text-center" style="width: 40px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="cursor: pointer;" class="table-danger" t-on-click="() => this.openDueInvoices('receivable', 'overdue')">
+                                            <td><i class="fa fa-exclamation-circle text-danger"/> <strong>Vencidas</strong></td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.receivable?.overdue?.count || 0"/></span></td>
+                                            <td class="text-end text-danger fw-bold"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.receivable?.overdue?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" class="table-warning" t-on-click="() => this.openDueInvoices('receivable', 'today')">
+                                            <td><i class="fa fa-clock-o text-warning"/> Vencen Hoy</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.receivable?.today?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.receivable?.today?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" t-on-click="() => this.openDueInvoices('receivable', 'week')">
+                                            <td><i class="fa fa-calendar text-info"/> Próximos 7 días</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.receivable?.week?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.receivable?.week?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" t-on-click="() => this.openDueInvoices('receivable', 'month')">
+                                            <td><i class="fa fa-calendar-o text-primary"/> 8-30 días</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.receivable?.month?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.receivable?.month?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" t-on-click="() => this.openDueInvoices('receivable', 'quarter')">
+                                            <td><i class="fa fa-calendar-plus-o text-secondary"/> 31-90 días</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.receivable?.quarter?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.receivable?.quarter?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Por Pagar por Periodo -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fa fa-arrow-circle-up"/> Por Pagar - Análisis de Vencimiento</h6>
+                                <span class="badge bg-light text-dark fs-6 border">
+                                    Total: <t t-esc="formatCurrency(state.dashboardData.upcoming_due?.payable?.total?.amount || 0)"/>
+                                </span>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Periodo</th>
+                                            <th class="text-center">Facturas</th>
+                                            <th class="text-end">Monto</th>
+                                            <th class="text-center" style="width: 40px;"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="cursor: pointer;" class="table-danger" t-on-click="() => this.openDueInvoices('payable', 'overdue')">
+                                            <td><i class="fa fa-exclamation-circle text-danger"/> <strong>Vencidas</strong></td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.payable?.overdue?.count || 0"/></span></td>
+                                            <td class="text-end text-danger fw-bold"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.payable?.overdue?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" class="table-warning" t-on-click="() => this.openDueInvoices('payable', 'today')">
+                                            <td><i class="fa fa-clock-o text-warning"/> Vencen Hoy</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.payable?.today?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.payable?.today?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" t-on-click="() => this.openDueInvoices('payable', 'week')">
+                                            <td><i class="fa fa-calendar text-info"/> Próximos 7 días</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.payable?.week?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.payable?.week?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" t-on-click="() => this.openDueInvoices('payable', 'month')">
+                                            <td><i class="fa fa-calendar-o text-primary"/> 8-30 días</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.payable?.month?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.payable?.month?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                        <tr style="cursor: pointer;" t-on-click="() => this.openDueInvoices('payable', 'quarter')">
+                                            <td><i class="fa fa-calendar-plus-o text-secondary"/> 31-90 días</td>
+                                            <td class="text-center"><span class="badge bg-light text-dark rounded-pill fs-6 px-3 border"><t t-esc="state.dashboardData.upcoming_due?.payable?.quarter?.count || 0"/></span></td>
+                                            <td class="text-end"><t t-esc="formatCurrency(state.dashboardData.upcoming_due?.payable?.quarter?.amount || 0)"/></td>
+                                            <td class="text-center"><i class="fa fa-chevron-right text-muted"/></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPIs Adicionales: Anticipos -->
+                <div class="row g-2 mb-3">
+                    <!-- Anticipos sin Aplicar -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100 metric-card" style="cursor: pointer; border-left: 4px solid #8b5cf6 !important;" t-on-click="() => this.openAdvances()">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted d-block"><i class="fa fa-forward"/> Anticipos Sin Aplicar</small>
+                                        <h4 class="mb-0" style="color: #8b5cf6;">
+                                            <t t-esc="formatCurrency((state.dashboardData.advances.unreconciled_advances_customer || 0) + (state.dashboardData.advances.unreconciled_advances_supplier || 0))"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            <t t-esc="(state.dashboardData.advances.customer_count || 0) + (state.dashboardData.advances.supplier_count || 0)"/> anticipos
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-money fa-2x opacity-50" style="color: #8b5cf6;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Solicitudes de Anticipo Pendientes -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100 metric-card" style="cursor: pointer; border-left: 4px solid #06b6d4 !important;" t-on-click="() => this.openAdvanceRequests()">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted d-block"><i class="fa fa-file-text-o"/> Solicitudes de Anticipo Pendientes</small>
+                                        <h4 class="mb-0" style="color: #06b6d4;">
+                                            <t t-esc="formatCurrency(state.dashboardData.advance_requests.pending_amount || 0)"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            <t t-esc="state.dashboardData.advance_requests.pending_count || 0"/> solicitudes pendientes
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-tasks fa-2x opacity-50" style="color: #06b6d4;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPIs de Gastos Bancarios -->
+                <div class="row g-3 mb-3">
+                    <!-- Gastos Bancarios del Periodo -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ef4444 !important;">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fa fa-bank"/> Gastos Bancarios
+                                        </small>
+                                        <h4 class="mb-1 text-danger">
+                                            <t t-esc="formatCurrency(state.dashboardData.bank_expenses_kpi?.current_expenses || 0)"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            <t t-esc="state.dashboardData.bank_expenses_kpi?.expense_count || 0"/> movimientos
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span t-att-class="'badge ' + ((state.dashboardData.bank_expenses_kpi?.variation_pct || 0) > 0 ? 'bg-danger' : 'bg-success')">
+                                            <t t-if="(state.dashboardData.bank_expenses_kpi?.variation_pct || 0) > 0">+</t>
+                                            <t t-esc="state.dashboardData.bank_expenses_kpi?.variation_pct || 0"/>%
+                                        </span>
+                                        <small class="d-block text-muted mt-1">vs mes ant.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gastos Proyectados -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #f59e0b !important;">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fa fa-calculator"/> Gastos Proyectados
+                                        </small>
+                                        <h4 class="mb-1" style="color: #f59e0b;">
+                                            <t t-esc="formatCurrency(state.dashboardData.bank_expenses_kpi?.projected_expenses || 0)"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            Prom. comision: <t t-esc="formatCurrency(state.dashboardData.bank_expenses_kpi?.avg_commission || 0)"/>
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-line-chart fa-2x opacity-50" style="color: #f59e0b;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comisiones Configuradas -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #3b82f6 !important;">
+                            <div class="card-body py-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <small class="text-muted d-block mb-1">
+                                            <i class="fa fa-cog"/> Comisiones Configuradas
+                                        </small>
+                                        <h4 class="mb-1 text-primary">
+                                            <t t-esc="state.dashboardData.bank_expenses_kpi?.total_commissions_config || 0"/>
+                                        </h4>
+                                        <small class="text-muted">
+                                            <span class="badge bg-success"><t t-esc="state.dashboardData.bank_expenses_kpi?.exempt_commissions || 0"/> exentas</span>
+                                        </small>
+                                    </div>
+                                    <i class="fa fa-sliders fa-2x opacity-50 text-primary"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalle de Gastos Bancarios -->
+                <div class="row g-3 mb-3">
+                    <!-- Por Diario -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-bottom py-2">
+                                <h6 class="mb-0"><i class="fa fa-list text-danger"/> Gastos por Diario</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <t t-if="state.dashboardData.bank_expenses_kpi?.by_journal?.length > 0">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Diario</th>
+                                                <th class="text-end">Monto</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="state.dashboardData.bank_expenses_kpi.by_journal" t-as="item" t-key="item.journal_id">
+                                                <td><t t-esc="item.journal_name"/></td>
+                                                <td class="text-end text-danger"><t t-esc="formatCurrency(item.total)"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center p-3 text-muted">
+                                        <i class="fa fa-inbox fa-2x mb-2"/><br/>
+                                        <small>Sin gastos en el periodo</small>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Por Categoria de Servicio -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-bottom py-2">
+                                <h6 class="mb-0"><i class="fa fa-tags text-primary"/> Comisiones por Categoria</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <t t-if="state.dashboardData.bank_expenses_kpi?.by_category?.length > 0">
+                                    <table class="table table-sm table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Categoria</th>
+                                                <th class="text-center">Config.</th>
+                                                <th class="text-end">Prom.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-foreach="state.dashboardData.bank_expenses_kpi.by_category" t-as="cat" t-key="cat.category">
+                                                <td><t t-esc="cat.label"/></td>
+                                                <td class="text-center"><span class="badge bg-secondary"><t t-esc="cat.count"/></span></td>
+                                                <td class="text-end"><t t-esc="formatCurrency(cat.avg_fixed)"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center p-3 text-muted">
+                                        <i class="fa fa-cog fa-2x mb-2"/><br/>
+                                        <small>Sin comisiones configuradas</small>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICA DE MOVIMIENTOS POR DIARIO -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom">
+                                <h5 class="mb-0"><i class="fa fa-bar-chart text-primary"/> Movimientos por Diario (Este Mes)</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="journalMovementsChart" style="height: 280px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bancos y Cajas en fila -->
+                <div class="row g-3 mb-3">
+                    <!-- Bancos -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-primary text-white py-2">
+                                <h6 class="mb-0"><i class="fa fa-university"/> Bancos</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <t t-if="state.dashboardData.bank_list.length > 0">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Banco</th>
+                                                    <th class="text-end">Saldo</th>
+                                                    <th class="text-end">Entradas</th>
+                                                    <th class="text-end">Salidas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="state.dashboardData.bank_list" t-as="bank" t-key="bank.journal_id">
+                                                    <td><t t-esc="bank.name"/></td>
+                                                    <td class="text-end fw-bold" t-att-class="bank.balance >= 0 ? 'text-success' : 'text-danger'">
+                                                        <t t-esc="formatCurrency(bank.balance)"/>
+                                                    </td>
+                                                    <td class="text-end text-success"><t t-esc="formatCurrency(bank.inbound)"/></td>
+                                                    <td class="text-end text-danger"><t t-esc="formatCurrency(bank.outbound)"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center p-3 text-muted">
+                                        <i class="fa fa-inbox fa-2x mb-2"/><br/>
+                                        <small>No hay bancos configurados</small>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cajas -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-success text-white py-2">
+                                <h6 class="mb-0"><i class="fa fa-money"/> Cajas</h6>
+                            </div>
+                            <div class="card-body p-0">
+                                <t t-if="state.dashboardData.cash_list.length > 0">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Caja</th>
+                                                    <th class="text-end">Saldo</th>
+                                                    <th class="text-end">Entradas</th>
+                                                    <th class="text-end">Salidas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="state.dashboardData.cash_list" t-as="cash" t-key="cash.journal_id">
+                                                    <td><t t-esc="cash.name"/></td>
+                                                    <td class="text-end fw-bold" t-att-class="cash.balance >= 0 ? 'text-success' : 'text-danger'">
+                                                        <t t-esc="formatCurrency(cash.balance)"/>
+                                                    </td>
+                                                    <td class="text-end text-success"><t t-esc="formatCurrency(cash.inbound)"/></td>
+                                                    <td class="text-end text-danger"><t t-esc="formatCurrency(cash.outbound)"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center p-3 text-muted">
+                                        <i class="fa fa-inbox fa-2x mb-2"/><br/>
+                                        <small>No hay cajas configuradas</small>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagos y Cobros Recientes -->
+                <div class="row g-3 mb-3">
+                    <!-- Pagos Realizados -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fa fa-arrow-up"/> Pagos Realizados</h6>
+                                <button class="btn btn-sm btn-light" t-on-click="() => this.openPayments()">
+                                    Ver Todos
+                                </button>
+                            </div>
+                            <div class="card-body p-0">
+                                <t t-if="state.dashboardData.recent_payments.length > 0">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Proveedor</th>
+                                                    <th>Diario</th>
+                                                    <th class="text-end">Monto</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="state.dashboardData.recent_payments.slice(0, 10)" t-as="payment" t-key="payment.id"
+                                                    style="cursor: pointer;" t-on-click="() => this.openPaymentForm(payment.id)">
+                                                    <td><small><t t-esc="payment.date"/></small></td>
+                                                    <td><t t-esc="payment.partner_name || 'N/A'"/></td>
+                                                    <td><small class="badge bg-secondary"><t t-esc="payment.journal_name"/></small></td>
+                                                    <td class="text-end text-danger fw-bold"><t t-esc="formatCurrency(payment.amount)"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center p-4 text-muted">
+                                        <i class="fa fa-inbox fa-2x mb-2"/><br/>
+                                        <small>No hay pagos en el periodo</small>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cobros Realizados -->
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-success text-white py-2 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0"><i class="fa fa-arrow-down"/> Cobros Realizados</h6>
+                                <button class="btn btn-sm btn-light" t-on-click="() => this.openReceipts()">
+                                    Ver Todos
+                                </button>
+                            </div>
+                            <div class="card-body p-0">
+                                <t t-if="state.dashboardData.recent_receipts.length > 0">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Fecha</th>
+                                                    <th>Cliente</th>
+                                                    <th>Diario</th>
+                                                    <th class="text-end">Monto</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr t-foreach="state.dashboardData.recent_receipts.slice(0, 10)" t-as="receipt" t-key="receipt.id"
+                                                    style="cursor: pointer;" t-on-click="() => this.openReceiptForm(receipt.id)">
+                                                    <td><small><t t-esc="receipt.date"/></small></td>
+                                                    <td><t t-esc="receipt.partner_name || 'N/A'"/></td>
+                                                    <td><small class="badge bg-secondary"><t t-esc="receipt.journal_name"/></small></td>
+                                                    <td class="text-end text-success fw-bold"><t t-esc="formatCurrency(receipt.amount)"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center p-4 text-muted">
+                                        <i class="fa fa-inbox fa-2x mb-2"/><br/>
+                                        <small>No hay cobros en el periodo</small>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proyección y Tendencia -->
+                <div class="row g-3 mb-3">
+                    <!-- Proyección de Flujo -->
+                    <div class="col-md-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom py-2 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <h6 class="mb-0"><i class="fa fa-line-chart text-info"/> Proyección de Flujo (Próximas 5 Semanas)</h6>
+                                <div class="d-flex gap-2 align-items-center">
+                                    <select class="form-select form-select-sm" style="width: auto;"
+                                            t-on-change="(ev) => this.onProjectionJournalChange(ev)">
+                                        <option value="">Todos los Diarios</option>
+                                        <t t-foreach="state.dashboardData.bank_list || []" t-as="journal" t-key="journal.journal_id">
+                                            <option t-att-value="journal.journal_id" t-att-selected="state.projectionJournalId == journal.journal_id">
+                                                <t t-esc="journal.name"/>
+                                            </option>
+                                        </t>
+                                        <t t-foreach="state.dashboardData.cash_list || []" t-as="journal" t-key="journal.journal_id">
+                                            <option t-att-value="journal.journal_id" t-att-selected="state.projectionJournalId == journal.journal_id">
+                                                <t t-esc="journal.name"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                    <button class="btn btn-sm btn-outline-success" t-on-click="() => this.exportProjectionToExcel()" title="Exportar a Excel">
+                                        <i class="fa fa-file-excel-o"/> Excel
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="cashFlowProjectionChart" style="height: 250px;"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tendencia Mensual -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-bottom py-2">
+                                <h6 class="mb-0"><i class="fa fa-area-chart text-primary"/> Tendencia 6 Meses</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="monthlyTrendChart" style="height: 250px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flujo de Caja Anual -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom py-2 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fa fa-calendar text-primary"/>
+                                    Flujo de Caja <t t-esc="state.dashboardData.yearly_cash_flow?.year || new Date().getFullYear()"/>
+                                </h6>
+                                <div class="d-flex gap-3">
+                                    <span class="badge bg-success">
+                                        Ingresos: <t t-esc="formatCurrency(state.dashboardData.yearly_cash_flow?.total_inbound || 0)"/>
+                                    </span>
+                                    <span class="badge bg-danger">
+                                        Egresos: <t t-esc="formatCurrency(state.dashboardData.yearly_cash_flow?.total_outbound || 0)"/>
+                                    </span>
+                                    <span t-att-class="'badge ' + ((state.dashboardData.yearly_cash_flow?.total_net || 0) >= 0 ? 'bg-primary' : 'bg-warning')">
+                                        Neto: <t t-esc="formatCurrency(state.dashboardData.yearly_cash_flow?.total_net || 0)"/>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="yearlyCashFlowChart" style="height: 280px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prediccion de Flujo de Caja -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom py-2 d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0">
+                                    <i class="fa fa-crystal-ball text-info" style="font-size: 1.1em;"/>
+                                    <i class="fa fa-line-chart text-info"/>
+                                    Prediccion Basada en Tendencias
+                                </h6>
+                                <div class="d-flex gap-3">
+                                    <span class="badge bg-success">
+                                        Prom. Ingresos: <t t-esc="formatCurrency(state.dashboardData.cash_flow_forecast?.stats?.avg_monthly_inbound || 0)"/>
+                                    </span>
+                                    <span class="badge bg-danger">
+                                        Prom. Egresos: <t t-esc="formatCurrency(state.dashboardData.cash_flow_forecast?.stats?.avg_monthly_outbound || 0)"/>
+                                    </span>
+                                    <span t-att-class="'badge ' + ((state.dashboardData.cash_flow_forecast?.stats?.inbound_growth_pct || 0) >= 0 ? 'bg-success' : 'bg-warning')">
+                                        Tendencia: <t t-esc="(state.dashboardData.cash_flow_forecast?.stats?.inbound_growth_pct || 0)"/>%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="cashFlowForecastChart" style="height: 300px;"/>
+                                <div class="mt-2 text-muted small text-center">
+                                    <i class="fa fa-info-circle"/>
+                                    Proyeccion basada en el comportamiento de los ultimos 6 meses. La opacidad indica el nivel de confianza.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Antigüedad de Cartera -->
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-warning text-dark py-2">
+                                <h6 class="mb-0"><i class="fa fa-bar-chart"/> Antigüedad - Por Cobrar</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="agingReceivableChart" style="height: 220px;"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-info text-white py-2">
+                                <h6 class="mb-0"><i class="fa fa-bar-chart"/> Antigüedad - Por Pagar</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="agingPayableChart" style="height: 220px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen y Estadísticas -->
+                <div class="row g-3 mb-3">
+                    <!-- Pagos por Estado -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom py-2">
+                                <h6 class="mb-0"><i class="fa fa-pie-chart text-purple"/> Pagos por Estado</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="paymentsStateChart" style="height: 200px;"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Clientes -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom py-2">
+                                <h6 class="mb-0"><i class="fa fa-users text-success"/> Top Clientes</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="topCustomersChart" style="height: 200px;"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Proveedores -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-bottom py-2">
+                                <h6 class="mb-0"><i class="fa fa-truck text-danger"/> Top Proveedores</h6>
+                            </div>
+                            <div class="card-body">
+                                <canvas t-ref="topSuppliersChart" style="height: 200px;"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botón flotante de actualización -->
+                <button class="btn btn-primary btn-refresh-float shadow" t-on-click="() => this.refreshDashboard()" title="Actualizar Dashboard">
+                    <i class="fa fa-refresh"/>
+                </button>
+            </t>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,146 @@
+/* ==========================================================================
+   Estilos para Secciones y Notas en Líneas de Pago
+   Basado en el nativo de Odoo (section_and_note_backend.scss)
+   ========================================================================== */
+
+/* Notas - estilo itálico */
+table.o_payment_section_and_note_list tr.o_data_row.o_is_line_note,
+table.o_payment_section_and_note_list tr.o_data_row.o_is_line_note textarea[name="name"] {
+    font-style: italic;
+}
+
+/* Secciones - negrita con fondo gris */
+table.o_payment_section_and_note_list tr.o_data_row.o_is_line_section {
+    font-weight: bold;
+    background-color: #DDDDDD;
+    border-top: 1px solid #BBB;
+    border-bottom: 1px solid #BBB;
+}
+
+/* Bordes de celdas para secciones/notas */
+table.o_payment_section_and_note_list tr.o_data_row {
+    &.o_is_line_note,
+    &.o_is_line_section {
+        td {
+            border: none !important;
+        }
+    }
+}
+
+/* Widget de texto para secciones/notas */
+.o_field_payment_section_and_note_text {
+    > span {
+        white-space: pre-wrap !important;
+    }
+}
+
+/* Ocultar celdas para secciones/notas */
+table.o_payment_section_and_note_list {
+    .o_hidden {
+        display: none !important;
+    }
+}
+
+/* ========== ESTILOS ADICIONALES PERSONALIZADOS ========== */
+
+/* Líneas principales (banco/caja, contrapartida) */
+table.o_payment_section_and_note_list tr.o_data_row.o_is_main_line {
+    background-color: #e8f4fd !important;
+    font-weight: 500;
+
+    td {
+        border-bottom: 2px solid #b8daff;
+    }
+}
+
+/* Cuentas por cobrar - borde verde */
+table.o_payment_section_and_note_list tr.o_data_row.o_account_receivable:not(.o_is_line_section):not(.o_is_line_note) {
+    border-left: 3px solid #28a745;
+
+    &:hover {
+        background-color: #d4edda !important;
+    }
+}
+
+/* Cuentas por pagar - borde rojo */
+table.o_payment_section_and_note_list tr.o_data_row.o_account_payable:not(.o_is_line_section):not(.o_is_line_note) {
+    border-left: 3px solid #dc3545;
+
+    &:hover {
+        background-color: #f8d7da !important;
+    }
+}
+
+/* Líneas de impuesto revertido */
+table.o_payment_section_and_note_list tr.o_data_row[class*="auto_tax_line"] {
+    background-color: #fff3cd !important;
+    font-size: 0.9em;
+
+    td {
+        padding: 4px 8px !important;
+    }
+}
+
+/* Controles de agregar línea */
+.o_payment_lines_field {
+    .o_field_x2many_list_row_add {
+        padding: 8px 12px;
+        background-color: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+
+        a {
+            margin-right: 16px;
+            color: #495057;
+            text-decoration: none;
+
+            &:hover {
+                color: #007bff;
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+/* Botones de acción en líneas */
+table.o_payment_section_and_note_list {
+    .btn-link {
+        padding: 2px 6px;
+        opacity: 0.6;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    /* Botón de búsqueda de documentos */
+    button[name="action_open_select_documents"] {
+        color: #007bff;
+
+        &:hover {
+            color: #0056b3;
+            background-color: #e7f3ff;
+            border-radius: 4px;
+        }
+    }
+
+    /* Botón de reversión de impuestos */
+    button[name="action_revert_line_taxes"] {
+        color: #fd7e14;
+
+        &:hover {
+            color: #dc6600;
+            background-color: #fff3e0;
+            border-radius: 4px;
+        }
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    table.o_payment_section_and_note_list {
+        tr.o_is_line_section td,
+        tr.o_is_line_note td {
+            padding: 6px 8px !important;
+        }
+    }
+}

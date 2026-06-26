@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="treasury_bank_charge_type_view_list" model="ir.ui.view">
+        <field name="name">treasury.bank.charge.type.list</field>
+        <field name="model">treasury.bank.charge.type</field>
+        <field name="arch" type="xml">
+            <list string="Tipos de Cargo Bancario" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="charge_type"/>
+                <field name="calculation_type"/>
+                <field name="apply_iva"/>
+                <field name="account_id" optional="show"/>
+                <field name="apply_to_inbound"/>
+                <field name="apply_to_outbound"/>
+                <field name="active" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="treasury_bank_charge_type_view_form" model="ir.ui.view">
+        <field name="name">treasury.bank.charge.type.form</field>
+        <field name="model">treasury.bank.charge.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipo de Cargo Bancario">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="toggle_active" type="object" class="oe_stat_button"
+                                icon="fa-archive" invisible="not id">
+                            <field name="active" widget="boolean_button" options='{"terminology": "archive"}'/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archivado" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <group name="basic">
+                            <field name="name" placeholder="Ej: GMF (4x1000)"/>
+                            <field name="code" placeholder="Ej: GMF"/>
+                            <field name="charge_type"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group name="company">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Configuracion Contable" name="accounting">
+                            <group>
+                                <group name="accounts">
+                                    <field name="account_id"/>
+                                    <field name="partner_id"/>
+                                </group>
+                                <group name="iva">
+                                    <field name="apply_iva"/>
+                                    <field name="iva_account_id" invisible="not apply_iva"/>
+                                    <field name="iva_rate" invisible="not apply_iva"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Calculo" name="calculation">
+                            <group>
+                                <group name="calc_type">
+                                    <field name="calculation_type"/>
+                                    <field name="fixed_amount" invisible="calculation_type != 'fixed'"/>
+                                    <field name="percentage" invisible="calculation_type != 'percentage'"/>
+                                    <field name="percentage_base" invisible="calculation_type != 'percentage'"/>
+                                </group>
+                                <group name="applicability">
+                                    <field name="apply_to_inbound"/>
+                                    <field name="apply_to_outbound"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Notas" name="notes">
+                            <field name="description" placeholder="Descripcion detallada del tipo de cargo..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="treasury_bank_charge_type_view_search" model="ir.ui.view">
+        <field name="name">treasury.bank.charge.type.search</field>
+        <field name="model">treasury.bank.charge.type</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="code"/>
+                <filter string="Gastos" name="filter_expense" domain="[('charge_type', '=', 'expense')]"/>
+                <filter string="Impuestos" name="filter_tax" domain="[('charge_type', '=', 'tax')]"/>
+                <filter string="Retenciones" name="filter_withholding" domain="[('charge_type', '=', 'withholding')]"/>
+                <filter string="Aplica IVA" name="filter_iva" domain="[('apply_iva', '=', True)]"/>
+                <filter string="Archivados" name="filter_inactive" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Tipo de Cargo" name="group_charge_type" context="{'group_by': 'charge_type'}"/>
+                    <filter string="Tipo de Calculo" name="group_calc_type" context="{'group_by': 'calculation_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="treasury_bank_charge_type_action" model="ir.actions.act_window">
+        <field name="name">Tipos de Cargo Bancario</field>
+        <field name="res_model">treasury.bank.charge.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un tipo de cargo bancario
+            </p>
+            <p>
+                Configure los tipos de cargos bancarios que pueden aplicarse en conciliacion.
+                Incluye: GMF (4x1000), comisiones, IVA, retenciones, etc.
+            </p>
+        </field>
+    </record>
+
+</odoo>

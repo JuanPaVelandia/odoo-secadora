@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================== -->
+    <!-- DIAN FORMS WIZARD - Formularios 300, 350 e ICA -->
+    <!-- ============================================================== -->
+
+    <record id="view_dian_forms_wizard_form" model="ir.ui.view">
+        <field name="name">dian.forms.wizard.form</field>
+        <field name="model">dian.forms.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Formularios Tributarios">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <span invisible="state != 'draft'">Generar Formularios Tributarios</span>
+                            <span invisible="state != 'preview'">Vista Previa - Formularios Tributarios</span>
+                            <span invisible="state != 'done'">Formularios Generados</span>
+                        </h1>
+                    </div>
+
+                    <!-- PASO 1: CONFIGURACIÓN -->
+                    <group invisible="state != 'draft'">
+                        <group string="Empresa y Formulario">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="form_type" widget="radio"/>
+                        </group>
+                        <group string="Periodo">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                    </group>
+
+                    <!-- Configuración ICA (solo visible cuando se selecciona ICA) -->
+                    <group invisible="state != 'draft' or form_type not in ('ica', 'all')" string="Configuracion ICA">
+                        <group>
+                            <field name="ica_municipio_id" placeholder="Seleccione municipio..."/>
+                            <field name="ica_tarifa" string="Tarifa ICA (x mil)"/>
+                        </group>
+                    </group>
+
+                    <!-- PASO 2: VISTA PREVIA -->
+                    <group invisible="state != 'preview'">
+                        <group string="Formulario 300 - IVA" invisible="form_type in ('350', 'ica')">
+                            <field name="f300_total_ingresos" widget="monetary"/>
+                            <field name="f300_total_compras" widget="monetary"/>
+                            <field name="f300_iva_generado" widget="monetary"/>
+                            <field name="f300_iva_descontable" widget="monetary"/>
+                            <field name="f300_saldo_pagar" widget="monetary"
+                                   decoration-danger="f300_saldo_pagar > 0"/>
+                            <field name="f300_saldo_favor" widget="monetary"
+                                   decoration-success="f300_saldo_favor > 0"/>
+                        </group>
+                        <group string="Formulario 350 - Retencion" invisible="form_type in ('300', 'ica')">
+                            <field name="f350_ret_pj" widget="monetary"/>
+                            <field name="f350_ret_pn" widget="monetary"/>
+                            <field name="f350_ret_iva" widget="monetary"/>
+                            <field name="f350_total" widget="monetary"
+                                   decoration-danger="f350_total > 0"/>
+                        </group>
+                        <group string="Formulario ICA - Industria y Comercio" invisible="form_type in ('300', '350')">
+                            <field name="ica_ingresos_brutos" widget="monetary"/>
+                            <field name="ica_deducciones" widget="monetary"/>
+                            <field name="ica_base_gravable" widget="monetary"/>
+                            <field name="ica_tarifa" readonly="1"/>
+                            <field name="ica_impuesto" widget="monetary"/>
+                            <field name="ica_reteica" widget="monetary"/>
+                            <field name="ica_total" widget="monetary"
+                                   decoration-danger="ica_total > 0"/>
+                        </group>
+                    </group>
+
+                    <!-- PASO 3: DESCARGAR PDFs -->
+                    <group invisible="state != 'done'">
+                        <group string="Descargar Formularios">
+                            <field name="pdf_300" filename="pdf_300_name"
+                                   invisible="not pdf_300"/>
+                            <field name="pdf_300_name" invisible="1"/>
+                            <field name="pdf_350" filename="pdf_350_name"
+                                   invisible="not pdf_350"/>
+                            <field name="pdf_350_name" invisible="1"/>
+                            <field name="pdf_ica" filename="pdf_ica_name"
+                                   invisible="not pdf_ica"/>
+                            <field name="pdf_ica_name" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <field name="state" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+
+                    <!-- INFO BOX -->
+                    <group class="alert alert-info" role="alert" invisible="state != 'draft'">
+                        <div>
+                            <p><strong>Formularios Tributarios Colombia:</strong></p>
+                            <ul>
+                                <li><strong>Formulario 300:</strong> Declaracion del Impuesto sobre las Ventas (IVA) - Bimestral</li>
+                                <li><strong>Formulario 350:</strong> Declaracion de Retenciones en la Fuente - Mensual</li>
+                                <li><strong>Formulario ICA:</strong> Impuesto de Industria y Comercio - Municipal/Bimestral</li>
+                            </ul>
+                            <p class="text-muted">
+                                Los formularios generados son borradores. La declaracion oficial debe presentarse en www.dian.gov.co o en la secretaria de hacienda municipal correspondiente.
+                            </p>
+                        </div>
+                    </group>
+                </sheet>
+
+                <footer>
+                    <!-- Botones paso 1: Configuración -->
+                    <button name="action_calculate"
+                            string="Calcular"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                            data-hotkey="q"/>
+                    <button string="Cancelar"
+                            class="btn-secondary"
+                            special="cancel"
+                            invisible="state != 'draft'"
+                            data-hotkey="x"/>
+
+                    <!-- Botones paso 2: Vista Previa -->
+                    <button name="action_generate_pdf"
+                            string="Generar PDF"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'preview'"
+                            data-hotkey="q"/>
+                    <button name="action_reset"
+                            string="Volver"
+                            type="object"
+                            class="btn-secondary"
+                            invisible="state != 'preview'"
+                            data-hotkey="z"/>
+                    <button string="Cancelar"
+                            class="btn-secondary"
+                            special="cancel"
+                            invisible="state != 'preview'"
+                            data-hotkey="x"/>
+
+                    <!-- Botones paso 3: Descarga -->
+                    <button name="action_reset"
+                            string="Generar Nuevo"
+                            type="object"
+                            class="btn-primary"
+                            invisible="state != 'done'"
+                            data-hotkey="n"/>
+                    <button string="Cerrar"
+                            class="btn-secondary"
+                            special="cancel"
+                            invisible="state != 'done'"
+                            data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción del Wizard -->
+    <record id="action_dian_forms_wizard" model="ir.actions.act_window">
+        <field name="name">Formularios Tributarios (300/350/ICA)</field>
+        <field name="res_model">dian.forms.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_form_type': 'all'}</field>
+    </record>
+
+    <!-- Menu Item - Bajo Contabilidad > Reportes -->
+    <menuitem id="menu_dian_forms"
+              name="Formularios Tributarios"
+              parent="account.menu_finance_reports"
+              action="action_dian_forms_wizard"
+              sequence="100"/>
+
+</odoo>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit Account Tax Form View -->
+    <record id="view_tax_form_inherit_threshold" model="ir.ui.view">
+        <field name="name">account.tax.form.inherit.threshold</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <!-- Add checkbox after active field -->
+            <xpath expr="//field[@name='active']" position="after">
+                <field name="needs_base_threshold"/>
+                <field name="use_withholding_concept"/>
+            </xpath>
+
+            <!-- Add new notebook page for Colombian Withholding -->
+            <xpath expr="//notebook" position="inside">
+                <!-- Colombian Withholding Configuration -->
+                <page string="Colombian Withholding" name="co_withholding" invisible="not use_withholding_concept">
+                    <group>
+                        <group string="Withholding Concept">
+                            <field name="withholding_concept_id" options="{'no_create': True}"/>
+                            <field name="contributor_type"/>
+                            <field name="concept_rate_info" readonly="1" class="text-info"/>
+                        </group>
+                    </group>
+                    <group class="alert alert-info" role="alert">
+                        <div>
+                            <p><strong>Configuración de Retención Colombiana:</strong></p>
+                            <ul>
+                                <li><b>Concepto:</b> Seleccione el concepto de retención (Compras, Servicios, Honorarios, etc.)</li>
+                                <li><b>Tipo Contribuyente:</b> Determina la tarifa a aplicar (declarante/no declarante)</li>
+                                <li>El impuesto se aplicará automáticamente según la base mínima y tarifa del concepto</li>
+                            </ul>
+                        </div>
+                    </group>
+                </page>
+
+                <!-- Legacy Base Thresholds (backward compatibility) -->
+                <page string="Base Thresholds (Legacy)" name="thresholds" invisible="not needs_base_threshold or use_withholding_concept">
+                    <group>
+                        <field name="current_threshold_id" readonly="1"/>
+                    </group>
+                    <field name="base_threshold_ids" context="{'default_tax_id': id}">
+                        <list string="Threshold History" editable="bottom">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="base_amount"/>
+                            <field name="base_uvt"/>
+                            <field name="base_amount_from_uvt" readonly="1" optional="show"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </list>
+                    </field>
+                    <group class="alert alert-warning" role="alert">
+                        <div>
+                            <p><strong>Nota:</strong> Esta es la configuración legacy. Para la nueva configuración colombiana, active "Usar Concepto de Retención" y seleccione un concepto.</p>
+                        </div>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Account Tax Tree View -->
+    <record id="view_tax_tree_inherit_threshold" model="ir.ui.view">
+        <field name="name">account.tax.tree.inherit.threshold</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='company_id']" position="after">
+                <field name="withholding_concept_id" optional="hide"/>
+                <field name="use_withholding_concept" optional="hide" widget="boolean_toggle"/>
+                <field name="needs_base_threshold" optional="hide" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Account Tax Search View -->
+    <record id="view_account_tax_search_inherit_threshold" model="ir.ui.view">
+        <field name="name">account.tax.search.inherit.threshold</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_account_tax_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='sale']" position="after">
+                <separator/>
+                <filter string="With Withholding Concept" name="with_concept" domain="[('use_withholding_concept', '=', True)]"/>
+                <filter string="With Base Threshold" name="with_threshold" domain="[('needs_base_threshold', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

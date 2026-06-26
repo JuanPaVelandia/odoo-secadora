@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_co_exogenous_format_setting_view_search" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.view.search</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field name="arch" type="xml">
+            <search string="Search Format">
+                <field name="format_id"/>
+                <filter domain="[('active','=', False)]" name="inactive" string="Archived"/>
+                <separator/>
+                <filter context="{'group_by': 'company_id'}" groups="base.group_multi_company" name="company_id" string="Company"/>
+            </search>
+        </field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_view_form" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.view.form</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="1" name="priority"/>
+        <field name="arch" type="xml">
+            <form string="Format">
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget bg_color="bg-danger" invisible="active == True" name="web_ribbon" title="Archived"/>
+                    <group>
+                        <group name="info_left">
+                            <field name="format_id" required="1"/>
+                            <field invisible="1" name="apply_concepts"/>
+                            <field invisible="1" name="active"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="page_format_concepts" string="Format concepts">
+                            <field context="{'format_id': format_id}" name="format_setting_line_ids">
+                                <list editable="bottom" string="Format concepts">
+                                    <field column_invisible="parent.apply_concepts == False" domain="[('format_id', '=', context.get('format_id'))]" name="concept_id" required="apply_concepts == True"/>
+                                    <field domain="[('format_ids', '=', context.get('format_id')), ('source', '=', 'journal_items')]" name="format_field_id" required="1"/>
+                                    <field invisible="1" name="format_setting_id"/>
+                                    <field invisible="1" name="apply_concepts"/>
+                                </list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_view_tree" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.view.tree</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="1" name="priority"/>
+        <field name="arch" type="xml">
+            <list string="Formats">
+                <field name="format_id"/>
+                <field groups="base.group_multi_company" name="company_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_action" model="ir.actions.act_window">
+        <field name="name">Formats</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">l10n_co.exogenous_format_setting</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your formats here.
+            </p>
+        </field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_generate_view_form" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.generate.view.form</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="100" name="priority"/>
+        <field name="arch" type="xml">
+            <form create="false" delete="false" string="Format">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-file-excel-o" name="generate_and_download_report" string="Generate and download report" type="object"/>
+                    </div>
+                    <group invisible="is_it_with_date_range == False" name="group_one">
+                        <group name="info_right">
+                            <field invisible="is_it_with_date_range == False" name="date_start" required="is_it_with_date_range == True"/>
+                        </group>
+                        <group name="info_left">
+                            <field invisible="is_it_with_date_range == False" name="date_end" required="is_it_with_date_range == True"/>
+                        </group>
+                    </group>
+                    <group name="group_two">
+                        <group name="info_left">
+                            <field name="journal_ids" widget="many2many_tags"/>
+                            <field name="partner_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <group name="group_three">
+                        <group name="info_left">
+                            <field name="format_id" readonly="1"/>
+                            <field invisible="1" name="apply_concepts"/>
+                            <field invisible="1" name="is_it_with_date_range"/>
+                        </group>
+                    </group>
+                    <group name="group_four">
+                        <group name="info_left">
+                            <field filename="binary_file_name" invisible="binary_file == False" name="binary_file" readonly="1" widget="binary"/>
+                            <field invisible="1" name="binary_file_name"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="page_format_concepts" string="Format concepts">
+                            <field name="format_setting_line_ids" readonly="1">
+                                <list editable="bottom" string="Format concepts">
+                                    <field column_invisible="parent.apply_concepts == False" name="concept_id"/>
+                                    <field name="format_field_id"/>
+                                    <field invisible="1" name="format_setting_id"/>
+                                    <field invisible="1" name="apply_concepts"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_generate_view_tree" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.generate.view.tree</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="100" name="priority"/>
+        <field name="arch" type="xml">
+            <list create="false" delete="false" string="Formats">
+                <field name="format_id"/>
+                <field groups="base.group_multi_company" name="company_id"/>
+            </list>
+        </field>
+    </record>
+    <record id="l10n_co_exogenous_format_generate_action" model="ir.actions.act_window">
+        <field name="name">Generate format file</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">l10n_co.exogenous_format_setting</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="l10n_co_exogenous_format_setting_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your formats here.
+            </p>
+        </field>
+    </record>
+    <record id="action_l10n_co_exogenous_format_setting_generate_view_tree" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="l10n_co_exogenous_format_generate_action"/>
+        <field eval="1" name="sequence"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="l10n_co_exogenous_format_setting_generate_view_tree"/>
+    </record>
+    <record id="action_l10n_co_exogenous_format_setting_generate_view_form" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="l10n_co_exogenous_format_generate_action"/>
+        <field eval="2" name="sequence"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="l10n_co_exogenous_format_setting_generate_view_form"/>
+    </record>
+</odoo>

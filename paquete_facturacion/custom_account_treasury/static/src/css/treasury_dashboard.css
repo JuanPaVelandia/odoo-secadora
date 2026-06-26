@@ -1,0 +1,134 @@
+/* Treasury Dashboard Styles */
+
+.o_treasury_dashboard {
+    background-color: #f8f9fa;
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Contenedor principal con scroll */
+.o_action_manager .o_treasury_dashboard {
+    max-height: calc(100vh - 50px);
+    overflow-y: auto;
+}
+
+.o_dashboard_header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+}
+
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.o_treasury_dashboard .card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 10px;
+}
+
+.o_treasury_dashboard .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.o_loading_screen {
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.shadow-sm {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.o_treasury_dashboard .card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Tablas con scroll */
+.o_treasury_dashboard .table-responsive {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.o_treasury_dashboard .table-responsive::-webkit-scrollbar {
+    width: 6px;
+}
+
+.o_treasury_dashboard .table-responsive::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+/* Tarjetas de métricas */
+.o_treasury_dashboard .metric-card {
+    border-left: 4px solid;
+}
+
+.o_treasury_dashboard .metric-card.success {
+    border-left-color: #28a745;
+}
+
+.o_treasury_dashboard .metric-card.danger {
+    border-left-color: #dc3545;
+}
+
+.o_treasury_dashboard .metric-card.warning {
+    border-left-color: #ffc107;
+}
+
+.o_treasury_dashboard .metric-card.info {
+    border-left-color: #17a2b8;
+}
+
+/* Sección de gráficas */
+.o_treasury_dashboard .chart-container {
+    position: relative;
+    min-height: 250px;
+}
+
+/* Header fijo de tabla */
+.o_treasury_dashboard .table thead {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 1;
+}
+
+/* Botón flotante actualizar */
+.o_treasury_dashboard .btn-refresh-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+/* Badges con mejor visibilidad */
+.o_treasury_dashboard .badge.bg-light {
+    background-color: #f8f9fa !important;
+    border-color: #dee2e6 !important;
+}
+
+.o_treasury_dashboard .badge.text-dark {
+    color: #212529 !important;
+}

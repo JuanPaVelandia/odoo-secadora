@@ -1,0 +1,141 @@
+/* General Receipt Styles */
+.pos-receipt {
+    font-family: 'Roboto', 'Lucida Grande', Helvetica, Arial, Verdana, sans-serif;
+    font-size: 12px;
+    line-height: 1.4;
+    width: 100%;
+}
+
+.pos-receipt-print {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+}
+
+/* Logo */
+.pos-receipt-logo {
+    max-width: 200px;
+    max-height: 100px;
+    margin: 10px auto;
+    display: block;
+}
+
+/* Contact Info */
+.pos-receipt-contact {
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+}
+
+.pos-receipt-center-align {
+    text-align: center;
+    margin: 5px 0;
+}
+
+.pos-receipt-left-align {
+    text-align: left;
+    font-size: 11px;
+    line-height: 1.3;
+    margin-bottom: 8px;
+}
+
+/* Orderlines Table */
+.pos-receipt-orderlines {
+    margin: 10px 0;
+}
+
+.pos-receipt-orderlines-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+}
+
+.pos-receipt-orderlines-table thead {
+    border-bottom: 1px dashed #000;
+    border-top: 1px dashed #000;
+}
+
+.pos-receipt-orderlines-table thead th {
+    padding: 5px 2px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.pos-receipt-orderlines-table thead th.qty {
+    width: 12%;
+    text-align: center;
+}
+
+.pos-receipt-orderlines-table thead th.product-name {
+    width: 60%;
+}
+
+.pos-receipt-orderlines-table thead th.price-subtotal {
+    width: 28%;
+    text-align: right;
+}
+
+.pos-receipt-orderlines-table tbody td {
+    padding: 3px 2px;
+    vertical-align: top;
+}
+
+.pos-receipt-orderlines-table tbody td.qty {
+    text-align: center;
+}
+
+.pos-receipt-orderlines-table tbody td.product-name {
+    word-wrap: break-word;
+}
+
+.pos-receipt-orderlines-table tbody td.price-subtotal {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Totals Table */
+.pos-receipt-amount {
+    margin: 10px 0;
+}
+
+.pos-receipt-totals-table {
+    width: 100%;
+    font-size: 11px;
+    border-collapse: collapse;
+}
+
+.pos-receipt-totals-table tr {
+    line-height: 1.5;
+}
+
+.pos-receipt-totals-table td {
+    padding: 2px 4px;
+}
+
+.pos-receipt-totals-table td:first-child {
+    text-align: left;
+}
+
+.pos-receipt-totals-table td.pos-receipt-right-align {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.pos-receipt-amount-total {
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    font-weight: bold;
+}
+
+.pos-receipt-amount-total td {
+    padding: 5px 4px;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none;
+}
+
+br {
+    line-height: 1.2;
+}

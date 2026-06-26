@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista de etapas -->
+    <record id="view_payment_request_stage_tree" model="ir.ui.view">
+        <field name="name">payment.request.stage.tree</field>
+        <field name="model">payment.request.stage</field>
+        <field name="arch" type="xml">
+            <list string="Etapas" editable="top">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="fold"/>
+                <field name="is_approved"/>
+                <field name="is_paid"/>
+                <field name="is_cancelled"/>
+                <field name="approval_amount"/>
+                <field name="approval_group_id"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action de etapas -->
+    <record id="action_payment_request_stage" model="ir.actions.act_window">
+        <field name="name">Etapas de Solicitud</field>
+        <field name="res_model">payment.request.stage</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- Vista Kanban para Payment Request -->
+    <record id="view_payment_request_kanban" model="ir.ui.view">
+        <field name="name">payment.request.kanban</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id" sample="1">
+                <!-- Campos necesarios para el kanban -->
+                <field name="id"/>
+                <field name="color"/>
+                <field name="priority"/>
+                <field name="stage_id"/>
+                <field name="state"/>
+                <field name="partner_id"/>
+                <field name="amount"/>
+                <field name="currency_id"/>
+                <field name="date_request"/>
+                <field name="date_due"/>
+                <field name="memo"/>
+                <field name="request_type"/>
+                <field name="advance_type_id"/>
+                <field name="requires_approval"/>
+                <field name="is_published"/>
+                <field name="sale_count"/>
+                <field name="purchase_count"/>
+                <field name="invoice_count"/>
+                <field name="advance_count"/>
+                <field name="total_advances_amount"/>
+                <field name="approved_by_id"/>
+                <field name="approval_date"/>
+                <field name="can_current_user_approve"/>
+
+                <progressbar field="state" colors='{"approved": "success", "paid": "info", "cancelled": "danger", "requested": "warning"}'/>
+
+                <templates>
+                    <t t-name="card">
+                        <div class="oe_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="priority" widget="priority"/>
+                                        <field name="name"/>
+                                    </strong>
+                                    <div class="o_kanban_record_subtitle text-muted">
+                                        <field name="memo"/>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_top_right">
+                                    <field name="state" widget="label_selection" options="{'classes': {'draft': 'default', 'requested': 'warning', 'approved': 'success', 'paid': 'info', 'cancelled': 'danger'}}"/>
+                                </div>
+                            </div>
+
+                            <div class="o_kanban_record_body">
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <i class="fa fa-user text-muted"/> <field name="partner_id"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2" t-if="record.advance_type_id.raw_value">
+                                    <div class="col-12">
+                                        <i class="fa fa-tag text-muted"/> <field name="advance_type_id"/>
+                                    </div>
+                                </div>
+
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <i class="fa fa-calendar text-muted"/> <field name="date_request"/>
+                                    </div>
+                                    <div class="col-6" t-if="record.date_due.raw_value">
+                                        <i class="fa fa-clock-o text-muted"/> <field name="date_due"/>
+                                    </div>
+                                </div>
+
+                                <!-- Badges informativos -->
+                                <div class="row mb-2">
+                                    <div class="col-12">
+                                        <field name="request_type" widget="badge"/>
+                                        <span t-if="record.requires_approval.raw_value" class="badge bg-warning text-white ms-1">
+                                            <i class="fa fa-exclamation-triangle"/> Requiere Aprobación
+                                        </span>
+                                        <span t-if="record.is_published.raw_value" class="badge bg-success text-white ms-1">
+                                            <i class="fa fa-check"/> Publicado
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Contadores de documentos asociados -->
+                                <div class="row mb-2" t-if="record.sale_count.raw_value or record.purchase_count.raw_value or record.invoice_count.raw_value or record.advance_count.raw_value">
+                                    <div class="col-12">
+                                        <span t-if="record.sale_count.raw_value" class="badge bg-primary me-1" title="Pedidos de Venta">
+                                            <i class="fa fa-shopping-cart"/> <field name="sale_count"/>
+                                        </span>
+                                        <span t-if="record.purchase_count.raw_value" class="badge bg-info me-1" title="Órdenes de Compra">
+                                            <i class="fa fa-shopping-bag"/> <field name="purchase_count"/>
+                                        </span>
+                                        <span t-if="record.invoice_count.raw_value" class="badge bg-warning me-1" title="Facturas">
+                                            <i class="fa fa-file-text-o"/> <field name="invoice_count"/>
+                                        </span>
+                                        <span t-if="record.advance_count.raw_value" class="badge bg-secondary me-1" title="Anticipos">
+                                            <i class="fa fa-money"/> <field name="advance_count"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Información de aprobación -->
+                                <div class="row mb-2" t-if="record.approved_by_id.raw_value">
+                                    <div class="col-12 text-muted small">
+                                        <i class="fa fa-check-circle text-success"/> Aprobado por: <field name="approved_by_id"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                    <span t-if="record.total_advances_amount.raw_value > 0" class="text-muted small">
+                                        Anticipos: <field name="total_advances_amount" widget="monetary"/>
+                                    </span>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <strong class="text-end">
+                                        <field name="amount" widget="monetary"/>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Actualizar action principal -->
+    <record id="action_payment_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Pago</field>
+        <field name="res_model">payment.request</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_requested': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva Solicitud de Pago
+            </p>
+        </field>
+    </record>
+
+
+
+</odoo>

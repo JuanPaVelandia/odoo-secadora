@@ -1,0 +1,192 @@
+<odoo>
+    <data>
+        <record id="view_partner_lavish_erp_form" model="ir.ui.view">
+            <field name="name">res.partner.lavish.erp.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="priority">40</field>
+            <field name="inherit_id" ref="base.view_partner_form" />
+            <field name="arch" type="xml">
+
+            <xpath expr="//sheet//field[@name='company_type']" position="after">
+                    <field name="type" invisible="1"/>
+                    <div class="oe_edit_only">
+                        <group invisible="company_type == 'company'">
+                            <field name="first_name"
+                                required="not first_lastname and not is_company and type == 'contact'"
+                            />
+                            <field name="second_name"/>
+                            <field name="first_lastname"
+                                required="not first_name and not is_company and type == 'contact'"
+                            />
+                            <field name="second_lastname"/>
+                            <widget name="name_splitter_button"/>
+                        </group>
+                    </div>
+                </xpath>
+
+                
+                <xpath expr="//field[@name='child_ids']/form//field[@name='name']" position="after">
+                    <div class="oe_edit_only" colspan="2">
+                        <field name="is_company" invisible="True"/>
+                        <group invisible="company_type == 'company'">
+                            <field name="first_name"
+                                required="not first_lastname and not is_company and type == 'contact'"
+                            />
+                            <field name="second_name"/>
+                            <field name="first_lastname"
+                                required="not first_name and not is_company and type == 'contact'"
+                            />
+                            <field name="second_lastname"/>
+                        </group>
+                    </div>
+                </xpath>
+                <!-- ocultar vies_valid: no aplica para Colombia -->
+                <xpath expr="//field[@name='vies_valid']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//label[@for='vies_valid']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!-- ocultar el bloque tipo doc + vat en el grupo derecho -->
+                <xpath expr="//div[@name='vat_vies_container']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//label[@for='l10n_latam_identification_type_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='l10n_latam_identification_type_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                    <attribute name="domain">[('l10n_co_document_code', '!=', 'vat'), '|', ('country_id', '=', False), ('country_id', '=', country_id)]</attribute>
+                </xpath>
+                <!-- bloque identificación: fuera del o_address_format, al mismo nivel que la dirección -->
+                <xpath expr="//div[@name='partner_address_country']/.." position="after">
+                    <field name="l10n_latam_identification_type_id"
+                           string="Tipo de Identificación"
+                           options="{'no_open': True, 'no_create': True}"
+                           placeholder="Tipo de documento"
+                           domain="[('l10n_co_document_code', '!=', 'vat'), '|', ('country_id', '=', False), ('country_id', '=', country_id)]"
+                           required="1"/>
+                    <label for="vat_co" string="Número de Identificación"/>
+                    <div>
+                        <field name="vat_co" nolabel="1" placeholder="RUT/NIT/CC/ID"/>
+                        <field name="vat" invisible="1"/>
+                        <field name="dv" invisible="1"/>
+                        <field name="vat_ref" nolabel="1" readonly="1" invisible="not vat_ref"/>
+                    </div>
+                </xpath>
+                <xpath expr="//field[@name='function']" position="before">
+                    <field name="function" invisible="company_type == 'company'" />
+                    <field name="x_pn_retri"/>
+                    <field name="class_dian"/>
+                    <field name="ciiu_ids" widget="many2many_tags" placeholder="Buscar actividades CIIU..."/>
+                    <field name="email_invoice_electronic"/>
+                </xpath>
+                <xpath expr="//field[@name='function']" position="attributes">
+                    <attribute name="invisible">company_type == 'company'</attribute>
+                </xpath>
+                <xpath expr="//field[@name='state_id']" position="attributes">
+                    <attribute name="placeholder">State</attribute>
+                    <attribute name="class">o_address_country</attribute>
+                    <attribute name="domain">[('country_id','=',country_id)]</attribute>
+                </xpath>
+                <xpath expr="//page[@name='accounting']" position="inside">
+                    <group string="Impuestos" name="accounting_partner_taxes"
+                        groups="account.group_account_user">
+                        <field name="taxes_ids" widget="many2many_tags" />
+                        <field name="supplier_taxes_ids" widget="many2many_tags" />
+                    </group>
+                </xpath>
+                <xpath expr="//field[@name='street']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+
+                <!-- Campos de configuracion del pais (invisibles) -->
+                <xpath expr="//field[@name='country_id']" position="after">
+                    <field name="country_address_builder" invisible="1"/>
+                    <field name="country_neighborhood_enabled" invisible="1"/>
+                    <field name="country_zip_required" invisible="1"/>
+                </xpath>
+
+                <!-- Botón Constructor (visible si el pais lo tiene habilitado) -->
+                <xpath expr="//field[@name='street']" position="after">
+                    <widget name="address_builder_button" invisible="not country_address_builder"/>
+                </xpath>
+
+                <!-- Campo Barrio despues de street2 (visible si el pais lo tiene habilitado) -->
+                <xpath expr="//field[@name='street2']" position="after">
+                    <field name="neighborhood_id"
+                        placeholder="Barrio"
+                        class="o_address_street"
+                        domain="[('city_id', '=', city_id)]"
+                        context="{'default_city_id': city_id}"
+                        invisible="not country_neighborhood_enabled"/>
+
+                    <!-- Campos de dirección estructurada (INVISIBLES) -->
+                    <!-- Vía Principal -->
+                    <field name="main_road" invisible="1"/>
+                    <field name="name_road" invisible="1"/>
+                    <field name="main_letter_road" invisible="1"/>
+                    <field name="prefix_main_road" invisible="1"/>
+                    <field name="sector_main_road" invisible="1"/>
+
+                    <!-- Vía Generadora -->
+                    <field name="generator_road_number" invisible="1"/>
+                    <field name="generator_road_letter" invisible="1"/>
+                    <field name="generator_road_sector" invisible="1"/>
+
+                    <!-- Placa -->
+                    <field name="generator_plate_number" invisible="1"/>
+                    <field name="generator_plate_sector" invisible="1"/>
+
+                    <!-- Complementos -->
+                    <field name="complement_name_a" invisible="1"/>
+                    <field name="complement_number_a" invisible="1"/>
+                    <field name="complement_name_b" invisible="1"/>
+                    <field name="complement_number_b" invisible="1"/>
+                    <field name="complement_name_c" invisible="1"/>
+                    <field name="complement_text_c" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//div[@name='partner_address_country']" position="after">
+                    <field name="postal_code_id"
+                        class="o_address_zip"
+                        options="{'no_create': True}"
+                        placeholder="Codigo Postal"
+                        invisible="country_id != 49"/>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="placeholder">Nombre / Razón social</attribute>
+                </xpath>
+
+            </field>
+        </record>
+        <record id="view_partner_simple_form" model="ir.ui.view">
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_simple_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@id='individual']" position="attributes">
+                    <attribute name="invisible">is_company</attribute>
+                    <attribute name="readonly">not is_company</attribute>
+                    <attribute name="required">type == 'contract' and is_company</attribute>
+                </xpath>
+                <xpath expr="//field[@id='company']" position="attributes">
+                    <attribute name="invisible">is_company == False</attribute>
+                    <attribute name="readonly">not is_company</attribute>
+                    <attribute name="required">type == 'contract' and is_company</attribute>
+                </xpath>
+                <xpath expr="//h1//field[@id='company']/.." position="before">
+                    <group invisible="company_type == 'company'">
+                        <field name="first_name"
+                            required="not first_lastname and not is_company and type == 'contact'"
+                        />
+                        <field name="second_name"/>
+                        <field name="first_lastname"
+                            required="not first_name and not is_company and type == 'contact'"
+                        />
+                        <field name="second_lastname"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Widget selector de cuenta con deudas -->
+    <t t-name="custom_account_treasury.AccountDebtSelectorField">
+        <div class="o_account_debt_selector">
+            <!-- Campo Many2One de cuenta -->
+            <Many2OneField t-props="props" t-on-change="onAccountChange"/>
+
+            <!-- Popup de selección de deudas -->
+            <div t-if="state.showDebtSelector" class="o_debt_selector_popup position-absolute bg-white border rounded shadow-lg p-2 mt-1" style="z-index: 1050; min-width: 400px; max-height: 300px; overflow-y: auto;">
+                <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                    <strong class="text-primary">
+                        <i class="fa fa-list-alt me-1"/>Seleccionar Deuda
+                    </strong>
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary me-1" t-on-click="skipToDescription">
+                            <i class="fa fa-pencil me-1"/>Descripción Manual
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" t-on-click="closeSelector">
+                            <i class="fa fa-times"/>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div t-if="state.loading" class="text-center py-3">
+                    <i class="fa fa-spinner fa-spin fa-2x text-primary"/>
+                    <p class="mt-2 text-muted">Cargando deudas...</p>
+                </div>
+
+                <!-- Lista de deudas -->
+                <div t-elif="state.debts.length > 0">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Documento</th>
+                                <th>Vence</th>
+                                <th class="text-end">Saldo</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="state.debts" t-as="debt" t-key="debt.id">
+                                <tr class="cursor-pointer" t-on-click="() => this.selectDebt(debt)" style="cursor: pointer;">
+                                    <td>
+                                        <span t-esc="debt.move_id[1] || debt.name || debt.ref"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="formatDate(debt.date_maturity)"/>
+                                    </td>
+                                    <td class="text-end fw-bold">
+                                        <span t-attf-class="#{debt.amount_residual > 0 ? 'text-danger' : 'text-success'}">
+                                            <t t-esc="formatCurrency(Math.abs(debt.amount_residual))"/>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-success">
+                                            <i class="fa fa-check"/>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Sin deudas -->
+                <div t-else="" class="text-center py-3">
+                    <i class="fa fa-info-circle fa-2x text-muted"/>
+                    <p class="mt-2 text-muted">No hay deudas pendientes para esta cuenta</p>
+                    <button type="button" class="btn btn-sm btn-primary" t-on-click="skipToDescription">
+                        <i class="fa fa-pencil me-1"/>Agregar Descripción Manual
+                    </button>
+                </div>
+            </div>
+
+            <!-- Campo de descripción inline -->
+            <div t-if="state.showDescription" class="o_description_input mt-1">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light">
+                        <i class="fa fa-pencil"/>
+                    </span>
+                    <input type="text"
+                           class="form-control"
+                           placeholder="Ingrese descripción..."
+                           t-att-value="record.data.name || ''"
+                           t-on-input="onDescriptionInput"
+                           t-on-blur="closeSelector"/>
+                    <button type="button" class="btn btn-outline-secondary" t-on-click="closeSelector">
+                        <i class="fa fa-check"/>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

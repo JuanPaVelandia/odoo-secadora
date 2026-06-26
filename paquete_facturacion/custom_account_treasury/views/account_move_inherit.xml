@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========== TESORERÍA Y MULTI-TERCERO ========== -->
+    <record id="view_move_form_inherit_treasury" model="ir.ui.view">
+        <field name="name">account.move.form.inherit.treasury</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <!-- Campos después de partner_shipping_id -->
+            <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                <label for="enable_multi_partner" string="Multi-Tercero"
+                       invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')"/>
+                <field name="enable_multi_partner" nolabel="1" widget="boolean_toggle"
+                       invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund', 'out_receipt', 'in_receipt')"
+                       readonly="state != 'draft'"/>
+
+                <label for="force_partner_account" string="Forzar Cuenta"
+                       invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"/>
+                <field name="force_partner_account" nolabel="1" widget="boolean_toggle"
+                       invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"
+                       readonly="state != 'draft'"/>
+
+                <!-- Cuenta Forzada para VENTAS (por cobrar) -->
+                <label for="forced_account_id" string="Cuenta Forzada"
+                       invisible="not force_partner_account or move_type not in ('out_invoice', 'out_refund')"/>
+                <field name="forced_account_id" nolabel="1"
+                       invisible="not force_partner_account or move_type not in ('out_invoice', 'out_refund')"
+                       required="force_partner_account and move_type in ('out_invoice', 'out_refund')"
+                       readonly="state != 'draft'"
+                       domain="[('active', '=', True), ('company_ids', '=', company_id), ('account_type', '=', 'asset_receivable')]"/>
+
+                <!-- Cuenta Forzada para COMPRAS (por pagar) -->
+                <label for="forced_account_id" string="Cuenta Forzada"
+                       invisible="not force_partner_account or move_type not in ('in_invoice', 'in_refund')"/>
+                <field name="forced_account_id" nolabel="1"
+                       invisible="not force_partner_account or move_type not in ('in_invoice', 'in_refund')"
+                       required="force_partner_account and move_type in ('in_invoice', 'in_refund')"
+                       readonly="state != 'draft'"
+                       domain="[('active', '=', True), ('company_ids', '=', company_id), ('account_type', '=', 'liability_payable')]"/>
+
+                <field name="is_advance_entry" invisible="1"/>
+            </xpath>
+
+            <!-- Para asientos contables tipo 'entry', agregar después de date -->
+            <xpath expr="//field[@name='date']" position="after">
+                <label for="enable_multi_partner" string="Multi-Tercero"
+                       invisible="move_type != 'entry'"/>
+                <field name="enable_multi_partner" nolabel="1" widget="boolean_toggle"
+                       invisible="move_type != 'entry'"
+                       readonly="state != 'draft'"/>
+            </xpath>
+
+            <!-- Pestaña de Anticipos -->
+            <xpath expr="//page[@name='other_info']" position="after">
+                <page string="Anticipos" name="advance_payments"
+                      invisible="move_type not in ('out_invoice', 'in_invoice', 'out_refund', 'in_refund')">
+                    <group>
+                        <group>
+                            <field name="has_advances" readonly="1" string="Tiene Anticipos Disponibles"/>
+                        </group>
+                    </group>
+                    <p class="text-muted">
+                        <i class="fa fa-info-circle"/> Los anticipos disponibles aparecen automáticamente en la sección inferior de "Créditos y Anticipos pendientes".
+                        Haga clic en cualquier anticipo de la lista para aplicarlo a esta factura.
+                    </p>
+                </page>
+            </xpath>
+
+            <!-- Banner para asientos de anticipo -->
+            <xpath expr="//sheet" position="before">
+                <div class="alert alert-info" role="alert"
+                     invisible="not is_advance_entry">
+                    <i class="fa fa-info-circle"/> Este es un asiento de anticipo
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ========== LISTA DE FACTURAS: Campos adicionales ========== -->
+    <record id="view_account_move_list_inherit_treasury" model="ir.ui.view">
+        <field name="name">account.move.list.inherit.treasury</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <field name="checked" position="after">
+                <field name="has_advances" widget="boolean_toggle" optional="hide" string="Tiene Anticipos"/>
+                <field name="is_advance_entry" invisible="1"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- ========== LÍNEAS DE FACTURA: Mostrar partner_id ========== -->
+    <record id="view_invoice_line_tree_inherit_multi_partner" model="ir.ui.view">
+        <field name="name">account.move.line.tree.inherit.multi.partner</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <!-- Partner en líneas de factura -->
+            <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='product_id']" position="after">
+                <field name="partner_id"
+                       string="Tercero"
+                       optional="show"
+                       options="{'no_create': True}"/>
+            </xpath>
+
+            <!-- Partner en líneas de asiento contable -->
+            <xpath expr="//field[@name='line_ids']/list/field[@name='account_id']" position="after">
+                <field name="partner_id"
+                       string="Tercero"
+                       optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

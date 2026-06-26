@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Template para el ListRenderer de secciones y notas -->
+    <t t-name="custom_account_treasury.PaymentSectionAndNoteListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="primary">
+        <xpath expr="//table" position="attributes">
+            <attribute name="class" add="o_payment_section_and_note_list" separator=" "/>
+        </xpath>
+    </t>
+
+    <!-- Template para el widget de texto de sección/nota -->
+    <t t-name="custom_account_treasury.PaymentSectionAndNoteText">
+        <t t-component="componentToUse" t-props="props"/>
+    </t>
+
+</templates>

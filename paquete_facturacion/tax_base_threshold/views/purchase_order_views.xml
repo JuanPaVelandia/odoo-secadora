@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ==================== PURCHASE ORDER WITHHOLDING EXTENSION ==================== -->
+
+    <!-- Extend Purchase Order Form to show withholding info and line status -->
+    <record id="view_purchase_order_form_withholding" model="ir.ui.view">
+        <field name="name">purchase.order.form.withholding</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add withholding info after the totals section -->
+            <xpath expr="//field[@name='tax_totals']" position="after">
+                <group string="Withholding Tax Information" invisible="not withholding_info"
+                       class="oe_subtotal_footer_separator">
+                    <field name="withholding_info" readonly="1" nolabel="1"
+                           widget="text" class="text-muted"/>
+                </group>
+            </xpath>
+            <!-- Add withholding status column to order lines -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='tax_ids']" position="after">
+                <field name="withholding_status" optional="show" string="Ret."
+                       readonly="1" class="text-muted"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Vista del Wizard de Anticipo de Venta -->
+    <record id="view_sale_advance_wizard_form" model="ir.ui.view">
+        <field name="name">sale.advance.wizard.form</field>
+        <field name="model">sale.advance.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Anticipo de Venta">
+                <sheet>
+                    <field name="company_id" invisible="1"/>
+
+                    <div class="oe_title mb-3">
+                        <h2>
+                            <i class="fa fa-money text-success me-2"/>
+                            Crear Anticipo de Cliente
+                        </h2>
+                    </div>
+
+                    <group>
+                        <group string="Cliente y Pedidos">
+                            <field name="partner_id"
+                                   options="{'no_create': True}"
+                                   placeholder="Seleccione un cliente..."/>
+                            <field name="sale_order_ids"
+                                   widget="many2many_tags"
+                                   options="{'no_create': True}"
+                                   placeholder="Seleccione pedidos..."
+                                   invisible="not partner_id"/>
+                        </group>
+                        <group string="Configuración del Anticipo">
+                            <field name="advance_type_id"
+                                   options="{'no_create': True}"
+                                   placeholder="Tipo de anticipo..."/>
+                            <field name="percentage" widget="percentage"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                        </group>
+                    </group>
+
+                    <!-- Resumen de Montos -->
+                    <group col="4" invisible="not sale_order_ids">
+                        <group string="Resumen de Pedidos">
+                            <field name="orders_total" readonly="1"/>
+                            <field name="orders_paid" readonly="1"/>
+                            <field name="orders_pending" readonly="1"/>
+                        </group>
+                        <group string="Anticipo">
+                            <field name="amount" class="oe_inline"/>
+                        </group>
+                    </group>
+
+                    <!-- Detalle de Pedidos -->
+                    <notebook invisible="not sale_order_ids">
+                        <page string="Detalle de Pedidos" name="detail">
+                            <field name="line_ids" nolabel="1">
+                                <list editable="bottom" create="0" delete="0">
+                                    <field name="include" widget="boolean_toggle" width="60px"/>
+                                    <field name="order_name" readonly="1"/>
+                                    <field name="order_date" readonly="1"/>
+                                    <field name="order_amount" readonly="1" sum="Total"/>
+                                    <field name="advance_amount" sum="Anticipo"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="sale_order_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Opciones de Pago" name="options">
+                            <group>
+                                <group>
+                                    <field name="create_mode" widget="radio" options="{'horizontal': true}"/>
+                                    <field name="journal_id"
+                                           invisible="create_mode != 'direct'"
+                                           required="create_mode == 'direct'"
+                                           options="{'no_create': True}"/>
+                                    <field name="payment_date"
+                                           invisible="create_mode != 'direct'"/>
+                                </group>
+                                <group>
+                                    <field name="memo" placeholder="Referencia o memo..."/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_create_advance"
+                            string="Crear Anticipo"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-check"
+                            invisible="not sale_order_ids or amount &lt;= 0"/>
+                    <button name="action_create_advance"
+                            string="Crear Solicitud"
+                            type="object"
+                            class="btn-success"
+                            icon="fa-file-text-o"
+                            invisible="not sale_order_ids or amount &lt;= 0 or create_mode != 'request'"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción para abrir el wizard desde tesorería -->
+    <record id="action_sale_advance_wizard" model="ir.actions.act_window">
+        <field name="name">Anticipo de Ventas</field>
+        <field name="res_model">sale.advance.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_create_mode': 'request'}</field>
+    </record>
+
+</odoo>

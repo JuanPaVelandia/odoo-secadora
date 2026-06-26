@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ==================== UVT VALUES 2023-2025 ==================== -->
+        <record id="uvt_2023" model="tax.general.parameter">
+            <field name="parameter_type">uvt</field>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="value">42412</field>
+        </record>
+
+        <record id="uvt_2024" model="tax.general.parameter">
+            <field name="parameter_type">uvt</field>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2024-12-31</field>
+            <field name="value">47065</field>
+        </record>
+
+        <record id="uvt_2025" model="tax.general.parameter">
+            <field name="parameter_type">uvt</field>
+            <field name="date_from">2025-01-01</field>
+            <field name="date_to">2025-12-31</field>
+            <field name="value">49799</field>
+        </record>
+
+        <!-- ==================== SMMLV VALUES 2023-2025 ==================== -->
+        <record id="smmlv_2023" model="tax.general.parameter">
+            <field name="parameter_type">smmlv</field>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="value">1160000</field>
+        </record>
+
+        <record id="smmlv_2024" model="tax.general.parameter">
+            <field name="parameter_type">smmlv</field>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2024-12-31</field>
+            <field name="value">1300000</field>
+        </record>
+
+        <record id="smmlv_2025" model="tax.general.parameter">
+            <field name="parameter_type">smmlv</field>
+            <field name="date_from">2025-01-01</field>
+            <field name="date_to">2025-12-31</field>
+            <field name="value">1423500</field>
+        </record>
+
+        <!-- ==================== WITHHOLDING CONCEPTS ==================== -->
+
+        <!-- COMPRAS (By Contributor Type) -->
+        <record id="concept_compras" model="withholding.concept">
+            <field name="code">COMPRAS</field>
+            <field name="name">Retención Compras</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">by_contributor</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 401 E.T., Decreto 0572/2025</field>
+            <field name="description">Retención en la fuente por compras de bienes. Tarifa diferenciada para declarantes (2.5%) y no declarantes (3.5%). Base mínima: 10 UVT desde junio 2025.</field>
+            <field name="sequence">10</field>
+        </record>
+
+        <!-- Rates for COMPRAS -->
+        <record id="rate_compras_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_compras"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_declarant">2.5</field>
+            <field name="rate_non_declarant">3.5</field>
+            <field name="min_base_uvt">27</field>
+            <field name="legal_reference">Art. 401 E.T.</field>
+        </record>
+
+        <record id="rate_compras_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_compras"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2025-05-31</field>
+            <field name="rate_declarant">2.5</field>
+            <field name="rate_non_declarant">3.5</field>
+            <field name="min_base_uvt">27</field>
+            <field name="legal_reference">Art. 401 E.T.</field>
+        </record>
+
+        <record id="rate_compras_2025" model="withholding.rate">
+            <field name="concept_id" ref="concept_compras"/>
+            <field name="date_from">2025-06-01</field>
+            <field name="rate_declarant">2.5</field>
+            <field name="rate_non_declarant">3.5</field>
+            <field name="min_base_uvt">10</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+        </record>
+
+        <!-- SERVICIOS GENERALES -->
+        <record id="concept_servicios" model="withholding.concept">
+            <field name="code">SERVICIOS</field>
+            <field name="name">Retención Servicios Generales</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 392 E.T., Decreto 0572/2025</field>
+            <field name="description">Retención en la fuente por servicios en general. Tarifa 4%. Base mínima: 2 UVT desde junio 2025.</field>
+            <field name="sequence">20</field>
+        </record>
+
+        <record id="rate_servicios_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_servicios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">4</field>
+            <field name="min_base_uvt">4</field>
+            <field name="legal_reference">Art. 392 E.T.</field>
+        </record>
+
+        <record id="rate_servicios_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_servicios"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2025-05-31</field>
+            <field name="rate_percent">4</field>
+            <field name="min_base_uvt">4</field>
+        </record>
+
+        <record id="rate_servicios_2025" model="withholding.rate">
+            <field name="concept_id" ref="concept_servicios"/>
+            <field name="date_from">2025-06-01</field>
+            <field name="rate_percent">4</field>
+            <field name="min_base_uvt">2</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+        </record>
+
+        <!-- HONORARIOS / SERVICIOS PROFESIONALES -->
+        <record id="concept_honorarios" model="withholding.concept">
+            <field name="code">HONORARIOS</field>
+            <field name="name">Retención Honorarios / Servicios Profesionales</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 392 E.T., Decreto 0572/2025</field>
+            <field name="description">Retención por servicios profesionales, técnicos y de consultoría. Tarifa 10% declarantes, 11% no declarantes.</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <record id="rate_honorarios_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_honorarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">11</field>
+            <field name="min_base_uvt">0</field>
+            <field name="legal_reference">Art. 392 E.T.</field>
+        </record>
+
+        <record id="rate_honorarios_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_honorarios"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2025-05-31</field>
+            <field name="rate_percent">11</field>
+            <field name="min_base_uvt">0</field>
+        </record>
+
+        <record id="rate_honorarios_2025" model="withholding.rate">
+            <field name="concept_id" ref="concept_honorarios"/>
+            <field name="date_from">2025-06-01</field>
+            <field name="rate_percent">11</field>
+            <field name="min_base_uvt">0</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+        </record>
+
+        <!-- ARRENDAMIENTOS -->
+        <record id="concept_arrendamiento" model="withholding.concept">
+            <field name="code">ARRIENDO</field>
+            <field name="name">Retención Arrendamientos</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 401 E.T.</field>
+            <field name="description">Retención por arrendamiento de bienes muebles e inmuebles. Tarifa 3.5%.</field>
+            <field name="sequence">30</field>
+        </record>
+
+        <record id="rate_arrendamiento_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_arrendamiento"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">3.5</field>
+            <field name="min_base_uvt">27</field>
+            <field name="legal_reference">Art. 401 E.T.</field>
+        </record>
+
+        <record id="rate_arrendamiento_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_arrendamiento"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="rate_percent">3.5</field>
+            <field name="min_base_uvt">27</field>
+        </record>
+
+        <!-- COMPRAS CON TARJETA -->
+        <record id="concept_tarjeta" model="withholding.concept">
+            <field name="code">TARJETA</field>
+            <field name="name">Retención Compras con Tarjeta</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">False</field>
+            <field name="validate_base_enabled">False</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 401-2 E.T.</field>
+            <field name="description">Retención por compras realizadas con tarjeta de crédito/débito. Tarifa 1.5%. Sin base mínima.</field>
+            <field name="sequence">40</field>
+        </record>
+
+        <record id="rate_tarjeta_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_tarjeta"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">1.5</field>
+            <field name="min_base_uvt">0</field>
+            <field name="legal_reference">Art. 401-2 E.T.</field>
+        </record>
+
+        <record id="rate_tarjeta_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_tarjeta"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="rate_percent">1.5</field>
+            <field name="min_base_uvt">0</field>
+        </record>
+
+        <!-- RETEIVA BIENES -->
+        <record id="concept_reteiva_bienes" model="withholding.concept">
+            <field name="code">RETEIVA_BIENES</field>
+            <field name="name">ReteIVA Compra de Bienes</field>
+            <field name="concept_type">reteiva</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 437-1 E.T., Decreto 0572/2025</field>
+            <field name="description">Retención de IVA en compra de bienes gravados. Tarifa 15% del IVA. Base mínima: 10 UVT desde 2025.</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <record id="rate_reteiva_bienes_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_reteiva_bienes"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">15</field>
+            <field name="min_base_uvt">27</field>
+            <field name="legal_reference">Art. 437-1 E.T.</field>
+        </record>
+
+        <record id="rate_reteiva_bienes_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_reteiva_bienes"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2024-12-31</field>
+            <field name="rate_percent">15</field>
+            <field name="min_base_uvt">27</field>
+        </record>
+
+        <record id="rate_reteiva_bienes_2025" model="withholding.rate">
+            <field name="concept_id" ref="concept_reteiva_bienes"/>
+            <field name="date_from">2025-01-01</field>
+            <field name="rate_percent">15</field>
+            <field name="min_base_uvt">10</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+        </record>
+
+        <!-- RETEIVA SERVICIOS -->
+        <record id="concept_reteiva_servicios" model="withholding.concept">
+            <field name="code">RETEIVA_SERVICIOS</field>
+            <field name="name">ReteIVA Servicios</field>
+            <field name="concept_type">reteiva</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 437-1 E.T., Decreto 0572/2025</field>
+            <field name="description">Retención de IVA en servicios gravados. Tarifa 15% del IVA. Base mínima: 2 UVT desde 2025.</field>
+            <field name="sequence">55</field>
+        </record>
+
+        <record id="rate_reteiva_servicios_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_reteiva_servicios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">15</field>
+            <field name="min_base_uvt">4</field>
+            <field name="legal_reference">Art. 437-1 E.T.</field>
+        </record>
+
+        <record id="rate_reteiva_servicios_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_reteiva_servicios"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2024-12-31</field>
+            <field name="rate_percent">15</field>
+            <field name="min_base_uvt">4</field>
+        </record>
+
+        <record id="rate_reteiva_servicios_2025" model="withholding.rate">
+            <field name="concept_id" ref="concept_reteiva_servicios"/>
+            <field name="date_from">2025-01-01</field>
+            <field name="rate_percent">15</field>
+            <field name="min_base_uvt">2</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+        </record>
+
+        <!-- RETENCIÓN SALARIOS (Progressive) -->
+        <record id="concept_salarios" model="withholding.concept">
+            <field name="code">SALARIOS</field>
+            <field name="name">Retención Salarios (Tabla Progresiva)</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">progressive</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">monthly</field>
+            <field name="legal_reference">Art. 383 E.T., Ley 2010/2019</field>
+            <field name="description">Retención en la fuente sobre salarios aplicando tabla progresiva. Base mínima sujeta a retención: 95 UVT mensuales.</field>
+            <field name="sequence">5</field>
+        </record>
+
+        <!-- Progressive Brackets for SALARIOS -->
+        <record id="bracket_salarios_1" model="withholding.bracket">
+            <field name="concept_id" ref="concept_salarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="bracket_number">1</field>
+            <field name="from_uvt">0</field>
+            <field name="to_uvt">95</field>
+            <field name="rate_percent">0</field>
+            <field name="subtract_uvt">0</field>
+            <field name="plus_uvt">0</field>
+        </record>
+
+        <record id="bracket_salarios_2" model="withholding.bracket">
+            <field name="concept_id" ref="concept_salarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="bracket_number">2</field>
+            <field name="from_uvt">95</field>
+            <field name="to_uvt">150</field>
+            <field name="rate_percent">19</field>
+            <field name="subtract_uvt">95</field>
+            <field name="plus_uvt">0</field>
+        </record>
+
+        <record id="bracket_salarios_3" model="withholding.bracket">
+            <field name="concept_id" ref="concept_salarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="bracket_number">3</field>
+            <field name="from_uvt">150</field>
+            <field name="to_uvt">360</field>
+            <field name="rate_percent">28</field>
+            <field name="subtract_uvt">150</field>
+            <field name="plus_uvt">10</field>
+        </record>
+
+        <record id="bracket_salarios_4" model="withholding.bracket">
+            <field name="concept_id" ref="concept_salarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="bracket_number">4</field>
+            <field name="from_uvt">360</field>
+            <field name="to_uvt">640</field>
+            <field name="rate_percent">33</field>
+            <field name="subtract_uvt">360</field>
+            <field name="plus_uvt">69</field>
+        </record>
+
+        <record id="bracket_salarios_5" model="withholding.bracket">
+            <field name="concept_id" ref="concept_salarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="bracket_number">5</field>
+            <field name="from_uvt">640</field>
+            <field name="to_uvt">945</field>
+            <field name="rate_percent">35</field>
+            <field name="subtract_uvt">640</field>
+            <field name="plus_uvt">162</field>
+        </record>
+
+        <record id="bracket_salarios_6" model="withholding.bracket">
+            <field name="concept_id" ref="concept_salarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="bracket_number">6</field>
+            <field name="from_uvt">945</field>
+            <field name="to_uvt">2300</field>
+            <field name="rate_percent">37</field>
+            <field name="subtract_uvt">945</field>
+            <field name="plus_uvt">268</field>
+        </record>
+
+        <record id="bracket_salarios_7" model="withholding.bracket">
+            <field name="concept_id" ref="concept_salarios"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="bracket_number">7</field>
+            <field name="from_uvt">2300</field>
+            <field name="to_uvt">0</field><!-- 0 = infinite -->
+            <field name="rate_percent">39</field>
+            <field name="subtract_uvt">2300</field>
+            <field name="plus_uvt">770</field>
+        </record>
+
+        <!-- PRODUCTOS AGRÍCOLAS -->
+        <record id="concept_agricola" model="withholding.concept">
+            <field name="code">AGRICOLA</field>
+            <field name="name">Retención Productos Agrícolas</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">True</field>
+            <field name="base_type">uvt</field>
+            <field name="validate_base_enabled">True</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+            <field name="description">Retención por compra de productos agrícolas sin procesamiento industrial. Base mínima: 70 UVT desde junio 2025.</field>
+            <field name="sequence">35</field>
+        </record>
+
+        <record id="rate_agricola_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_agricola"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">1.5</field>
+            <field name="min_base_uvt">92</field>
+            <field name="legal_reference">Art. 401 E.T.</field>
+        </record>
+
+        <record id="rate_agricola_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_agricola"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2025-05-31</field>
+            <field name="rate_percent">1.5</field>
+            <field name="min_base_uvt">92</field>
+        </record>
+
+        <record id="rate_agricola_2025" model="withholding.rate">
+            <field name="concept_id" ref="concept_agricola"/>
+            <field name="date_from">2025-06-01</field>
+            <field name="rate_percent">1.5</field>
+            <field name="min_base_uvt">70</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+        </record>
+
+        <!-- INC RESTAURANTES -->
+        <record id="concept_inc_restaurante" model="withholding.concept">
+            <field name="code">INC_REST</field>
+            <field name="name">INC Restaurantes</field>
+            <field name="concept_type">inc</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">False</field>
+            <field name="validate_base_enabled">False</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Art. 512-1 E.T.</field>
+            <field name="description">Impuesto Nacional al Consumo para restaurantes, bares y cafeterías. Tarifa 8%.</field>
+            <field name="sequence">60</field>
+        </record>
+
+        <record id="rate_inc_restaurante" model="withholding.rate">
+            <field name="concept_id" ref="concept_inc_restaurante"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="rate_percent">8</field>
+            <field name="min_base_uvt">0</field>
+        </record>
+
+        <!-- RENDIMIENTOS FINANCIEROS -->
+        <record id="concept_rendimientos" model="withholding.concept">
+            <field name="code">RENDIMIENTOS</field>
+            <field name="name">Retención Rendimientos Financieros</field>
+            <field name="concept_type">retefuente</field>
+            <field name="calculation_type">fixed_rate</field>
+            <field name="requires_minimum_base">False</field>
+            <field name="validate_base_enabled">False</field>
+            <field name="tax_application_mode">per_line</field>
+            <field name="calculation_period">operation</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+            <field name="description">Retención sobre rendimientos financieros (CDAT, títulos de renta fija). Tarifa 4%.</field>
+            <field name="sequence">45</field>
+        </record>
+
+        <record id="rate_rendimientos_2023" model="withholding.rate">
+            <field name="concept_id" ref="concept_rendimientos"/>
+            <field name="date_from">2023-01-01</field>
+            <field name="date_to">2023-12-31</field>
+            <field name="rate_percent">7</field>
+            <field name="min_base_uvt">0</field>
+            <field name="legal_reference">Art. 395 E.T.</field>
+        </record>
+
+        <record id="rate_rendimientos_2024" model="withholding.rate">
+            <field name="concept_id" ref="concept_rendimientos"/>
+            <field name="date_from">2024-01-01</field>
+            <field name="date_to">2024-12-31</field>
+            <field name="rate_percent">7</field>
+            <field name="min_base_uvt">0</field>
+            <field name="legal_reference">Art. 395 E.T.</field>
+        </record>
+
+        <record id="rate_rendimientos_2025" model="withholding.rate">
+            <field name="concept_id" ref="concept_rendimientos"/>
+            <field name="date_from">2025-01-01</field>
+            <field name="rate_percent">4</field>
+            <field name="min_base_uvt">0</field>
+            <field name="legal_reference">Decreto 0572/2025</field>
+        </record>
+
+    </data>
+</odoo>

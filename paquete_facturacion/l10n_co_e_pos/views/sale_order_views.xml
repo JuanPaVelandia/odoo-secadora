@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista de formulario de Sale Order con campo de modo de cálculo de impuestos -->
+    <record id="view_order_form_tax_mode" model="ir.ui.view">
+        <field name="name">sale.order.form.tax.mode</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Agregar el campo después de la lista de precios -->
+            <xpath expr="//field[@name='pricelist_id']" position="after">
+                <field name="tax_calculation_mode"
+                       widget="radio"
+                       options="{'horizontal': true}"
+                       readonly="state in ('sale', 'done', 'cancel')"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista List de Product Template con columnas de precio con/sin impuestos -->
+    <record id="product_template_list_view_with_taxes_pos" model="ir.ui.view">
+        <field name="name">product.template.list.with.taxes.pos</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Campo auxiliar para controlar visibilidad -->
+            <xpath expr="//field[@name='list_price']" position="before">
+                <field name="taxes_price_include" column_invisible="True"/>
+            </xpath>
+
+            <!-- Agregar columnas de precio después del precio base -->
+            <xpath expr="//field[@name='list_price']" position="after">
+
+                <field name="list_price_excl"
+                       string="Precio s/IVA"
+                       widget='monetary'
+                       options="{'currency_field': 'currency_id'}"
+                       optional="hide"
+                       invisible="taxes_price_include"
+                       decoration-muted="not sale_ok"/>
+
+                <field name="list_price_incl"
+                       string="Precio c/IVA"
+                       widget='monetary'
+                       options="{'currency_field': 'currency_id'}"
+                       optional="show"
+                       invisible="not taxes_price_include"
+                       decoration-muted="not sale_ok"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <!-- Vista List de Product Product (Variantes) con columnas de precio con/sin impuestos -->
+    <record id="product_product_list_view_with_taxes_pos" model="ir.ui.view">
+        <field name="name">product.product.list.with.taxes.pos</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+
+            <!-- Campo auxiliar para controlar visibilidad -->
+            <xpath expr="//field[@name='lst_price']" position="before">
+                <field name="taxes_price_include" column_invisible="True"/>
+            </xpath>
+
+            <!-- Agregar columnas de precio con/sin impuestos después del precio estándar -->
+            <xpath expr="//field[@name='lst_price']" position="after">
+
+                <field name="lst_price_excl"
+                       string="Precio s/IVA"
+                       widget='monetary'
+                       options="{'currency_field': 'currency_id'}"
+                       optional="show"
+                       invisible="taxes_price_include"/>
+
+                <field name="lst_price_incl"
+                       string="Precio c/IVA"
+                       widget='monetary'
+                       options="{'currency_field': 'currency_id'}"
+                       optional="show"
+                       invisible="not taxes_price_include"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

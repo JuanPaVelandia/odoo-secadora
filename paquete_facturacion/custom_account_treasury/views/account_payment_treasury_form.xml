@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Vista Form de Tesorería - Hereda de la nativa de Odoo -->
+        <record id="view_account_payment_treasury_form" model="ir.ui.view">
+            <field name="name">account.payment.treasury.form</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="mode">primary</field>
+            <field name="priority">10</field>
+            <field name="arch" type="xml">
+                <!-- Agregar campos invisibles necesarios -->
+                <field name="paired_internal_transfer_payment_id" position="after">
+                    <field name="is_cash_receipt" invisible="1"/>
+                    <field name="payment_type" invisible="1"/>
+                    <field name="is_sent" invisible="1"/>
+                    <field name="need_cancel_request" invisible="1"/>
+                    <field name="is_reconciled" invisible="1"/>
+                    <field name="is_matched" invisible="1"/>
+                    <field name="payment_method_code" invisible="1"/>
+                </field>
+
+                <!-- Agregar badge PAGO/COBRO en el título -->
+                <div class="oe_button_box" position="before">
+                    <div class="oe_title mb-3">
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <span class="badge rounded-pill fs-4 px-3 py-2 bg-success" invisible="payment_type != 'inbound'">COBRO</span>
+                            <span class="badge rounded-pill fs-4 px-3 py-2 bg-danger" invisible="payment_type != 'outbound'">PAGO</span>
+                            <field name="cash_receipt_number" invisible="not is_cash_receipt" readonly="1" class="text-success fw-bold"/>
+                            <field name="payment_number" invisible="is_cash_receipt or not payment_number" readonly="1" class="text-primary fw-bold"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agregar campos de anticipo después de memo -->
+                <field name="memo" position="after">
+                    <field name="bank_reference" string="Ref. Bancaria" readonly="state != 'draft'"/>
+                    <field name="advance" string="Es Anticipo" widget="boolean_toggle" readonly="state != 'draft'"/>
+                    <field name="advance_type_id" string="Tipo Anticipo" invisible="not advance" required="advance" readonly="state != 'draft'"/>
+                    <field name="code_advance" string="No. Anticipo" readonly="1" invisible="not advance"/>
+                </field>
+
+                <!-- Agregar sección de documentos y formas de pago después del grupo principal -->
+                <sheet position="inside">
+                    <!-- BUSCAR DOCUMENTOS -->
+                    <group invisible="state != 'draft' or advance" class="mt-3" name="search_documents">
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                            <button name="action_open_select_documents_wizard" type="object" class="btn btn-primary" string="Buscar Documentos" icon="fa-search"/>
+                            <field name="supplier_invoice_ids"
+                                   widget="many2many_tags"
+                                   invisible="partner_type != 'supplier'"
+                                   options="{'no_create': True}"
+                                   domain="[('state', '=', 'posted'), ('payment_state', 'in', ['not_paid', 'partial']), ('move_type', 'in', ['in_invoice', 'in_refund'])]"
+                                   placeholder="Facturas proveedor..."
+                                   nolabel="1"
+                                   class="flex-grow-1"/>
+                            <field name="customer_invoice_ids"
+                                   widget="many2many_tags"
+                                   invisible="partner_type != 'customer'"
+                                   options="{'no_create': True}"
+                                   domain="[('state', '=', 'posted'), ('payment_state', 'in', ['not_paid', 'partial']), ('move_type', 'in', ['out_invoice', 'out_refund'])]"
+                                   placeholder="Facturas cliente..."
+                                   nolabel="1"
+                                   class="flex-grow-1"/>
+                        </div>
+                    </group>
+
+                    <!-- DOCUMENTOS Y FORMAS DE PAGO (LADO A LADO) -->
+                    <group col="2" class="mt-3" name="docs_and_payments">
+                        <!-- COLUMNA IZQUIERDA: Documentos a Pagar -->
+                        <group string="Documentos a Pagar/Cobrar">
+                            <field name="payment_line_ids" widget="payment_section_and_note_one2many" readonly="state != 'draft'" nolabel="1" domain="[('is_main', '=', False)]" context="{'default_payment_id': id}">
+                                <list editable="bottom"
+                                      decoration-muted="not to_pay"
+                                      decoration-bf="display_type in ('line_section',)"
+                                      decoration-it="display_type == 'line_note'"
+                                      decoration-info="display_type == 'tax' or auto_tax_line"
+                                      decoration-success="display_type in ('invoice', 'bill')"
+                                      decoration-warning="display_type == 'advance'"
+                                      decoration-danger="display_type == 'reverse' or days_overdue > 30"
+                                      decoration-primary="display_type == 'counterpart'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="display_type" column_invisible="1"/>
+                                    <field name="is_main" column_invisible="1"/>
+                                    <field name="auto_tax_line" column_invisible="1"/>
+                                    <field name="payment_currency_id" column_invisible="1"/>
+                                    <field name="company_currency_id" column_invisible="1"/>
+                                    <field name="to_pay" string="✓" widget="boolean_toggle"/>
+                                    <field name="move_line_id" string="Documento" readonly="1"/>
+                                    <field name="partner_id" string="Tercero" optional="hide"/>
+                                    <field name="account_id" string="Cuenta" optional="hide"/>
+                                    <field name="amount_residual" string="Saldo" readonly="1"/>
+                                    <field name="payment_amount" string="A Pagar" sum="Total"/>
+                                    <field name="amount_info" widget="payment_details" string="Info" optional="show" width="40px" readonly="1"/>
+                                </list>
+                            </field>
+                            <div invisible="state != 'draft' or not payment_line_ids">
+                                <button name="action_delete_counterpart_lines" type="object" class="btn btn-outline-danger btn-sm" string="Limpiar" icon="fa-trash" confirm="¿Eliminar líneas?"/>
+                            </div>
+                        </group>
+
+                        <!-- COLUMNA DERECHA: Formas de Pago -->
+                        <group string="Formas de Pago">
+                            <field name="payment_method_line_ids" nolabel="1" context="{'default_payment_id': id}">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="payment_type" column_invisible="1"/>
+                                    <field name="payment_method_id" string="Método" required="1"/>
+                                    <field name="journal_id" string="Diario" required="1" domain="[('type', 'in', ['bank', 'cash'])]"/>
+                                    <field name="account_id" string="Cuenta"/>
+                                    <field name="amount" string="Monto" sum="Total" required="1"/>
+                                    <field name="check_number" string="Cheque" invisible="not is_check"/>
+                                    <field name="is_check" column_invisible="1"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+
+                            <!-- Opciones -->
+                            <separator string="Opciones" invisible="state != 'draft'"/>
+                            <div class="d-flex flex-wrap gap-3" invisible="state != 'draft'">
+                                <div class="d-flex align-items-center gap-1">
+                                    <field name="adjustment_peso" widget="boolean_toggle"/>
+                                    <label for="adjustment_peso" class="mb-0 small">Ajuste Peso</label>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <field name="early_payment_discount" widget="boolean_toggle"/>
+                                    <label for="early_payment_discount" class="mb-0 small">Pronto Pago</label>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <field name="revert_taxes" widget="boolean_toggle"/>
+                                    <label for="revert_taxes" class="mb-0 small">Revertir Imp.</label>
+                                </div>
+                            </div>
+                            <field name="adjustment_amount" invisible="not adjustment_peso" string="Monto Ajuste"/>
+                            <field name="early_payment_discount_percent" invisible="not early_payment_discount" string="% Descuento"/>
+                            <field name="revert_tax_ids" widget="many2many_tags" invisible="not revert_taxes or state != 'draft'" nolabel="1"/>
+                            <field name="writeoff_account_id" string="Cuenta Ajuste" invisible="payment_difference_line == 0 or state != 'draft'"/>
+                            <field name="payment_difference_line" string="Diferencia" readonly="1" invisible="payment_difference_line == 0"/>
+                        </group>
+                    </group>
+
+                    <!-- NOTAS Y SUBTOTALES -->
+                    <group col="2" class="mt-3" name="notes_and_totals">
+                        <group string="Notas">
+                            <field name="memo" widget="text" placeholder="Observaciones..." readonly="state != 'draft'" nolabel="1"/>
+                        </group>
+                        <group string="Resumen">
+                            <field name="payment_totals_html" nolabel="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </field>
+        </record>
+
+        <!-- Acción que usa la vista de tesorería -->
+        <record id="action_payment_treasury" model="ir.actions.act_window">
+            <field name="name">Pagos Tesorería</field>
+            <field name="res_model">account.payment</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_account_payment_list_enhanced"/>
+            <field name="context">{'default_payment_type': 'outbound', 'default_partner_type': 'supplier'}</field>
+            <field name="domain">[('payment_type', '=', 'outbound')]</field>
+        </record>
+
+        <!-- Asociar la vista form a la acción -->
+        <record id="action_payment_treasury_view_form" model="ir.actions.act_window.view">
+            <field name="sequence">2</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_account_payment_treasury_form"/>
+            <field name="act_window_id" ref="action_payment_treasury"/>
+        </record>
+
+        <record id="action_payment_treasury_view_list" model="ir.actions.act_window.view">
+            <field name="sequence">1</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_account_payment_list_enhanced"/>
+            <field name="act_window_id" ref="action_payment_treasury"/>
+        </record>
+
+    </data>
+</odoo>

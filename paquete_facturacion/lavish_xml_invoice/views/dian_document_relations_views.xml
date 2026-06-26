@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =================================================================== -->
+    <!-- RELACIONES: STOCK, PAGOS, NOTAS DE CRÉDITO -->
+    <!-- =================================================================== -->
+
+    <record id="view_dian_document_processor_form_relations" model="ir.ui.view">
+        <field name="name">dian.document.processor.form.relations</field>
+        <field name="model">dian.document.processor</field>
+        <field name="inherit_id" ref="view_dian_document_processor_form_visual_improved"/>
+        <field name="arch" type="xml">
+
+            <!-- Agregar botones de relaciones en el header -->
+            <xpath expr="//header/button[@name='action_view_suggested_po_by_amount']" position="after">
+
+                <!-- Botones de Stock -->
+                <button name="action_view_pickings"
+                        string="Albaranes"
+                        type="object"
+                        class="btn-info"
+                        icon="fa-truck"
+                        invisible="picking_count == 0"
+                        groups="stock.group_stock_user"/>
+
+                <button name="action_view_stock_moves"
+                        string="Movimientos Stock"
+                        type="object"
+                        class="btn-info"
+                        icon="fa-exchange"
+                        invisible="move_count == 0"
+                        groups="stock.group_stock_user"/>
+
+                <!-- Botones de Notas -->
+                <button name="action_view_credit_notes"
+                        string="Notas Crédito"
+                        type="object"
+                        class="btn-warning"
+                        icon="fa-minus-circle"
+                        invisible="credit_note_count == 0 or document_type in ['91', '92']"
+                        groups="account.group_account_invoice"/>
+
+                <button name="action_view_debit_notes"
+                        string="Notas Débito"
+                        type="object"
+                        class="btn-warning"
+                        icon="fa-plus-circle"
+                        invisible="debit_note_count == 0 or document_type in ['91', '92']"
+                        groups="account.group_account_invoice"/>
+
+                <button name="action_view_origin_document"
+                        string="Doc. Origen"
+                        type="object"
+                        class="btn-secondary"
+                        icon="fa-file-text-o"
+                        invisible="not origin_document_id or document_type not in ['91', '92']"
+                        groups="account.group_account_invoice"/>
+
+                <!-- Botones de Pagos -->
+                <button name="action_view_payments"
+                        string="Pagos"
+                        type="object"
+                        class="btn-success"
+                        icon="fa-money"
+                        invisible="payment_count == 0"
+                        groups="account.group_account_invoice"/>
+            </xpath>
+
+            <!-- Agregar página de Relaciones en el notebook -->
+            <xpath expr="//notebook" position="inside">
+                <page string="Relaciones" name="relations">
+                    <group colspan="2">
+
+                        <!-- Stock -->
+                        <group string="Inventario y Logística" colspan="2">
+                            <group>
+                                <label for="picking_count" string="Albaranes"/>
+                                <div class="o_row">
+                                    <field name="picking_count"/>
+                                    <button name="action_view_pickings"
+                                            string="Ver Albaranes"
+                                            type="object"
+                                            class="btn-sm btn-link"
+                                            icon="fa-external-link"
+                                            invisible="picking_count == 0"/>
+                                </div>
+
+                                <label for="move_count" string="Movimientos"/>
+                                <div class="o_row">
+                                    <field name="move_count"/>
+                                    <button name="action_view_stock_moves"
+                                            string="Ver Movimientos"
+                                            type="object"
+                                            class="btn-sm btn-link"
+                                            icon="fa-external-link"
+                                            invisible="move_count == 0"/>
+                                </div>
+                            </group>
+
+                            <group>
+                                <field name="picking_ids" widget="many2many_tags" readonly="1"
+                                       invisible="picking_count == 0"/>
+                            </group>
+                        </group>
+
+                        <!-- Notas de Crédito/Débito -->
+                        <group string="Notas de Crédito y Débito" colspan="2"
+                               invisible="document_type in ['91', '92'] and not origin_document_id">
+
+                            <!-- Para documentos normales: mostrar NC/ND asociadas -->
+                            <group invisible="document_type in ['91', '92']">
+                                <label for="credit_note_count" string="Notas de Crédito"/>
+                                <div class="o_row">
+                                    <field name="credit_note_count" class="oe_inline"/>
+                                    <button name="action_view_credit_notes"
+                                            string="Ver NC"
+                                            type="object"
+                                            class="btn-sm btn-link"
+                                            icon="fa-external-link"
+                                            invisible="credit_note_count == 0"/>
+                                </div>
+
+                                <label for="debit_note_count" string="Notas de Débito"/>
+                                <div class="o_row">
+                                    <field name="debit_note_count" class="oe_inline"/>
+                                    <button name="action_view_debit_notes"
+                                            string="Ver ND"
+                                            type="object"
+                                            class="btn-sm btn-link"
+                                            icon="fa-external-link"
+                                            invisible="debit_note_count == 0"/>
+                                </div>
+                            </group>
+
+                            <!-- Para NC/ND: mostrar documento origen -->
+                            <group invisible="document_type not in ['91', '92']">
+                                <field name="origin_document_id" readonly="1"/>
+                                <button name="action_view_origin_document"
+                                        string="Abrir Documento de Origen"
+                                        type="object"
+                                        class="btn-sm btn-primary"
+                                        icon="fa-external-link"
+                                        invisible="not origin_document_id"/>
+                            </group>
+                        </group>
+
+                        <!-- Pagos -->
+                        <group string="Información de Pagos" colspan="2"
+                               invisible="not invoice_id">
+                            <group>
+                                <field name="payment_state" widget="badge"
+                                       decoration-success="payment_state == 'paid'"
+                                       decoration-info="payment_state == 'partial'"
+                                       decoration-warning="payment_state == 'in_payment'"
+                                       decoration-danger="payment_state == 'not_paid'"/>
+
+                                <field name="amount_paid" widget="monetary"/>
+                                <field name="amount_residual" widget="monetary"
+                                       decoration-danger="amount_residual &gt; 0"/>
+                            </group>
+
+                            <group>
+                                <label for="payment_count" string="Pagos Registrados"/>
+                                <div class="o_row">
+                                    <field name="payment_count" class="oe_inline"/>
+                                    <button name="action_view_payments"
+                                            string="Ver Pagos"
+                                            type="object"
+                                            class="btn-sm btn-link"
+                                            icon="fa-external-link"
+                                            invisible="payment_count == 0"/>
+                                </div>
+                                <field name="payment_ids" widget="many2many_tags" readonly="1"
+                                       invisible="payment_count == 0"/>
+                            </group>
+                        </group>
+
+                    </group>
+
+                    <!-- Alertas visuales -->
+                    <div class="alert alert-success" role="status"
+                         invisible="payment_state != 'paid'">
+                        <strong><i class="fa fa-check-circle" title="Pagado"/> Documento Pagado</strong><br/>
+                        Este documento ha sido pagado completamente.
+                    </div>
+
+                    <div class="alert alert-warning" role="status"
+                         invisible="payment_state != 'partial'">
+                        <strong><i class="fa fa-exclamation-triangle" title="Advertencia"/> Pago Parcial</strong><br/>
+                        Saldo pendiente: <field name="amount_residual" widget="monetary" readonly="1" class="oe_inline"/>
+                    </div>
+
+                    <div class="alert alert-info" role="status"
+                         invisible="credit_note_count == 0 or document_type in ['91', '92']">
+                        <strong><i class="fa fa-info-circle" title="Informacion"/> Notas de Crédito</strong><br/>
+                        Este documento tiene <field name="credit_note_count" class="oe_inline"/> nota(s) de crédito asociada(s).
+                    </div>
+
+                </page>
+            </xpath>
+
+            <!-- Agregar grupo de resumen de relaciones en la parte superior -->
+            <xpath expr="//group[@name='po_matching_info']" position="after">
+                <group string="Resumen de Relaciones" name="relations_summary" colspan="2"
+                       invisible="picking_count == 0 and payment_count == 0 and credit_note_count == 0 and debit_note_count == 0">
+                    <group>
+                        <field name="picking_count" string="Albaranes" readonly="1"
+                               invisible="picking_count == 0"/>
+                        <field name="move_count" string="Mov. Stock" readonly="1"
+                               invisible="move_count == 0"/>
+                    </group>
+                    <group>
+                        <field name="payment_count" string="Pagos" readonly="1"
+                               invisible="payment_count == 0"/>
+                        <field name="credit_note_count" string="NC" readonly="1"
+                               invisible="credit_note_count == 0 or document_type in ['91', '92']"/>
+                        <field name="debit_note_count" string="ND" readonly="1"
+                               invisible="debit_note_count == 0 or document_type in ['91', '92']"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <!-- Agregar campos invisibles necesarios -->
+            <xpath expr="//form" position="inside">
+                <field name="picking_ids" invisible="1"/>
+                <field name="move_ids" invisible="1"/>
+                <field name="payment_ids" invisible="1"/>
+                <field name="origin_document_id" invisible="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

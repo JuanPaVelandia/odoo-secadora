@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========== VISTA FORM DEL WIZARD ========== -->
+    <record id="view_payment_request_add_orders_form" model="ir.ui.view">
+        <field name="name">payment.request.add.orders.form</field>
+        <field name="model">payment.request.add.orders</field>
+        <field name="arch" type="xml">
+            <form string="Agregar Órdenes">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="request_id" readonly="1"/>
+                            <field name="partner_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="advance_type_id" readonly="1"/>
+                            <field name="allow_sale_orders" invisible="1"/>
+                            <field name="allow_purchase_orders" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- TAB: PEDIDOS DE VENTA -->
+                        <page string="Pedidos de Venta" name="sale_orders" invisible="not allow_sale_orders">
+                            <field name="sale_order_ids"
+                                   domain="[('partner_id', '=', partner_id), ('state', 'in', ['sale', 'done'])]">
+                                <list string="Seleccionar Pedidos de Venta">
+                                    <field name="name" decoration-bf="1"/>
+                                    <field name="date_order"/>
+                                    <field name="amount_total"
+                                           sum="Total"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="state"
+                                           widget="badge"
+                                           decoration-success="state == 'sale'"
+                                           decoration-info="state == 'sent'"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- TAB: ÓRDENES DE COMPRA -->
+                        <page string="Órdenes de Compra" name="purchase_orders" invisible="not allow_purchase_orders">
+                            <field name="purchase_order_ids"
+                                   domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]">
+                                <list string="Seleccionar Órdenes de Compra">
+                                    <field name="name" decoration-bf="1"/>
+                                    <field name="date_order"/>
+                                    <field name="amount_total"
+                                           sum="Total"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="state"
+                                           widget="badge"
+                                           decoration-success="state == 'purchase'"
+                                           decoration-info="state == 'sent'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+
+                    <div class="alert alert-warning mb-0" invisible="allow_sale_orders or allow_purchase_orders">
+                        <i class="fa fa-exclamation-triangle me-2"/>
+                        <strong>Atención:</strong> Este tipo de anticipo no permite asociar órdenes.
+                        Seleccione un tipo diferente en la solicitud.
+                    </div>
+                </sheet>
+
+                <footer>
+                    <button name="action_add_orders"
+                            string="Agregar Órdenes"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not allow_sale_orders and not allow_purchase_orders"/>
+                    <button string="Cancelar"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========== ACCIÓN DEL WIZARD ========== -->
+    <record id="action_payment_request_add_orders" model="ir.actions.act_window">
+        <field name="name">Agregar Órdenes</field>
+        <field name="res_model">payment.request.add.orders</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'default_request_id': active_id}</field>
+    </record>
+
+</odoo>

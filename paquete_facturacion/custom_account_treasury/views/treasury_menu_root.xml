@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ============================================ -->
+        <!-- MENÚ RAÍZ DE TESORERÍA -->
+        <!-- Este archivo se carga primero para que otros archivos
+             puedan referenciar el menú raíz -->
+        <!-- ============================================ -->
+        <menuitem id="menu_treasury_root"
+            name="Tesorería"
+            groups="custom_account_treasury.group_treasury_user,custom_account_treasury.group_treasury_manager"
+            web_icon="custom_account_treasury,static/description/icon.png"
+            sequence="80"/>
+    </data>
+</odoo>

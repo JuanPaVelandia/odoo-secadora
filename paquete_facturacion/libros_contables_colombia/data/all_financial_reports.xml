@@ -1,0 +1,2162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================= -->
+    <!-- LIBROS CONTABLES COLOMBIA - TODOS LOS REPORTES FINANCIEROS        -->
+    <!-- ================================================================= -->
+
+    <!-- ================================================================= -->
+    <!-- 1. BALANCE GENERAL COMPARATIVO CON INDICADORES                    -->
+    <!-- ================================================================= -->
+
+    <record id="co_comparative_balance_report" model="account.report">
+        <field name="name">Balance General Comparativo</field>
+        <field name="root_report_id" ref="account_reports.balance_sheet"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_journals" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.comparative.balance.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_comp_bal_col_current" model="account.report.column">
+                <field name="name">Periodo Actual</field>
+                <field name="expression_label">current_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_comp_bal_col_previous" model="account.report.column">
+                <field name="name">Periodo Anterior</field>
+                <field name="expression_label">previous_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_comp_bal_col_variation" model="account.report.column">
+                <field name="name">Variacion</field>
+                <field name="expression_label">variation</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_comp_bal_col_var_pct" model="account.report.column">
+                <field name="name">Var %</field>
+                <field name="expression_label">variation_percent</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_comp_bal_col_vert_curr" model="account.report.column">
+                <field name="name">% Actual</field>
+                <field name="expression_label">vertical_current</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_comp_bal_col_target" model="account.report.column">
+                <field name="name">Meta</field>
+                <field name="expression_label">target</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">60</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_comparative_balance" model="ir.actions.client">
+        <field name="name">Balance Comparativo</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_comparative_balance_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 2. ESTADO DE RESULTADOS COMPARATIVO CON INDICADORES               -->
+    <!-- ================================================================= -->
+
+    <record id="co_comparative_income_report" model="account.report">
+        <field name="name">Estado de Resultados Comparativo</field>
+        <field name="root_report_id" ref="account_reports.profit_and_loss"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_journals" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.comparative.income.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_comp_inc_col_current" model="account.report.column">
+                <field name="name">Periodo Actual</field>
+                <field name="expression_label">current_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_comp_inc_col_previous" model="account.report.column">
+                <field name="name">Periodo Anterior</field>
+                <field name="expression_label">previous_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_comp_inc_col_variation" model="account.report.column">
+                <field name="name">Variacion</field>
+                <field name="expression_label">variation</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_comp_inc_col_var_pct" model="account.report.column">
+                <field name="name">Var %</field>
+                <field name="expression_label">variation_percent</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_comp_inc_col_vert" model="account.report.column">
+                <field name="name">% s/Ingresos</field>
+                <field name="expression_label">vertical_current</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_comp_inc_col_target" model="account.report.column">
+                <field name="name">Meta</field>
+                <field name="expression_label">target</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">60</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_comparative_income" model="ir.actions.client">
+        <field name="name">Estado Resultados Comparativo</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_comparative_income_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 2.5 BALANCE COMPARATIVO POR MES                                   -->
+    <!-- ================================================================= -->
+
+    <record id="co_monthly_balance_report" model="account.report">
+        <field name="name">Balance Comparativo por Mes</field>
+        <field name="root_report_id" ref="account_reports.balance_sheet"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.monthly.balance.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_mb_col_account" model="account.report.column">
+                <field name="name">Cuenta</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_mb_col_jan" model="account.report.column">
+                <field name="name">Ene</field>
+                <field name="expression_label">jan</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_mb_col_feb" model="account.report.column">
+                <field name="name">Feb</field>
+                <field name="expression_label">feb</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_mb_col_mar" model="account.report.column">
+                <field name="name">Mar</field>
+                <field name="expression_label">mar</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_mb_col_apr" model="account.report.column">
+                <field name="name">Abr</field>
+                <field name="expression_label">apr</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_mb_col_may" model="account.report.column">
+                <field name="name">May</field>
+                <field name="expression_label">may</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_mb_col_jun" model="account.report.column">
+                <field name="name">Jun</field>
+                <field name="expression_label">jun</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_mb_col_jul" model="account.report.column">
+                <field name="name">Jul</field>
+                <field name="expression_label">jul</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">70</field>
+            </record>
+            <record id="co_mb_col_aug" model="account.report.column">
+                <field name="name">Ago</field>
+                <field name="expression_label">aug</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">80</field>
+            </record>
+            <record id="co_mb_col_sep" model="account.report.column">
+                <field name="name">Sep</field>
+                <field name="expression_label">sep</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">90</field>
+            </record>
+            <record id="co_mb_col_oct" model="account.report.column">
+                <field name="name">Oct</field>
+                <field name="expression_label">oct</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">100</field>
+            </record>
+            <record id="co_mb_col_nov" model="account.report.column">
+                <field name="name">Nov</field>
+                <field name="expression_label">nov</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">110</field>
+            </record>
+            <record id="co_mb_col_dec" model="account.report.column">
+                <field name="name">Dic</field>
+                <field name="expression_label">dec</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">120</field>
+            </record>
+            <record id="co_mb_col_total" model="account.report.column">
+                <field name="name">Total</field>
+                <field name="expression_label">total</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">130</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_monthly_balance" model="ir.actions.client">
+        <field name="name">Balance Comparativo por Mes</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_monthly_balance_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 2.6 ESTADO DE RESULTADOS DETALLADO POR MES                        -->
+    <!-- ================================================================= -->
+
+    <record id="co_monthly_income_report" model="account.report">
+        <field name="name">Estado de Resultados por Mes</field>
+        <field name="root_report_id" ref="account_reports.profit_and_loss"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.monthly.income.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_mi_col_account" model="account.report.column">
+                <field name="name">Cuenta</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_mi_col_jan" model="account.report.column">
+                <field name="name">Ene</field>
+                <field name="expression_label">jan</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_mi_col_feb" model="account.report.column">
+                <field name="name">Feb</field>
+                <field name="expression_label">feb</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_mi_col_mar" model="account.report.column">
+                <field name="name">Mar</field>
+                <field name="expression_label">mar</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_mi_col_apr" model="account.report.column">
+                <field name="name">Abr</field>
+                <field name="expression_label">apr</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_mi_col_may" model="account.report.column">
+                <field name="name">May</field>
+                <field name="expression_label">may</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_mi_col_jun" model="account.report.column">
+                <field name="name">Jun</field>
+                <field name="expression_label">jun</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_mi_col_jul" model="account.report.column">
+                <field name="name">Jul</field>
+                <field name="expression_label">jul</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">70</field>
+            </record>
+            <record id="co_mi_col_aug" model="account.report.column">
+                <field name="name">Ago</field>
+                <field name="expression_label">aug</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">80</field>
+            </record>
+            <record id="co_mi_col_sep" model="account.report.column">
+                <field name="name">Sep</field>
+                <field name="expression_label">sep</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">90</field>
+            </record>
+            <record id="co_mi_col_oct" model="account.report.column">
+                <field name="name">Oct</field>
+                <field name="expression_label">oct</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">100</field>
+            </record>
+            <record id="co_mi_col_nov" model="account.report.column">
+                <field name="name">Nov</field>
+                <field name="expression_label">nov</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">110</field>
+            </record>
+            <record id="co_mi_col_dec" model="account.report.column">
+                <field name="name">Dic</field>
+                <field name="expression_label">dec</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">120</field>
+            </record>
+            <record id="co_mi_col_total" model="account.report.column">
+                <field name="name">Total</field>
+                <field name="expression_label">total</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">130</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_monthly_income" model="ir.actions.client">
+        <field name="name">Estado Resultados por Mes</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_monthly_income_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 2.7 BALANCE DE MOVIMIENTOS DEL PERÍODO (Solo movimientos)         -->
+    <!-- ================================================================= -->
+
+    <record id="co_period_movements_report" model="account.report">
+        <field name="name">Balance de Movimientos del Período</field>
+        <field name="root_report_id" ref="account_reports.general_ledger_report"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.period.movements.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_pm_col_debit" model="account.report.column">
+                <field name="name">Débitos</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_pm_col_credit" model="account.report.column">
+                <field name="name">Créditos</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_pm_col_balance" model="account.report.column">
+                <field name="name">Saldo Neto</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_pm_col_moves" model="account.report.column">
+                <field name="name"># Asientos</field>
+                <field name="expression_label">moves</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_period_movements" model="ir.actions.client">
+        <field name="name">Balance Movimientos Período</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_period_movements_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 3. ESTADO DE FLUJOS DE EFECTIVO (NIC 7)                           -->
+    <!-- ================================================================= -->
+
+    <record id="co_cash_flow_report" model="account.report">
+        <field name="name">Estado de Flujos de Efectivo (NIC 7)</field>
+        <field name="root_report_id" ref="account_reports.cash_flow_report"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.cash.flow.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_cf_col_balance" model="account.report.column">
+                <field name="name">Importe</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_cash_flow" model="ir.actions.client">
+        <field name="name">Flujo de Efectivo</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_cash_flow_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 4. INDICADORES FINANCIEROS (KPIs)                                 -->
+    <!-- ================================================================= -->
+
+    <record id="co_financial_kpis_report" model="account.report">
+        <field name="name">Indicadores Financieros (KPIs)</field>
+        <field name="root_report_id" ref="account_reports.balance_sheet"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.financial.indicators.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_kpi_col_value" model="account.report.column">
+                <field name="name">Valor</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">float</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_kpi_col_target" model="account.report.column">
+                <field name="name">Meta</field>
+                <field name="expression_label">target</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_kpi_col_formula" model="account.report.column">
+                <field name="name">Formula</field>
+                <field name="expression_label">formula</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_kpi_col_interp" model="account.report.column">
+                <field name="name">Interpretacion</field>
+                <field name="expression_label">interpretation</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_financial_kpis" model="ir.actions.client">
+        <field name="name">Indicadores Financieros</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_financial_kpis_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 5. ESTADO DE CAMBIOS EN EL PATRIMONIO                             -->
+    <!-- ================================================================= -->
+
+    <record id="co_equity_changes_report" model="account.report">
+        <field name="name">Estado de Cambios en el Patrimonio</field>
+        <field name="root_report_id" ref="account_reports.balance_sheet"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_period_comparison" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="custom_handler_model_id" search="[('model', '=', 'co.equity.changes.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_ecp_col_balance" model="account.report.column">
+                <field name="name">Importe</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_equity_changes" model="ir.actions.client">
+        <field name="name">Cambios en Patrimonio</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_equity_changes_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 6. LIBRO DIARIO                                                   -->
+    <!-- ================================================================= -->
+
+    <record id="co_journal_book_report" model="account.report">
+        <field name="name">Libro Diario Oficial</field>
+        <field name="root_report_id" ref="account_reports.general_ledger_report"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.journal.book.colombia.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_jb_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_jb_col_account" model="account.report.column">
+                <field name="name">Cuenta</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_jb_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_jb_col_desc" model="account.report.column">
+                <field name="name">Descripcion</field>
+                <field name="expression_label">name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_jb_col_debit" model="account.report.column">
+                <field name="name">Debito</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_jb_col_credit" model="account.report.column">
+                <field name="name">Credito</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">60</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_journal_book" model="ir.actions.client">
+        <field name="name">Libro Diario</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_journal_book_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 7. LIBRO MAYOR                                                    -->
+    <!-- ================================================================= -->
+
+    <record id="co_ledger_book_report" model="account.report">
+        <field name="name">Libro Mayor Oficial</field>
+        <field name="root_report_id" ref="account_reports.general_ledger_report"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="filter_account_type">disabled</field>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.ledger.book.colombia.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_lb_col_account" model="account.report.column">
+                <field name="name">Cuenta</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_lb_col_name" model="account.report.column">
+                <field name="name">Nombre</field>
+                <field name="expression_label">account_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_lb_col_initial" model="account.report.column">
+                <field name="name">Saldo Inicial</field>
+                <field name="expression_label">initial_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_lb_col_debit" model="account.report.column">
+                <field name="name">Debitos</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_lb_col_credit" model="account.report.column">
+                <field name="name">Creditos</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_lb_col_final" model="account.report.column">
+                <field name="name">Saldo Final</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">60</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_ledger_book" model="ir.actions.client">
+        <field name="name">Libro Mayor</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_ledger_book_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 8. LIBRO AUXILIAR                                                 -->
+    <!-- ================================================================= -->
+    <!--
+    Estructura del Libro Auxiliar Colombia:
+    - Código y nombre de cuenta al inicio
+    - Tipo de operación según diario
+    - Secuencia, documento, etiqueta, referencias
+    - Tercero con fecha último movimiento para saldo inicial
+    - Base imponible, débito, crédito, saldo
+    -->
+
+    <record id="co_auxiliary_book_report" model="account.report">
+        <field name="name">Libro Auxiliar</field>
+        <field name="root_report_id" ref="account_reports.general_ledger_report"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="filter_account_type">disabled</field>
+        <field name="filter_hide_accounts_no_movement">by_default</field>
+        <field name="filter_puc_hierarchy">optional</field>
+        <field name="filter_hierarchy">optional</field>
+        <field name="filter_color_formatting">optional</field>
+        <field name="filter_secondary_currency" eval="True"/>
+        <field name="filter_initial_balance_date" eval="True"/>
+        <field name="filter_export_wizard" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.auxiliary.book.colombia.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación de cuenta -->
+            <record id="co_aux_col_account_code" model="account.report.column">
+                <field name="name">Código</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_aux_col_account_name" model="account.report.column">
+                <field name="name">Cuenta</field>
+                <field name="expression_label">account_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <!-- Columnas de fecha y tipo -->
+            <record id="co_aux_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_aux_col_journal_type" model="account.report.column">
+                <field name="name">Tipo Op.</field>
+                <field name="expression_label">journal_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_aux_col_sequence" model="account.report.column">
+                <field name="name">Sec.</field>
+                <field name="expression_label">sequence</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">50</field>
+            </record>
+            <!-- Columnas de documento -->
+            <record id="co_aux_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_aux_col_label" model="account.report.column">
+                <field name="name">Etiqueta</field>
+                <field name="expression_label">name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">70</field>
+            </record>
+            <record id="co_aux_col_ref" model="account.report.column">
+                <field name="name">Ref.</field>
+                <field name="expression_label">ref</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">80</field>
+            </record>
+            <record id="co_aux_col_payment_ref" model="account.report.column">
+                <field name="name">Ref. Pago</field>
+                <field name="expression_label">payment_ref</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">90</field>
+            </record>
+            <!-- Columnas de tercero -->
+            <record id="co_aux_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">100</field>
+            </record>
+            <record id="co_aux_col_last_move" model="account.report.column">
+                <field name="name">Últ. Mov.</field>
+                <field name="expression_label">last_move_date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">110</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_aux_col_base" model="account.report.column">
+                <field name="name">Base</field>
+                <field name="expression_label">tax_base_amount</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">120</field>
+            </record>
+            <record id="co_aux_col_debit" model="account.report.column">
+                <field name="name">Débito</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">130</field>
+            </record>
+            <record id="co_aux_col_credit" model="account.report.column">
+                <field name="name">Crédito</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">140</field>
+            </record>
+            <record id="co_aux_col_balance" model="account.report.column">
+                <field name="name">Saldo</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">150</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_auxiliary_book" model="ir.actions.client">
+        <field name="name">Libro Auxiliar</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_auxiliary_book_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 8.1 LIBRO AUXILIAR ANALÍTICO (con cuenta analítica)               -->
+    <!-- ================================================================= -->
+
+    <record id="co_auxiliary_book_analytic_report" model="account.report">
+        <field name="name">Libro Auxiliar Analítico</field>
+        <field name="root_report_id" ref="account_reports.general_ledger_report"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="filter_account_type">disabled</field>
+        <field name="filter_hide_accounts_no_movement">by_default</field>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.auxiliary.book.colombia.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación de cuenta -->
+            <record id="co_aux_ana_col_account_code" model="account.report.column">
+                <field name="name">Código</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_aux_ana_col_account_name" model="account.report.column">
+                <field name="name">Cuenta</field>
+                <field name="expression_label">account_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <!-- Columnas de fecha y tipo -->
+            <record id="co_aux_ana_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_aux_ana_col_journal_type" model="account.report.column">
+                <field name="name">Tipo Op.</field>
+                <field name="expression_label">journal_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_aux_ana_col_sequence" model="account.report.column">
+                <field name="name">Sec.</field>
+                <field name="expression_label">sequence</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">50</field>
+            </record>
+            <!-- Columnas de documento -->
+            <record id="co_aux_ana_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_aux_ana_col_label" model="account.report.column">
+                <field name="name">Etiqueta</field>
+                <field name="expression_label">name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">70</field>
+            </record>
+            <record id="co_aux_ana_col_ref" model="account.report.column">
+                <field name="name">Ref.</field>
+                <field name="expression_label">ref</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">80</field>
+            </record>
+            <record id="co_aux_ana_col_payment_ref" model="account.report.column">
+                <field name="name">Ref. Pago</field>
+                <field name="expression_label">payment_ref</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">90</field>
+            </record>
+            <!-- Columnas de tercero -->
+            <record id="co_aux_ana_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">100</field>
+            </record>
+            <record id="co_aux_ana_col_last_move" model="account.report.column">
+                <field name="name">Últ. Mov.</field>
+                <field name="expression_label">last_move_date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">110</field>
+            </record>
+            <!-- Cuenta analítica -->
+            <record id="co_aux_ana_col_analytic" model="account.report.column">
+                <field name="name">Cta. Analítica</field>
+                <field name="expression_label">analytic_account</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">115</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_aux_ana_col_base" model="account.report.column">
+                <field name="name">Base</field>
+                <field name="expression_label">tax_base_amount</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">120</field>
+            </record>
+            <record id="co_aux_ana_col_debit" model="account.report.column">
+                <field name="name">Débito</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">130</field>
+            </record>
+            <record id="co_aux_ana_col_credit" model="account.report.column">
+                <field name="name">Crédito</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">140</field>
+            </record>
+            <record id="co_aux_ana_col_balance" model="account.report.column">
+                <field name="name">Saldo</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">150</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_auxiliary_book_analytic" model="ir.actions.client">
+        <field name="name">Libro Auxiliar Analítico</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_auxiliary_book_analytic_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 9. BALANCE DE PRUEBA POR TERCERO (JERARQUÍA PUC)                  -->
+    <!-- ================================================================= -->
+    <!--
+    Estructura jerárquica:
+    NIVEL 1: Clase (1 dígito)       → 1 ACTIVO
+    NIVEL 2: Grupo (2 dígitos)      →   11 DISPONIBLE
+    NIVEL 3: Cuenta (4 dígitos)     →     1110 BANCOS
+    NIVEL 4: Subcuenta (6+ dígitos) →       111005 BANCOS NACIONALES
+    NIVEL 5: Tercero                →         NIT 890903938 - BANCOLOMBIA
+    NIVEL 6: Movimientos            →           01/12/2024 - RC-001
+
+    Columnas:
+    Cuenta | Sdo.Inicial | Débitos | Créditos | Sdo.Final | Último Mov.
+
+    La columna "Cuenta" muestra "Código - Nombre" para niveles PUC
+    y "TipoDoc NIT - Nombre" para terceros
+    -->
+
+    <record id="co_trial_balance_partner_report" model="account.report">
+        <field name="name">Balance de Prueba por Tercero</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_hide_0_lines">optional</field>
+        <field name="filter_hide_partners_no_movement">optional</field>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="filter_account_type">disabled</field>
+        <field name="filter_puc_hierarchy">optional</field>
+        <field name="filter_hierarchy">optional</field>
+        <field name="filter_color_formatting">optional</field>
+        <field name="filter_secondary_currency" eval="True"/>
+        <field name="filter_initial_balance_date" eval="True"/>
+        <field name="filter_export_wizard" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.trial.balance.partner.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de información -->
+            <record id="co_tbp_col_account_code" model="account.report.column">
+                <field name="name">Código</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_tbp_col_account_name" model="account.report.column">
+                <field name="name">Nombre Cuenta</field>
+                <field name="expression_label">account_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tbp_col_partner_name" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tbp_col_partner_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_tbp_col_last_move" model="account.report.column">
+                <field name="name">Últ. Mov.</field>
+                <field name="expression_label">last_move_date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">50</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tbp_col_initial" model="account.report.column">
+                <field name="name">Saldo Inicial</field>
+                <field name="expression_label">initial_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_tbp_col_debit" model="account.report.column">
+                <field name="name">Débitos</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">70</field>
+            </record>
+            <record id="co_tbp_col_credit" model="account.report.column">
+                <field name="name">Créditos</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">80</field>
+            </record>
+            <record id="co_tbp_col_final" model="account.report.column">
+                <field name="name">Saldo Final</field>
+                <field name="expression_label">final_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">90</field>
+            </record>
+            <record id="co_tbp_col_variation" model="account.report.column">
+                <field name="name">Variación</field>
+                <field name="expression_label">variation</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">100</field>
+            </record>
+            <record id="co_tbp_col_variation_pct" model="account.report.column">
+                <field name="name">Var %</field>
+                <field name="expression_label">variation_percent</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">110</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_trial_balance_partner" model="ir.actions.client">
+        <field name="name">Balance Prueba por Tercero</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_trial_balance_partner_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 9.5 BALANCE DE PRUEBA PUC (POR NIVELES)                           -->
+    <!-- ================================================================= -->
+
+    <record id="co_trial_balance_puc_report" model="account.report">
+        <field name="name">Balance de Prueba PUC</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_account" eval="True"/>
+        <field name="filter_account_type">disabled</field>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.trial.balance.puc.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tbpuc_col_initial" model="account.report.column">
+                <field name="name">Saldo Inicial</field>
+                <field name="expression_label">initial_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_tbpuc_col_debit" model="account.report.column">
+                <field name="name">Débitos</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tbpuc_col_credit" model="account.report.column">
+                <field name="name">Créditos</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tbpuc_col_final" model="account.report.column">
+                <field name="name">Saldo Final</field>
+                <field name="expression_label">final_balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_tbpuc_col_variation" model="account.report.column">
+                <field name="name">Variación</field>
+                <field name="expression_label">variation</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_tbpuc_col_variation_pct" model="account.report.column">
+                <field name="name">Var %</field>
+                <field name="expression_label">variation_percent</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_tbpuc_col_last_move" model="account.report.column">
+                <field name="name">Últ. Mov.</field>
+                <field name="expression_label">last_move_date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">70</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_trial_balance_puc" model="ir.actions.client">
+        <field name="name">Balance de Prueba PUC</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_trial_balance_puc_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 10. LIBRO DE INVENTARIOS                                          -->
+    <!-- ================================================================= -->
+
+    <record id="co_inventory_book_report" model="account.report">
+        <field name="name">Libro de Inventarios y Balances</field>
+        <field name="root_report_id" ref="account_reports.balance_sheet"/>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.inventory.book.colombia.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_inv_col_account" model="account.report.column">
+                <field name="name">Cuenta</field>
+                <field name="expression_label">account_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_inv_col_name" model="account.report.column">
+                <field name="name">Nombre</field>
+                <field name="expression_label">account_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_inv_col_balance" model="account.report.column">
+                <field name="name">Saldo</field>
+                <field name="expression_label">balance</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_inventory_book" model="ir.actions.client">
+        <field name="name">Libro Inventarios</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_inventory_book_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 11. REPORTES DE IMPUESTOS Y RETENCIONES                           -->
+    <!-- ================================================================= -->
+
+    <!-- 11.1 Reporte General de Impuestos (Todos) -->
+    <record id="co_tax_report" model="account.report">
+        <field name="name">Reporte General de Impuestos</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.tax.report.general.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación -->
+            <record id="co_tax_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tax_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">8</field>
+            </record>
+            <record id="co_tax_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">9</field>
+            </record>
+            <record id="co_tax_col_vat" model="account.report.column">
+            <field name="name">NIT/CC</field>
+            <field name="expression_label">partner_vat</field>
+            <field name="figure_type">string</field>
+            <field name="sequence">10</field>
+            </record>
+            <record id="co_tax_col_operation_type" model="account.report.column">
+                <field name="name">Tipo Op.</field>
+                <field name="expression_label">operation_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">12</field>
+            </record>
+            <record id="co_tax_col_tax_name" model="account.report.column">
+                <field name="name">Impuesto</field>
+                <field name="expression_label">tax_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">15</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tax_col_base" model="account.report.column">
+                <field name="name">Base Gravable</field>
+                <field name="expression_label">base</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tax_col_percentage" model="account.report.column">
+                <field name="name">Tarifa %</field>
+                <field name="expression_label">percentage</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tax_col_tax" model="account.report.column">
+                <field name="name">Valor Impuesto</field>
+                <field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_tax_report" model="ir.actions.client">
+        <field name="name">Reporte General de Impuestos</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_tax_report')}"/>
+    </record>
+
+    <!-- 11.2 Reporte de IVA -->
+    <record id="co_tax_report_iva" model="account.report">
+        <field name="name">Reporte de IVA</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_tax" eval="True"/>
+        <field name="filter_withholding_filters" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.tax.report.iva.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación -->
+            <record id="co_tax_iva_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tax_iva_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">8</field>
+            </record>
+            <record id="co_tax_iva_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">9</field>
+            </record>
+            <record id="co_tax_iva_col_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_tax_iva_col_operation_type" model="account.report.column">
+                <field name="name">Tipo Op.</field>
+                <field name="expression_label">operation_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">12</field>
+            </record>
+            <record id="co_tax_iva_col_tax_name" model="account.report.column">
+                <field name="name">Impuesto</field>
+                <field name="expression_label">tax_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">15</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tax_iva_col_base" model="account.report.column">
+                <field name="name">Base Gravable</field>
+                <field name="expression_label">base</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tax_iva_col_percentage" model="account.report.column">
+                <field name="name">Tarifa %</field>
+                <field name="expression_label">percentage</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tax_iva_col_tax" model="account.report.column">
+                <field name="name">Valor IVA</field>
+                <field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_tax_iva_col_total" model="account.report.column">
+                <field name="name">Total Factura</field>
+                <field name="expression_label">total_invoice</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_tax_report_iva" model="ir.actions.client">
+        <field name="name">Reporte de IVA</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_tax_report_iva')}"/>
+    </record>
+
+    <!-- 11.3 Reporte de Retención en la Fuente -->
+    <record id="co_tax_report_retefuente" model="account.report">
+        <field name="name">Retención en la Fuente</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_tax" eval="True"/>
+        <field name="filter_withholding_filters" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.tax.report.retefuente.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación -->
+            <record id="co_tax_retefuente_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tax_retefuente_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">8</field>
+            </record>
+            <record id="co_tax_retefuente_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">9</field>
+            </record>
+            <record id="co_tax_retefuente_col_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_tax_retefuente_col_operation_type" model="account.report.column">
+                <field name="name">Tipo Op.</field>
+                <field name="expression_label">operation_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">12</field>
+            </record>
+            <!-- Columna de concepto de retención -->
+            <record id="co_tax_retefuente_col_concept" model="account.report.column">
+                <field name="name">Concepto</field>
+                <field name="expression_label">concept_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">15</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tax_retefuente_col_base" model="account.report.column">
+                <field name="name">Base Gravable</field>
+                <field name="expression_label">base</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tax_retefuente_col_percentage" model="account.report.column">
+                <field name="name">Tarifa %</field>
+                <field name="expression_label">percentage</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tax_retefuente_col_tax" model="account.report.column">
+                <field name="name">Valor Retención</field>
+                <field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_tax_report_retefuente" model="ir.actions.client">
+        <field name="name">Retención en la Fuente</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_tax_report_retefuente')}"/>
+    </record>
+
+    <!-- 11.4 Reporte de Retención de IVA (ReteIVA) -->
+    <record id="co_tax_report_reteiva" model="account.report">
+        <field name="name">Retención de IVA (ReteIVA)</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_tax" eval="True"/>
+        <field name="filter_withholding_filters" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.tax.report.reteiva.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación -->
+            <record id="co_tax_reteiva_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tax_reteiva_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">8</field>
+            </record>
+            <record id="co_tax_reteiva_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">9</field>
+            </record>
+            <record id="co_tax_reteiva_col_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tax_reteiva_col_base" model="account.report.column">
+                <field name="name">Base Gravable</field>
+                <field name="expression_label">base</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tax_reteiva_col_percentage" model="account.report.column">
+                <field name="name">Tarifa %</field>
+                <field name="expression_label">percentage</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tax_reteiva_col_tax" model="account.report.column">
+                <field name="name">Valor ReteIVA</field>
+                <field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_tax_report_reteiva" model="ir.actions.client">
+        <field name="name">Retención de IVA</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_tax_report_reteiva')}"/>
+    </record>
+
+    <!-- 11.5 Reporte de Retención de ICA (ReteICA) -->
+    <record id="co_tax_report_reteica" model="account.report">
+        <field name="name">Retención de ICA (ReteICA)</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="filter_tax" eval="True"/>
+        <field name="filter_withholding_filters" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.tax.report.reteica.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación -->
+            <record id="co_tax_reteica_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tax_reteica_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">8</field>
+            </record>
+            <record id="co_tax_reteica_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">9</field>
+            </record>
+            <record id="co_tax_reteica_col_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_tax_reteica_col_operation_type" model="account.report.column">
+                <field name="name">Tipo Op.</field>
+                <field name="expression_label">operation_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">12</field>
+            </record>
+            <record id="co_tax_reteica_col_city" model="account.report.column">
+                <field name="name">Ciudad</field>
+                <field name="expression_label">city</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">14</field>
+            </record>
+            <record id="co_tax_reteica_col_activity" model="account.report.column">
+                <field name="name">Actividad</field>
+                <field name="expression_label">activity_code</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">16</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tax_reteica_col_base" model="account.report.column">
+                <field name="name">Base Gravable</field>
+                <field name="expression_label">base</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tax_reteica_col_percentage" model="account.report.column">
+                <field name="name">Tarifa</field>
+                <field name="expression_label">percentage</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tax_reteica_col_tax" model="account.report.column">
+                <field name="name">Valor ReteICA</field>
+                <field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_tax_report_reteica" model="ir.actions.client">
+        <field name="name">Retención de ICA</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_tax_report_reteica')}"/>
+    </record>
+
+    <!-- 11.6 Reporte de Impuesto Nacional al Consumo (INC) -->
+    <record id="co_tax_report_inc" model="account.report">
+        <field name="name">Impuesto Nacional al Consumo (INC)</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.tax.report.inc.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación -->
+            <record id="co_tax_inc_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tax_inc_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">8</field>
+            </record>
+            <record id="co_tax_inc_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">9</field>
+            </record>
+            <record id="co_tax_inc_col_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tax_inc_col_base" model="account.report.column">
+                <field name="name">Base Gravable</field>
+                <field name="expression_label">base</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tax_inc_col_percentage" model="account.report.column">
+                <field name="name">Tarifa %</field>
+                <field name="expression_label">percentage</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tax_inc_col_tax" model="account.report.column">
+                <field name="name">Valor INC</field>
+                <field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_tax_report_inc" model="ir.actions.client">
+        <field name="name">Impuesto Nacional al Consumo</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_tax_report_inc')}"/>
+    </record>
+
+    <!-- 11.8 Reporte de Otros Impuestos -->
+    <record id="co_tax_report_otros" model="account.report">
+        <field name="name">Otros Impuestos</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_account_range" eval="True"/>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.tax.report.otros.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <!-- Columnas de identificación -->
+            <record id="co_tax_otros_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_tax_otros_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">8</field>
+            </record>
+            <record id="co_tax_otros_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">9</field>
+            </record>
+            <record id="co_tax_otros_col_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <!-- Columnas numéricas -->
+            <record id="co_tax_otros_col_base" model="account.report.column">
+                <field name="name">Base Gravable</field>
+                <field name="expression_label">base</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_tax_otros_col_percentage" model="account.report.column">
+                <field name="name">Tarifa %</field>
+                <field name="expression_label">percentage</field>
+                <field name="figure_type">percentage</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_tax_otros_col_tax" model="account.report.column">
+                <field name="name">Valor Impuesto</field>
+                <field name="expression_label">tax</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_tax_report_otros" model="ir.actions.client">
+        <field name="name">Otros Impuestos</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_tax_report_otros')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 12. REPORTES DE AUDITORÍA CONTABLE                                -->
+    <!-- ================================================================= -->
+
+    <!-- 12.1 Auditoría de Consecutivos -->
+    <record id="co_audit_sequences_report" model="account.report">
+        <field name="name">Auditoría de Consecutivos</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.audit.sequences.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_audit_seq_col_journal" model="account.report.column">
+                <field name="name">Diario</field>
+                <field name="expression_label">journal_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_audit_seq_col_prefix" model="account.report.column">
+                <field name="name">Prefijo</field>
+                <field name="expression_label">prefix</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_audit_seq_col_expected" model="account.report.column">
+                <field name="name">Consecutivo Esperado</field>
+                <field name="expression_label">expected_number</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_audit_seq_col_found" model="account.report.column">
+                <field name="name">Consecutivo Encontrado</field>
+                <field name="expression_label">found_number</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_audit_seq_col_status" model="account.report.column">
+                <field name="name">Estado</field>
+                <field name="expression_label">status</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_audit_seq_col_gap_count" model="account.report.column">
+                <field name="name">Saltos</field>
+                <field name="expression_label">gap_count</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">60</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_audit_sequences" model="ir.actions.client">
+        <field name="name">Auditoría de Consecutivos</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_audit_sequences_report')}"/>
+    </record>
+
+    <!-- 12.2 Documentos Modificados -->
+    <record id="co_audit_modified_entries_report" model="account.report">
+        <field name="name">Documentos Modificados</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.audit.modified.entries.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_audit_mod_col_date" model="account.report.column">
+                <field name="name">Fecha Doc.</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_audit_mod_col_doc" model="account.report.column">
+                <field name="name">Documento</field>
+                <field name="expression_label">move_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_audit_mod_col_journal" model="account.report.column">
+                <field name="name">Diario</field>
+                <field name="expression_label">journal_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_audit_mod_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_audit_mod_col_amount" model="account.report.column">
+                <field name="name">Monto</field>
+                <field name="expression_label">amount_total</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_audit_mod_col_created" model="account.report.column">
+                <field name="name">Fecha Creación</field>
+                <field name="expression_label">create_date</field>
+                <field name="figure_type">datetime</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_audit_mod_col_modified" model="account.report.column">
+                <field name="name">Fecha Modificación</field>
+                <field name="expression_label">write_date</field>
+                <field name="figure_type">datetime</field>
+                <field name="sequence">70</field>
+            </record>
+            <record id="co_audit_mod_col_user" model="account.report.column">
+                <field name="name">Usuario</field>
+                <field name="expression_label">write_user</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">80</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_audit_modified_entries" model="ir.actions.client">
+        <field name="name">Documentos Modificados</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_audit_modified_entries_report')}"/>
+    </record>
+
+    <!-- 12.3 Conteo Mensual de Documentos -->
+    <record id="co_audit_monthly_count_report" model="account.report">
+        <field name="name">Conteo Mensual de Documentos</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.audit.monthly.count.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_audit_count_col_journal" model="account.report.column">
+                <field name="name">Diario</field>
+                <field name="expression_label">journal_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_audit_count_col_month" model="account.report.column">
+                <field name="name">Mes</field>
+                <field name="expression_label">month</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_audit_count_col_count" model="account.report.column">
+                <field name="name">Cantidad</field>
+                <field name="expression_label">doc_count</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_audit_count_col_first" model="account.report.column">
+                <field name="name">Primer Consec.</field>
+                <field name="expression_label">first_sequence</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_audit_count_col_last" model="account.report.column">
+                <field name="name">Último Consec.</field>
+                <field name="expression_label">last_sequence</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_audit_count_col_total" model="account.report.column">
+                <field name="name">Total</field>
+                <field name="expression_label">total_amount</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">60</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_audit_monthly_count" model="ir.actions.client">
+        <field name="name">Conteo Mensual de Documentos</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_audit_monthly_count_report')}"/>
+    </record>
+
+    <!-- 12.4 Auditoría de Cuentas Bancarias -->
+    <record id="co_audit_bank_accounts_report" model="account.report">
+        <field name="name">Auditoría de Cuentas Bancarias</field>
+        <field name="country_id" ref="base.co"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_partner" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="search_bar" eval="True"/>
+        <field name="custom_handler_model_id" search="[('model', '=', 'account.audit.bank.accounts.report.handler')]"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_audit_bank_col_partner" model="account.report.column">
+                <field name="name">Tercero</field>
+                <field name="expression_label">partner_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_audit_bank_col_vat" model="account.report.column">
+                <field name="name">NIT/CC</field>
+                <field name="expression_label">partner_vat</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_audit_bank_col_bank" model="account.report.column">
+                <field name="name">Banco</field>
+                <field name="expression_label">bank_name</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_audit_bank_col_account" model="account.report.column">
+                <field name="name">Cuenta Bancaria</field>
+                <field name="expression_label">bank_account</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_audit_bank_col_type" model="account.report.column">
+                <field name="name">Tipo</field>
+                <field name="expression_label">account_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_audit_bank_col_payments" model="account.report.column">
+                <field name="name">Pagos Realizados</field>
+                <field name="expression_label">payment_count</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">60</field>
+            </record>
+            <record id="co_audit_bank_col_total" model="account.report.column">
+                <field name="name">Total Pagado</field>
+                <field name="expression_label">total_paid</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">70</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_audit_bank_accounts" model="ir.actions.client">
+        <field name="name">Auditoría de Cuentas Bancarias</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_audit_bank_accounts_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 5. ERRORES Y DESCUADRES CONTABLES                                 -->
+    <!-- ================================================================= -->
+    <record id="co_audit_imbalances_report" model="account.report">
+        <field name="name">Errores y Descuadres Contables</field>
+        <field name="root_report_id" ref="account_reports.general_ledger_report"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="custom_handler_model_id" ref="model_account_audit_imbalances_report_handler"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_audit_imb_col_date" model="account.report.column">
+                <field name="name">Fecha</field>
+                <field name="expression_label">date</field>
+                <field name="figure_type">date</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_audit_imb_col_journal" model="account.report.column">
+                <field name="name">Diario</field>
+                <field name="expression_label">journal</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_audit_imb_col_debit" model="account.report.column">
+                <field name="name">Débito</field>
+                <field name="expression_label">debit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_audit_imb_col_credit" model="account.report.column">
+                <field name="name">Crédito</field>
+                <field name="expression_label">credit</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_audit_imb_col_diff" model="account.report.column">
+                <field name="name">Diferencia</field>
+                <field name="expression_label">difference</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">50</field>
+            </record>
+            <record id="co_audit_imb_col_type" model="account.report.column">
+                <field name="name">Tipo Error</field>
+                <field name="expression_label">error_type</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">60</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_audit_imbalances" model="ir.actions.client">
+        <field name="name">Errores y Descuadres Contables</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_audit_imbalances_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- 6. INCONSISTENCIAS CONTABLES                                      -->
+    <!-- ================================================================= -->
+    <record id="co_audit_inconsistencies_report" model="account.report">
+        <field name="name">Inconsistencias Contables</field>
+        <field name="root_report_id" ref="account_reports.general_ledger_report"/>
+        <field name="filter_date_range" eval="True"/>
+        <field name="custom_handler_model_id" ref="model_account_audit_inconsistencies_report_handler"/>
+        <field name="column_ids">
+            <record id="co_jb_col_numero" model="account.report.column">
+                <field name="name">No.</field>
+                <field name="expression_label">numero</field>
+                <field name="figure_type">integer</field>
+                <field name="sequence">5</field>
+            </record>
+            <record id="co_audit_inc_col_type" model="account.report.column">
+                <field name="name">Tipo/Detalle</field>
+                <field name="expression_label">type_detail</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">10</field>
+            </record>
+            <record id="co_audit_inc_col_value" model="account.report.column">
+                <field name="name">Valor/Cantidad</field>
+                <field name="expression_label">value</field>
+                <field name="figure_type">monetary</field>
+                <field name="sequence">20</field>
+            </record>
+            <record id="co_audit_inc_col_issue" model="account.report.column">
+                <field name="name">Problema</field>
+                <field name="expression_label">issue</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">30</field>
+            </record>
+            <record id="co_audit_inc_col_extra1" model="account.report.column">
+                <field name="name">Info Adicional</field>
+                <field name="expression_label">extra1</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">40</field>
+            </record>
+            <record id="co_audit_inc_col_extra2" model="account.report.column">
+                <field name="name">Acción</field>
+                <field name="expression_label">action</field>
+                <field name="figure_type">string</field>
+                <field name="sequence">50</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_co_audit_inconsistencies" model="ir.actions.client">
+        <field name="name">Inconsistencias Contables</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('co_audit_inconsistencies_report')}"/>
+    </record>
+
+    <!-- ================================================================= -->
+    <!-- NOTA: Los menús están definidos en account_report_view.xml       -->
+    <!-- para evitar duplicación y mantener estructura unificada          -->
+    <!-- ================================================================= -->
+
+</odoo>

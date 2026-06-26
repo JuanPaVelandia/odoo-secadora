@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_advance_request_kanban" model="ir.ui.view">
+        <field name="name">advance.request.kanban</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="stage_id"
+                    class="o_kanban_dashboard o_kanban_advance_request o_kanban_notes"
+                    quick_create="1"
+                    quick_create_view="custom_account_treasury.view_advance_request_form_quick_create"
+                    on_create="quick_create">
+                <field name="color"/>
+                <field name="stage_code"/>
+                <field name="priority"/>
+                <field name="stage_id" />
+                <field name="user_id"/>
+                <field name="partner_id"/>
+                <field name="amount_requested"/>
+                <field name="amount_available"/>
+                <field name="amount_paid"/>
+                <field name="currency_id"/>
+                <!-- Campo state removido, usando stage_id.code -->
+                <field name="kanban_state"/>
+                <field name="activity_date_deadline"/>
+                <field name="progress"/>
+                <field name="days_overdue"/>
+                <field name="request_type"/>
+                <field name="advance_type_id"/>
+                <field name="auto_reconcile"/>
+                <field name="stage_duration"/>
+                <field name="stage_enter_date"/>
+                <field name="is_reconciled"/>
+                <field name="activity_ids"/>
+                <progressbar field="kanban_state"
+                            colors='{"normal": "secondary", "done": "success", "blocked": "danger"}'/>
+                <templates>
+                    <t t-name="menu" t-if="widget.editable">
+                        <a role="menuitem" type="open" class="dropdown-item">
+                            <i class="fa fa-external-link"/> Abrir
+                        </a>
+                        <a role="menuitem" type="edit" class="dropdown-item">
+                            <i class="fa fa-pencil"/> Editar
+                        </a>
+                        <a role="menuitem" type="delete" class="dropdown-item">
+                            <i class="fa fa-trash"/> Eliminar
+                        </a>
+                        <div role="separator" class="dropdown-divider"/>
+                        <div role="separator" class="dropdown-item-text">Color</div>
+                        <field name="color" widget="kanban_color_picker"/>
+                    </t>
+                    <t t-name="card">
+                        <div t-attf-class="o_kanban_color_#{record.color.raw_value}
+                                          oe_kanban_card oe_kanban_global_click">
+                            <!-- Estado visual en esquina -->
+                            <div class="o_dropdown_kanban dropdown">
+                                <a role="button" class="dropdown-toggle o-no-caret btn"
+                                   data-bs-toggle="dropdown" aria-label="Dropdown menu"
+                                   title="Opciones" data-bs-display="static">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu"/>
+                            </div>
+
+                            <!-- Indicador de prioridad -->
+                            <div class="oe_kanban_content">
+                                <div class="o_kanban_record_top">
+                                    <div class="o_kanban_record_headings">
+                                        <strong class="o_kanban_record_title">
+                                            <field name="name"/>
+                                            <field name="priority" widget="priority" class="ms-2"/>
+                                        </strong>
+                                        <div class="o_kanban_record_subtitle text-muted">
+                                            <field name="partner_id" class="fw-bold"/>
+                                            <span t-if="record.advance_type_id.raw_value">
+                                                • <field name="advance_type_id"/>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Información principal estilo nota adhesiva -->
+                                <div class="o_kanban_record_body mt-2">
+                                    <!-- Monto principal en grande -->
+                                    <div class="text-center mb-2">
+                                        <span class="o_kanban_advance_amount">
+                                            <field name="amount_requested" widget="monetary"/>
+                                        </span>
+                                        <div class="small text-muted">Solicitado</div>
+                                    </div>
+
+                                    <!-- Barra de progreso visual -->
+                                    <div t-if="record.progress.raw_value > 0" class="o_kanban_progress_section">
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar"
+                                                 t-attf-class="#{record.progress.raw_value >= 100 ? 'bg-success' : record.progress.raw_value >= 50 ? 'bg-warning' : 'bg-info'}"
+                                                 role="progressbar"
+                                                 t-attf-style="width: #{record.progress.raw_value}%"
+                                                 t-att-aria-valuenow="record.progress.raw_value"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <div class="text-center small mt-1">
+                                            <span t-out="record.progress.value"/>% completado
+                                        </div>
+                                    </div>
+
+                                    <!-- Métricas en cards pequeñas -->
+                                    <div class="row mt-3 text-center">
+                                        <div class="col-6">
+                                            <div class="o_kanban_card_metric">
+                                                <field name="amount_paid" widget="monetary" class="fw-bold text-success"/>
+                                                <div class="text-muted small">Pagado</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="o_kanban_card_metric">
+                                                <field name="amount_available" widget="monetary" class="fw-bold text-primary"/>
+                                                <div class="text-muted small">Disponible</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Estados y alertas -->
+                                    <div class="o_kanban_record_badges mt-2">
+                                        <span t-if="record.stage_code.raw_value == 'draft'"
+                                              class="badge rounded-pill text-bg-secondary">
+                                            <i class="fa fa-pencil"/> Borrador
+                                        </span>
+                                        <span t-if="record.stage_code.raw_value == 'pending'"
+                                              class="badge rounded-pill text-bg-info">
+                                            <i class="fa fa-clock-o"/> Pendiente
+                                        </span>
+                                        <span t-if="record.stage_code.raw_value == 'approved'"
+                                              class="badge rounded-pill text-bg-warning">
+                                            <i class="fa fa-thumbs-up"/> Aprobado
+                                        </span>
+                                        <span t-if="record.stage_code.raw_value == 'paid'"
+                                              class="badge rounded-pill text-bg-success">
+                                            <i class="fa fa-money"/> Pagado
+                                        </span>
+                                        <span t-if="record.is_reconciled.raw_value"
+                                              class="badge rounded-pill text-bg-primary">
+                                            <i class="fa fa-check-circle"/> Conciliado
+                                        </span>
+                                        <span t-if="record.days_overdue.raw_value > 0"
+                                              class="badge rounded-pill text-bg-danger">
+                                            <i class="fa fa-exclamation"/> Vencido <t t-out="record.days_overdue.value"/> días
+                                        </span>
+                                        <span t-if="record.auto_reconcile.raw_value"
+                                              class="badge rounded-pill text-bg-info"
+                                              title="Se conciliará automáticamente">
+                                            <i class="fa fa-refresh"/> Auto
+                                        </span>
+                                        <!-- Tiempo en etapa actual -->
+                                        <span t-if="record.stage_duration.raw_value > 0"
+                                              class="badge rounded-pill text-bg-secondary"
+                                              t-att-title="'Tiempo en ' + record.stage_id.value">
+                                            <i class="fa fa-clock-o"/>
+                                            <t t-if="record.stage_duration.raw_value >= 24">
+                                                <t t-out="Math.floor(record.stage_duration.raw_value / 24)"/>d
+                                                <t t-out="Math.floor(record.stage_duration.raw_value % 24)"/>h
+                                            </t>
+                                            <t t-elif="record.stage_duration.raw_value >= 1">
+                                                <t t-out="Math.floor(record.stage_duration.raw_value)"/>h
+                                                <t t-out="Math.floor((record.stage_duration.raw_value % 1) * 60)"/>m
+                                            </t>
+                                            <t t-else="">
+                                                <t t-out="Math.floor(record.stage_duration.raw_value * 60)"/>m
+                                            </t>
+                                        </span>
+                                    </div>
+
+                                    <!-- Información adicional -->
+                                    <div class="o_kanban_record_bottom mt-3">
+                                        <div class="oe_kanban_bottom_left">
+                                            <field name="activity_ids" widget="kanban_activity"/>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <field name="user_id" widget="many2one_avatar_user"/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Footer con acciones rápidas -->
+                                <div class="o_kanban_card_footer border-top mt-2 pt-2">
+                                    <div class="o_kanban_card_actions">
+                                        <button name="action_request" type="object"
+                                                class="btn btn-sm btn-primary"
+                                                t-if="record.stage_code.raw_value == 'draft'">
+                                            <i class="fa fa-paper-plane"/> Enviar
+                                        </button>
+                                        <button name="action_approve" type="object"
+                                                class="btn btn-sm btn-success"
+                                                t-if="record.stage_code.raw_value == 'pending'">
+                                            <i class="fa fa-check"/> Aprobar
+                                        </button>
+                                        <button name="action_create_payment" type="object"
+                                                class="btn btn-sm btn-warning"
+                                                t-if="record.stage_code.raw_value == 'approved'">
+                                            <i class="fa fa-money"/> Pagar
+                                        </button>
+                                        <button name="action_reconcile" type="object"
+                                                class="btn btn-sm btn-info"
+                                                t-if="record.amount_available.raw_value > 0">
+                                            <i class="fa fa-link"/> Aplicar
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+    <!-- Vista Form -->
+    <record id="view_advance_request_form" model="ir.ui.view">
+        <field name="name">advance.request.form</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Anticipo" class="o_advance_request_form">
+                <field name="stage_code" invisible="1"/>
+                <field name="is_reconciled" invisible="1"/>
+                <field name="is_paid" invisible="1"/>
+                <header>
+                    <button name="action_request" string="Enviar Solicitud"
+                            type="object" class="oe_highlight"
+                            invisible="stage_code != 'draft'"/>
+                    <button name="action_approve" string="Aprobar"
+                            type="object" class="oe_highlight"
+                            invisible="stage_code != 'pending'"
+                            groups="custom_account_treasury.group_treasury_manager"/>
+                    <button name="action_create_payment" string="Registrar Pago"
+                            type="object" class="oe_highlight"
+                            invisible="stage_code != 'approved'"/>
+                    <button name="action_reconcile" string="Aplicar a Facturas"
+                            type="object"
+                            invisible="amount_available &lt;= 0"
+                            class="btn-info"/>
+                    <button name="action_reject" string="Rechazar"
+                            type="object"
+                            invisible="stage_code not in ['pending', 'approved']"
+                            groups="custom_account_treasury.group_treasury_manager"/>
+                    <button name="action_cancel" string="Cancelar"
+                            type="object"
+                            invisible="stage_code in ['paid', 'cancelled']"/>
+                    <field name="stage_id" widget="statusbar"
+                           clickable="1"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Cancelado"
+                            bg_color="text-bg-danger"
+                            invisible="stage_code != 'cancelled'"/>
+                    <widget name="web_ribbon" title="Conciliado"
+                            bg_color="text-bg-success"
+                            invisible="is_reconciled != True"/>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_payments" type="object"
+                                class="oe_stat_button" icon="fa-money">
+                            <field name="payment_count" widget="statinfo" string="Pagos"/>
+                        </button>
+                        <button name="action_view_invoices" type="object"
+                                class="oe_stat_button" icon="fa-file-text-o">
+                            <field name="invoice_count" widget="statinfo" string="Facturas"/>
+                        </button>
+                        <button name="action_view_reconciliations" type="object"
+                                class="oe_stat_button" icon="fa-link">
+                            <div class="o_stat_info">
+                                <field name="amount_reconciled" widget="monetary"/>
+                                <span class="o_stat_text">Aplicado</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <field name="priority" widget="priority" class="oe_inline"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <label for="advance_type_id"/>
+                        <field name="advance_type_id"
+                               readonly="stage_code != 'draft'"/>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="request_type" readonly="1"/>
+                            <field name="partner_id"
+                                   readonly="stage_code != 'draft'"
+                                   context="{'res_partner_search_mode': request_type == 'customer' and 'customer' or 'supplier'}"
+                                   domain="[('is_company', '=', True)]"/>
+                            <field name="sale_order_id"
+                                   readonly="stage_code != 'draft'"
+                                   invisible="request_type != 'customer'"
+                                   domain="[('partner_id', '=', partner_id), ('state', 'in', ['sale', 'done'])]"/>
+                            <field name="purchase_order_id"
+                                   readonly="stage_code != 'draft'"
+                                   invisible="request_type != 'supplier'"
+                                   domain="[('partner_id', '=', partner_id), ('state', 'in', ['purchase', 'done'])]"/>
+                        </group>
+                        <group>
+                            <field name="date_request" readonly="stage_code != 'draft'"/>
+                            <field name="date_due" readonly="stage_code != 'draft'"/>
+                            <field name="user_id" readonly="stage_code != 'draft'" widget="many2one_avatar_user"/>
+                        </group>
+                    </group>
+
+                    <group string="Información Financiera">
+                        <group>
+                            <field name="currency_id" readonly="stage_code != 'draft'" groups="base.group_multi_currency"/>
+                            <field name="company_id" readonly="stage_code != 'draft'" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="amount_requested" widget="monetary"
+                                   readonly="stage_code != 'draft'"
+                                   options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_approved" widget="monetary"
+                                   readonly="stage_code != 'pending'"
+                                   options="{'currency_field': 'currency_id'}"
+                                   invisible="stage_code == 'draft'"/>
+                            <field name="amount_paid" widget="monetary"
+                                   options="{'currency_field': 'currency_id'}"
+                                   invisible="amount_paid == 0"/>
+                            <field name="amount_available" widget="monetary"
+                                   options="{'currency_field': 'currency_id'}"
+                                   class="text-primary fw-bold"
+                                   invisible="amount_available == 0"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Líneas de Orden" name="order_lines" invisible="not sale_line_ids and not purchase_line_ids">
+                            <field name="sale_line_ids" invisible="request_type != 'customer'" readonly="stage_code != 'draft'">
+                                <list>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="product_uom_qty"/>
+                                    <field name="product_uom_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="discount"/>
+                                    <field name="price_subtotal" sum="Subtotal"/>
+                                </list>
+                            </field>
+                            <field name="purchase_line_ids" invisible="request_type != 'supplier'" readonly="stage_code != 'draft'">
+                                <list>
+                                    <field name="product_id"/>
+                                    <field name="name"/>
+                                    <field name="product_qty"/>
+                                    <field name="product_uom_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="price_subtotal" sum="Subtotal"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Información Adicional" name="info">
+                            <group>
+                                <group>
+                                    <field name="analytic_account_id"
+                                           readonly="stage_code != 'draft'"
+                                           groups="analytic.group_analytic_accounting"/>
+                                    <field name="analytic_distribution"
+                                           readonly="stage_code != 'draft'"
+                                           widget="analytic_distribution"
+                                           groups="analytic.group_analytic_accounting"/>
+                                </group>
+                                <group>
+                                    <field name="auto_reconcile"/>
+                                    <field name="kanban_state" widget="state_selection"/>
+                                </group>
+                            </group>
+                            <separator string="Descripción"/>
+                            <field name="description" readonly="stage_code != 'draft'" placeholder="Motivo..."/>
+                            <separator string="Notas"/>
+                            <field name="notes" placeholder="Notas internas..."/>
+                        </page>
+
+                        <page string="Pagos" name="payments" invisible="not payment_ids">
+                            <field name="payment_ids" readonly="1">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="journal_id"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'posted'"
+                                           decoration-info="state == 'draft'"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Conciliaciones" name="reconciliations"
+                              invisible="not reconciliation_ids">
+                            <field name="reconciliation_ids" readonly="1">
+                                <list>
+                                    <field name="invoice_id"/>
+                                    <field name="date"/>
+                                    <field name="amount" sum="Total"/>
+                                    <field name="notes"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Historial" name="history">
+                            <group>
+                                <group>
+                                    <field name="date_approved" invisible="not date_approved"/>
+                                    <field name="approved_by" invisible="not approved_by"/>
+                                </group>
+                                <group>
+                                    <field name="date_paid" invisible="not date_paid"/>
+                                    <field name="rejection_reason" invisible="not rejection_reason"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Historial de Etapas" name="stage_history">
+                            <field name="stage_history_ids" readonly="1">
+                                <list create="false" delete="false">
+                                    <field name="stage_id"/>
+                                    <field name="enter_date" widget="datetime"/>
+                                    <field name="exit_date" widget="datetime"/>
+                                    <field name="duration_formatted" string="Duración"/>
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista List -->
+    <record id="view_advance_request_list" model="ir.ui.view">
+        <field name="name">advance.request.list</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+            <list string="Anticipos"
+                  decoration-success="is_reconciled"
+                  decoration-warning="stage_code == 'approved'"
+                  decoration-info="stage_code == 'pending'"
+                  decoration-muted="stage_code == 'cancelled'"
+                  multi_edit="1"
+>
+                <header>
+                    <button name="action_approve" type="object" string="Aprobar" class="btn-success"/>
+                    <button name="action_create_payment" type="object" string="Pagar" class="btn-warning"/>
+                </header>
+                <field name="priority" widget="priority" nolabel="1"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="request_type" optional="hide"/>
+                <field name="advance_type_id" optional="show"/>
+                <field name="date_request" string="Fecha"/>
+                <field name="date_due" string="Vence" optional="show"/>
+                <field name="amount_requested" widget="monetary" sum="Solicitado" string="Solicitado"/>
+                <field name="amount_approved" widget="monetary" sum="Aprobado" string="Aprobado" optional="show"/>
+                <field name="amount_paid" widget="monetary" sum="Pagado" string="Pagado" optional="show"/>
+                <field name="amount_available" widget="monetary" sum="Disponible" string="Disponible" optional="show"/>
+                <field name="amount_reconciled" widget="monetary" sum="Aplicado" string="Aplicado" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="user_id" widget="many2one_avatar_user" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="show"/>
+                <field name="stage_id" widget="badge"/>
+                <field name="stage_code" column_invisible="1"/>
+                <field name="is_reconciled" column_invisible="1"/>
+                <field name="activity_ids" widget="list_activity"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Vista Search -->
+    <record id="view_advance_request_search" model="ir.ui.view">
+        <field name="name">advance.request.search</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+                <search>
+                <field name="name"/>
+                <field name="partner_id" operator="child_of"/>
+                <field name="advance_type_id"/>
+                <field name="user_id"/>
+                <filter string="Mis Anticipos" name="my_advances"
+                        domain="[('user_id', '=', uid)]"/>
+                <filter string="Anticipos de Cliente" name="customer"
+                        domain="[('request_type', '=', 'customer')]"/>
+                <filter string="Anticipos a Proveedor" name="supplier"
+                        domain="[('request_type', '=', 'supplier')]"/>
+                <filter string="Con Saldo" name="with_balance"
+                        domain="[('amount_available', '>', 0)]"/>
+                <!-- Campo days_overdue no definido en el modelo
+                <filter string="Vencidos" name="overdue"
+                        domain="[('days_overdue', '>', 0)]"
+                        context="{'group_by': 'days_overdue'}"/>
+                -->
+                <filter string="Auto-conciliar" name="auto_reconcile"
+                        domain="[('auto_reconcile', '=', True)]"/>
+                <filter string="Fecha" name="date_filter" date="date_request"/>
+                <filter string="Agrupar por Tipo" name="group_type"
+                    context="{'group_by': 'request_type'}"/>
+                <filter string="Agrupar por Partner" name="group_partner"
+                    context="{'group_by': 'partner_id'}"/>
+                <filter string="Agrupar por Etapa" name="group_stage"
+                    context="{'group_by': 'stage_id'}"/>
+                <filter string="Agrupar por Responsable" name="group_user"
+                    context="{'group_by': 'user_id'}"/>
+                <filter string="Agrupar por Mes" name="group_month"
+                    context="{'group_by': 'date_request:month'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Vista Pivot -->
+    <record id="view_advance_request_pivot" model="ir.ui.view">
+        <field name="name">advance.request.pivot</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+            <pivot string="Análisis de Anticipos">
+                <field name="request_type" type="row"/>
+                <field name="date_request" interval="month" type="col"/>
+                <field name="amount_requested" type="measure"/>
+                <field name="amount_paid" type="measure"/>
+                <field name="amount_available" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Vista Graph -->
+    <record id="view_advance_request_graph" model="ir.ui.view">
+        <field name="name">advance.request.graph</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+            <graph string="Anticipos" type="bar" stacked="1">
+                <field name="date_request" interval="month"/>
+                <field name="amount_requested" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Vista Calendar -->
+    <record id="view_advance_request_calendar" model="ir.ui.view">
+        <field name="name">advance.request.calendar</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+            <calendar string="Calendario de Anticipos" date_start="date_request"
+                      date_stop="date_due" color="stage_id" quick_create="0">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="amount_requested"/>
+                <!-- Campo state removido, usando stage_id.code -->
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Vista Activity -->
+    <record id="view_advance_request_activity" model="ir.ui.view">
+        <field name="name">advance.request.activity</field>
+        <field name="model">advance.request</field>
+        <field name="arch" type="xml">
+            <activity string="Anticipos">
+                <field name="user_id"/>
+                <templates>
+                    <div t-name="activity-box">
+                        <div>
+                            <field name="name" display="full" class="o_text_bold"/>
+                            <field name="partner_id" muted="1" display="full"/>
+                        </div>
+                        <div>
+                            <field name="amount_requested" widget="monetary"/>
+                        
+                        </div>
+                    </div>
+                </templates>
+            </activity>
+        </field>
+    </record>
+
+    <!-- Form para creación rápida -->
+    <record id="view_advance_request_form_quick_create" model="ir.ui.view">
+        <field name="name">advance.request.form.quick</field>
+        <field name="model">advance.request</field>
+        <field name="priority">1000</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="advance_type_id"
+                           placeholder="Tipo de anticipo..."/>
+                    <field name="partner_id"
+                           placeholder="Cliente/Proveedor..."/>
+                    <field name="amount_requested"
+                           placeholder="Monto..."/>
+                    <field name="description"
+                           placeholder="Descripción..."/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <!-- Acción principal -->
+    <record id="action_advance_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Anticipo</field>
+        <field name="res_model">advance.request</field>
+        <field name="view_mode">kanban,list,form,pivot,graph,calendar,activity</field>
+        <field name="search_view_id" ref="view_advance_request_search"/>
+        <field name="context">{
+            'search_default_my_advances': 1,
+            'default_request_type': 'customer'
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva solicitud de anticipo
+            </p>
+            <p>
+                Gestione solicitudes de anticipos de clientes y proveedores
+                con flujo de aprobación y conciliación automática.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acciones específicas por tipo -->
+    <record id="action_customer_advance_request" model="ir.actions.act_window">
+        <field name="name">Anticipos de Clientes</field>
+        <field name="res_model">advance.request</field>
+        <field name="view_mode">kanban,list,form,pivot,graph</field>
+        <field name="domain">[('request_type', '=', 'customer')]</field>
+        <field name="context">{
+            'default_request_type': 'customer',
+            'search_default_with_balance': 1
+        }</field>
+    </record>
+
+    <record id="action_supplier_advance_request" model="ir.actions.act_window">
+        <field name="name">Anticipos a Proveedores</field>
+        <field name="res_model">advance.request</field>
+        <field name="view_mode">kanban,list,form,pivot,graph</field>
+        <field name="domain">[('request_type', '=', 'supplier')]</field>
+        <field name="context">{
+            'default_request_type': 'supplier',
+            'search_default_with_balance': 1
+        }</field>
+    </record>
+
+    <!-- Acción para anticipos de empleados -->
+    <record id="action_employee_advance_request" model="ir.actions.act_window">
+        <field name="name">Anticipos a Empleados</field>
+        <field name="res_model">advance.request</field>
+        <field name="view_mode">kanban,list,form,pivot,graph</field>
+        <field name="domain">[('request_type', '=', 'employee')]</field>
+        <field name="context">{
+            'default_request_type': 'employee',
+            'search_default_my_advances': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo anticipo para empleado
+            </p>
+            <p>
+                Gestione los anticipos a empleados con flujo de aprobación.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para etapas de solicitud -->
+    <record id="action_advance_request_stage" model="ir.actions.act_window">
+        <field name="name">Etapas de Solicitud</field>
+        <field name="res_model">advance.request.stage</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva etapa
+            </p>
+            <p>
+                Configure las etapas del flujo de solicitudes de anticipo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para límites de aprobación (placeholder) -->
+    <record id="action_approval_limits" model="ir.actions.act_window">
+        <field name="name">Límites de Aprobación</field>
+        <field name="res_model">advance.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('require_approval', '=', True)]</field>
+        <field name="context">{'search_default_require_approval': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurar límites de aprobación
+            </p>
+            <p>
+                Defina los montos y usuarios aprobadores para cada tipo de anticipo.
+            </p>
+        </field>
+    </record>
+
+    <!-- Acción para políticas de conciliación (placeholder) -->
+    <record id="action_reconciliation_policies" model="ir.actions.act_window">
+        <field name="name">Políticas de Conciliación</field>
+        <field name="res_model">advance.type</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('auto_reconcile', '=', True)]</field>
+        <field name="context">{'search_default_auto_reconcile': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurar políticas de conciliación
+            </p>
+            <p>
+                Defina las reglas de conciliación automática de anticipos.
+            </p>
+        </field>
+    </record>
+
+</odoo>

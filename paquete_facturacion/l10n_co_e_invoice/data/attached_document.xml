@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="attached_document_template">
+        <AttachedDocument xmlns="urn:oasis:names:specification:ubl:schema:xsd:AttachedDocument-2"
+            xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+            xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2"
+            xmlns:ccts="urn:un:unece:uncefact:data:specification:CoreComponentTypeSchemaModule:2"
+            xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+            xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"
+            xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"
+            xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#">
+            <cbc:UBLVersionID>UBL 2.1</cbc:UBLVersionID>
+            <cbc:CustomizationID>Documentos adjuntos</cbc:CustomizationID>
+            <cbc:ProfileID>DIAN 2.1</cbc:ProfileID>
+            <cbc:ProfileExecutionID t-out="profile_execution_id"/>
+            <cbc:ID t-out="id"/>
+            <cbc:UUID
+                t-att="uuid_attrs"
+                t-out="uuid"/>
+            <cbc:IssueDate t-out="issue_date"/>
+            <cbc:IssueTime t-out="issue_time"/>
+            <cbc:DocumentType t-out="document_type"/>
+            <cbc:ParentDocumentID t-out="parent_document_id"/>
+            <cac:SenderParty/>
+            <cac:ReceiverParty/>
+            <cac:Attachment>
+                <cac:ExternalReference>
+                    <cbc:MimeCode>text/xml</cbc:MimeCode>
+                    <cbc:EncodingCode>UTF-8</cbc:EncodingCode>
+                    <cbc:Description>dummy</cbc:Description> <!-- initial xml representing the move sent to DIAN -->
+                </cac:ExternalReference>
+            </cac:Attachment>
+            <cac:ParentDocumentLineReference>
+                <cbc:LineID>1</cbc:LineID>
+                <cac:DocumentReference>
+                    <cbc:ID t-out="parent_document.get('id')"/>
+                    <cbc:UUID
+                        t-att="parent_document.get('uuid_attrs')"
+                        t-out="parent_document.get('uuid')"/>
+                    <cbc:IssueDate t-out="parent_document.get('issue_date')"/>
+                    <cbc:DocumentType>ApplicationResponse</cbc:DocumentType>
+                    <cac:Attachment>
+                        <cac:ExternalReference>
+                            <cbc:MimeCode>text/xml</cbc:MimeCode>
+                            <cbc:EncodingCode>UTF-8</cbc:EncodingCode>
+                            <cbc:Description>dummy</cbc:Description> <!-- result from GetStatus, node 'XmlBase64Bytes' -->
+                        </cac:ExternalReference>
+                    </cac:Attachment>
+                    <cac:ResultOfVerification>
+                        <cbc:ValidatorID>Unidad Especial Dirección de Impuestos y Aduanas Nacionales</cbc:ValidatorID>
+                        <cbc:ValidationResultCode t-out="parent_document.get('response_code')"/>
+                        <cbc:ValidationDate t-out="parent_document.get('validation_date')"/>
+                        <cbc:ValidationTime t-out="parent_document.get('validation_time')"/>
+                    </cac:ResultOfVerification>
+                </cac:DocumentReference>
+            </cac:ParentDocumentLineReference>
+        </AttachedDocument>
+    </template>
+</odoo>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista de lineas de cargo bancario -->
+    <record id="treasury_bank_charge_line_view_list" model="ir.ui.view">
+        <field name="name">treasury.bank.charge.line.list</field>
+        <field name="model">treasury.bank.charge.line</field>
+        <field name="arch" type="xml">
+            <list string="Cargos Bancarios" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="charge_type_id"/>
+                <field name="base_amount"/>
+                <field name="charge_amount"/>
+                <field name="iva_amount"/>
+                <field name="total_amount"/>
+                <field name="account_id"/>
+                <field name="partner_id"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="treasury_bank_charge_line_view_form" model="ir.ui.view">
+        <field name="name">treasury.bank.charge.line.form</field>
+        <field name="model">treasury.bank.charge.line</field>
+        <field name="arch" type="xml">
+            <form string="Cargo Bancario">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="charge_type_id"/>
+                            <field name="base_amount"/>
+                            <field name="charge_amount"/>
+                            <field name="iva_amount"/>
+                            <field name="total_amount"/>
+                        </group>
+                        <group>
+                            <field name="account_id"/>
+                            <field name="partner_id"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="treasury_bank_charge_line_view_search" model="ir.ui.view">
+        <field name="name">treasury.bank.charge.line.search</field>
+        <field name="model">treasury.bank.charge.line</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="charge_type_id"/>
+                <field name="payment_id"/>
+                <group>
+                    <filter string="Tipo de Cargo" name="group_charge_type" context="{'group_by': 'charge_type_id'}"/>
+                    <filter string="Pago" name="group_payment" context="{'group_by': 'payment_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="treasury_bank_charge_line_action" model="ir.actions.act_window">
+        <field name="name">Cargos Bancarios Aplicados</field>
+        <field name="res_model">treasury.bank.charge.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay cargos bancarios aplicados
+            </p>
+            <p>
+                Los cargos se aplican automaticamente desde los pagos segun la configuracion del diario.
+            </p>
+        </field>
+    </record>
+
+    <!-- Extension vista de diario para agregar tipos de cargo -->
+    <record id="view_account_journal_form_charge_types" model="ir.ui.view">
+        <field name="name">account.journal.form.charge.types</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='bank_account']" position="after">
+                <page string="Cargos Bancarios" name="bank_charges"
+                      invisible="type not in ('bank', 'cash')">
+                    <group>
+                        <field name="charge_type_ids" widget="many2many_tags"
+                               placeholder="Seleccione cargos: GMF, Comision, IVA..."
+                               options="{'color_field': 'charge_type'}"/>
+                    </group>
+                    <separator string="Cargos configurados"/>
+                    <field name="charge_type_ids" mode="list" widget="many2many">
+                        <list>
+                            <field name="code"/>
+                            <field name="name"/>
+                            <field name="charge_type"/>
+                            <field name="calculation_type"/>
+                            <field name="percentage" invisible="calculation_type != 'percentage'"/>
+                            <field name="fixed_amount" invisible="calculation_type != 'fixed'"/>
+                            <field name="apply_iva"/>
+                            <field name="apply_to_outbound"/>
+                            <field name="apply_to_inbound"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Extension vista de pago para mostrar cargos -->
+    <record id="view_account_payment_form_charges" model="ir.ui.view">
+        <field name="name">account.payment.form.charges</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='amount']" position="after">
+                <field name="total_charges" invisible="not charge_line_ids"/>
+                <field name="total_bank_output" invisible="not charge_line_ids" class="fw-bold text-danger"/>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <notebook>
+                    <page string="Cargos Bancarios" name="bank_charges">
+                        <group>
+                            <button name="action_apply_journal_charges" type="object"
+                                    string="Aplicar Cargos del Diario"
+                                    class="btn-secondary"
+                                    invisible="state != 'draft'"/>
+                            <button name="action_recalculate_charges" type="object"
+                                    string="Recalcular"
+                                    class="btn-link"
+                                    invisible="not charge_line_ids or state != 'draft'"/>
+                        </group>
+                        <field name="charge_line_ids">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="charge_type_id"/>
+                                <field name="base_amount"/>
+                                <field name="charge_amount"/>
+                                <field name="iva_amount"/>
+                                <field name="total_amount"/>
+                                <field name="account_id"/>
+                                <field name="partner_id" optional="show"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </page>
+                    <page string="Analisis" name="analysis" invisible="not charge_line_ids">
+                        <group>
+                            <group string="Documento">
+                                <field name="reconciled_invoice_ids" widget="many2many_tags" readonly="1"/>
+                                <field name="partner_id" readonly="1"/>
+                                <field name="journal_id" readonly="1"/>
+                            </group>
+                            <group string="Resumen Banco">
+                                <field name="amount" string="Pago Principal" readonly="1"/>
+                                <field name="total_charges" readonly="1"/>
+                                <field name="total_bank_output" class="fw-bold" readonly="1"/>
+                            </group>
+                        </group>
+                        <separator string="Detalle de Conceptos y Salidas"/>
+                        <field name="charges_summary_html" readonly="1"/>
+                        <separator string="Asiento Contable"/>
+                        <field name="move_id" readonly="1" options="{'no_create': True}"/>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista de analisis de pago (formulario dedicado) -->
+    <record id="view_account_payment_analysis_form" model="ir.ui.view">
+        <field name="name">account.payment.analysis.form</field>
+        <field name="model">account.payment</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Analisis de Pago" create="0" edit="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group string="Documento">
+                            <field name="date"/>
+                            <field name="partner_id"/>
+                            <field name="reconciled_invoice_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="Banco">
+                            <field name="journal_id"/>
+                            <field name="payment_type"/>
+                            <field name="state" widget="badge"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Resumen de Salidas" name="summary">
+                            <group>
+                                <group>
+                                    <field name="charges_summary_html" nolabel="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <page string="Detalle de Cargos" name="charges_detail">
+                            <field name="charge_line_ids" readonly="1">
+                                <list>
+                                    <field name="code"/>
+                                    <field name="name"/>
+                                    <field name="base_amount"/>
+                                    <field name="charge_amount" sum="Total Cargos"/>
+                                    <field name="iva_amount" sum="Total IVA"/>
+                                    <field name="total_amount" sum="Total"/>
+                                    <field name="account_id"/>
+                                    <field name="partner_id"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <page string="Asiento Contable" name="journal_entry">
+                            <field name="move_id" readonly="1" options="{'no_create': True}"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Accion para abrir analisis de pago -->
+    <record id="action_payment_analysis" model="ir.actions.act_window">
+        <field name="name">Analisis de Pago</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_account_payment_analysis_form"/>
+        <field name="domain">[('charge_line_ids', '!=', False)]</field>
+    </record>
+
+</odoo>

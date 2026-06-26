@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="l10n_co_e_pos.NcTypePopup">
+        <div class="popup nc-type-popup">
+            <!-- Header -->
+            <header class="modal-header">
+                <h4 class="modal-title">
+                    <i class="fa fa-file-text-o me-2" title="Nota Credito"/>
+                    Tipo de Nota Crédito DIAN
+                </h4>
+            </header>
+
+            <!-- Body -->
+            <main class="modal-body">
+                <!-- Información Factura Original -->
+                <div class="section original-invoice-info" t-if="originalOrder.account_move">
+                    <h5 class="section-title">
+                        <i class="fa fa-info-circle me-2" title="Informacion"/>
+                        Factura Original
+                    </h5>
+                    <div class="info-grid">
+                        <div class="info-row">
+                            <span class="label">Número:</span>
+                            <span class="value" t-esc="originalOrder.dian_number or 'N/A'"/>
+                        </div>
+                        <div class="info-row" t-if="originalOrder.dian_cufe">
+                            <span class="label">CUFE:</span>
+                            <span class="value cufe" t-esc="originalOrder.dian_cufe.substring(0, 20) + '...'"/>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Fecha:</span>
+                            <span class="value" t-esc="formatDate(originalOrder.dian_invoice_date)"/>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Monto:</span>
+                            <span class="value amount" t-esc="formatAmount(originalOrder.amount_total)"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Selector de Tipo de NC -->
+                <div class="section nc-type-selector">
+                    <h5 class="section-title required">
+                        <i class="fa fa-list-ul me-2" title="Concepto"/>
+                        Concepto de Corrección
+                    </h5>
+                    <p class="help-text">
+                        Seleccione el motivo por el cual está generando esta nota crédito:
+                    </p>
+
+                    <div class="nc-types-list">
+                        <div
+                            t-foreach="ncTypes"
+                            t-as="ncType"
+                            t-key="ncType.value"
+                            class="nc-type-option"
+                            t-att-class="{ 'selected': state.selectedType === ncType.value }"
+                            t-on-click="() => state.selectedType = ncType.value"
+                        >
+                            <input
+                                type="radio"
+                                name="nc_type"
+                                t-att-value="ncType.value"
+                                t-att-checked="state.selectedType === ncType.value"
+                                t-att-id="'nc_type_' + ncType.value"
+                            />
+                            <label
+                                class="nc-type-label"
+                                t-att-for="'nc_type_' + ncType.value"
+                            >
+                                <div class="type-header">
+                                    <span class="type-code">[<t t-esc="ncType.value"/>]</span>
+                                    <span class="type-label" t-esc="ncType.label"/>
+                                </div>
+                                <small class="type-description text-muted d-block mt-1" t-esc="ncType.description"/>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información Adicional -->
+                <div class="section info-message">
+                    <div class="alert alert-info">
+                        <i class="fa fa-lightbulb-o me-2" title="Nota"/>
+                        <strong>Nota:</strong> El concepto seleccionado será reportado a la DIAN
+                        y aparecerá en el documento tributario electrónico.
+                    </div>
+                </div>
+            </main>
+
+            <!-- Footer con botones -->
+            <footer class="modal-footer">
+                <div class="button-container">
+                    <button
+                        class="button btn btn-secondary cancel"
+                        t-on-click="cancel"
+                    >
+                        <i class="fa fa-times me-2" title="Cancelar"/>
+                        Cancelar
+                    </button>
+                    <button
+                        class="button btn btn-primary confirm"
+                        t-on-click="confirm"
+                        t-att-disabled="!state.selectedType"
+                    >
+                        <i class="fa fa-check me-2" title="Confirmar"/>
+                        Confirmar
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </t>
+
+</templates>

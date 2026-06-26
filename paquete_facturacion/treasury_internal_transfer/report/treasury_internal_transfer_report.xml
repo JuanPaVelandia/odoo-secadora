@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_treasury_internal_transfer" model="ir.actions.report">
+        <field name="name">Comprobante de Transferencia Interna</field>
+        <field name="model">treasury.internal.transfer</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">treasury_internal_transfer.report_internal_transfer</field>
+        <field name="report_file">treasury_internal_transfer.report_internal_transfer</field>
+        <field name="binding_model_id" ref="model_treasury_internal_transfer"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

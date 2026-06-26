@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <!--
+    Template para el filtro de impuestos.
+
+    Sigue el patrón exacto de account_reports.AccountReportFilterPartner:
+    - Usa Dropdown con menuClass para estilos
+    - Usa MultiRecordSelector para selección múltiple
+    - Se conecta con getMultiRecordSelectorProps('account.tax', 'tax_ids')
+    -->
+    <t t-name="libros_contables_colombia.AccountReportFilterTax">
+        <Dropdown menuClass="'account_report_filter tax'">
+            <button class="btn btn-secondary">
+                <i class="fa fa-percent me-1"/>Impuestos
+            </button>
+
+            <t t-set-slot="content">
+                <div class="dropdown-item gap-2 align-items-center">
+                    <label>Impuestos</label>
+                    <!-- Usa getTaxMultiRecordSelectorProps para filtrar por tipo de reporte -->
+                    <MultiRecordSelector
+                        t-props="getTaxMultiRecordSelectorProps()"
+                    />
+                </div>
+            </t>
+        </Dropdown>
+    </t>
+</templates>

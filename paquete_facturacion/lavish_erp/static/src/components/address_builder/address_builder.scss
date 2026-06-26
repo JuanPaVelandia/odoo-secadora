@@ -1,0 +1,152 @@
+// ========== Estilos para Constructor de Dirección Colombiana ==========
+
+// Botón Constructor
+.o_address_builder_btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+
+    &:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+    i {
+        font-size: 1rem;
+    }
+}
+
+// Diálogo Constructor
+.o_address_builder_dialog {
+    min-height: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+
+    // Cards de secciones
+    .card {
+        border: 1px solid #dee2e6;
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+
+        .card-header {
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+
+            strong {
+                font-size: 1rem;
+            }
+        }
+
+        .card-body {
+            padding: 1rem;
+
+            label.form-label {
+                display: block;
+                margin-bottom: 0.375rem;
+                font-size: 0.875rem;
+                color: #495057;
+                font-weight: 500;
+            }
+
+            .form-control,
+            .form-select {
+                font-size: 0.875rem;
+            }
+
+            .form-control-sm,
+            .form-select-sm {
+                font-size: 0.8125rem;
+                padding: 0.25rem 0.5rem;
+            }
+        }
+    }
+
+    // Preview de dirección
+    .alert-success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+        padding: 1rem;
+
+        .fa-check-circle {
+            color: #28a745;
+        }
+
+        .fs-5 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #0c5226;
+            line-height: 1.5;
+        }
+
+        .font-monospace {
+            font-family: 'Courier New', Courier, monospace;
+        }
+    }
+
+    // Sección de barrios/veredas
+    .form-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+
+    // Espaciado de filas
+    .row.g-2 {
+        margin-left: -0.5rem;
+        margin-right: -0.5rem;
+
+        > * {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+    }
+
+    .row.g-1 {
+        margin-left: -0.25rem;
+        margin-right: -0.25rem;
+
+        > * {
+            padding-left: 0.25rem;
+            padding-right: 0.25rem;
+        }
+    }
+}
+
+// Responsivo: ajustar para pantallas pequeñas
+@media (max-width: 768px) {
+    .o_address_builder_dialog {
+        .card-body {
+            padding: 0.75rem;
+
+            .row {
+                margin-left: -0.25rem;
+                margin-right: -0.25rem;
+
+                > * {
+                    padding-left: 0.25rem;
+                    padding-right: 0.25rem;
+                    margin-bottom: 0.5rem;
+                }
+            }
+        }
+
+        .alert-success .fs-5 {
+            font-size: 1rem;
+        }
+    }
+}
+
+// Animaciones
+.o_address_builder_dialog {
+    .card {
+        transition: box-shadow 0.2s ease-in-out;
+
+        &:hover {
+            box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
+        }
+    }
+}

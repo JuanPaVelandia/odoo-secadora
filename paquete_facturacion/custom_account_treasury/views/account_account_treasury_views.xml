@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- ========== VISTA LIST DE CUENTAS DE ANTICIPOS ========== -->
+        <record id="view_account_advance_list" model="ir.ui.view">
+            <field name="name">account.account.advance.list</field>
+            <field name="model">account.account</field>
+            <field name="arch" type="xml">
+                <list string="Cuentas de Anticipos" create="false" delete="false">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="account_type"/>
+                    <field name="used_for_advance_payment" widget="boolean_toggle"/>
+                    <field name="advance_account_type"/>
+                    <field name="reconcile" invisible="1"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ========== VISTA LIST DE CUENTAS DE PRÉSTAMOS ========== -->
+        <record id="view_account_loan_list" model="ir.ui.view">
+            <field name="name">account.account.loan.list</field>
+            <field name="model">account.account</field>
+            <field name="arch" type="xml">
+                <list string="Cuentas de Préstamos" create="false" delete="false">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="account_type"/>
+                    <field name="used_for_loan" widget="boolean_toggle"/>
+                    <field name="loan_account_type"/>
+                    <field name="reconcile" invisible="1"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- ========== VISTA FORM EXTENDIDA PARA CUENTAS ========== -->
+        <record id="view_account_form_treasury_extend" model="ir.ui.view">
+            <field name="name">account.account.form.treasury.extend</field>
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account.view_account_form"/>
+            <field name="arch" type="xml">
+                <!-- Agregar después del campo reconcile -->
+                <field name="reconcile" position="after">
+                    <field name="used_for_advance_payment"/>
+                    <field name="advance_account_type" invisible="not used_for_advance_payment"/>
+                    <field name="used_for_loan"/>
+                    <field name="loan_account_type" invisible="not used_for_loan"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- ========== ACCIÓN PARA CUENTAS DE ANTICIPOS ========== -->
+        <record id="action_account_advance_accounts" model="ir.actions.act_window">
+            <field name="name">Cuentas de Anticipos</field>
+            <field name="res_model">account.account</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('used_for_advance_payment', '=', True)]</field>
+            <field name="context">{'default_used_for_advance_payment': True, 'default_reconcile': True}</field>
+            <field name="view_id" ref="view_account_advance_list"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea una cuenta de anticipo
+                </p>
+                <p>
+                    Las cuentas marcadas como "Cuenta de Anticipo" aparecerán en el widget
+                    de pagos pendientes de las facturas, permitiendo cruzar anticipos
+                    directamente desde la factura.
+                </p>
+            </field>
+        </record>
+
+        <!-- ========== ACCIÓN PARA CUENTAS DE PRÉSTAMOS ========== -->
+        <record id="action_account_loan_accounts" model="ir.actions.act_window">
+            <field name="name">Cuentas de Préstamos</field>
+            <field name="res_model">account.account</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('used_for_loan', '=', True)]</field>
+            <field name="context">{'default_used_for_loan': True, 'default_reconcile': True}</field>
+            <field name="view_id" ref="view_account_loan_list"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crea una cuenta de préstamo
+                </p>
+                <p>
+                    Las cuentas marcadas como "Cuenta de Préstamo" aparecerán en el widget
+                    de pagos pendientes de las facturas, permitiendo cruzar préstamos
+                    directamente desde la factura.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

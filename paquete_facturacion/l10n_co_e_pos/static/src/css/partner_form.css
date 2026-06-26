@@ -1,0 +1,379 @@
+/* Estilos para formulario de Partner en POS Colombia con Bootstrap */
+/* Colores La Casa de Nacho */
+:root {
+    --lacasa-verde-oliva: #7a814a;
+    --lacasa-rosa: #e91e8c;
+    --lacasa-turquesa: #1abc9c;
+    --lacasa-amarillo: #f4c430;
+}
+
+/* Clases personalizadas para tarjetas La Casa de Nacho */
+.o_pos_partner_form .border-lacasa-verde { border-color: #7a814a !important; }
+.o_pos_partner_form .bg-lacasa-verde { background-color: #7a814a !important; color: white !important; }
+.o_pos_partner_form .border-lacasa-rosa { border-color: #e91e8c !important; }
+.o_pos_partner_form .bg-lacasa-rosa { background-color: #e91e8c !important; color: white !important; }
+.o_pos_partner_form .border-lacasa-turquesa { border-color: #1abc9c !important; }
+.o_pos_partner_form .bg-lacasa-turquesa { background-color: #1abc9c !important; color: white !important; }
+.o_pos_partner_form .border-lacasa-amarillo { border-color: #f4c430 !important; }
+.o_pos_partner_form .bg-lacasa-amarillo { background-color: #f4c430 !important; color: #212529 !important; }
+
+.o_pos_partner_form {
+    min-width: 900px !important;
+    max-width: 100% !important;
+}
+
+.o_pos_partner_form .o_form_sheet {
+    padding: 15px !important;
+    max-width: 100% !important;
+    background-color: #f8f9fa !important;
+}
+
+/* Asegurar que el modal sea suficientemente grande */
+.modal-dialog:has(.o_pos_partner_form) {
+    max-width: 95% !important;
+    width: 95% !important;
+    margin: 1.75rem auto !important;
+}
+
+/* Bootstrap Cards mejoradas */
+.o_pos_partner_form .card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    transition: all 0.3s ease !important;
+}
+
+.o_pos_partner_form .card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+.o_pos_partner_form .card-header {
+    padding: 10px 15px !important;
+    font-weight: 600 !important;
+}
+
+.o_pos_partner_form .card-body {
+    padding: 15px !important;
+}
+
+/* Bootstrap Icons */
+.o_pos_partner_form .fa {
+    font-size: 16px !important;
+}
+
+/* Container fluid ajustado */
+.o_pos_partner_form .container-fluid {
+    padding: 0 !important;
+}
+
+/* Icono grande de tipo de partner */
+.o_pos_partner_form .partner-type-icon {
+    display: inline-block !important;
+    width: 80px !important;
+    height: 80px !important;
+    line-height: 80px !important;
+    text-align: center !important;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1) !important;
+}
+
+/* Color específico para ícono de persona - Verde oliva La Casa de Nacho */
+.o_pos_partner_form .partner-type-icon .text-primary {
+    color: #7a814a !important;
+}
+
+/* Color específico para ícono de empresa - Rosa La Casa de Nacho */
+.o_pos_partner_form .partner-type-icon .text-warning {
+    color: #e91e8c !important;
+}
+
+.o_pos_partner_form .partner-type-icon i {
+    vertical-align: middle !important;
+}
+
+/* Mejorar visibilidad de labels */
+.o_pos_partner_form .o_form_label,
+.o_pos_partner_form .form-label {
+    font-weight: 600 !important;
+    color: #495057 !important;
+    margin-bottom: 6px !important;
+    font-size: 13px !important;
+}
+
+/* Campos obligatorios - Remarcar sutilmente con amarillo La Casa de Nacho */
+.o_pos_partner_form .o_required_modifier .o_field_widget input,
+.o_pos_partner_form .o_required_modifier .o_field_widget select,
+.o_pos_partner_form .o_required_modifier .o_field_widget .o_input {
+    border-left: 3px solid #f4c430 !important;
+    background-color: #fffdf5 !important;
+}
+
+.o_pos_partner_form .o_required_modifier .o_form_label::before,
+.o_pos_partner_form .o_required_modifier .form-label::before {
+    content: "* " !important;
+    color: #f4c430 !important;
+    font-weight: bold !important;
+    margin-right: 2px !important;
+}
+
+/* Efecto de formulario profesional */
+.o_pos_partner_form .form-control {
+    border: 1px solid #ced4da !important;
+    border-radius: 6px !important;
+    padding: 10px 14px !important;
+    font-size: 14px !important;
+    transition: all 0.3s ease !important;
+}
+
+.o_pos_partner_form .form-control:focus {
+    border-color: #1abc9c !important;
+    box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25) !important;
+    background-color: #fff !important;
+}
+
+/* Aspecto de formulario profesional */
+.o_pos_partner_form .o_form_sheet {
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%) !important;
+}
+
+/* Campos de entrada más visibles */
+.o_pos_partner_form .o_field_widget input,
+.o_pos_partner_form .o_field_widget select,
+.o_pos_partner_form .o_field_widget textarea {
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    width: 100% !important;
+    background-color: #fff !important;
+}
+
+/* Many2one selector - Mejorado */
+.o_pos_partner_form .o_field_many2one {
+    position: relative !important;
+}
+
+.o_pos_partner_form .o_field_many2one input {
+    background-color: #fff !important;
+    height: 38px !important;
+    line-height: 38px !important;
+}
+
+.o_pos_partner_form .o_field_many2one .o_input_dropdown {
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+}
+
+.o_pos_partner_form .o_field_many2one .o_external_button {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: 38px !important;
+}
+
+/* Dropdown de many2one */
+.o_pos_partner_form .o_field_many2one .ui-autocomplete {
+    z-index: 10000 !important;
+    max-height: 300px !important;
+    overflow-y: auto !important;
+}
+
+/* Boolean toggle - Mejorado */
+.o_pos_partner_form .o_field_boolean_toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.o_pos_partner_form .o_field_boolean_toggle input {
+    width: auto !important;
+    height: 24px !important;
+    cursor: pointer !important;
+}
+
+.o_pos_partner_form .o_field_boolean_toggle .form-check-input {
+    width: 48px !important;
+    height: 24px !important;
+    cursor: pointer !important;
+}
+
+/* Grupos con títulos */
+.o_pos_partner_form .o_group .o_group_title {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #495057 !important;
+    margin-bottom: 12px !important;
+    border-bottom: 2px solid #e9ecef !important;
+    padding-bottom: 8px !important;
+}
+
+/* Espaciado entre grupos */
+.o_pos_partner_form .o_group {
+    margin-bottom: 20px !important;
+}
+
+/* Campos requeridos */
+.o_pos_partner_form .o_required_modifier .o_form_label:after {
+    content: " *" !important;
+    color: #dc3545 !important;
+    font-weight: bold !important;
+}
+
+/* Notebook tabs */
+.o_pos_partner_form .nav-tabs {
+    border-bottom: 2px solid #dee2e6 !important;
+    margin-bottom: 15px !important;
+}
+
+.o_pos_partner_form .nav-tabs .nav-link {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+}
+
+.o_pos_partner_form .nav-tabs .nav-link.active {
+    background-color: #7a814a !important;
+    color: white !important;
+    border-color: #7a814a !important;
+}
+
+/* Tabla de facturas */
+.o_pos_partner_form table.o_list_table {
+    width: 100% !important;
+    border: 1px solid #dee2e6 !important;
+}
+
+.o_pos_partner_form table.o_list_table thead {
+    background-color: #f8f9fa !important;
+}
+
+.o_pos_partner_form table.o_list_table th {
+    font-weight: 600 !important;
+    padding: 10px !important;
+    border-bottom: 2px solid #dee2e6 !important;
+}
+
+.o_pos_partner_form table.o_list_table td {
+    padding: 8px 10px !important;
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Botones */
+.o_pos_partner_form .modal-footer button {
+    min-width: 100px !important;
+    padding: 10px 20px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+}
+
+/* Información de crédito destacada */
+.o_pos_partner_form .o_field_monetary {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+/* Responsive para campos en dos columnas */
+.o_pos_partner_form .o_group .o_form_field {
+    margin-bottom: 12px !important;
+}
+
+/* Placeholders más visibles */
+.o_pos_partner_form input::placeholder,
+.o_pos_partner_form textarea::placeholder {
+    color: #6c757d !important;
+    opacity: 0.7 !important;
+}
+
+/* Focus en campos - Turquesa La Casa de Nacho */
+.o_pos_partner_form .o_field_widget input:focus,
+.o_pos_partner_form .o_field_widget select:focus,
+.o_pos_partner_form .o_field_widget textarea:focus {
+    border-color: #1abc9c !important;
+    box-shadow: 0 0 0 0.2rem rgba(26, 188, 156, 0.25) !important;
+    outline: none !important;
+}
+
+/* Many2many tags */
+.o_pos_partner_form .o_field_many2many_tags .badge {
+    font-size: 13px !important;
+    padding: 6px 12px !important;
+    margin-right: 5px !important;
+    margin-bottom: 5px !important;
+}
+
+/* Stat buttons */
+.o_pos_partner_form .oe_stat_button {
+    background-color: #f8f9fa !important;
+    border: 1px solid #dee2e6 !important;
+    padding: 10px !important;
+}
+
+.o_pos_partner_form .oe_stat_button:hover {
+    background-color: #e9ecef !important;
+}
+
+/* Asegurar visibilidad de todos los campos */
+.o_pos_partner_form .o_field_widget {
+    min-height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.o_pos_partner_form .o_input {
+    min-height: 38px !important;
+}
+
+/* Campos char y text más visibles */
+.o_pos_partner_form .o_field_char input,
+.o_pos_partner_form .o_field_text textarea,
+.o_pos_partner_form .o_field_email input,
+.o_pos_partner_form .o_field_phone input {
+    display: block !important;
+    width: 100% !important;
+    height: 38px !important;
+    padding: 8px 12px !important;
+    font-size: 14px !important;
+    line-height: 1.5 !important;
+    color: #212529 !important;
+    background-color: #fff !important;
+    background-clip: padding-box !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out !important;
+}
+
+.o_pos_partner_form .o_field_text textarea {
+    height: auto !important;
+    min-height: 76px !important;
+}
+
+/* Mejorar visibilidad de las secciones */
+.o_pos_partner_form .o_horizontal_separator {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #212529 !important;
+    margin-top: 20px !important;
+    margin-bottom: 15px !important;
+    border-bottom: 2px solid #7a814a !important;
+    padding-bottom: 8px !important;
+}
+
+/* Row layout mejorado */
+.o_pos_partner_form .o_group.o_inner_group {
+    display: table !important;
+    width: 100% !important;
+    table-layout: fixed !important;
+}
+
+.o_pos_partner_form .o_group.o_inner_group > tbody > tr > td {
+    vertical-align: middle !important;
+    padding: 6px 8px !important;
+}
+
+/* Label alineado correctamente */
+.o_pos_partner_form .o_group.o_inner_group > tbody > tr > td.o_td_label {
+    width: 35% !important;
+    padding-right: 12px !important;
+    text-align: right !important;
+}
+
+.o_pos_partner_form .o_group.o_inner_group > tbody > tr > td:not(.o_td_label) {
+    width: 65% !important;
+}

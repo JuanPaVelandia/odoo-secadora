@@ -1,0 +1,107 @@
+/* Widget de Selección de Facturas - Estilo SAP */
+
+.o_invoice_selector {
+    font-size: 0.875rem;
+}
+
+.o_invoice_selector .o_invoice_list table {
+    margin-bottom: 0;
+}
+
+.o_invoice_selector .o_invoice_list thead {
+    background-color: #f8f9fa;
+}
+
+.o_invoice_selector .o_invoice_list thead th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    padding: 0.5rem;
+}
+
+.o_invoice_selector .o_invoice_list tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.o_invoice_selector .o_invoice_list tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+.o_invoice_selector .o_invoice_list tbody tr.table-primary {
+    background-color: rgba(0, 123, 255, 0.15) !important;
+}
+
+.o_invoice_selector .o_invoice_list tbody td {
+    padding: 0.4rem 0.5rem;
+    vertical-align: middle;
+}
+
+.o_invoice_selector .form-check-input {
+    cursor: pointer;
+    width: 1.1em;
+    height: 1.1em;
+}
+
+.o_invoice_selector .badge {
+    font-size: 0.7rem;
+    padding: 0.25em 0.5em;
+}
+
+/* Animación para el total */
+.o_invoice_selector .text-success.fs-5 {
+    transition: all 0.3s ease;
+}
+
+.o_invoice_selector .btn-primary:not(:disabled) {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(0, 123, 255, 0);
+    }
+}
+
+/* Estilos para líneas vencidas */
+.o_invoice_selector .table-danger {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.o_invoice_selector .table-danger:hover {
+    background-color: rgba(220, 53, 69, 0.2) !important;
+}
+
+/* Scroll suave */
+.o_invoice_selector .o_invoice_list {
+    scrollbar-width: thin;
+    scrollbar-color: #adb5bd #f8f9fa;
+}
+
+.o_invoice_selector .o_invoice_list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.o_invoice_selector .o_invoice_list::-webkit-scrollbar-track {
+    background: #f8f9fa;
+}
+
+.o_invoice_selector .o_invoice_list::-webkit-scrollbar-thumb {
+    background-color: #adb5bd;
+    border-radius: 3px;
+}
+
+/* Botones de filtro */
+.o_invoice_selector .btn-group-sm .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Campo de búsqueda */
+.o_invoice_selector .form-control-sm {
+    font-size: 0.8rem;
+}

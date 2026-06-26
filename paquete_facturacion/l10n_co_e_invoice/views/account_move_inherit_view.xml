@@ -1,0 +1,1537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        
+        <!-- Vista Tree de Facturas con DIAN -->
+        <record id="invoice_tree_extended_fe" model="ir.ui.view">
+            <field name="name">Lista de facturas con estado DIAN</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_invoice_tree" />
+            <field name="arch" type="xml">
+                <field name="status_in_payment" position="after">
+                    <field name="state_dian_document" string="Estado DIAN"
+                        widget="badge"
+                        decoration-success="state_dian_document == 'exitoso'"
+                        decoration-info="state_dian_document in ['por_notificar','por_validar']"
+                        decoration-danger="state_dian_document in ['error', 'rechazado']"/>
+                    <field name="requires_credit_note" widget="boolean_toggle" optional="hide"/>
+                    <field name="cufe" string="CUFE/CUDS" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="invoice_form_extended_dian" model="ir.ui.view">
+            <field name="name">Formulario de factura con campos DIAN mejorado</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state']" position="before">
+                    <field name="state_dian_document" invisible="1"/>
+                    <field name="hide_button_dian" invisible="1"/>
+                    <field name="move_type" invisible="1"/>
+                    <field name="is_debit_note" invisible="1"/>
+                    <field name="event_count" invisible="1"/>
+                    <field name="titulo_valor_state" invisible="1"/>
+                    <field name="last_event_code" invisible="1"/>
+                    <field name="last_event_status" invisible="1"/>
+                    <field name="can_apply_aceptacion_tacita" invisible="1"/>
+                    <field name="last_event_date" invisible="1"/>
+                    
+                    <field name="cufe" invisible="1"/>
+                    <field name="diancode_id" invisible="1"/>
+                    <field name="QR_code" invisible="1"/>
+                    <field name="response_message_dian" invisible="1"/>
+                    <field name="fecha_xml" invisible="1"/>
+                    <field name="credit_note_count" invisible="1"/>
+                    <field name="invoice_discount_view" invisible="1"/>
+                    
+                    <!-- Campos de configuración -->
+                    <field name="fe_warning" invisible="1"/>
+                    <field name="is_inactive_resolution" invisible="1"/>
+                    <field name="count_error_DIAN" invisible="1"/>
+                    <field name="in_contingency_4" invisible="1"/>
+                    <field name="exists_invoice_contingency_4" invisible="1"/>
+                    <field name="contingency_3" invisible="1"/>
+                    <field name="contingency_4" invisible="1"/>
+                </xpath>
+
+                <!-- ========== ALERTAS DE ENCABEZADO ========== -->
+                <xpath expr="//sheet" position="before">
+                    <!-- Alerta: Resolución por caducar -->
+                    <div class="alert alert-warning d-flex align-items-center" role="alert" 
+                         invisible="fe_warning != True">
+                        <i class="fa fa-exclamation-triangle fa-2x me-3" style="color: #856404;" title="Advertencia"/>
+                        <div>
+                            <strong><i class="fa fa-clock-o" title="Tiempo"/> Resolución DIAN por caducar</strong><br/>
+                            La resolución de la DIAN está por caducar o se está agotando su numeración. 
+                            Verifique la configuración en la secuencia del diario.
+                        </div>
+                    </div>
+
+                    <!-- Alerta: Sin resolución activa -->
+                    <div class="alert alert-danger d-flex align-items-center" role="alert" 
+                         invisible="is_inactive_resolution != True">
+                        <i class="fa fa-times-circle fa-2x me-3" style="color: #721c24;" title="Error"/>
+                        <div>
+                            <strong><i class="fa fa-ban" title="Sin resolucion"/> Sin resolución DIAN activa</strong><br/>
+                            El diario no tiene ninguna resolución de la DIAN activa en su secuencia.
+                        </div>
+                    </div>
+                </xpath>
+
+                <!-- ========== ALERTAS DESPUÉS DEL HEADER ========== -->
+                <xpath expr="//header" position="after">
+                    <!-- Alerta: Problemas DIAN -->
+                    <div class="alert alert-danger d-flex align-items-center" role="alert" 
+                         invisible="count_error_DIAN == 0 or in_contingency_4 == True">
+                        <i class="fa fa-wifi fa-2x me-3" style="color: #721c24;" title="Conexion"/>
+                        <div>
+                            <strong><i class="fa fa-exclamation-circle" title="Alerta"/> Problemas de comunicación DIAN</strong><br/>
+                            Existen problemas tecnológicos de comunicación a cargo de la <strong>DIAN</strong>
+                            para el envío de la factura. Por favor, realice tres intentos más, pulsando
+                            nuevamente el botón <strong>Validar DIAN</strong> cada 20 segundos.
+                        </div>
+                    </div>
+
+                    <!-- Alerta: Contingencia tipo 4 -->
+                    <div class="alert alert-danger d-flex align-items-center" role="alert" 
+                         invisible="in_contingency_4 == False">
+                        <i class="fa fa-warning fa-2x me-3" style="color: #721c24;" title="Advertencia"/>
+                        <div>
+                            <strong><i class="fa fa-shield" title="Contingencia"/> Contingencia tipo 4 activa</strong><br/>
+                            El sistema se encuentra en <strong>Contingencia tipo 4</strong>, por causas atribuibles 
+                            a situaciones de índole tecnológico a cargo de la DIAN. Las facturas serán enviadas 
+                            al cliente, pero no serán reportadas a la DIAN hasta tanto se restablezca el servicio.
+                        </div>
+                    </div>
+
+                    <!-- Alerta: Facturas pendientes contingencia 4 -->
+                    <div class="alert alert-warning d-flex align-items-center" role="alert" 
+                         invisible="exists_invoice_contingency_4 == False">
+                        <i class="fa fa-clock-o fa-2x me-3" style="color: #856404;" title="Pendiente"/>
+                        <div>
+                            <strong><i class="fa fa-list" title="Lista"/> Facturas pendientes de envío DIAN</strong><br/>
+                            Existen facturas que fueron enviadas a los clientes con <strong>tipo de contingencia 4</strong>. 
+                            Filtre la vista de facturas por contingencia 4 sin enviar a la DIAN y proceda a 
+                            <strong>enviar cada una pulsando el botón Validar DIAN</strong>. 
+                            Recuerde que solo tiene <strong>48 horas</strong> para reportarlas.
+                        </div>
+                    </div>
+                </xpath>
+
+                <!-- ========== BOTÓN VALIDAR DIAN EN HEADER ========== -->
+                <xpath expr="//field[@name='state']" position="before">
+                    <field name="show_get_status_button" invisible="1"/>
+                    <button name="dian_send_invoice"
+                            string="Validar DIAN"
+                            type="object"
+                            class="oe_highlight btn-success"
+                            invisible="hide_button_dian == True"
+                            groups="account.group_account_invoice">
+                        <i class="fa fa-rotate-right" title="Validar"/> Validar DIAN
+                    </button>
+                    <button name="action_get_dian_status"
+                            string="Recuperar Estado DIAN"
+                            type="object"
+                            class="oe_highlight btn-warning"
+                            invisible="show_get_status_button == False"
+                            groups="account.group_account_invoice"
+                            help="Consulta el estado actualizado del documento en DIAN">
+                        <i class="fa fa-refresh" title="Actualizar"/> Recuperar Estado
+                    </button>
+                </xpath>
+
+                <!-- ========== CÓDIGO QR EN TÍTULO ========== -->
+                <xpath expr="//div[hasclass('oe_title')]" position="before">
+                    <field name="QR_code" 
+                           widget="image" 
+                           class="oe_avatar" 
+                           style="max-height: 90px; max-width: 90px;" 
+                           invisible="QR_code == False"/>
+                </xpath>
+
+                <!-- ========== BOTONES ESTADÍSTICOS ========== -->
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <!-- Botón Eventos DIAN -->
+                    <button name="action_view_events" 
+                            type="object" 
+                            class="oe_stat_button" 
+                            icon="fa-calendar-check-o" 
+                            invisible="event_count == 0">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="event_count"/>
+                            </span>
+                            <span class="o_stat_text">Eventos</span>
+                        </div>
+                    </button>
+
+                    <!-- Botón página DIAN -->
+                    <button name="dian_preview" 
+                            type="object" 
+                            class="oe_stat_button" 
+                            invisible="cufe == False or state_dian_document != 'exitoso'">
+                        <i class="fa fa-globe fa-2x" title="Ver en DIAN"/>
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_text">Ver en</span>
+                            <span class="o_stat_text">DIAN</span>
+                        </div>
+                    </button>
+
+                    <!-- Botón notas crédito -->
+                    <button type="object"
+                            class="oe_stat_button"
+                            name="action_view_credit_notes"
+                            invisible="credit_note_count == 0">
+                        <i class="fa fa-file-text-o fa-2x" style="color: #ffc107;" title="Notas Credito"/>
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value"><field name="credit_note_count"/></span>
+                            <span class="o_stat_text">Notas Crédito</span>
+                        </div>
+                    </button>
+                </xpath>
+
+                <!-- ========== RIBBON TÍTULO VALOR ========== -->
+                <xpath expr="//widget[@name='web_ribbon']" position="after">
+                    <widget name="web_ribbon" 
+                            text="Título Valor" 
+                            invisible="titulo_valor_state != 'complete'" 
+                            bg_color="bg-success"/>
+                </xpath>
+
+                <!-- ========== GRUPO FACTURACIÓN ELECTRÓNICA ========== -->
+                <xpath expr="//group[@id='header_right_group']" position="after">
+                    <group string="Facturación Electrónica" name="ei_fields" 
+                           invisible="move_type in ['entry']">
+                        
+                        <!-- Nota débito indicator -->
+                        <div invisible="is_debit_note == False" 
+                             class="alert alert-info" style="margin: 10px 0;">
+                            <i class="fa fa-plus-circle" title="Nota Debito"/> <strong>Nota Débito</strong>
+                        </div>
+
+                        <!-- Campos principales -->
+                        <field name="fe_type_ei_ref" readonly="1" string="Tipo Documento"/>
+                        <field name="fe_operation_type" string="Tipo Operación"/>
+                        <field name="method_payment_id" force_save="1" readonly="0" string="Método de Pago"/>
+                        <field name="fecha_xml" readonly="1" string="Fecha Envío DIAN"/>
+                        <field name="cufe" readonly="1" string="CUFE/CUDS"/>
+                        <field name="state_dian_document" 
+                               widget="badge" 
+                               decoration-success="state_dian_document == 'exitoso'" 
+                               decoration-info="state_dian_document in ['por_notificar','por_validar']" 
+                               decoration-danger="state_dian_document in ['error', 'rechazado']"/>
+
+                        <!-- Campos específicos para notas crédito -->
+                        <field name="concepto_credit_note" 
+                               string="Concepto NC" 
+                               invisible="move_type not in ['out_refund', 'in_refund']"
+                               required="move_type in ['out_refund', 'in_refund']"/>
+                        
+                        <!-- Campos específicos para notas débito -->
+                        <field name="concept_debit_note" 
+                               string="Concepto ND" 
+                               invisible="is_debit_note == False"
+                               required="is_debit_note == True"/>
+
+                        <!-- Contingencias -->
+                        <field name="contingency_3" 
+                               string="Contingencia Tipo 3" 
+                               invisible="contingency_4 == True or move_type != 'out_invoice'"
+                               readonly="in_contingency_4 == True or state_dian_document == 'exitoso'"/>
+                        <field name="contingency_invoice_number" 
+                               string="N° Factura Contingencia" 
+                               invisible="contingency_3 == False"
+                               readonly="state_dian_document == 'exitoso'"/>
+                        <field name="contingency_4" 
+                               readonly="1" 
+                               string="Contingencia Tipo 4" 
+                               invisible="contingency_4 == False"/>
+
+                        <!-- Documentos sin referencia -->
+                        <field name="document_without_reference" 
+                               string="Sin Referencia" 
+                               invisible="move_type not in ['out_refund', 'in_refund']"/>
+                        
+                        <!-- Referencias de otros sistemas -->
+                        <label for="document_from_other_system" 
+                               string="Documento Otro Sistema" 
+                               invisible="move_type not in ['out_refund', 'in_refund'] or document_without_reference == True"/>
+                        <div invisible="move_type not in ['out_refund', 'in_refund'] or document_without_reference == True">
+                            <field name="document_from_other_system" nolabel="1"/>
+                            <field name="date_from_other_system" string="Fecha" nolabel="1"/>
+                            <field name="cufe_cuds_other_system" string="CUFE/CUDS" nolabel="1"/>
+                        </div>
+
+                        <!-- Moneda extranjera -->
+                        <field name="current_exchange_rate" 
+                               string="Tasa de Cambio" 
+                               invisible="currency_id == 8"/>
+
+                        <!-- Otros campos -->
+                        <field name="total_withholding_amount" string="Total Retenciones" readonly="1"/>
+                        <field name="validate_cron" string="Validar con CRON"/>
+                        <field name="requires_credit_note" 
+                               invisible="move_type != 'out_invoice'"/>
+                    </group>
+                </xpath>
+
+                <!-- ========== CAMPOS ADICIONALES EN CUSTOMER INFO ========== -->
+                <xpath expr="//field[@name='partner_shipping_id']" position="after">
+                    <field name="partner_contact_id" 
+                           string="Contacto Específico" 
+                           invisible="move_type not in ('in_invoice', 'out_invoice', 'out_refund', 'out_receipt')"
+                           readonly="state != 'draft'"/>
+                </xpath>
+
+                <!-- ========== CAMPOS EN INVOICE INFO ========== -->
+                <xpath expr="//field[@name='team_id']" position="before">
+                    <!-- Mandante para operaciones tipo 11 -->
+                    <field name="mandante_id" 
+                           string="Mandante" 
+                           invisible="fe_operation_type != '11'"
+                           required="fe_operation_type == '11'"/>
+
+                    <!-- Muestras comerciales -->
+                    <field name="invoice_trade_sample" string="Muestras Comerciales"/>
+                    <field name="trade_sample_price" 
+                           string="Ref. Precio Real" 
+                           invisible="invoice_trade_sample == False"/>
+                </xpath>
+
+                <!-- ========== DESCUENTOS GLOBALES ========== -->
+                <xpath expr="//field[@name='tax_totals']" position="after">
+                    <field name="invoice_discount_view" string="Descuento Aplicado"/>
+                </xpath>
+
+                <!-- ========== LÍNEAS DE FACTURA MEJORADAS ========== -->
+                <xpath expr="//field[@name='line_ids']/list/field[@name='amount_currency']" position="after">
+                    <field name="discount_line" optional="show" string="Desc. $"/>
+                    <field name="price_unit_with_discount" string="Precio c/Desc" optional="show"/>
+                </xpath>
+
+                <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='price_unit']" position="after">
+                    <field name="discount_line" optional="show" string="Desc. $"/>
+                    <field name="price_unit_with_discount" string="Precio c/Desc" optional="show"/>
+                </xpath>
+
+                <!-- ========== PESTAÑAS DIAN ========== -->
+                <xpath expr="//notebook" position="inside">
+                    
+                    <!-- PESTAÑA PRINCIPAL DIAN -->
+                    <page name="dian_main" string="DIAN" invisible="move_type in ['entry']">
+                        
+                        <!-- Mensaje informativo -->
+                        <div class="alert alert-info d-flex align-items-center" role="alert" 
+                             invisible="diancode_id != False">
+                            <i class="fa fa-info-circle fa-2x me-3" title="Informacion"/>
+                            <div>
+                                <strong>Documento pendiente de envío</strong><br/>
+                                Presione el botón <strong>Validar DIAN</strong> para enviar la factura electrónica.
+                            </div>
+                        </div>
+
+                        <group invisible="diancode_id == False">
+                            <group>
+                                <field name="diancode_id" string="Registro DIAN"/>
+                                <field name="cufe" readonly="1" string="CUFE/CUDS"/>
+                                <field name="state_dian_document" 
+                                       widget="badge" 
+                                       decoration-success="state_dian_document == 'exitoso'" 
+                                       decoration-info="state_dian_document in ['por_notificar','por_validar']" 
+                                       decoration-danger="state_dian_document in ['error', 'rechazado']"/>
+                                <field name="fecha_xml" readonly="1" string="Fecha Publicación"/>
+                                <field name="dian_xml_attachment_id" readonly="1"/>
+                                <field name="dian_response_attachment_id" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="QR_code" widget="image" style="max-height: 150px;"/>
+                                <button name="action_invoice_email_dian" 
+                                        string="Enviar Email DIAN" 
+                                        type="object" 
+                                        class="btn btn-primary"
+                                        invisible="state_dian_document != 'exitoso'"
+                                        icon="fa-envelope"/>
+                                <button name="action_send_and_print" 
+                                        string="Enviar e Imprimir" 
+                                        type="object" 
+                                        class="btn btn-secondary"
+                                        invisible="state_dian_document != 'exitoso'"
+                                        icon="fa-print"/>
+                            </group>
+                        </group>
+
+                        <!-- Mensaje de respuesta DIAN -->
+                        <group string="Respuesta DIAN" invisible="response_message_dian == False">
+                            <field name="response_message_dian" nolabel="1" colspan="2" widget="html" readonly="1"/>
+                        </group>
+                    </page>
+
+                    <!-- PESTAÑA EVENTOS DIAN -->
+                    <page name="dian_events" string="Eventos DIAN" 
+                          invisible="move_type in ['entry'] or (move_type in ['out_invoice', 'out_refund'] and state_dian_document != 'exitoso')">
+                        
+                        <!-- Encabezado con información -->
+                        <div class="alert alert-info d-flex align-items-center" role="alert">
+                            <i class="fa fa-calendar-check-o fa-2x me-3" title="Eventos DIAN"/>
+                            <div>
+                                <strong>Gestión de Eventos DIAN</strong><br/>
+                                <span invisible="move_type not in ['in_invoice', 'in_refund']">
+                                    Como receptor, puede enviar acuses de recibo, reclamos y aceptaciones según el flujo establecido por la DIAN.
+                                </span>
+                                <span invisible="move_type not in ['out_invoice', 'out_refund']">
+                                    Visualice los eventos enviados por su cliente sobre este documento.
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Barra de progreso visual de eventos -->
+                        <div class="o_dian_events_progress mb-3" invisible="event_count == 0">
+                            <style>
+                                .o_dian_events_progress {
+                                    padding: 15px;
+                                    background: #f8f9fa;
+                                    border-radius: 8px;
+                                    margin-bottom: 20px;
+                                }
+                                .event_step {
+                                    display: inline-flex;
+                                    align-items: center;
+                                    margin-right: 20px;
+                                    padding: 8px 16px;
+                                    border-radius: 20px;
+                                    font-weight: 500;
+                                    transition: all 0.3s ease;
+                                }
+                                .event_step.completed {
+                                    background: #28a745;
+                                    color: white;
+                                }
+                                .event_step.pending {
+                                    background: #e9ecef;
+                                    color: #6c757d;
+                                }
+                                .event_step.current {
+                                    background: #007bff;
+                                    color: white;
+                                    box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+                                }
+                                .event_step i {
+                                    margin-right: 8px;
+                                }
+                            </style>
+                            
+                            <div class="d-flex align-items-center flex-wrap">
+                                <!-- Estado de eventos como pasos -->
+                                
+                                <!-- Acuse de Recibo -->
+                                <span class="event_step completed" invisible="last_event_status not in ['030', '031', '032', '033', '034']">
+                                    <i class="fa fa-check-circle" title="Completado"/>
+                                    Acuse de Recibo
+                                </span>
+                                <span class="event_step pending" invisible="last_event_status in ['030', '031', '032', '033', '034']">
+                                    <i class="fa fa-circle-o" title="Pendiente"/>
+                                    Acuse de Recibo
+                                </span>
+                                
+                                <!-- Reclamo -->
+                                <span class="event_step completed" invisible="last_event_status != '031'">
+                                    <i class="fa fa-exclamation-triangle" title="Reclamo"/>
+                                    Reclamo
+                                </span>
+                                <span class="event_step pending" invisible="last_event_status == '031'">
+                                    <i class="fa fa-circle-o" title="Pendiente"/>
+                                    Reclamo
+                                </span>
+
+                                <!-- Recibo del Bien -->
+                                <span class="event_step completed" invisible="last_event_status != '032'">
+                                    <i class="fa fa-check" title="Recibido"/>
+                                    Recibo del Bien
+                                </span>
+                                <span class="event_step pending" invisible="last_event_status == '032'">
+                                    <i class="fa fa-circle-o" title="Pendiente"/>
+                                    Recibo del Bien
+                                </span>
+
+                                <!-- Aceptación -->
+                                <span class="event_step completed" invisible="last_event_status not in ['033', '034']">
+                                    <i class="fa fa-trophy" title="Aceptado"/>
+                                    Aceptación
+                                </span>
+                                <span class="event_step current" invisible="titulo_valor_state != 'partial' or last_event_status in ['033', '034']">
+                                    <i class="fa fa-circle-o" title="En proceso"/>
+                                    Aceptación
+                                </span>
+                                <span class="event_step pending" invisible="last_event_status in ['033', '034'] or titulo_valor_state == 'partial'">
+                                    <i class="fa fa-circle-o" title="Pendiente"/>
+                                    Aceptación
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Resumen de Estado con mejor diseño -->
+                        <group>
+                            <group string="Estado Actual" class="o_dian_event_status">
+                                <field name="titulo_valor_state" 
+                                       widget="badge" 
+                                       decoration-success="titulo_valor_state=='complete'" 
+                                       decoration-warning="titulo_valor_state=='partial'"
+                                       decoration-info="titulo_valor_state=='none'"/>
+                                <field name="last_event_status" string="Último Evento"/>
+                                <field name="last_event_date" string="Fecha Último Evento"/>
+                            </group>
+                            
+                            <!-- Información del Proveedor solo para facturas de compra -->
+                            <group string="Información del Proveedor" 
+                                   invisible="move_type not in ['in_invoice', 'in_refund']">
+                                <field name="supplier_claim_concept" 
+                                       string="Concepto Reclamo" 
+                                       invisible="last_event_status != '031'"/>
+                                <field name="date_from_other_system" string="Fecha FC Proveedor"/>
+                                <field name="cufe_cuds_other_system" string="CUFE FC Proveedor"/>
+                            </group>
+                        </group>
+
+                        <!-- Botones de acción organizados y condicionales -->
+                        <div class="o_dian_event_buttons" 
+                             invisible="move_type not in ['in_invoice', 'in_refund']">
+                            <style>
+                                .o_dian_event_buttons {
+                                    padding: 20px;
+                                    background: #f8f9fa;
+                                    border-radius: 8px;
+                                    margin: 20px 0;
+                                }
+                                .o_dian_event_buttons .btn {
+                                    margin: 5px;
+                                    min-width: 150px;
+                                }
+                                .event_button_group {
+                                    margin-bottom: 15px;
+                                }
+                                .event_button_group h5 {
+                                    color: #495057;
+                                    margin-bottom: 10px;
+                                    font-size: 16px;
+                                }
+                            </style>
+                            
+                            <!-- Botones según el estado actual -->
+                            <div class="event_button_group" invisible="last_event_status != False">
+                                <h5><i class="fa fa-play-circle" title="Iniciar"/> Iniciar Proceso</h5>
+                                <button name="action_dian_acuse_recibo" 
+                                        string="Acuse de Recibo" 
+                                        type="object" 
+                                        class="btn btn-primary"
+                                        icon="fa-envelope-o"
+                                        help="Notificar al emisor que se ha recibido el documento"/>
+                            </div>
+                            
+                            <!-- Botones después del acuse -->
+                            <div class="event_button_group" invisible="last_event_status != '030'">
+                                <h5><i class="fa fa-question-circle" title="Acciones"/> Acciones Disponibles</h5>
+                                
+                                <button name="action_dian_reclamo" 
+                                        string="Registrar Reclamo" 
+                                        type="object" 
+                                        class="btn btn-warning"
+                                        icon="fa-exclamation-triangle"
+                                        confirm="ADVERTENCIA: Un reclamo notifica al emisor sobre una inconformidad con el documento. Esto puede requerir una nota crédito posterior. ¿Está seguro de continuar?"
+                                        help="Notificar una inconformidad con el documento"/>
+                                
+                                <button name="action_dian_recibo_bien" 
+                                        string="Confirmar Recibo del Bien" 
+                                        type="object" 
+                                        class="btn btn-success"
+                                        icon="fa-check"
+                                        help="Confirmar que se recibió el bien o servicio"/>
+                            </div>
+                            
+                            <!-- Botones después del recibo del bien -->
+                            <div class="event_button_group" invisible="last_event_status != '032'">
+                                <h5><i class="fa fa-check-circle" title="Finalizar"/> Finalizar Proceso</h5>
+                                
+                                <button name="action_dian_aceptacion_expresa" 
+                                        string="Aceptación Expresa" 
+                                        type="object" 
+                                        class="btn btn-success"
+                                        icon="fa-check-circle"
+                                        help="Aceptar expresamente el documento para generar Título Valor"/>
+                            </div>
+                            
+                            <!-- Aceptación tácita disponible después de 3 días -->
+                            <div class="event_button_group" 
+                                 invisible="not can_apply_aceptacion_tacita">
+                                <button name="action_dian_aceptacion_tacita" 
+                                        string="Aplicar Aceptación Tácita" 
+                                        type="object" 
+                                        class="btn btn-info"
+                                        icon="fa-clock-o"
+                                        help="Aplicar cuando han transcurrido 3 días hábiles sin respuesta del adquirente"
+                                        confirm="¿Confirma que han transcurrido 3 días hábiles desde el acuse de recibo sin respuesta del adquirente?"/>
+                            </div>
+                            
+                            <!-- Botones adicionales -->
+                            <div class="event_button_group">
+                                <h5><i class="fa fa-cogs" title="Herramientas"/> Herramientas</h5>
+                                <!-- <button name="action_get_status" 
+                                        string="Actualizar Estado" 
+                                        type="object" 
+                                        class="btn btn-info"
+                                        icon="fa-refresh"
+                                        help="Consultar el estado actual en DIAN"/>
+                                
+                                <button name="action_send_pending_events" 
+                                        string="Enviar Eventos Pendientes" 
+                                        type="object" 
+                                        class="btn btn-primary"
+                                        icon="fa-paper-plane"
+                                        invisible="event_count == 0"
+                                        help="Enviar todos los eventos pendientes a DIAN"/> -->
+                            </div>
+                        </div>
+
+                        <!-- Advertencia de reclamo -->
+                        <div class="alert alert-danger d-flex align-items-center" role="alert"
+                             invisible="last_event_status != '031' or requires_credit_note == False">
+                            <i class="fa fa-exclamation-triangle fa-2x me-3" title="Reclamo"/>
+                            <div>
+                                <strong>Reclamo Registrado</strong><br/>
+                                Esta factura tiene un reclamo registrado. El proveedor deberá emitir una nota crédito para solucionar la inconformidad.
+                            </div>
+                        </div>
+
+                        <!-- Lista de Eventos con mejor diseño -->
+                        <separator string="Historial de Eventos"/>
+                        <field name="event_ids" readonly="1" nolabel="1" colspan="2">
+                            <list decoration-success="status=='exitoso'" 
+                                  decoration-danger="status in ['error', 'rechazado']" 
+                                  decoration-warning="status=='por_validar'"
+                                  decoration-info="status=='por_notificar'"
+                                  create="false" delete="false">
+                                
+                                <!-- Campos invisibles para condicionales y decoraciones -->
+                                <field name="status" invisible="1"/>
+                                <field name="cude" invisible="1"/>
+                                
+                                <!-- Columnas visibles -->
+                                <field name="response_code" string="Código"/>
+                                <field name="name" string="Evento"/>
+                                <field name="user_id" string="Usuario"/>
+                                <field name="status" widget="badge" string="Estado"/>
+                                <field name="create_date" string="Fecha Creación"/>
+                                
+                                <!-- Botones de acción -->
+                                <button name="action_send_dian" 
+                                        string="Enviar" 
+                                        type="object" 
+                                        icon="fa-paper-plane" 
+                                        class="btn-sm btn-primary"
+                                        invisible="status != 'por_notificar'"/>
+                                
+                                <button name="dian_preview" 
+                                        string="Ver en DIAN" 
+                                        type="object" 
+                                        icon="fa-external-link" 
+                                        class="btn-sm btn-info"
+                                        invisible="cude == False"/>
+                            </list>
+                            
+                            <!-- Vista formulario para ver detalles -->
+                            <form>
+                                <sheet>
+                                    <group>
+                                        <group>
+                                            <field name="response_code"/>
+                                            <field name="name"/>
+                                            <field name="status" widget="badge"/>
+                                            <field name="cude"/>
+                                        </group>
+                                        <group>
+                                            <field name="user_id"/>
+                                            <field name="create_date"/>
+                                        </group>
+                                    </group>
+                                </sheet>
+                            </form>
+                        </field>
+                    </page>
+                </xpath>
+
+                <!-- ========== CAMPO USUARIO DE FACTURA ========== -->
+                <field name="invoice_user_id" position="after">
+                    <field name="validate_cron"/>
+                </field>
+            </field>
+        </record>
+  
+
+    
+
+
+
+        <!-- ============================================ -->
+        <!-- PARTE 2: VISTAS APPLICATION RESPONSE -->
+        <!-- ============================================ -->
+        
+        <!-- Form View Application Response -->
+        <record id="view_dian_application_response_form" model="ir.ui.view">
+            <field name="name">dian.application.response.form</field>
+            <field name="model">dian.application.response</field>
+            <field name="arch" type="xml">
+                <form string="Evento DIAN">
+                    <!-- Campos invisibles para condicionales -->
+                    <field name="requires_event" invisible="1"/>
+                    <field name="status" invisible="1"/>
+                    <field name="cude" invisible="1"/>
+                    <field name="email_sent" invisible="1"/>
+                    <field name="move_id" invisible="1"/>
+                    <field name="is_titulo_valor" invisible="1"/>
+                    <field name="was_recovered" invisible="1"/>
+                    <field name="dian_xml_attachment_id" invisible="1"/>
+                    <field name="invoice_cufe" invisible="1"/>
+                    <field name="state_dian_document" invisible="1"/>
+                    <field name="response_message_dian" invisible="1"/>
+                    <field name="invoice_amount" invisible="1"/>
+                    <field name="invoice_currency_id" invisible="1"/>
+                    <field name="partner_name" invisible="1"/>
+                    <field name="partner_vat" invisible="1"/>
+                    <field name="recovery_date" invisible="1"/>
+                    <field name="invoice_issue_date" invisible="1"/>
+                    <field name="invoice_issue_time" invisible="1"/>
+                    <field name="invoice_receiver_name" invisible="1"/>
+                    <field name="invoice_receiver_vat" invisible="1"/>
+                    <field name="invoice_receiver_dv" invisible="1"/>
+                    <field name="invoice_receiver_scheme" invisible="1"/>
+                    <field name="invoice_number" invisible="1"/>
+                    <field name="response_xml" invisible="1"/>
+                    <field name="issue_date" invisible="1"/>
+                    <field name="issue_time" invisible="1"/>
+                    <field name="ZipKey" invisible="1"/>
+                    <field name="diancode_id" invisible="1"/>
+                    <field name="dian_response_attachment_id" invisible="1"/>
+                    <field name="response_code" invisible="1"/>
+                    <field name="document_referenced" invisible="1"/>
+                    <field name="document_type_code" invisible="1"/>
+                    <field name="doc_adq" invisible="1"/>
+                    <field name="payment_type" invisible="1"/>
+                    <field name="notes_xml" invisible="1"/>
+                    
+                    <header>
+                        <button name="action_send_dian" string="Enviar a DIAN" 
+                                type="object" class="btn-primary"
+                                invisible="requires_event == False or status != 'por_notificar'"/>
+                        
+                        <button name="action_send_email" string="Enviar Email" 
+                                type="object" 
+                                invisible="email_sent == True"
+                                icon="fa-envelope"/>
+                        
+                        <button name="dian_preview" string="Ver en DIAN" 
+                                type="object" 
+                                invisible="cude == False"
+                                icon="fa-external-link"/>
+                        
+                        <field name="status" widget="statusbar" 
+                               statusbar_visible="por_notificar,por_validar,exitoso"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_invoice" type="object" 
+                                    class="oe_stat_button" icon="fa-file-text-o"
+                                    invisible="move_id == False">
+                                <field name="invoice_number" widget="statinfo" string="Factura"/>
+                            </button>
+                            
+                            <button name="action_download_xml" type="object" 
+                                    class="oe_stat_button" icon="fa-download"
+                                    invisible="dian_xml_attachment_id == False">
+                                <span>Descargar XML</span>
+                            </button>
+                        </div>
+                        
+                        <widget name="web_ribbon" text="Título Valor" 
+                                invisible="is_titulo_valor == False"
+                                bg_color="bg-success"/>
+                        
+                        <widget name="web_ribbon" text="No Requiere Evento" 
+                                invisible="requires_event == True"
+                                bg_color="bg-info"/>
+                        
+                        <widget name="web_ribbon" text="Recuperado" 
+                                invisible="was_recovered == False"
+                                bg_color="bg-warning"/>
+                        
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                            <h2>
+                                <field name="response_code" readonly="1"/>
+                            </h2>
+                        </div>
+                        
+                        <group>
+                            <group string="Información General">
+                                <field name="company_id" groups="base.group_multi_company"/>
+                                <field name="user_id"/>
+                                <field name="move_id" readonly="1"/>
+                                <field name="cude" readonly="1"/>
+                                <field name="send_email"/>
+                                <field name="email_sent" readonly="1"/>
+                            </group>
+                            
+                            <group string="Documento Referenciado">
+                                <field name="document_referenced"/>
+                                <field name="document_type_code"/>
+                                <field name="doc_adq"/>
+                                <field name="payment_type" readonly="1"/>
+                                <field name="requires_event" invisible="1"/>
+                            </group>
+                        </group>
+                        
+                        <group string="Datos de Factura" invisible="move_id == False">
+                            <group>
+                                <field name="partner_name" readonly="1"/>
+                                <field name="partner_vat" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="invoice_amount" readonly="1"/>
+                                <field name="invoice_currency_id" readonly="1"/>
+                            </group>
+                        </group>
+                        
+                        <notebook>
+                            <page string="Notas">
+                                <field name="notes_xml" placeholder="Ingrese las notas del evento..."/>
+                            </page>
+                            
+                            <page string="Datos XML Factura" invisible="invoice_cufe == False">
+                                <group>
+                                    <group>
+                                        <field name="invoice_cufe" readonly="1"/>
+                                        <field name="invoice_issue_date" readonly="1"/>
+                                        <field name="invoice_issue_time" readonly="1"/>
+                                    </group>
+                                    <group>
+                                        <field name="invoice_receiver_name" readonly="1"/>
+                                        <field name="invoice_receiver_vat" readonly="1"/>
+                                        <field name="invoice_receiver_dv" readonly="1"/>
+                                        <field name="invoice_receiver_scheme" readonly="1"/>
+                                    </group>
+                                </group>
+                            </page>
+                            
+                            <page string="Respuesta DIAN" invisible="state_dian_document == 'por_notificar'">
+                                <group>
+                                    <field name="state_dian_document" readonly="1"/>
+                                    <field name="response_message_dian" readonly="1" nolabel="1" colspan="2"/>
+                                </group>
+                            </page>
+                            
+                            <page string="Técnico" groups="base.group_no_one">
+                                <group>
+                                    <group>
+                                        <field name="issue_date"/>
+                                        <field name="issue_time"/>
+                                        <field name="was_recovered"/>
+                                        <field name="recovery_date" invisible="was_recovered == False"/>
+                                    </group>
+                                    <group>
+                                        <field name="ZipKey"/>
+                                        <field name="diancode_id"/>
+                                        <field name="dian_xml_attachment_id"/>
+                                        <field name="dian_response_attachment_id"/>
+                                    </group>
+                                </group>
+                                <separator string="XML Response"/>
+                                <field name="response_xml" widget="ace" options="{'mode': 'xml'}"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+        
+        <!-- Tree View Application Response (actualizada para Odoo 17) -->
+        <record id="view_dian_application_response_tree" model="ir.ui.view">
+            <field name="name">dian.application.response.tree</field>
+            <field name="model">dian.application.response</field>
+            <field name="arch" type="xml">
+                <list decoration-success="status=='exitoso'" 
+                      decoration-danger="status in ['error', 'rechazado']" 
+                      decoration-warning="status=='por_validar'"
+                      decoration-info="status=='por_notificar'">
+                    
+                    <!-- Campos invisibles para decoraciones -->
+                    <field name="status" invisible="1"/>
+                    
+                    <!-- Columnas visibles -->
+                    <field name="response_code" string="Código"/>
+                    <field name="name" string="Evento"/>
+                    <field name="move_id" string="Factura"/>
+                    <field name="partner_name" string="Cliente/Proveedor"/>
+                    <field name="user_id" string="Usuario"/>
+                    <field name="status" widget="badge" string="Estado"/>
+                    <field name="create_date" string="Fecha Creación"/>
+                    <field name="cude" string="CUDE" optional="hide"/>
+                    
+                    <!-- Botones de acción -->
+                    <button name="action_send_dian" 
+                            string="Enviar DIAN" 
+                            type="object" 
+                            icon="fa-paper-plane" 
+                            class="btn-sm btn-primary"
+                            invisible="status != 'por_notificar'"/>
+                    
+                    <button name="dian_preview" 
+                            string="Ver en DIAN" 
+                            type="object" 
+                            icon="fa-external-link" 
+                            class="btn-sm btn-info"
+                            invisible="cude == False"/>
+                </list>
+            </field>
+        </record>
+        
+
+        <record id="view_dian_application_response_tree" model="ir.ui.view">
+            <field name="name">dian.application.response.tree</field>
+            <field name="model">dian.application.response</field>
+            <field name="arch" type="xml">
+                <list string="Eventos DIAN" decoration-success="status=='exitoso'" 
+                      decoration-danger="status=='error'" 
+                      decoration-warning="status=='por_validar'"
+                      decoration-muted="not requires_event">
+                    <!-- Campos invisibles para decoraciones -->
+                    <field name="status" invisible="1"/>
+                    <field name="requires_event" invisible="1"/>
+                    <field name="cude" invisible="1"/>
+                    
+                    <header>
+                        <button name="action_send_all_events" string="Enviar Todos los Pendientes" 
+                                type="object" class="btn-primary"
+                                confirm="¿Desea enviar todos los eventos pendientes a DIAN?"/>
+                    </header>
+                    <field name="name"/>
+                    <field name="response_code"/>
+                    <field name="move_id"/>
+                    <field name="partner_name"/>
+                    <field name="invoice_amount" sum="Total"/>
+                    <field name="status" widget="badge" decoration-success="status=='exitoso'" 
+                           decoration-danger="status in ['error','rechazado']" 
+                           decoration-warning="status=='por_validar'"/>
+                    <field name="is_titulo_valor" widget="boolean_toggle"/>
+                    <field name="email_sent" widget="boolean_toggle"/>
+                    <field name="create_date" widget="date"/>
+                </list>
+            </field>
+        </record>
+        
+        <!-- Kanban View Application Response -->
+        <record id="view_dian_application_response_kanban" model="ir.ui.view">
+            <field name="name">dian.application.response.kanban</field>
+            <field name="model">dian.application.response</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="status" class="o_kanban_mobile" quick_create="false">
+                    <field name="color"/>
+                    <field name="display_name"/>
+                    <field name="partner_name"/>
+                    <field name="invoice_amount"/>
+                    <field name="invoice_currency_id"/>
+                    <field name="is_titulo_valor"/>
+                    <field name="email_sent"/>
+                    <field name="requires_event"/>
+                    <field name="was_recovered"/>
+                    <progressbar field="status" colors='{"exitoso": "success", "error": "danger", "por_validar": "warning"}'/>
+                    <templates>
+                        <t t-name="card">
+                            <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''} oe_kanban_card oe_kanban_global_click">
+                                <div class="oe_kanban_content">
+                                    <div class="o_kanban_record_top">
+                                        <div class="o_kanban_record_headings">
+                                            <strong class="o_kanban_record_title">
+                                                <field name="display_name"/>
+                                            </strong>
+                                        </div>
+                                        <div class="o_kanban_record_subtitle">
+                                            <field name="response_code"/>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="o_kanban_record_body">
+                                        <span t-if="record.partner_name.raw_value">
+                                            <i class="fa fa-user" title="Cliente"/> <field name="partner_name"/>
+                                        </span>
+                                        <br t-if="record.partner_name.raw_value"/>
+                                        <span t-if="record.invoice_amount.raw_value">
+                                            <i class="fa fa-money" title="Monto"/> 
+                                            <field name="invoice_amount" widget="monetary" 
+                                                   options="{'currency_field': 'invoice_currency_id'}"/>
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="o_kanban_record_bottom">
+                                        <div class="oe_kanban_bottom_left">
+                                            <span t-if="record.is_titulo_valor.raw_value" 
+                                                  class="badge badge-success">Título Valor</span>
+                                            <span t-if="!record.requires_event.raw_value" 
+                                                  class="badge badge-info">No Requerido</span>
+                                            <span t-if="record.was_recovered.raw_value" 
+                                                  class="badge badge-warning">Recuperado</span>
+                                        </div>
+                                        <div class="oe_kanban_bottom_right">
+                                            <span t-if="record.email_sent.raw_value"
+                                                  title="Email Enviado">
+                                                <i class="fa fa-envelope text-success" title="Email Enviado"/>
+                                            </span>
+                                            <field name="create_date" widget="date"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        
+        <!-- Search View Application Response -->
+        <record id="view_dian_application_response_search" model="ir.ui.view">
+            <field name="name">dian.application.response.search</field>
+            <field name="model">dian.application.response</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Eventos">
+                    <field name="name" string="Número"/>
+                    <field name="move_id" string="Factura"/>
+                    <field name="partner_name" string="Cliente/Proveedor"/>
+                    <field name="cude" string="CUDE"/>
+                    
+                    <!-- Filtros por Estado del Evento -->
+                    <separator/>
+                    <filter string="Exitosos" name="exitosos" 
+                            domain="[('status', '=', 'exitoso')]"/>
+                    <filter string="Con Error" name="errors" 
+                            domain="[('status', '=', 'error')]"/>
+                    <filter string="Por Validar" name="por_validar" 
+                            domain="[('status', '=', 'por_validar')]"/>
+                    <filter string="Por Notificar" name="por_notificar" 
+                            domain="[('status', '=', 'por_notificar')]"/>
+                    <filter string="Rechazados" name="rechazados" 
+                            domain="[('status', '=', 'rechazado')]"/>
+                    
+                    <!-- Filtros por Tipo de Evento -->
+                    <separator/>
+                    <filter string="Acuse de Recibo" name="acuse_recibo" 
+                            domain="[('response_code', '=', '030')]"/>
+                    <filter string="Reclamos" name="reclamos" 
+                            domain="[('response_code', '=', '031')]"/>
+                    <filter string="Recibo del Bien" name="recibo_bien" 
+                            domain="[('response_code', '=', '032')]"/>
+                    <filter string="Aceptación Expresa" name="aceptacion_expresa" 
+                            domain="[('response_code', '=', '033')]"/>
+                    <filter string="Aceptación Tácita" name="aceptacion_tacita" 
+                            domain="[('response_code', '=', '034')]"/>
+                    
+                    <!-- Filtros Especiales -->
+                    <separator/>
+                    <filter string="Título Valor" name="titulo_valor" 
+                            domain="[('is_titulo_valor', '=', True)]"/>
+                    <filter string="Email Enviado" name="email_sent" 
+                            domain="[('email_sent', '=', True)]"/>
+                    <filter string="Email No Enviado" name="email_not_sent" 
+                            domain="[('email_sent', '=', False)]"/>
+                    <filter string="Recuperados" name="recovered" 
+                            domain="[('was_recovered', '=', True)]"/>
+                    <filter string="Requiere Evento" name="requires_event" 
+                            domain="[('requires_event', '=', True)]"/>
+                    <filter string="No Requiere Evento" name="not_requires_event" 
+                            domain="[('requires_event', '=', False)]"/>
+                    
+                    <!-- Filtros por Fecha -->
+                    <separator/>
+                    <filter string="Hoy" name="today" 
+                            domain="[('create_date', '&gt;=', context_today().strftime('%Y-%m-%d 00:00:00')),
+                                    ('create_date', '&lt;=', context_today().strftime('%Y-%m-%d 23:59:59'))]"/>
+                    <filter string="Últimos 7 días" name="last_week" 
+                            domain="[('create_date', '&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                    <filter string="Este mes" name="this_month" 
+                            domain="[('create_date', '&gt;=', context_today().strftime('%Y-%m-01'))]"/>
+                    
+                    <group>
+                        <filter string="Estado" name="group_by_status" 
+                                domain="[]" context="{'group_by': 'status'}"/>
+                        <filter string="Tipo de Evento" name="group_by_response" 
+                                domain="[]" context="{'group_by': 'response_code'}"/>
+                        <filter string="Factura" name="group_by_invoice" 
+                                domain="[]" context="{'group_by': 'move_id'}"/>
+                        <filter string="Cliente/Proveedor" name="group_by_partner" 
+                                domain="[]" context="{'group_by': 'partner_name'}"/>
+                        <filter string="Fecha" name="group_by_date" 
+                                domain="[]" context="{'group_by': 'create_date:month'}"/>
+                        <filter string="Usuario" name="group_by_user" 
+                                domain="[]" context="{'group_by': 'user_id'}"/>
+                        <filter string="Requiere Evento" name="group_by_requires" 
+                                domain="[]" context="{'group_by': 'requires_event'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        
+        <!-- Acción Principal Application Response -->
+        <record id="action_dian_application_response" model="ir.actions.act_window">
+            <field name="name">Eventos DIAN</field>
+            <field name="res_model">dian.application.response</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="search_view_id" ref="view_dian_application_response_search"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No hay eventos DIAN registrados
+                </p>
+                <p>
+                    Los eventos DIAN se generan desde las facturas validadas.
+                </p>
+            </field>
+        </record>
+        
+        <!-- Menú Application Response -->
+        <menuitem id="menu_dian_events"
+                  name="Eventos DIAN"
+                  parent="account.menu_finance_receivables"
+                  action="action_dian_application_response"
+                  sequence="50"/>
+        
+        <!-- ============================================ -->
+        <!-- PARTE 3: PLANTILLAS DE EMAIL -->
+        <!-- ============================================ -->
+        
+        <!-- Email Template para Application Response -->
+	        <record id="email_template_application_response" model="mail.template">
+	            <field name="name">Evento DIAN - Application Response</field>
+	            <field name="email_from">{{ (object.user_id.email_formatted or object.move_id.company_id.email_formatted or user.email_formatted or '') }}</field>
+	            <field name="email_to">{{(object.move_id.partner_id.email or '')}}</field>
+	            <field name="subject">
+                    Evento DIAN - {{object.response_code}}{% if object.response_code == '030' %} (Recepción){% endif %} - {{object.document_referenced or object.move_id.name}}
+                </field>
+	            <field name="model_id" ref="model_dian_application_response"/>
+            <field name="auto_delete" eval="False"/>
+            <field name="lang">{{object.move_id.partner_id.lang}}</field>
+            <field name="body_html" type="html">
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="background-color: #2c3e50; color: white; padding: 20px; text-align: center;">
+        <h2 style="margin: 0;">
+            <i class="fa fa-file-text-o"></i> EVENTO DIAN
+        </h2>
+    </div>
+    
+    <div style="background-color: #f8f9fa; padding: 20px;">
+        <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            
+            <!-- Información del Evento -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                    <i class="fa fa-calendar-check-o"></i> Información del Evento
+                </h3>
+                <table style="width: 100%; margin-top: 15px;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">Tipo de Evento:</td>
+                        <td style="padding: 8px 0; font-weight: bold;">
+                            <t t-out="dict(object._fields['response_code'].selection).get(object.response_code)"/>
+                        </td>
+                    </tr>
+                    <t t-if="object.response_code == '030'">
+                        <tr>
+                            <td style="padding: 8px 0; color: #7f8c8d;">Etapa del acuse:</td>
+                            <td style="padding: 8px 0; font-weight: bold;">Recepción (030)</td>
+                        </tr>
+                    </t>
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">Número:</td>
+                        <td style="padding: 8px 0;"><t t-out="object.name"/></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">CUDE:</td>
+                        <td style="padding: 8px 0; font-size: 12px; word-break: break-all;">
+                            <t t-out="object.cude"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">Fecha:</td>
+                        <td style="padding: 8px 0;"><t t-out="object.create_date"/></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Información de la Factura -->
+            <div style="margin-bottom: 20px;">
+                <h3 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                    <i class="fa fa-file-text"></i> Documento Referenciado
+                </h3>
+                <table style="width: 100%; margin-top: 15px;">
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">Número Factura:</td>
+                        <td style="padding: 8px 0; font-weight: bold;"><t t-out="object.move_id.name"/></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">Cliente:</td>
+                        <td style="padding: 8px 0;"><t t-out="object.partner_name"/></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">NIT:</td>
+                        <td style="padding: 8px 0;"><t t-out="object.partner_vat"/></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px 0; color: #7f8c8d;">Monto:</td>
+                        <td style="padding: 8px 0;">
+                            <t t-out="format_amount(object.invoice_amount, object.invoice_currency_id)"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- Notas del Evento -->
+            <t t-if="object.notes_xml">
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
+                        <i class="fa fa-comment"></i> Notas del Evento
+                    </h3>
+                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 15px;">
+                        <t t-out="object.notes_xml"/>
+                    </div>
+                </div>
+            </t>
+            
+            <!-- Mensaje según tipo de evento -->
+            <div style="margin-top: 30px; padding: 20px; border-radius: 5px; text-align: center;
+                        background-color: {{ object.response_code == '031' and '#f8d7da' or '#d1ecf1' }}; 
+                        color: {{ object.response_code == '031' and '#721c24' or '#0c5460' }};">
+                <t t-if="object.response_code == '030'">
+                    <i class="fa fa-check-circle" style="font-size: 24px;"></i>
+                    <p style="margin: 10px 0 0 0;">Se ha confirmado la recepción del documento</p>
+                </t>
+                <t t-elif="object.response_code == '031'">
+                    <i class="fa fa-exclamation-triangle" style="font-size: 24px;"></i>
+                    <p style="margin: 10px 0 0 0;">Se ha registrado un reclamo sobre este documento</p>
+                </t>
+                <t t-elif="object.response_code == '032'">
+                    <i class="fa fa-cube" style="font-size: 24px;"></i>
+                    <p style="margin: 10px 0 0 0;">Se ha confirmado la recepción del bien o servicio</p>
+                </t>
+                <t t-elif="object.response_code == '033'">
+                    <i class="fa fa-thumbs-up" style="font-size: 24px;"></i>
+                    <p style="margin: 10px 0 0 0;">El documento ha sido aceptado expresamente</p>
+                </t>
+                <t t-elif="object.response_code == '034'">
+                    <i class="fa fa-clock-o" style="font-size: 24px;"></i>
+                    <p style="margin: 10px 0 0 0;">El documento ha sido aceptado tácitamente</p>
+                </t>
+            </div>
+            
+            <!-- Enlaces de Acción -->
+            <div style="text-align: center; margin-top: 30px;">
+                <a t-attf-href="https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey={{object.cude}}" 
+                   style="display: inline-block; padding: 12px 25px; background-color: #3498db; 
+                          color: white; text-decoration: none; border-radius: 5px; margin: 0 5px;">
+                    <i class="fa fa-external-link"></i> Ver en DIAN
+                </a>
+                <a t-attf-href="{{ object.move_id.get_portal_url() }}" 
+                   style="display: inline-block; padding: 12px 25px; background-color: #2ecc71; 
+                          color: white; text-decoration: none; border-radius: 5px; margin: 0 5px;">
+                    <i class="fa fa-eye"></i> Ver Factura
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <div style="background-color: #34495e; color: white; padding: 20px; text-align: center;">
+        <p style="margin: 0;">
+            <t t-out="object.company_id.name"/><br/>
+            <t t-if="object.company_id.vat">NIT: <t t-out="object.company_id.vat"/></t>
+        </p>
+    </div>
+</div>
+            </field>
+        </record>
+        
+        <!-- ============================================ -->
+        <!-- PARTE 4: SECUENCIAS -->
+        <!-- ============================================ -->
+        
+        <!-- Secuencias para Application Response -->
+        <record id="sequence_application_response" model="ir.sequence">
+            <field name="name">Application Response</field>
+            <field name="code">dian.application.response</field>
+            <field name="prefix">AR%(year)s%(month)s</field>
+            <field name="padding">6</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="sequence_application_response_030" model="ir.sequence">
+            <field name="name">Acuse de Recibo</field>
+            <field name="code">dian.application.response.030</field>
+            <field name="prefix">ACR%(year)s%(month)s</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="sequence_application_response_031" model="ir.sequence">
+            <field name="name">Reclamo</field>
+            <field name="code">dian.application.response.031</field>
+            <field name="prefix">REC%(year)s%(month)s</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="sequence_application_response_032" model="ir.sequence">
+            <field name="name">Recibo del Bien</field>
+            <field name="code">dian.application.response.032</field>
+            <field name="prefix">RDB%(year)s%(month)s</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="sequence_application_response_033" model="ir.sequence">
+            <field name="name">Aceptación Expresa</field>
+            <field name="code">dian.application.response.033</field>
+            <field name="prefix">ACE%(year)s%(month)s</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <record id="sequence_application_response_034" model="ir.sequence">
+            <field name="name">Aceptación Tácita</field>
+            <field name="code">dian.application.response.034</field>
+            <field name="prefix">ACT%(year)s%(month)s</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        
+        <!-- ============================================ -->
+        <!-- PARTE 5: GRUPO DE SEGURIDAD -->
+        <!-- ============================================ -->
+
+        <record id="privilege_dian_events_hidden" model="res.groups.privilege">
+            <field name="name">DIAN Events</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+        
+        <record id="group_dian_events" model="res.groups">
+            <field name="name">Gestión de Eventos DIAN</field>
+            <field name="privilege_id" ref="privilege_dian_events_hidden"/>
+            <field name="implied_ids" eval="[(4, ref('account.group_account_invoice'))]"/>
+        </record>
+
+
+
+    <!--Email
+        dian template -->
+	    <record id="email_template_edi_invoice_dian" model="mail.template">
+	        <field name="name">Envio de documento DIAN por email</field>
+	        <field
+	            name="email_from"
+	        >{{ (object.user_id.email_formatted or object.company_id.email_formatted or user.email_formatted or '') }}</field>
+	        <field name="email_to">{{(object.partner_id.email or '')}}</field>
+	        <field name="subject" >{{object.company_id.partner_id.vat_co}};{{object.company_id.name}};{{object.diancode_id.dian_code or ''}};{{object.fe_type_ei_ref or ''}};{{object.company_id.name}}</field>
+	        <field name="partner_to" />
+	        <field name="model_id" ref="account.model_account_move" />
+	        <field name="auto_delete" eval="False" />
+
+        <!-- <field name="report_template" ref="account.account_invoices" /> -->
+        <!-- <field name="report_name">{{object.diancode_id.dian_code}}</field> -->
+        <field name="lang">{{object.partner_id.lang}}</field>
+        <field
+            name="body_html"
+        ><![CDATA[
+<div style="background-color: white; padding: 20px; font-family: Arial, sans-serif;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 4px #e5e5e5;">
+        
+        <div style="color: white; padding: 15px; border-radius: 6px 6px 0 0; text-align: center; margin: -30px -30px 30px -30px;
+            background-color: {{ 
+                object.move_type == 'out_invoice' and '#2ecc71' or
+                object.move_type == 'out_refund' and '#e74c3c' or
+                object.is_debit_note and '#f39c12' or
+                '#3498db'
+            }};">
+            <h2 style="box-sizing:border-box;color:#212529;line-height:1.2;font-weight:500;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, 'Liberation Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';margin: 0; font-size: 24px;">
+                <t t-if="object.move_type == 'out_invoice'">FACTURA ELECTRÓNICA DE VENTA</t>
+                <t t-elif="object.move_type == 'out_refund'">NOTA CRÉDITO ELECTRÓNICA</t>
+                <t t-elif="object.is_debit_note">NOTA DÉBITO ELECTRÓNICA</t>
+                <t t-else="">DOCUMENTO ELECTRÓNICO</t>
+            </h2>
+        </div>
+
+        
+        <div style="text-align: center; margin-bottom: 30px;">
+            <img src="/web/binary/company_logo" style="box-sizing: border-box; vertical-align: middle; max-height: 100px; width: 178px; height: 60px;" alt="Logo" width="178" height="60">
+        </div>
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+    <h3 style="box-sizing:border-box;line-height:1.2;font-weight:500;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, 'Liberation Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';color: #2c3e50; margin: 0 0 15px 0; font-size: 16px;">Cliente</h3>
+    <table style="box-sizing: border-box; caption-side: bottom; width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;" width="100%">
+        <tbody style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;"><tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Nombre:</td>
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;"><t t-out="object.partner_id.name"></t></td>
+        </tr>
+        <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">NIT:</td>
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;">
+                <t t-out="object.partner_id.vat"></t> 
+                <t t-if="object.partner_id.l10n_latam_identification_type_id">
+                    - <t t-out="object.partner_id.l10n_latam_identification_type_id.display_name"></t>
+                </t>
+            </td>
+        </tr>
+        <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Dirección:</td>
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;"><t t-out="object.partner_id.street"></t></td>
+        </tr>
+        <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Ciudad:</td>
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;">
+                <t t-out="object.partner_id.city"></t>, 
+                <t t-out="object.partner_id.state_id.name"></t>
+            </td>
+        </tr>
+        <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Email:</td>
+            <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;"><t t-out="object.partner_id.email"></t></td>
+        </tr>
+    </tbody></table>
+</div>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin-bottom: 25px;">
+            <t t-if="any(tax.amount == 19 for tax in object.line_ids.tax_ids)">
+                    </t><t t-if="any(tax.amount == 5 for tax in object.line_ids.tax_ids)">
+                    </t><t t-if="object.invoice_origin">
+                    </t><table style="box-sizing: border-box; caption-side: bottom; width: 100%; border-collapse: collapse; font-family: Arial, sans-serif;" width="100%">
+                
+                <tbody style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;"><tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Número:</td>
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50; font-weight: bold;"><t t-out="object.name or ''"></t></td>
+                </tr>
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Fecha:</td>
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;"><t t-out="object.invoice_date or ''"></t></td>
+                </tr>
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Fecha de Vencimiento:</td>
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;"><t t-out="object.invoice_date_due or ''"></t></td>
+                </tr>
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Fecha de Validación:</td>
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;"><t t-out="object.fecha_xml or ''"></t></td>
+                </tr>
+                
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Subtotal:</td>
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50; text-align: right;">
+                        <t t-out="format_amount(object.amount_untaxed, object.currency_id)"></t>
+                    </td>
+                </tr>
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                        <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">IVA 19%:</td>
+                        <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50; text-align: right;">
+                            <t t-out="format_amount(sum(line.price_total - line.price_subtotal for line in object.line_ids if any(tax.amount == 19 for tax in line.tax_ids)), object.currency_id)"></t>
+                        </td>
+                    </tr>
+                
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                        <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">IVA 5%:</td>
+                        <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50; text-align: right;">
+                            <t t-out="format_amount(sum(line.price_total - line.price_subtotal for line in object.line_ids if any(tax.amount == 5 for tax in line.tax_ids)), object.currency_id)"></t>
+                        </td>
+                    </tr>
+                
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Descuentos:</td>
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #e74c3c; text-align: right;">
+                        - <t t-out="format_amount(sum(line.price_unit * line.quantity * (line.discount/100) for line in object.line_ids), object.currency_id)"></t>
+                    </td>
+                </tr>
+                <tr style="border-style:solid;box-sizing:border-box;border-top-color:#eeeeee;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:2px;border-top: 2px solid #eee;">
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 12px 0; color: #2c3e50; font-weight: bold;">Total:</td>
+                    <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 12px 0; color: #2c3e50; font-size: 16px; font-weight: bold; text-align: right;">
+                        <t t-out="format_amount(object.amount_total, object.currency_id)"></t>
+                    </td>
+                </tr>
+                <tr style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;">
+                        <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #7f8c8d;">Documento Origen:</td>
+                        <td style="border-style:solid;box-sizing:border-box;border-left-width:0px;border-bottom-width:0px;border-right-width:0px;border-top-width:0px;padding: 8px 0; color: #2c3e50;"><t t-out="object.invoice_origin or ''"></t></td>
+                    </tr>
+                
+            </tbody></table>
+        </div>
+
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <a t-attf-href="/l10n_co_e_invoice/accept_dian_invoice?dian_document={{ object.cufe }}" style="margin:0 10px 0 0;box-sizing:border-box;display: inline-block; padding: 12px 25px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; margin-right: 10px; font-weight: bold;">
+                Aceptar Documento
+            </a>
+            <a t-attf-href="/l10n_co_e_invoice/reject_dian_invoice?dian_document={{ object.cufe }}" style="border-style:solid;box-sizing:border-box;border-left-color:#e74c3c;border-bottom-color:#e74c3c;border-right-color:#e74c3c;border-top-color:#e74c3c;border-left-width:2px;border-bottom-width:2px;border-right-width:2px;border-top-width:2px;display: inline-block; padding: 12px 25px; background-color: white; color: #e74c3c; text-decoration: none; border-radius: 5px; border: 2px solid #e74c3c; font-weight: bold;">Rechazar Documento
+            </a>
+        </div>
+<div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 25px;">
+    <div style="color: #7f8c8d; font-size: 12px;">
+        <strong style="box-sizing:border-box;font-weight:bolder;">
+            <t t-if="object.move_type == 'out_invoice'">CUFE:</t>
+            <t t-elif="object.move_type == 'out_refund'">CUDE:</t>
+            <t t-elif="object.move_type in ['in_invoice', 'in_refund']">CUDS:</t>
+            <t t-else="">Identificador:</t>
+        </strong><br>
+        <span style="word-break: break-all;">
+            <t t-set="scheme" t-value="{
+                'out_invoice': 'CUFE-SHA384',
+                'out_refund': 'CUDE-SHA384',
+                'in_invoice': 'CUDS-SHA384',
+                'in_refund': 'CUDS-SHA384'
+            }.get(object.move_type, '')"></t>
+            <t t-if="scheme">
+                <small style="box-sizing:border-box;font-size:0.875em;color: #95a5a6;">(<t t-out="scheme"></t>)</small><br>
+            </t>
+            <t t-out="object.cufe or ''"></t>
+        </span>
+    </div>
+</div>
+        
+        <div style="background-color: #f8f9fa; margin-top: 40px; text-align: center; color: #7f8c8d; font-size: 12px;">
+            <div style="background-color: b4bac1; padding: 15px; border-radius: 6px;">
+                <h3 style="box-sizing:border-box;color:#212529;line-height:1.2;font-weight:500;font-family:'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, 'Liberation Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';margin: 0; font-size: 16px; text-align: center;">
+                    <t style="color: white;" t-out="object.company_id.name"></t>
+                </h3>
+                <div style="margin-top: 10px;style=" color:="" black;"="">
+                    <strong style="box-sizing:border-box;font-weight:bolder;">NIT:</strong> <t t-out="object.company_id.vat"></t>
+                </div>
+            </div>
+            <div style="padding: 15px; text-align: center; font-size: 14px; color: #7f8c8d;">
+                <div t-if="object.company_id.street" style="margin-bottom: 5px;">
+                    📍 <t t-out="object.company_id.street"></t>
+                </div>
+                <div t-if="object.company_id.city" style="margin-bottom: 5px;">
+                    🏢 <t t-out="object.company_id.city"></t>, <t t-out="object.company_id.state_id.name"></t>
+                </div>
+                <div t-if="object.company_id.phone" style="margin-bottom: 5px;">
+                    📞 <t t-out="object.company_id.phone"></t>
+                </div>
+                <div t-if="object.company_id.email" style="margin-bottom: 5px;">
+                    ✉️ <t t-out="object.company_id.email"></t>
+                </div>
+                <div t-if="object.company_id.website" style="margin-bottom: 5px;">
+                    🌐 
+                </div>
+            </div>
+            
+            
+            <div style="margin-top: 20px;">
+                <a t-attf-href="{{ object.get_portal_url() }}" style="box-sizing:border-box;display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 5px; font-size: 14px;">
+                   🔗 Acceder al Portal
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+            ]]></field>
+    </record>
+ 
+</odoo>

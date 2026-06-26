@@ -1,0 +1,228 @@
+/* ============================================ */
+/* ESTILOS PARA MENÚS DE TESORERÍA */
+/* ============================================ */
+
+/* Estilo para el menú principal de Tesorería */
+.o_main_navbar .o_menu_sections a[data-menu-xmlid*="menu_treasury_root"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white !important;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.o_main_navbar .o_menu_sections a[data-menu-xmlid*="menu_treasury_root"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
+}
+
+/* Dashboard */
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_dashboard"] {
+    position: relative;
+    padding-left: 35px !important;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_dashboard"]::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    font-size: 18px;
+}
+
+/* Pagos */
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_payments"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_action_treasury_payments_payable"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_quick_payment_supplier"]::before {
+    content: "";
+    margin-right: 8px;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_quick_payment_supplier"] {
+    background-color: #f0f9ff;
+    color: #0369a1 !important;
+    border-left: 3px solid #0284c7;
+    padding: 6px 12px;
+    margin: 4px 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_quick_payment_supplier"]:hover {
+    background-color: #e0f2fe;
+    padding-left: 16px;
+}
+
+/* Cobros */
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_receivables"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_action_treasury_payments_receivable"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_quick_payment_customer"]::before {
+    content: "";
+    margin-right: 8px;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_quick_payment_customer"] {
+    background-color: #f0fdf4;
+    color: #15803d !important;
+    border-left: 3px solid #22c55e;
+    padding: 6px 12px;
+    margin: 4px 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_quick_payment_customer"]:hover {
+    background-color: #dcfce7;
+    padding-left: 16px;
+}
+
+/* Anticipos */
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_advances"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_advance_requests"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_quick_advance"]::before {
+    content: "";
+    margin-right: 8px;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_quick_advance"] {
+    background-color: #fef3c7;
+    color: #92400e !important;
+    border-left: 3px solid #f59e0b;
+    padding: 6px 12px;
+    margin: 4px 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_quick_advance"]:hover {
+    background-color: #fde68a;
+    padding-left: 16px;
+}
+
+/* Transferencias */
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_transfers"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_action_treasury_payments_transfer"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_new_internal_transfer"]::before {
+    content: "";
+    margin-right: 8px;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_new_internal_transfer"] {
+    background-color: #f5f3ff;
+    color: #6b21a8 !important;
+    border-left: 3px solid #9333ea;
+    padding: 6px 12px;
+    margin: 4px 0;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_new_internal_transfer"]:hover {
+    background-color: #ede9fe;
+    padding-left: 16px;
+}
+
+/* Reportes */
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_reports"]::before,
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_cashflow"]::before {
+    content: "";
+    margin-right: 8px;
+}
+
+/* Configuración */
+.o_menu_sections a[data-menu-xmlid*="menu_treasury_config"]::before {
+    content: "";
+    margin-right: 8px;
+}
+
+/* Estilos para submenús activos */
+.o_menu_sections a.active {
+    background-color: rgba(102, 126, 234, 0.1);
+    border-left: 3px solid #667eea;
+    font-weight: 600;
+}
+
+/* Animación para acciones rápidas */
+@keyframes pulse-quick {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.o_menu_sections a[data-menu-xmlid*="menu_quick_"]:hover {
+    animation: pulse-quick 1.5s ease-in-out infinite;
+}
+
+/* Estilos para los badges en vistas kanban */
+.badge.bg-success {
+    background-color: #22c55e !important;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.badge.bg-primary {
+    background-color: #3b82f6 !important;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.badge.bg-info {
+    background-color: #06b6d4 !important;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.badge.bg-secondary {
+    background-color: #64748b !important;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* Estilos mejorados para tarjetas kanban */
+.o_kanban_dashboard .o_kanban_card_header {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-bottom: 2px solid #cbd5e1;
+    padding: 12px;
+}
+
+.o_kanban_card_metric {
+    text-align: center;
+    padding: 8px;
+    background-color: #f1f5f9;
+    border-radius: 6px;
+    margin: 4px 0;
+}
+
+.o_kanban_card_metric .o_value {
+    display: block;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.o_kanban_card_metric .o_label {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Hover effects para toda la tarjeta */
+.oe_kanban_global_click:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

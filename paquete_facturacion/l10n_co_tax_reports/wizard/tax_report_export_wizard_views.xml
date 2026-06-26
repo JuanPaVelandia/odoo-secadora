@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_tax_report_export_wizard_form" model="ir.ui.view">
+        <field name="name">tax.report.export.wizard.form</field>
+        <field name="model">tax.report.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Exportar Reporte Fiscal">
+                <sheet>
+                    <group>
+                        <group string="Período">
+                            <field name="company_id"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                        </group>
+                        <group string="Configuración">
+                            <field name="report_type" widget="radio"/>
+                            <field name="output_format"/>
+                        </group>
+                    </group>
+
+                    <!-- AGRUPACIONES (solo para tax_detail) -->
+                    <group string="Agrupaciones" invisible="report_type != 'tax_detail'">
+                        <group>
+                            <field name="group_level_1"/>
+                            <field name="group_level_2"/>
+                        </group>
+                        <group>
+                            <field name="group_level_3"/>
+                            <field name="group_level_4"/>
+                        </group>
+                    </group>
+
+                    <!-- FILTROS -->
+                    <group string="Filtros">
+                        <group>
+                            <field name="tax_group_ids" widget="many2many_tags"/>
+                            <field name="tax_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="partner_type" invisible="report_type in ['income_base', 'account_search']"/>
+                            <field name="show_person_type" invisible="report_type in ['income_base', 'account_search']"/>
+                        </group>
+                    </group>
+
+                    <!-- BASE SOBRE INGRESOS -->
+                    <group string="Configuración Base sobre Ingresos" invisible="report_type != 'income_base'">
+                        <field name="income_account_ids" widget="many2many_tags"
+                               placeholder="Vacío = todas las cuentas de ingresos"/>
+                        <field name="income_formula"
+                               placeholder="Ejemplo: total_income * 0.10"/>
+                    </group>
+                    <div invisible="report_type != 'income_base'" class="alert alert-info">
+                        <b>Variables disponibles:</b>
+                        <ul>
+                            <li><b>total_income</b>: Total ingresos del período</li>
+                            <li><b>total_expense</b>: Total gastos del período</li>
+                            <li><b>total_retention</b>: Total retenciones</li>
+                        </ul>
+                    </div>
+
+                    <!-- BÚSQUEDA POR CUENTAS -->
+                    <group string="Cuentas a Buscar" invisible="report_type != 'account_search'">
+                        <field name="search_account_ids" widget="many2many_tags"/>
+                    </group>
+
+                    <!-- OPCIONES -->
+                    <group string="Opciones">
+                        <group>
+                            <field name="include_drafts"/>
+                            <field name="include_credit_notes"/>
+                            <field name="include_returns"/>
+                        </group>
+                        <group>
+                            <field name="compress_columns"/>
+                        </group>
+                    </group>
+
+                    <!-- RESULTADO -->
+                    <group string="Archivo Generado" invisible="not file_data">
+                        <field name="file_name" readonly="1"/>
+                        <field name="file_data" filename="file_name" widget="binary"/>
+                    </group>
+                </sheet>
+
+                <footer>
+                    <button name="action_generate_report" string="Generar Reporte"
+                            type="object" class="btn-primary"
+                            invisible="file_data"/>
+                    <button string="Cerrar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- ACCIÓN -->
+    <record id="action_tax_report_export_wizard" model="ir.actions.act_window">
+        <field name="name">Exportar Reporte Fiscal</field>
+        <field name="res_model">tax.report.export.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- MENÚ -->
+    <menuitem id="menu_tax_reports_root"
+              name="Reportes Fiscales CO"
+              parent="account.menu_finance_reports"
+              sequence="100"/>
+
+    <menuitem id="menu_tax_report_export"
+              name="Exportar Reportes"
+              parent="menu_tax_reports_root"
+              action="action_tax_report_export_wizard"
+              sequence="10"/>
+
+    <!-- ACCIÓN DE SERVIDOR PARA MENÚ ACCIONES -->
+    <record id="action_server_tax_report_export" model="ir.actions.server">
+        <field name="name">Exportar Reporte Fiscal</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+action = {
+    'type': 'ir.actions.act_window',
+    'name': 'Exportar Reporte Fiscal',
+    'res_model': 'tax.report.export.wizard',
+    'view_mode': 'form',
+    'target': 'new',
+    'context': {
+        'default_date_from': records[0].date if records else False,
+        'default_date_to': records[-1].date if records else False,
+    }
+}
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<record id="view_advance_type_form" model="ir.ui.view">
+		<field name="name">advance.type.form</field>
+		<field name="model">advance.type</field>
+		<field name="arch" type="xml">
+			<form>
+				<sheet>
+					<widget name="web_ribbon" text="Inactivo" bg_color="bg-danger" invisible="active"/>
+					<div class="oe_title">
+						<h1><field name="name" placeholder="Ej: Anticipo Proveedor 50%"/></h1>
+					</div>
+					<group>
+						<group name="basic">
+							<field name="sequence"/>
+							<field name="document_type"/>
+							<field name="account_id"/>
+							<field name="internal_type"/>
+							<field name="active"/>
+						</group>
+						<group name="company">
+							<field name="company_id"/>
+							<field name="currency_id" invisible="1"/>
+						</group>
+					</group>
+
+					<notebook>
+						<!-- TAB: CONFIGURACIÓN GENERAL -->
+						<page string="Configuración General">
+							<group>
+								<group string="Identificación">
+									<field name="operation_code" placeholder="Ej: ANT_CLI, ANT_PROV"/>
+								</group>
+								<group string="Porcentajes y Montos">
+									<field name="default_percentage"/>
+									<field name="min_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+								</group>
+							</group>
+							<div class="alert alert-info">
+								<strong>Configuración:</strong>
+								<ul>
+									<li><b>Código de Operación:</b> Identifica el tipo de anticipo en cálculos automáticos</li>
+									<li><b>Porcentaje por Defecto:</b> % usado para calcular monto sugerido</li>
+									<li><b>Monto Mínimo:</b> Valor mínimo permitido (0 = sin mínimo)</li>
+								</ul>
+							</div>
+						</page>
+
+						<!-- TAB: CONTROL DE ÓRDENES -->
+						<page string="Control de Órdenes">
+							<group>
+								<group>
+									<field name="allow_sale_orders"/>
+									<field name="allow_purchase_orders"/>
+									<field name="require_orders"/>
+								</group>
+								<group>
+									<field name="auto_fill_amount"/>
+									<field name="percentage_advance"
+										   widget="percentage"
+										   invisible="not auto_fill_amount"/>
+								</group>
+							</group>
+							<div class="alert alert-info" invisible="not auto_fill_amount">
+								<strong>Auto-llenado:</strong> El monto se calculará automáticamente como el
+								<field name="percentage_advance" readonly="1"/>% del total de las órdenes asociadas.
+							</div>
+						</page>
+
+						<!-- TAB: APROBACIONES Y LÍMITES -->
+						<page string="Aprobaciones y Límites">
+							<group>
+								<group>
+									<field name="require_approval"/>
+								</group>
+								<group>
+									<field name="max_amount"
+										   widget="monetary"
+										   options="{'currency_field': 'currency_id'}"
+										   help="0 = Sin límite"/>
+								</group>
+							</group>
+							<div class="alert alert-warning" invisible="not require_approval">
+								<strong>Requiere Aprobación:</strong> Las solicitudes con este tipo necesitarán
+								ser aprobadas antes de crear el pago.
+							</div>
+							<div class="alert alert-success" invisible="require_approval">
+								<strong>Sin Aprobación:</strong> Las solicitudes pueden crear pagos directamente.
+							</div>
+							<separator string="Aprobadores Fijos para Este Tipo"/>
+							<field name="approval_limit_ids" widget="many2many_tags">
+								<list>
+									<field name="name"/>
+									<field name="user_id"/>
+									<field name="amount_min" widget="monetary"/>
+									<field name="amount_max" widget="monetary"/>
+								</list>
+							</field>
+							<div class="alert alert-info" invisible="not approval_limit_ids">
+								<strong>Aprobadores configurados:</strong> Las solicitudes de este tipo solo
+								podrán ser aprobadas por los usuarios listados arriba según sus límites.
+							</div>
+						</page>
+					</notebook>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<record id="view_advance_type_tree" model="ir.ui.view">
+		<field name="name">advance.type.list</field>
+		<field name="model">advance.type</field>
+		<field name="arch" type="xml">
+			<list default_order="sequence,name">
+				<field name="sequence" widget="handle"/>
+				<field name="name"/>
+				<field name="operation_code" optional="show"/>
+				<field name="document_type"/>
+				<field name="internal_type"/>
+				<field name="allow_sale_orders" widget="boolean_toggle" optional="show"/>
+				<field name="allow_purchase_orders" widget="boolean_toggle" optional="show"/>
+				<field name="require_approval" widget="boolean_toggle" optional="show"/>
+				<field name="default_percentage" optional="hide"/>
+				<field name="min_amount" widget="monetary" optional="hide"/>
+				<field name="percentage_advance" widget="percentage" optional="hide"/>
+				<field name="active" widget="boolean_toggle"/>
+				<field name="account_id" column_invisible="1"/>
+				<field name="currency_id" column_invisible="1"/>
+				<field name="company_id" groups="base.group_multi_company"/>
+			</list>
+		</field>
+	</record>
+    <record id="view_account_list" model="ir.ui.view">
+        <field name="name">account.account.payment.advance.view.list</field>
+        <field name="model">account.account</field>
+        <field name="inherit_id" ref="account.view_account_list"/>
+        <field name="arch" type="xml">
+            <field name="reconcile" position="before">
+                <field name="used_for_advance_payment" widget="boolean_toggle" invisible="account_type not in ('asset_prepayments', 'liability_current')"/>
+            </field>
+        </field>
+    </record>
+
+	<record id="action_advance_type" model="ir.actions.act_window">
+		<field name="name">Tipo de anticipo</field>
+		<field name="res_model">advance.type</field>
+		<field name="view_mode">list,form</field>
+		<field name="view_id" ref="view_advance_type_tree"/>
+		<field name="help" type="html">
+			<p class="o_view_nocontent_smiling_face">
+				Registro de tipos de anticipos y/o adelantos
+			</p>
+			<p>
+				tipos de adelantos al personal, anticipos de clientes, anticipos a proveedores y beneficios.
+			</p>
+		</field>
+	</record>
+    <record id="base_view_company_form_inherit" model="ir.ui.view">
+        <field name="name">res.company.form.inherit</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+        	<field name="color" position="after">
+            	<field name="advance_payment_journal_id" />
+        	</field>
+    	</field>
+	</record>
+	<menuitem id="menu_action_advance_type" parent="account.account_account_menu"
+			  action="action_advance_type" sequence="1"/>
+</odoo>

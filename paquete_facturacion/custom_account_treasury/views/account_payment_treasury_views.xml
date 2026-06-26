@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista Form de Account Payment con campos de Tesorería -->
+    <record id="view_account_payment_form_treasury" model="ir.ui.view">
+        <field name="name">account.payment.form.treasury</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar grupo de Tesorería después del grupo principal -->
+            <xpath expr="//group[@name='group2']" position="after">
+                <group string="Numeración de Tesorería" name="treasury_numbering">
+                    <group>
+                        <field name="use_treasury_numbering" widget="boolean_toggle"/>
+                        <field name="treasury_receipt_number"
+                               invisible="not use_treasury_numbering"/>
+                        <field name="treasury_payment_method_number"
+                               invisible="not use_treasury_numbering or not treasury_payment_method_number"/>
+                    </group>
+                </group>
+            </xpath>
+
+            <!-- Mostrar número de tesorería en el header si existe -->
+            <xpath expr="//div[@class='oe_title']" position="inside">
+                <field name="treasury_receipt_number" invisible="not treasury_receipt_number" readonly="1" style="font-size: 20px; font-weight: bold;" class="text-primary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista List de Account Payment con campos de Tesorería -->
+    <record id="view_account_payment_list_treasury" model="ir.ui.view">
+        <field name="name">account.payment.list.treasury</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="before">
+                <field name="treasury_receipt_number" optional="show"/>
+            </field>
+            <field name="payment_method_line_id" position="after">
+                <field name="treasury_payment_method_number" optional="hide"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Vista Search de Account Payment para Tesorería -->
+    <record id="view_account_payment_search_treasury" model="ir.ui.view">
+        <field name="name">account.payment.search.treasury</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_search"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="treasury_receipt_number"/>
+                <field name="treasury_payment_method_number"/>
+            </field>
+            <filter name="state_sent" position="after">
+                <filter string="Con Número Tesorería"
+                        name="has_treasury_number"
+                        domain="[('treasury_receipt_number', '!=', False)]"/>
+                <filter string="Sin Número Tesorería"
+                        name="no_treasury_number"
+                        domain="[('treasury_receipt_number', '=', False)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <!-- Vista específica para reportes de tesorería -->
+    <record id="action_treasury_payment_report" model="ir.actions.act_window">
+        <field name="name">Reportes de Tesorería</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="context">{'search_default_has_treasury_number': 1}</field>
+        <field name="domain">[('use_treasury_numbering', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Registre un nuevo pago con numeración de tesorería
+            </p>
+            <p>
+                Los pagos de tesorería tienen numeración consecutiva especial
+                según el tipo de pago (ingreso/egreso) y método de pago utilizado.
+            </p>
+        </field>
+    </record>
+
+</odoo>

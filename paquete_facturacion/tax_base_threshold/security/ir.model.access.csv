@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_tax_general_parameter_user,tax.general.parameter.user,model_tax_general_parameter,account.group_account_invoice,1,0,0,0
+access_tax_general_parameter_manager,tax.general.parameter.manager,model_tax_general_parameter,account.group_account_manager,1,1,1,1
+access_tax_base_threshold_user,tax.base.threshold.user,model_tax_base_threshold,account.group_account_invoice,1,0,0,0
+access_tax_base_threshold_manager,tax.base.threshold.manager,model_tax_base_threshold,account.group_account_manager,1,1,1,1
+access_withholding_concept_user,withholding.concept.user,model_withholding_concept,account.group_account_invoice,1,0,0,0
+access_withholding_concept_manager,withholding.concept.manager,model_withholding_concept,account.group_account_manager,1,1,1,1
+access_withholding_rate_user,withholding.rate.user,model_withholding_rate,account.group_account_invoice,1,0,0,0
+access_withholding_rate_manager,withholding.rate.manager,model_withholding_rate,account.group_account_manager,1,1,1,1
+access_withholding_bracket_user,withholding.bracket.user,model_withholding_bracket,account.group_account_invoice,1,0,0,0
+access_withholding_bracket_manager,withholding.bracket.manager,model_withholding_bracket,account.group_account_manager,1,1,1,1
+access_ica_tariff_user,ica.tariff.user,model_ica_tariff,account.group_account_invoice,1,0,0,0
+access_ica_tariff_manager,ica.tariff.manager,model_ica_tariff,account.group_account_manager,1,1,1,1

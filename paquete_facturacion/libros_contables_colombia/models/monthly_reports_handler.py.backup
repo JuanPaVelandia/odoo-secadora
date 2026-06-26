@@ -1,0 +1,682 @@
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+"""
+Handlers para Reportes Mensuales Comparativos Colombia
+
+Este módulo contiene los handlers para:
+1. Balance Comparativo por Mes - Balance General desglosado por mes
+2. Estado de Resultados por Mes - P&L desglosado por mes
+
+Proporciona una vista detallada de la evolución mensual de las cuentas
+con totales acumulados y análisis de tendencias.
+"""
+
+from odoo import models, fields, api, _
+from odoo.tools import SQL
+from collections import defaultdict
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+import logging
+
+_logger = logging.getLogger(__name__)
+
+# Mapeo de nombres de meses
+MONTH_LABELS = {
+    1: 'jan', 2: 'feb', 3: 'mar', 4: 'apr',
+    5: 'may', 6: 'jun', 7: 'jul', 8: 'aug',
+    9: 'sep', 10: 'oct', 11: 'nov', 12: 'dec'
+}
+
+MONTH_NAMES_ES = {
+    1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril',
+    5: 'Mayo', 6: 'Junio', 7: 'Julio', 8: 'Agosto',
+    9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre'
+}
+
+
+# =============================================================================
+# BASE CLASS PARA REPORTES MENSUALES
+# =============================================================================
+
+class MonthlyReportBaseMixin(models.AbstractModel):
+    """Base mixin para reportes mensuales."""
+    _name = 'monthly.report.base.mixin'
+    _description = 'Base para Reportes Mensuales'
+
+    def _get_months_in_range(self, options):
+        """Obtiene la lista de meses incluidos en el rango de fechas."""
+        date_from = datetime.strptime(options['date']['date_from'], '%Y-%m-%d')
+        date_to = datetime.strptime(options['date']['date_to'], '%Y-%m-%d')
+
+        months = []
+        current = date_from.replace(day=1)
+
+        while current <= date_to:
+            months.append({
+                'year': current.year,
+                'month': current.month,
+                'label': MONTH_LABELS[current.month],
+                'name': MONTH_NAMES_ES[current.month],
+                'date_from': current.strftime('%Y-%m-%d'),
+                'date_to': (current + relativedelta(months=1, days=-1)).strftime('%Y-%m-%d'),
+            })
+            current = current + relativedelta(months=1)
+
+        return months
+
+    def _build_empty_monthly_columns(self, months):
+        """Crea columnas vacías para todos los meses."""
+        columns = []
+        for month in months:
+            columns.append({'name': 0, 'class': 'number'})
+        columns.append({'name': 0, 'class': 'number'})  # Total
+        return columns
+
+
+# =============================================================================
+# 1. BALANCE COMPARATIVO POR MES
+# =============================================================================
+
+class MonthlyBalanceReportHandler(models.AbstractModel):
+    """
+    Handler para Balance Comparativo por Mes.
+
+    Muestra el balance general con columnas para cada mes del período,
+    permitiendo ver la evolución de activos, pasivos y patrimonio.
+    """
+    _name = 'co.monthly.balance.report.handler'
+    _inherit = ['account.report.custom.handler', 'monthly.report.base.mixin']
+    _description = 'Balance Comparativo por Mes - Handler'
+
+    # Estructura del Balance (PUC Colombia)
+    BALANCE_STRUCTURE = [
+        # ACTIVO
+        {'code': '1', 'name': 'ACTIVO', 'level': 0, 'type': 'total', 'sign': 1},
+        {'code': '11', 'name': 'Disponible', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '12', 'name': 'Inversiones', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '13', 'name': 'Deudores', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '14', 'name': 'Inventarios', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '15', 'name': 'Propiedad, Planta y Equipo', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '16', 'name': 'Intangibles', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '17', 'name': 'Diferidos', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '19', 'name': 'Valorizaciones', 'level': 1, 'type': 'subtotal', 'sign': 1},
+
+        # PASIVO
+        {'code': '2', 'name': 'PASIVO', 'level': 0, 'type': 'total', 'sign': -1},
+        {'code': '21', 'name': 'Obligaciones Financieras', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '22', 'name': 'Proveedores', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '23', 'name': 'Cuentas por Pagar', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '24', 'name': 'Impuestos, Gravámenes y Tasas', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '25', 'name': 'Obligaciones Laborales', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '26', 'name': 'Pasivos Estimados', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '27', 'name': 'Diferidos', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '28', 'name': 'Otros Pasivos', 'level': 1, 'type': 'subtotal', 'sign': -1},
+
+        # PATRIMONIO
+        {'code': '3', 'name': 'PATRIMONIO', 'level': 0, 'type': 'total', 'sign': -1},
+        {'code': '31', 'name': 'Capital Social', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '32', 'name': 'Superávit de Capital', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '33', 'name': 'Reservas', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '34', 'name': 'Revalorización del Patrimonio', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '35', 'name': 'Dividendos Decretados', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '36', 'name': 'Resultados del Ejercicio', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '37', 'name': 'Resultados Ejercicios Anteriores', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '38', 'name': 'Superávit por Valorizaciones', 'level': 1, 'type': 'subtotal', 'sign': -1},
+    ]
+
+    def _get_custom_display_config(self):
+        return {
+            'css_custom_class': 'monthly_balance_report_co',
+            'components': {
+                'AccountReportFilters': 'libros_contables_colombia.TrialBalancePartnerFilters',
+            },
+        }
+
+    def _dynamic_lines_generator(self, report, options, all_column_groups_expression_totals, warnings=None):
+        """Genera las líneas del balance mensual."""
+        lines = []
+
+        try:
+            # Obtener meses en el rango
+            months = self._get_months_in_range(options)
+
+            # Obtener datos por mes
+            monthly_data = self._get_monthly_balance_data(report, options, months)
+
+            # Generar líneas según estructura
+            for item in self.BALANCE_STRUCTURE:
+                line = self._generate_balance_line(report, options, item, monthly_data, months)
+                if line:
+                    lines.append(line)
+
+        except Exception as e:
+            _logger.error(f"Error en balance mensual: {str(e)}")
+            lines = [self._get_error_line(report, options, str(e))]
+
+        return [(0, line) for line in lines]
+
+    def _get_monthly_balance_data(self, report, options, months):
+        """Obtiene los saldos por cuenta y mes."""
+        data = defaultdict(lambda: defaultdict(float))
+
+        for month_info in months:
+            # Query para obtener saldos hasta el fin del mes
+            query = """
+                SELECT
+                    SUBSTRING(aa.code FROM 1 FOR 2) as account_group,
+                    SUM(aml.balance) as balance
+                FROM account_move_line aml
+                JOIN account_account aa ON aa.id = aml.account_id
+                JOIN account_move am ON am.id = aml.move_id
+                WHERE am.state = 'posted'
+                AND am.date <= %s
+                GROUP BY SUBSTRING(aa.code FROM 1 FOR 2)
+            """
+
+            self._cr.execute(query, [month_info['date_to']])
+            results = self._cr.dictfetchall()
+
+            for row in results:
+                account_group = row['account_group']
+                balance = row['balance'] or 0
+                data[account_group][month_info['label']] = balance
+
+                # Acumular en grupos principales (1, 2, 3)
+                if len(account_group) >= 1:
+                    main_group = account_group[0]
+                    data[main_group][month_info['label']] += balance
+
+        return data
+
+    def _generate_balance_line(self, report, options, item, monthly_data, months):
+        """Genera una línea del balance."""
+        code = item['code']
+        sign = item.get('sign', 1)
+
+        # Construir columnas para cada mes
+        columns = []
+        total = 0
+
+        for month_info in months:
+            month_label = month_info['label']
+            balance = monthly_data.get(code, {}).get(month_label, 0) * sign
+            total += balance
+            columns.append({'name': balance, 'class': 'number'})
+
+        # Columna de total
+        columns.append({'name': total, 'class': 'number'})
+
+        safe_code = code.replace(',', '_').replace(' ', '_')
+        return {
+            'id': report._get_generic_line_id(None, None, markup=f'balance_{safe_code}'),
+            'name': f"{code} {item['name']}",
+            'level': item['level'],
+            'class': 'o_account_reports_level_total' if item['type'] == 'total' else '',
+            'unfoldable': item['type'] in ['total', 'subtotal'],
+            'unfolded': options.get('unfold_all', False),
+            'columns': columns,
+        }
+
+    def _get_error_line(self, report, options, error_msg):
+        """Línea de error."""
+        return {
+            'id': report._get_generic_line_id(None, None, markup='balance_error'),
+            'name': f'Error: {error_msg}',
+            'level': 0,
+            'class': 'text-danger',
+            'columns': [{'name': ''} for _ in range(13)],
+        }
+
+
+# =============================================================================
+# 2. ESTADO DE RESULTADOS POR MES
+# =============================================================================
+
+class MonthlyIncomeReportHandler(models.AbstractModel):
+    """
+    Handler para Estado de Resultados por Mes.
+
+    Muestra el P&L con columnas para cada mes del período,
+    permitiendo ver la evolución de ingresos, costos y gastos.
+    """
+    _name = 'co.monthly.income.report.handler'
+    _inherit = ['account.report.custom.handler', 'monthly.report.base.mixin']
+    _description = 'Estado de Resultados por Mes - Handler'
+
+    # Estructura del P&L (PUC Colombia)
+    PL_STRUCTURE = [
+        # INGRESOS
+        {'code': '4', 'name': 'INGRESOS', 'level': 0, 'type': 'total', 'sign': -1},
+        {'code': '41', 'name': 'Operacionales', 'level': 1, 'type': 'subtotal', 'sign': -1},
+        {'code': '42', 'name': 'No Operacionales', 'level': 1, 'type': 'subtotal', 'sign': -1},
+
+        # GASTOS
+        {'code': '5', 'name': 'GASTOS', 'level': 0, 'type': 'total', 'sign': 1},
+        {'code': '51', 'name': 'Administración', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '52', 'name': 'Ventas', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '53', 'name': 'No Operacionales', 'level': 1, 'type': 'subtotal', 'sign': 1},
+        {'code': '54', 'name': 'Impuesto de Renta', 'level': 1, 'type': 'subtotal', 'sign': 1},
+
+        # COSTOS
+        {'code': '6', 'name': 'COSTO DE VENTAS', 'level': 0, 'type': 'total', 'sign': 1},
+        {'code': '61', 'name': 'Costo de Ventas y Servicios', 'level': 1, 'type': 'subtotal', 'sign': 1},
+
+        # RESULTADO
+        {'code': 'RES', 'name': 'RESULTADO DEL PERÍODO', 'level': 0, 'type': 'calculated'},
+    ]
+
+    def _get_custom_display_config(self):
+        return {
+            'css_custom_class': 'monthly_income_report_co',
+            'components': {
+                'AccountReportFilters': 'libros_contables_colombia.TrialBalancePartnerFilters',
+            },
+        }
+
+    def _dynamic_lines_generator(self, report, options, all_column_groups_expression_totals, warnings=None):
+        """Genera las líneas del estado de resultados mensual."""
+        lines = []
+
+        try:
+            # Obtener meses en el rango
+            months = self._get_months_in_range(options)
+
+            # Obtener datos por mes
+            monthly_data = self._get_monthly_income_data(report, options, months)
+
+            # Generar líneas según estructura
+            for item in self.PL_STRUCTURE:
+                line = self._generate_income_line(report, options, item, monthly_data, months)
+                if line:
+                    lines.append(line)
+
+        except Exception as e:
+            _logger.error(f"Error en estado de resultados mensual: {str(e)}")
+            lines = [self._get_error_line(report, options, str(e))]
+
+        return [(0, line) for line in lines]
+
+    def _get_monthly_income_data(self, report, options, months):
+        """Obtiene los movimientos por cuenta y mes para P&L."""
+        data = defaultdict(lambda: defaultdict(float))
+
+        for month_info in months:
+            # Query para obtener movimientos del mes (cuentas 4, 5, 6)
+            query = """
+                SELECT
+                    SUBSTRING(aa.code FROM 1 FOR 2) as account_group,
+                    SUM(aml.balance) as balance
+                FROM account_move_line aml
+                JOIN account_account aa ON aa.id = aml.account_id
+                JOIN account_move am ON am.id = aml.move_id
+                WHERE am.state = 'posted'
+                AND am.date BETWEEN %s AND %s
+                AND aa.code LIKE ANY(ARRAY['4%%', '5%%', '6%%'])
+                GROUP BY SUBSTRING(aa.code FROM 1 FOR 2)
+            """
+
+            self._cr.execute(query, [month_info['date_from'], month_info['date_to']])
+            results = self._cr.dictfetchall()
+
+            for row in results:
+                account_group = row['account_group']
+                balance = row['balance'] or 0
+                data[account_group][month_info['label']] = balance
+
+                # Acumular en grupos principales
+                if len(account_group) >= 1:
+                    main_group = account_group[0]
+                    if main_group not in data:
+                        data[main_group] = defaultdict(float)
+                    data[main_group][month_info['label']] += balance
+
+        return data
+
+    def _generate_income_line(self, report, options, item, monthly_data, months):
+        """Genera una línea del estado de resultados."""
+        code = item['code']
+        sign = item.get('sign', 1)
+
+        # Construir columnas para cada mes
+        columns = []
+        total = 0
+
+        if item['type'] == 'calculated':
+            # Línea de resultado: Ingresos - Gastos - Costos
+            for month_info in months:
+                month_label = month_info['label']
+                ingresos = monthly_data.get('4', {}).get(month_label, 0) * -1  # Ingresos son crédito
+                gastos = monthly_data.get('5', {}).get(month_label, 0)
+                costos = monthly_data.get('6', {}).get(month_label, 0)
+                resultado = ingresos - gastos - costos
+                total += resultado
+                columns.append({
+                    'name': resultado,
+                    'class': 'number text-success' if resultado >= 0 else 'number text-danger'
+                })
+        else:
+            for month_info in months:
+                month_label = month_info['label']
+                balance = monthly_data.get(code, {}).get(month_label, 0) * sign
+                total += balance
+                columns.append({'name': balance, 'class': 'number'})
+
+        # Columna de total
+        columns.append({
+            'name': total,
+            'class': 'number' + (' text-success' if total >= 0 and item['type'] == 'calculated' else ' text-danger' if total < 0 and item['type'] == 'calculated' else '')
+        })
+
+        safe_code = code.replace(',', '_').replace(' ', '_')
+        return {
+            'id': report._get_generic_line_id(None, None, markup=f'income_{safe_code}'),
+            'name': f"{code} {item['name']}" if code != 'RES' else item['name'],
+            'level': item['level'],
+            'class': 'o_account_reports_level_total' if item['type'] in ['total', 'calculated'] else '',
+            'unfoldable': item['type'] in ['total', 'subtotal'],
+            'unfolded': options.get('unfold_all', False),
+            'columns': columns,
+        }
+
+    def _get_error_line(self, report, options, error_msg):
+        """Línea de error."""
+        return {
+            'id': report._get_generic_line_id(None, None, markup='income_error'),
+            'name': f'Error: {error_msg}',
+            'level': 0,
+            'class': 'text-danger',
+            'columns': [{'name': ''} for _ in range(13)],
+        }
+
+
+# =============================================================================
+# 3. BALANCE DE MOVIMIENTOS DEL PERÍODO
+# =============================================================================
+
+class PeriodMovementsReportHandler(models.AbstractModel):
+    """
+    Handler para Balance de Movimientos del Período.
+
+    Muestra únicamente los movimientos (débitos/créditos) del período seleccionado,
+    SIN saldos acumulados. Permite ver el detalle de asientos contables.
+
+    Según normativa colombiana (Decreto 2649/1993, Art. 125):
+    - Libro Diario: registro cronológico de todas las operaciones
+    - Debe mostrar: fecha, descripción, cuentas afectadas, débitos y créditos
+    """
+    _name = 'co.period.movements.report.handler'
+    _inherit = 'account.report.custom.handler'
+    _description = 'Balance de Movimientos del Período - Handler'
+
+    def _get_custom_display_config(self):
+        return {
+            'css_custom_class': 'period_movements_report_co',
+            'components': {
+                'AccountReportFilters': 'libros_contables_colombia.TrialBalancePartnerFilters',
+            },
+        }
+
+    def _dynamic_lines_generator(self, report, options, all_column_groups_expression_totals, warnings=None):
+        """Genera las líneas de movimientos del período con drill-down."""
+        lines = []
+
+        try:
+            # Obtener fechas del período
+            date_from = options['date']['date_from']
+            date_to = options['date']['date_to']
+
+            # Consulta para obtener movimientos por grupo de cuenta
+            query = """
+                SELECT
+                    SUBSTRING(aa.code FROM 1 FOR 1) as level1,
+                    SUBSTRING(aa.code FROM 1 FOR 2) as level2,
+                    aa.code as account_code,
+                    COALESCE(aa.name->>'es_CO', aa.name->>'en_US', aa.code) as account_name,
+                    SUM(CASE WHEN aml.debit > 0 THEN aml.debit ELSE 0 END) as total_debit,
+                    SUM(CASE WHEN aml.credit > 0 THEN aml.credit ELSE 0 END) as total_credit,
+                    SUM(aml.balance) as net_balance,
+                    COUNT(DISTINCT aml.move_id) as num_moves
+                FROM account_move_line aml
+                JOIN account_account aa ON aa.id = aml.account_id
+                JOIN account_move am ON am.id = aml.move_id
+                WHERE am.state = 'posted'
+                AND am.date BETWEEN %s AND %s
+                GROUP BY aa.code, aa.name
+                ORDER BY aa.code
+            """
+
+            self._cr.execute(query, [date_from, date_to])
+            results = self._cr.dictfetchall()
+
+            # Estructurar por niveles (clase -> grupo -> cuenta)
+            level1_data = defaultdict(lambda: {
+                'debit': 0, 'credit': 0, 'balance': 0, 'moves': 0,
+                'level2': defaultdict(lambda: {
+                    'debit': 0, 'credit': 0, 'balance': 0, 'moves': 0,
+                    'accounts': []
+                })
+            })
+
+            for row in results:
+                l1 = row['level1']
+                l2 = row['level2']
+
+                # Acumular nivel 1 (Clase)
+                level1_data[l1]['debit'] += row['total_debit'] or 0
+                level1_data[l1]['credit'] += row['total_credit'] or 0
+                level1_data[l1]['balance'] += row['net_balance'] or 0
+                level1_data[l1]['moves'] += row['num_moves'] or 0
+
+                # Acumular nivel 2 (Grupo)
+                level1_data[l1]['level2'][l2]['debit'] += row['total_debit'] or 0
+                level1_data[l1]['level2'][l2]['credit'] += row['total_credit'] or 0
+                level1_data[l1]['level2'][l2]['balance'] += row['net_balance'] or 0
+                level1_data[l1]['level2'][l2]['moves'] += row['num_moves'] or 0
+
+                # Agregar cuenta detalle
+                level1_data[l1]['level2'][l2]['accounts'].append(row)
+
+            # Nombres de clases PUC
+            CLASS_NAMES = {
+                '1': 'ACTIVO', '2': 'PASIVO', '3': 'PATRIMONIO',
+                '4': 'INGRESOS', '5': 'GASTOS', '6': 'COSTOS DE VENTAS',
+                '7': 'COSTOS DE PRODUCCIÓN', '8': 'CUENTAS DE ORDEN DEUDORAS',
+                '9': 'CUENTAS DE ORDEN ACREEDORAS'
+            }
+
+            GROUP_NAMES = {
+                '11': 'Disponible', '12': 'Inversiones', '13': 'Deudores',
+                '14': 'Inventarios', '15': 'Propiedad, Planta y Equipo',
+                '16': 'Intangibles', '17': 'Diferidos', '18': 'Otros Activos',
+                '19': 'Valorizaciones',
+                '21': 'Obligaciones Financieras', '22': 'Proveedores',
+                '23': 'Cuentas por Pagar', '24': 'Impuestos y Tasas',
+                '25': 'Obligaciones Laborales', '26': 'Pasivos Estimados',
+                '27': 'Diferidos', '28': 'Otros Pasivos', '29': 'Bonos',
+                '31': 'Capital Social', '32': 'Superávit de Capital',
+                '33': 'Reservas', '34': 'Revalorización del Patrimonio',
+                '35': 'Dividendos', '36': 'Resultados del Ejercicio',
+                '37': 'Resultados Anteriores', '38': 'Superávit Valorizaciones',
+                '41': 'Operacionales', '42': 'No Operacionales',
+                '51': 'Administración', '52': 'Ventas', '53': 'No Operacionales',
+                '61': 'Costo de Ventas', '62': 'Compras',
+            }
+
+            # Totales generales
+            total_debit = 0
+            total_credit = 0
+
+            # Generar líneas por nivel
+            for l1_code in sorted(level1_data.keys()):
+                l1_info = level1_data[l1_code]
+                total_debit += l1_info['debit']
+                total_credit += l1_info['credit']
+
+                # Línea Nivel 1 (Clase)
+                lines.append(self._create_level1_line(
+                    report, options, l1_code, CLASS_NAMES.get(l1_code, f'Clase {l1_code}'),
+                    l1_info
+                ))
+
+                # Verificar si está desplegado
+                line_id = report._get_generic_line_id(None, None, markup=f'mov_class_{l1_code}')
+                if options.get('unfold_all') or line_id in options.get('unfolded_lines', []):
+                    for l2_code in sorted(l1_info['level2'].keys()):
+                        l2_info = l1_info['level2'][l2_code]
+
+                        # Línea Nivel 2 (Grupo)
+                        lines.append(self._create_level2_line(
+                            report, options, l1_code, l2_code,
+                            GROUP_NAMES.get(l2_code, f'Grupo {l2_code}'),
+                            l2_info
+                        ))
+
+                        # Verificar si nivel 2 está desplegado
+                        l2_line_id = report._get_generic_line_id(
+                            None, None, markup=f'mov_group_{l2_code}',
+                            parent_line_id=line_id
+                        )
+                        if options.get('unfold_all') or l2_line_id in options.get('unfolded_lines', []):
+                            # Líneas Nivel 3 (Cuentas detalle)
+                            for account in l2_info['accounts']:
+                                lines.append(self._create_account_line(
+                                    report, options, l2_code, account, l2_line_id
+                                ))
+
+            # Línea de totales
+            lines.append(self._create_totals_line(report, options, total_debit, total_credit))
+
+        except Exception as e:
+            _logger.error(f"Error en movimientos del período: {str(e)}")
+            lines = [self._get_error_line(report, options, str(e))]
+
+        return [(0, line) for line in lines]
+
+    def _create_level1_line(self, report, options, code, name, data):
+        """Línea de clase (nivel 1)."""
+        return {
+            'id': report._get_generic_line_id(None, None, markup=f'mov_class_{code}'),
+            'name': f'{code} {name}',
+            'level': 0,
+            'class': 'o_account_reports_level_total fw-bold',
+            'unfoldable': True,
+            'unfolded': options.get('unfold_all', False),
+            'columns': [
+                {'name': data['debit'], 'class': 'number'},
+                {'name': data['credit'], 'class': 'number'},
+                {'name': data['balance'], 'class': 'number'},
+                {'name': data['moves'], 'class': 'number'},
+            ],
+        }
+
+    def _create_level2_line(self, report, options, parent_code, code, name, data):
+        """Línea de grupo (nivel 2)."""
+        parent_id = report._get_generic_line_id(None, None, markup=f'mov_class_{parent_code}')
+        return {
+            'id': report._get_generic_line_id(None, None, markup=f'mov_group_{code}', parent_line_id=parent_id),
+            'name': f'{code} {name}',
+            'level': 1,
+            'parent_id': parent_id,
+            'class': 'o_account_reports_level_subtotal',
+            'unfoldable': True,
+            'unfolded': options.get('unfold_all', False),
+            'columns': [
+                {'name': data['debit'], 'class': 'number'},
+                {'name': data['credit'], 'class': 'number'},
+                {'name': data['balance'], 'class': 'number'},
+                {'name': data['moves'], 'class': 'number'},
+            ],
+        }
+
+    def _create_account_line(self, report, options, parent_code, account_data, parent_line_id):
+        """Línea de cuenta detalle (nivel 3) con acción para ver asientos."""
+        account_code = account_data['account_code']
+        safe_code = account_code.replace('.', '_').replace(' ', '_')
+
+        return {
+            'id': report._get_generic_line_id(None, None, markup=f'mov_account_{safe_code}', parent_line_id=parent_line_id),
+            'name': f"{account_code} {account_data['account_name']}",
+            'level': 2,
+            'parent_id': parent_line_id,
+            'class': '',
+            'unfoldable': True,  # Permite ver asientos
+            'unfolded': False,
+            'caret_options': 'account.account',  # Habilita drill-down
+            'columns': [
+                {'name': account_data['total_debit'] or 0, 'class': 'number'},
+                {'name': account_data['total_credit'] or 0, 'class': 'number'},
+                {'name': account_data['net_balance'] or 0, 'class': 'number'},
+                {'name': account_data['num_moves'] or 0, 'class': 'number'},
+            ],
+        }
+
+    def _create_totals_line(self, report, options, total_debit, total_credit):
+        """Línea de totales generales."""
+        return {
+            'id': report._get_generic_line_id(None, None, markup='mov_totals'),
+            'name': 'TOTAL MOVIMIENTOS DEL PERÍODO',
+            'level': 0,
+            'class': 'o_account_reports_level_total fw-bold border-top border-2',
+            'unfoldable': False,
+            'columns': [
+                {'name': total_debit, 'class': 'number fw-bold'},
+                {'name': total_credit, 'class': 'number fw-bold'},
+                {'name': total_debit - total_credit, 'class': 'number fw-bold'},
+                {'name': '', 'class': 'number'},
+            ],
+        }
+
+    def _get_error_line(self, report, options, error_msg):
+        """Línea de error."""
+        return {
+            'id': report._get_generic_line_id(None, None, markup='mov_error'),
+            'name': f'Error: {error_msg}',
+            'level': 0,
+            'class': 'text-danger',
+            'columns': [{'name': ''} for _ in range(4)],
+        }
+
+    def _caret_options_initializer(self):
+        """Opciones de caret para drill-down."""
+        return {
+            'account.account': [
+                {'name': _('Ver Asientos'), 'action': 'caret_option_open_moves'},
+            ],
+        }
+
+    def caret_option_open_moves(self, options, params):
+        """Acción para abrir los asientos de una cuenta."""
+        # Extraer código de cuenta del line_id
+        line_id = params.get('line_id', '')
+
+        # Buscar cuenta
+        account_code = None
+        if 'mov_account_' in line_id:
+            # Extraer código después de mov_account_
+            parts = line_id.split('mov_account_')
+            if len(parts) > 1:
+                account_code = parts[1].replace('_', '.').split('~')[0]
+
+        if not account_code:
+            return {}
+
+        account = self.env['account.account'].search([('code', '=like', f'{account_code}%')], limit=1)
+        if not account:
+            return {}
+
+        # Abrir vista de asientos filtrada
+        return {
+            'type': 'ir.actions.act_window',
+            'name': f'Asientos - {account_code}',
+            'res_model': 'account.move.line',
+            'view_mode': 'list,form',
+            'domain': [
+                ('account_id', '=', account.id),
+                ('move_id.state', '=', 'posted'),
+                ('date', '>=', options['date']['date_from']),
+                ('date', '<=', options['date']['date_to']),
+            ],
+            'context': {
+                'search_default_posted': True,
+            },
+        }

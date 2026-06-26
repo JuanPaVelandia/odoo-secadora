@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_payment_request_form" model="ir.ui.view">
+        <field name="name">payment.request.form</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <form string="Solicitud de Pago">
+                <header>
+                    <button name="action_request" string="Enviar" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_approve" string="Aprobar" type="object" class="btn-success" invisible="state != 'requested'" groups="custom_account_treasury.group_treasury_manager"/>
+                    <button name="action_create_payment" string="Crear Pago" type="object" class="btn-primary" invisible="state != 'approved'"/>
+                    <button name="%(action_payment_request_add_orders)d"
+                            string="Agregar Órdenes"
+                            type="action"
+                            class="btn-info"
+                            invisible="request_type != 'advance' or state in ('paid', 'cancelled') or (not allow_sale_orders and not allow_purchase_orders)"/>
+                    <button name="action_load_advances"
+                            string="Cargar Anticipos"
+                            type="object"
+                            class="btn-warning"
+                            invisible="state in ('paid', 'cancelled')"
+                            help="Cargar todos los anticipos disponibles del tercero"/>
+                    <button name="action_apply_advances_to_invoices"
+                            string="Aplicar Anticipos a Facturas"
+                            type="object"
+                            class="btn-success"
+                            invisible="not can_apply_advances"
+                            help="Aplica los anticipos cargados a las facturas generadas (solo disponible cuando las órdenes están completamente facturadas)"/>
+                    <button name="action_cancel" string="Cancelar" type="object" invisible="state in ('paid','cancelled')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,requested,approved,paid"/>
+                </header>
+                <sheet>
+                    <!-- Smartbuttons -->
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_sales"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-shopping-cart"
+                                invisible="sale_count == 0">
+                            <field name="sale_count" widget="statinfo" string="Pedidos Venta"/>
+                        </button>
+                        <button name="action_view_purchases"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-shopping-bag"
+                                invisible="purchase_count == 0">
+                            <field name="purchase_count" widget="statinfo" string="Órdenes Compra"/>
+                        </button>
+                        <button name="action_view_invoices"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-file-text-o"
+                                invisible="invoice_count == 0">
+                            <field name="invoice_count" widget="statinfo" string="Facturas"/>
+                        </button>
+                        <button name="action_publish"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-check-circle"
+                                string="Publicar"
+                                invisible="is_published or state != 'draft'"
+                                groups="custom_account_treasury.group_treasury_manager"/>
+                    </div>
+
+                    <widget name="web_ribbon" text="Requiere Aprobación" invisible="not requires_approval" bg_color="bg-warning"/>
+                    <widget name="web_ribbon" text="Publicado" invisible="not is_published" bg_color="bg-success"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="priority" widget="priority" class="mr-3"/>
+                            <field name="name"/>
+                        </h1>
+                        <h3>
+                            <field name="memo" placeholder="Escriba el memo o concepto..." readonly="state != 'draft'"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="request_type" readonly="state != 'draft'"/>
+                            <field name="advance_type_id"
+                                   invisible="request_type != 'advance'"
+                                   required="request_type == 'advance'"
+                                   readonly="state != 'draft'"
+                                   options="{'no_create': True}"/>
+                            <field name="amount" readonly="state != 'draft' or auto_fill_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="currency_id" readonly="state != 'draft'"/>
+                            <field name="requires_approval" invisible="1"/>
+                            <field name="minimum_approval_amount" invisible="1"/>
+                            <field name="allow_sale_orders" invisible="1"/>
+                            <field name="allow_purchase_orders" invisible="1"/>
+                            <field name="require_orders" invisible="1"/>
+                            <field name="auto_fill_amount" invisible="1"/>
+                            <field name="percentage_advance" invisible="1"/>
+                            <field name="orders_fully_invoiced" invisible="1"/>
+                            <field name="can_apply_advances" invisible="1"/>
+                            <field name="advances_applied" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="stage_id" widget="statusbar_selector" readonly="state == 'paid'"/>
+                            <field name="date_request" readonly="state != 'draft'"/>
+                            <field name="date_due" readonly="state != 'draft'"/>
+                            <field name="is_published" widget="boolean_toggle" readonly="1"/>
+                            <field name="payment_id" readonly="1" invisible="not payment_id"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
+                        </group>
+                    </group>
+
+                    <!-- Información de Aprobación -->
+                    <group invisible="not approved_by_id" string="Información de Aprobación">
+                        <group>
+                            <field name="approved_by_id" readonly="1"/>
+                            <field name="approval_date" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="can_current_user_approve" invisible="1"/>
+                            <field name="suggested_approver_ids" widget="many2many_tags" readonly="1"
+                                   invisible="not suggested_approver_ids"/>
+                        </group>
+                    </group>
+
+                    <!-- Alerta de aprobadores sugeridos -->
+                    <div class="alert alert-info mb-3" role="alert"
+                         invisible="not requires_approval or state != 'requested' or not suggested_approver_ids">
+                        <i class="fa fa-info-circle me-2"/>
+                        <strong>Aprobadores Sugeridos:</strong>
+                        <field name="suggested_approver_ids" widget="many2many_tags" readonly="1"/>
+                    </div>
+
+                    <!-- Alerta de permiso de aprobación -->
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="can_current_user_approve or state != 'requested'">
+                        <i class="fa fa-exclamation-triangle me-2"/>
+                        <strong>Atención:</strong> No tiene autorización para aprobar esta solicitud según los límites configurados.
+                    </div>
+
+                    <div class="alert alert-info mb-3" invisible="not auto_fill_amount or not advance_type_id">
+                        <i class="fa fa-calculator me-2"/>
+                        <strong>Auto-llenado activado:</strong>
+                        El monto se calculará automáticamente como el
+                        <field name="percentage_advance" readonly="1" class="fw-bold"/>% del total de las órdenes asociadas.
+                    </div>
+
+                    <!-- Alerta de estado de facturación -->
+                    <div class="alert alert-success mb-3" role="alert"
+                         invisible="not orders_fully_invoiced or not advance_payment_ids">
+                        <i class="fa fa-check-circle me-2"/>
+                        <strong>Órdenes Completamente Facturadas:</strong>
+                        Las órdenes están completamente facturadas. Los anticipos están listos para aplicarse a las facturas.
+                    </div>
+
+                    <div class="alert alert-warning mb-3" role="alert"
+                         invisible="orders_fully_invoiced or not sale_order_ids and not purchase_order_ids">
+                        <i class="fa fa-clock-o me-2"/>
+                        <strong>Órdenes Pendientes de Facturación:</strong>
+                        Las órdenes aún no están completamente facturadas. Los anticipos se mantendrán disponibles hasta que se complete la facturación.
+                    </div>
+
+                    <!-- Alerta de anticipos aplicados -->
+                    <div class="alert alert-info mb-3" role="alert"
+                         invisible="not advances_applied">
+                        <i class="fa fa-info-circle me-2"/>
+                        <strong>Anticipos Aplicados:</strong>
+                        Los anticipos ya fueron aplicados a las facturas generadas.
+                    </div>
+
+                    <notebook>
+                        <!-- TAB: PEDIDOS DE VENTA -->
+                        <page string="Pedidos de Venta"
+                              name="sale_orders"
+                              invisible="request_type != 'advance' or not allow_sale_orders">
+                            <field name="sale_order_ids" readonly="state != 'draft'">
+                                <list string="Pedidos de Venta Asociados">
+                                    <field name="name" decoration-bf="1"/>
+                                    <field name="date_order"/>
+                                    <field name="partner_id" optional="hide"/>
+                                    <field name="amount_total"
+                                           sum="Total"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="state"
+                                           widget="badge"
+                                           decoration-success="state == 'sale'"
+                                           decoration-info="state == 'sent'"
+                                           decoration-warning="state == 'draft'"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- TAB: ÓRDENES DE COMPRA -->
+                        <page string="Órdenes de Compra"
+                              name="purchase_orders"
+                              invisible="request_type != 'advance' or not allow_purchase_orders">
+                            <field name="purchase_order_ids" readonly="state != 'draft'">
+                                <list string="Órdenes de Compra Asociadas">
+                                    <field name="name" decoration-bf="1"/>
+                                    <field name="date_order"/>
+                                    <field name="partner_id" optional="hide"/>
+                                    <field name="amount_total"
+                                           sum="Total"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="state"
+                                           widget="badge"
+                                           decoration-success="state == 'purchase'"
+                                           decoration-info="state == 'sent'"
+                                           decoration-warning="state == 'draft'"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- TAB: ANTICIPOS -->
+                        <page string="Anticipos a Aplicar" name="advances">
+                            <field name="advance_payment_ids" readonly="state != 'draft'">
+                                <list string="Anticipos Disponibles">
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                    <field name="partner_id" optional="hide"/>
+                                    <field name="advance_type_id" optional="show"/>
+                                    <field name="amount" sum="Total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="state"
+                                           widget="badge"
+                                           decoration-success="state == 'posted'"
+                                           decoration-info="state == 'draft'"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="total_advances_amount"
+                                       widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"
+                                       class="oe_subtotal_footer_separator"/>
+                            </group>
+                            <div class="alert alert-info mb-0" invisible="not advance_payment_ids">
+                                <i class="fa fa-info-circle me-2"/>
+                                <strong>Anticipos Asociados:</strong>
+                                Se aplicarán <field name="advance_count" readonly="1" class="fw-bold"/> anticipo(s)
+                                por un total de <field name="total_advances_amount" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="fw-bold"/>
+                            </div>
+                        </page>
+
+                        <!-- TAB: FACTURAS -->
+                        <page string="Facturas" name="invoices" invisible="request_type == 'advance'">
+                            <field name="invoice_ids" readonly="state != 'draft'">
+                                <list string="Facturas Asociadas">
+                                    <field name="name" decoration-bf="1"/>
+                                    <field name="invoice_date"/>
+                                    <field name="amount_total"
+                                           sum="Total"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_residual"
+                                           sum="Residual"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="state"
+                                           widget="badge"
+                                           decoration-success="state == 'posted'"
+                                           decoration-info="state == 'draft'"
+                                           decoration-danger="state == 'cancel'"/>
+                                </list>
+                            </field>
+                        </page>
+
+                        <!-- TAB: INFORMACIÓN ADICIONAL -->
+                        <page string="Información Adicional" name="additional_info">
+                            <field name="description"
+                                   readonly="state != 'draft'"
+                                   placeholder="Escriba información adicional o notas sobre esta solicitud..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_payment_request_tree" model="ir.ui.view">
+        <field name="name">payment.request.tree</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <list string="Solicitudes de Pago"
+                  decoration-success="state == 'paid'"
+                  decoration-info="state == 'approved'"
+                  decoration-warning="state == 'requested'"
+                  decoration-danger="state == 'cancelled'">
+                <field name="priority" widget="priority" nolabel="1" optional="show"/>
+                <field name="name" decoration-bf="1"/>
+                <field name="date_request"/>
+                <field name="partner_id"/>
+                <field name="memo" optional="show"/>
+                <field name="request_type" widget="badge"/>
+                <field name="advance_type_id" optional="show"/>
+                <field name="amount" sum="Total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="date_due" optional="show"/>
+                <field name="stage_id" optional="show"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'paid'"
+                       decoration-info="state == 'approved'"
+                       decoration-warning="state == 'requested'"
+                       decoration-danger="state == 'cancelled'"/>
+                <field name="is_published" widget="boolean_toggle" optional="hide"/>
+                <field name="requires_approval" widget="boolean_toggle" optional="hide"/>
+                <field name="sale_count" optional="hide" string="Ventas"/>
+                <field name="purchase_count" optional="hide" string="Compras"/>
+                <field name="invoice_count" optional="hide" string="Facturas"/>
+                <field name="advance_count" optional="hide" string="Anticipos"/>
+                <field name="total_advances_amount" widget="monetary" optional="hide" string="Total Anticipos"/>
+                <field name="approved_by_id" optional="hide"/>
+                <field name="approval_date" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_payment_request_search" model="ir.ui.view">
+        <field name="name">payment.request.search</field>
+        <field name="model">payment.request</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="memo"/>
+                <field name="partner_id"/>
+                <field name="advance_type_id"/>
+                <filter string="Mis Solicitudes" name="my_requests" domain="[('create_uid','=',uid)]"/>
+                <!-- Filtro 'Puedo Aprobar' eliminado - can_current_user_approve es campo computed sin store, no se puede usar en domain -->
+                <filter string="Borrador" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Solicitado" name="requested" domain="[('state','=','requested')]"/>
+                <filter string="Aprobado" name="approved" domain="[('state','=','approved')]"/>
+                <filter string="Pagado" name="paid" domain="[('state','=','paid')]"/>
+                <filter string="Cancelado" name="cancelled" domain="[('state','=','cancelled')]"/>
+                <!-- Filtro 'Requiere Aprobación' eliminado - requires_approval es campo computed sin store -->
+                <filter string="Publicado" name="published" domain="[('is_published','=',True)]"/>
+                <filter string="Proveedor" name="supplier" domain="[('request_type','=','supplier')]"/>
+                <filter string="Cliente" name="customer" domain="[('request_type','=','customer')]"/>
+                <filter string="Anticipo" name="advance" domain="[('request_type','=','advance')]"/>
+                <!-- Filtros de contadores eliminados - son campos computed sin store, no se pueden usar en domain -->
+                <!-- <filter string="Con Pedidos de Venta" name="has_sales" domain="[('sale_count','>',0)]"/> -->
+                <!-- <filter string="Con Órdenes de Compra" name="has_purchases" domain="[('purchase_count','>',0)]"/> -->
+                <!-- <filter string="Con Facturas" name="has_invoices" domain="[('invoice_count','>',0)]"/> -->
+                <!-- <filter string="Con Anticipos" name="has_advances" domain="[('advance_count','>',0)]"/> -->
+                <filter string="Fecha Solicitud" name="filter_date_request" date="date_request"/>
+                <filter string="Fecha Vencimiento" name="filter_date_due" date="date_due"/>
+                <filter string="Agrupar por Estado" name="group_state" context="{'group_by':'state'}"/>
+                <filter string="Agrupar por Etapa" name="group_stage" context="{'group_by':'stage_id'}"/>
+                <filter string="Agrupar por Tipo" name="group_type" context="{'group_by':'request_type'}"/>
+                <filter string="Agrupar por Tipo de Anticipo" name="group_advance_type" context="{'group_by':'advance_type_id'}"/>
+                <filter string="Agrupar por Partner" name="group_partner" context="{'group_by':'partner_id'}"/>
+                <filter string="Agrupar por Aprobado Por" name="group_approved_by" context="{'group_by':'approved_by_id'}"/>
+                <filter string="Agrupar por Fecha Solicitud" name="group_date_request" context="{'group_by':'date_request'}"/>
+                <filter string="Agrupar por Compañía" name="group_company" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_payment_request" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Pago</field>
+        <field name="res_model">payment.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_requested': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear una nueva Solicitud de Pago
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu Principal en Tesorería - DESACTIVADO (se usa menu_payment_requests en treasury_menu_unified.xml) -->
+    <menuitem id="menu_payment_request"
+              name="Solicitudes de Pago"
+              parent="custom_account_treasury.menu_treasury_root"
+              action="action_payment_request"
+              sequence="5"
+              active="False"/>
+
+    <!-- Acción para Ventas - Solo Anticipos -->
+    <record id="action_payment_request_sales" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Anticipo Cliente</field>
+        <field name="res_model">payment.request</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="domain">[('request_type', '=', 'advance')]</field>
+        <field name="context">{
+            'default_request_type': 'advance',
+            'search_default_requested': 1
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear Solicitud de Anticipo de Cliente
+            </p>
+            <p>
+                Gestione anticipos asociados a pedidos de venta
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu en Ventas -->
+    <menuitem id="menu_payment_request_sales"
+              name="Solicitudes de Anticipo"
+              parent="sale.sale_menu_root"
+              action="action_payment_request_sales"
+              sequence="10"/>
+
+    <!-- Acción para Compras - Anticipos y Facturas -->
+    <record id="action_payment_request_purchases" model="ir.actions.act_window">
+        <field name="name">Solicitudes de Pago Proveedor</field>
+        <field name="res_model">payment.request</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="context">{'search_default_requested': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear Solicitud de Pago a Proveedor
+            </p>
+            <p>
+                Gestione anticipos y pagos de facturas de proveedores
+            </p>
+        </field>
+    </record>
+
+    <!-- Menu en Compras -->
+    <menuitem id="menu_payment_request_purchases"
+              name="Solicitudes de Pago"
+              parent="purchase.menu_purchase_root"
+              action="action_payment_request_purchases"
+              sequence="10"/>
+
+</odoo>

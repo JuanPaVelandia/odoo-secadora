@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Agregar campo l10n_co_tax_type a la vista de impuestos -->
+    <record id="view_tax_form_inherit_co_tax_type" model="ir.ui.view">
+        <field name="name">account.tax.form.inherit.co.tax.type</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='tax_group_id']" position="after">
+                <field name="l10n_co_tax_type"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Agregar campo a la vista de lista -->
+    <record id="view_tax_tree_inherit_co_tax_type" model="ir.ui.view">
+        <field name="name">account.tax.tree.inherit.co.tax.type</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type_tax_use']" position="after">
+                <field name="l10n_co_tax_type" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Agregar filtro de búsqueda por tipo de impuesto -->
+    <record id="view_tax_search_inherit_co_tax_type" model="ir.ui.view">
+        <field name="name">account.tax.search.inherit.co.tax.type</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_account_tax_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='purchase']" position="after">
+                <separator/>
+                <filter string="IVA" name="filter_iva" domain="[('l10n_co_tax_type', '=', 'iva')]"/>
+                <filter string="ReteFuente" name="filter_retefuente" domain="[('l10n_co_tax_type', '=', 'retefuente')]"/>
+                <filter string="ReteIVA" name="filter_reteiva" domain="[('l10n_co_tax_type', '=', 'reteiva')]"/>
+                <filter string="ReteICA" name="filter_reteica" domain="[('l10n_co_tax_type', '=', 'reteica')]"/>
+                <filter string="INC" name="filter_inc" domain="[('l10n_co_tax_type', '=', 'inc')]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="Tipo Impuesto CO" name="group_by_tax_type" context="{'group_by': 'l10n_co_tax_type'}"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

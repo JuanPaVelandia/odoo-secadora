@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Main Menu under Invoicing/Configuration -->
+    <menuitem
+        id="menu_tax_configuration_root"
+        name="Colombian Withholding"
+        parent="account.menu_finance_configuration"
+        sequence="50"
+        groups="account.group_account_manager"/>
+
+    <!-- Sub-menus -->
+    <menuitem
+        id="menu_tax_general_parameters"
+        name="Tax Parameters (UVT/SMMLV)"
+        parent="menu_tax_configuration_root"
+        action="action_tax_general_parameter"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_withholding_concept"
+        name="Withholding Concepts"
+        parent="menu_tax_configuration_root"
+        action="action_withholding_concept"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_withholding_rate"
+        name="Withholding Rates"
+        parent="menu_tax_configuration_root"
+        action="action_withholding_rate"
+        sequence="30"/>
+
+    <menuitem
+        id="menu_withholding_bracket"
+        name="Progressive Brackets"
+        parent="menu_tax_configuration_root"
+        action="action_withholding_bracket"
+        sequence="40"/>
+
+    <menuitem
+        id="menu_tax_base_thresholds"
+        name="Base Thresholds (Legacy)"
+        parent="menu_tax_configuration_root"
+        action="action_tax_base_threshold"
+        sequence="90"/>
+
+    <!-- ICA Tariffs -->
+    <menuitem
+        id="menu_ica_tariff"
+        name="ICA Tariffs"
+        parent="menu_tax_configuration_root"
+        action="action_ica_tariff"
+        sequence="60"/>
+</odoo>

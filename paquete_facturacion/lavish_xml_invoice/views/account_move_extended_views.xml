@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Extender la vista de factura para agregar botón de recuperación DIAN -->
+    <record id="view_account_move_dian_extended_form" model="ir.ui.view">
+        <field name="name">account.move.dian.extended.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar botón en el header para recuperar XML desde DIAN -->
+            <xpath expr="//header" position="inside">
+                <button name="action_retrieve_xml_from_dian"
+                        type="object"
+                        string="Recuperar XML DIAN"
+                        class="btn-info"
+                        icon="fa-cloud-download"
+                        invisible="not cufe or xml_text"/>
+            </xpath>
+
+            <!-- Agregar campos de información DIAN en una pestaña -->
+            <xpath expr="//notebook" position="inside">
+                <page string="DIAN XML Info" invisible="not cufe">
+                    <group>
+                        <group string="Información de Recuperación">
+                            <field name="dian_xml_retrieved" readonly="1"/>
+                            <field name="dian_xml_retrieval_date" readonly="1" invisible="not dian_xml_retrieved"/>
+                        </group>
+                        <group string="Datos del Documento">
+                            <field name="cufe" readonly="1"/>
+                            <field name="xml_text" readonly="1" invisible="not xml_text" widget="ace" options="{'mode': 'xml'}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista de lista con indicador de XML recuperado -->
+    <record id="view_account_move_dian_extended_list" model="ir.ui.view">
+        <field name="name">account.move.dian.extended.list</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="inside">
+                <field name="dian_xml_retrieved" optional="hide" widget="boolean_toggle"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Acción de servidor para recuperación masiva -->
+    <record id="action_retrieve_xml_from_dian_multi" model="ir.actions.server">
+        <field name="name">Recuperar XML desde DIAN</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="binding_model_id" ref="account.model_account_move"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    for record in records:
+        if record.cufe and not record.xml_text:
+            try:
+                record._try_retrieve_and_extract_invoice_data()
+            except Exception as e:
+                pass
+        </field>
+    </record>
+
+    <!-- Tarea programada para recuperar XMLs faltantes -->
+    <record id="ir_cron_retrieve_missing_xml" model="ir.cron">
+        <field name="name">DIAN: Recuperar XMLs Faltantes</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_retrieve_missing_xml(limit=20)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

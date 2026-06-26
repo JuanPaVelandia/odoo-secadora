@@ -1,0 +1,66 @@
+/* ==========================================================================
+   Estilos para el selector de cuenta con deudas
+   ========================================================================== */
+
+.o_account_debt_selector {
+    position: relative;
+
+    .o_debt_selector_popup {
+        left: 0;
+        right: auto;
+
+        @media (max-width: 768px) {
+            min-width: 300px !important;
+            max-width: 100vw;
+        }
+
+        table {
+            font-size: 0.85em;
+
+            th {
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            td {
+                vertical-align: middle;
+            }
+
+            tr:hover {
+                background-color: #e3f2fd !important;
+            }
+        }
+    }
+
+    .o_description_input {
+        input {
+            font-size: 0.9em;
+
+            &:focus {
+                border-color: #80bdff;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            }
+        }
+    }
+}
+
+/* Animación de entrada */
+.o_debt_selector_popup {
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Cursor pointer para filas clickeables */
+.cursor-pointer {
+    cursor: pointer !important;
+}

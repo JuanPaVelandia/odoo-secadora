@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========== VISTA FORM ========== -->
+    <record id="view_advance_approval_limit_form" model="ir.ui.view">
+        <field name="name">advance.approval.limit.form</field>
+        <field name="model">advance.approval.limit</field>
+        <field name="arch" type="xml">
+            <form string="Límite de Aprobación">
+                <sheet>
+                    <widget name="web_ribbon" text="Inactivo" bg_color="bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Ej: Gerente - Hasta 5M"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="approver">
+                            <field name="user_id"/>
+                            <field name="sequence"/>
+                            <field name="active"/>
+                        </group>
+                        <group name="company">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- TAB: TIPOS PERMITIDOS -->
+                        <page string="Tipos de Solicitud">
+                            <group>
+                                <field name="can_approve_supplier"/>
+                                <field name="can_approve_customer"/>
+                                <field name="can_approve_advance"/>
+                            </group>
+                        </page>
+
+                        <!-- TAB: LÍMITES DE MONTO -->
+                        <page string="Límites de Monto">
+                            <group>
+                                <field name="has_amount_limit"/>
+                            </group>
+                            <group invisible="not has_amount_limit">
+                                <group>
+                                    <field name="amount_min"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                                <group>
+                                    <field name="amount_max"
+                                           widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"
+                                           help="0 = Sin límite máximo"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-info" invisible="has_amount_limit">
+                                <strong>Sin límite de monto:</strong> Este usuario puede aprobar solicitudes de cualquier monto.
+                            </div>
+                        </page>
+
+                        <!-- TAB: RESTRICCIONES -->
+                        <page string="Restricciones">
+                            <group>
+                                <field name="partner_ids" widget="many2many_tags">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="vat"/>
+                                    </list>
+                                </field>
+                            </group>
+                            <div class="alert alert-warning" invisible="partner_ids">
+                                <strong>Sin restricción de terceros:</strong> Este usuario puede aprobar solicitudes de cualquier tercero.
+                            </div>
+                        </page>
+
+                        <!-- TAB: DELEGACIÓN -->
+                        <page string="Delegación">
+                            <group>
+                                <field name="can_delegate"/>
+                            </group>
+                            <group invisible="not can_delegate">
+                                <group>
+                                    <field name="delegate_to_id"/>
+                                    <field name="delegation_date_from"/>
+                                </group>
+                                <group>
+                                    <field name="delegation_date_to"/>
+                                </group>
+                            </group>
+                            <div class="alert alert-success"
+                                 invisible="not delegate_to_id or not delegation_date_from or not delegation_date_to">
+                                <strong>Delegación Activa:</strong>
+                                Del <field name="delegation_date_from" readonly="1"/>
+                                al <field name="delegation_date_to" readonly="1"/>
+                                a <field name="delegate_to_id" readonly="1"/>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ========== VISTA LIST ========== -->
+    <record id="view_advance_approval_limit_tree" model="ir.ui.view">
+        <field name="name">advance.approval.limit.list</field>
+        <field name="model">advance.approval.limit</field>
+        <field name="arch" type="xml">
+            <list string="Límites de Aprobación" default_order="sequence,id">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="user_id"/>
+                <field name="can_approve_supplier" widget="boolean_toggle" string="Proveedor"/>
+                <field name="can_approve_customer" widget="boolean_toggle" string="Cliente"/>
+                <field name="can_approve_advance" widget="boolean_toggle" string="Anticipo"/>
+                <field name="amount_min"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       optional="show"/>
+                <field name="amount_max"
+                       widget="monetary"
+                       options="{'currency_field': 'currency_id'}"
+                       optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+                <field name="has_amount_limit" widget="boolean_toggle" optional="hide"/>
+                <field name="delegate_to_id" optional="hide"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ========== ACCIÓN ========== -->
+    <record id="action_advance_approval_limit" model="ir.actions.act_window">
+        <field name="name">Límites de Aprobación</field>
+        <field name="res_model">advance.approval.limit</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_active': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Crear un nuevo Límite de Aprobación
+            </p>
+            <p>
+                Defina los límites de aprobación por usuario, tipo de solicitud y monto.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========== MENÚ ========== -->
+    <menuitem id="menu_advance_approval_limit"
+              name="Límites de Aprobación"
+              parent="account.menu_finance_configuration"
+              action="action_advance_approval_limit"
+              sequence="50"/>
+
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Extensión formulario de Impuestos -->
+    <record id="view_tax_form_inherit_l10n_co" model="ir.ui.view">
+        <field name="name">account.tax.form.inherit.l10n.co</field>
+        <field name="model">account.tax</field>
+        <field name="inherit_id" ref="account.view_tax_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Colombia - Reportes Fiscales">
+                    <group>
+                        <group string="Ubicación Geográfica (ICA)">
+                            <field name="l10n_co_state_id"/>
+                            <field name="l10n_co_city_id"/>
+                            <field name="l10n_co_activity_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="Configuración Reportes DIAN">
+                            <field name="l10n_co_form_type"/>
+                            <field name="l10n_co_report_code"/>
+                            <field name="l10n_co_is_withholding" readonly="1"/>
+                            <field name="l10n_co_withholding_type" invisible="not l10n_co_is_withholding"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

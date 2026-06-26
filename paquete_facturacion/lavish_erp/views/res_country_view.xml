@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_country_tree" model="ir.ui.view">
+            <field name="name">res.country.tree.lavish</field>
+            <field name="model">res.country</field>
+            <field name="inherit_id" ref="base.view_country_tree"/>
+            <field name="arch" type="xml">
+                <field name='code' position="after">
+                    <field name="dian_code" optional="show"/>
+                    <field name="numeric_code" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_country_form" model="ir.ui.view">
+            <field name="name">res.country.form.lavish</field>
+            <field name="model">res.country</field>
+            <field name="inherit_id" ref="base.view_country_form"/>
+            <field name="arch" type="xml">
+                <!-- Agregar campos DIAN -->
+                <field name='code' position="after">
+                    <field name="dian_code"/>
+                    <field name="numeric_code"/>
+                </field>
+
+                <!-- Agregar campos de configuracion de direcciones -->
+                <xpath expr="//field[@name='state_required']" position="after">
+                    <field name="address_builder_enabled"/>
+                    <field name="neighborhood_enabled"/>
+                </xpath>
+
+                <!-- Agregar boton para ver codigos postales -->
+                <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                    <button name="action_view_postal_codes" type="object"
+                            class="oe_stat_button" icon="fa-map-marker">
+                        <field name="postal_code_count" widget="statinfo" string="Codigos Postales"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

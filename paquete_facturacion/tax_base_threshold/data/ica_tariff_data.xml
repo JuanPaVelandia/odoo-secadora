@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+        ==========================================================
+        TARIFAS ICA DE EJEMPLO
+        ==========================================================
+        Nota: Estas son tarifas de referencia. Las tarifas reales
+        deben consultarse en los acuerdos municipales vigentes.
+        ==========================================================
+        -->
+
+        <!--
+        Las tarifas ICA varían por municipio. Ejemplos típicos:
+
+        BOGOTÁ D.C. (2025):
+        - Industrial: 4.14 - 11.04 ‰
+        - Comercial: 4.14 - 13.8 ‰
+        - Servicios: 4.14 - 13.8 ‰
+        - Financiero: 11.04 ‰
+
+        MEDELLÍN:
+        - Industrial: 4.5 - 7 ‰
+        - Comercial: 5 - 10 ‰
+        - Servicios: 6 - 10 ‰
+
+        EL RETIRO (Antioquia):
+        - Industrial: 4 ‰
+        - Comercial: 6 - 7 ‰
+        - Servicios: 8 - 9 ‰
+        - Financiero: 12 ‰
+        -->
+
+        <!--
+        Para agregar tarifas reales, use el formato:
+
+        <record id="ica_tariff_MUNICIPIO_CIIU" model="ica.tariff">
+            <field name="municipality_id" ref="base.city_CODIGO"/>
+            <field name="ciiu_id" ref="lavish_erp.ciiu_CODIGO"/>
+            <field name="activity_type">commercial</field>
+            <field name="rate">9.66</field>
+            <field name="date_from">2025-01-01</field>
+            <field name="legal_reference">Acuerdo Municipal XXX</field>
+        </record>
+
+        Donde:
+        - rate está en "por mil" (‰)
+        - activity_type: industrial, commercial, services, financial
+        -->
+
+    </data>
+</odoo>
