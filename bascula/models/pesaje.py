@@ -332,6 +332,19 @@ class SecadoraPesaje(models.Model):
             if self.destino_id == planta:
                 self.destino_id = False
 
+    @api.onchange('vehiculo_id')
+    def _onchange_vehiculo_datos(self):
+        """Auto-llenar transportadora y conductor desde el vehículo seleccionado.
+
+        Solo rellena si el campo está vacío, para no pisar una elección manual
+        del usuario.
+        """
+        if self.vehiculo_id:
+            if not self.transportadora_id and self.vehiculo_id.transportadora_id:
+                self.transportadora_id = self.vehiculo_id.transportadora_id
+            if not self.conductor_id and self.vehiculo_id.conductor_habitual_id:
+                self.conductor_id = self.vehiculo_id.conductor_habitual_id
+
     @api.onchange('tercero_id')
     def _onchange_tercero_empresa(self):
         """Auto-detectar empresa del arroz desde el tercero"""
