@@ -55,11 +55,34 @@ class SecadoraPesajeStock(models.Model):
         return res
 
     def action_cancelar(self):
-        """Extiende cancelacion para cancelar picking vinculado"""
+        """Extiende cancelacion para cancelar picking vinculado.
+
+        Primero llama a super() (que bloquea la cancelación de pesajes
+        completados). Solo si el pesaje quedó cancelado se cancela el picking
+        asociado, evitando dejar un picking cancelado con el pesaje intacto.
+        """
+        res = super().action_cancelar()
         for record in self:
-            if record.picking_id and record.picking_id.state not in ('done', 'cancel'):
+            if (record.state == 'cancelado' and record.picking_id
+                    and record.picking_id.state not in ('done', 'cancel')):
                 record.picking_id.action_cancel()
-        return super().action_cancelar()
+        return res
+
+    def action_borrador(self):
+        """Impide volver a borrador si el inventario ya se movió.
+
+        Un pesaje con picking validado (done) movió stock; volver a borrador y
+        re-completarlo dejaría el inventario descuadrado. Se bloquea igual que
+        el unlink.
+        """
+        for record in self:
+            if record.picking_id and record.picking_id.state == 'done':
+                raise UserError(
+                    f'No se puede volver a borrador el pesaje {record.name}: su '
+                    f'movimiento de inventario ({record.picking_id.name}) ya está '
+                    f'validado. Cancele o revierta primero el movimiento.'
+                )
+        return super().action_borrador()
 
     def _get_picking_type(self, sequence_code):
         """Busca un picking type por sequence_code, lo crea si no existe"""
@@ -356,16 +379,15 @@ class SecadoraPesajeStock(models.Model):
 
         # Ubicaciones
         loc_stock = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
-        loc_production = self.env.ref('stock.stock_location_production', raise_if_not_found=False)
-        if not loc_production:
-            loc_production = self.env['stock.location'].search(
-                [('usage', '=', 'production'), ('company_id', '=', self.env.company.id)], limit=1
-            )
+        loc_production = self.env['stock.location']._get_produccion_secadora(self.company_id)
         loc_merma = self.env.ref('secadora_bascula.stock_location_merma_secado', raise_if_not_found=False)
 
         if not loc_stock or not loc_production or not loc_merma:
-            _logger.warning('Pesaje %s: Ubicaciones faltantes para transformacion de venta', self.name)
-            return
+            raise UserError(
+                'No se pudo crear la transformación Verde→Seco: faltan ubicaciones de '
+                'inventario (Stock, Producción o Merma Secado). Verifique la configuración '
+                'del módulo antes de completar el pesaje.'
+            )
 
         # Verificar disponibilidad de Verde en Stock (advertencia, no bloquear)
         quant_verde = self.env['stock.quant'].search([
@@ -422,11 +444,21 @@ class SecadoraPesajeStock(models.Model):
                 'x_tipo_movimiento_secadora': 'merma',
             })
 
+        orden_id = self.orden_servicio_id.id if self.orden_servicio_id else False
+
         for vals in move_vals:
+            if orden_id:
+                vals['x_orden_servicio_id'] = orden_id
             move = self.env['stock.move'].create(vals)
             move._action_confirm()
             move.quantity = move.product_uom_qty
             move.picked = True
+            # Los movimientos que CONSUMEN Verde desde el stock propio
+            # (consumo y merma, origen = WH/Stock) deben tomar solo arroz
+            # propio (owner vacío), nunca el arroz de clientes en consignación.
+            if move.location_id.id == loc_stock.id:
+                for ml in move.move_line_ids:
+                    ml.owner_id = False
             move._action_done()
 
     def action_ver_picking(self):

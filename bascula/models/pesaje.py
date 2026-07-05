@@ -14,6 +14,10 @@ class SecadoraPesaje(models.Model):
     _sql_constraints = [
         ('peso_valido', 'CHECK(peso_bruto >= peso_tara OR peso_bruto = 0 OR peso_tara = 0)',
          'El peso bruto no puede ser menor al peso tara.'),
+        ('peso_bruto_no_negativo', 'CHECK(peso_bruto >= 0)',
+         'El peso lleno (bruto) no puede ser negativo.'),
+        ('peso_tara_no_negativo', 'CHECK(peso_tara >= 0)',
+         'El peso vacío (tara) no puede ser negativo.'),
         ('name_company_unique', 'UNIQUE(name, company_id)',
          'Número de pesaje duplicado para esta empresa.'),
     ]
@@ -289,7 +293,14 @@ class SecadoraPesaje(models.Model):
         # (el simulador/bridge lo actualiza via API)
         if 'peso_actual' in vals and not vals['peso_actual']:
             vals.pop('peso_actual')
-        return super().write(vals)
+        res = super().write(vals)
+        # Si cambió algo que afecta el peso de la orden, recalcular sus
+        # servicios automáticos (fuera de cualquier campo calculado).
+        if {'peso_bruto', 'peso_tara', 'state', 'orden_servicio_id'} & set(vals):
+            ordenes = self.mapped('orden_servicio_id')
+            if ordenes:
+                ordenes.recalcular_servicios()
+        return res
 
     @api.onchange('tipo_operacion_id')
     def _onchange_tipo_operacion_direccion(self):
@@ -381,6 +392,21 @@ class SecadoraPesaje(models.Model):
                         f'Solo se pueden vincular pesajes del mismo cliente a una orden de servicio.'
                     )
 
+    @api.constrains('peso_bruto', 'peso_tara')
+    def _check_pesos_coherentes(self):
+        """Validar bruto >= tara cuando ambos están registrados (>0).
+
+        Cubre ediciones directas por API/importación o ajustes manuales tras
+        completar el pesaje, no solo el flujo de las pesadas.
+        """
+        for record in self:
+            if record.peso_bruto > 0 and record.peso_tara > 0:
+                if record.peso_bruto < record.peso_tara:
+                    raise UserError(
+                        f'El peso lleno ({record.peso_bruto:.0f} kg) no puede ser menor '
+                        f'que el peso vacío ({record.peso_tara:.0f} kg).'
+                    )
+
     @api.constrains('tipo_operacion_id', 'direccion')
     def _check_direccion_coherente(self):
         """Validar que la dirección sea coherente con el tipo de operación"""
@@ -416,6 +442,36 @@ class SecadoraPesaje(models.Model):
         # Convertir de vuelta a UTC para almacenar en Odoo
         return colombia_now.astimezone(pytz.UTC).replace(tzinfo=None)
 
+    # Antigüedad máxima (segundos) del peso global para considerarlo "en vivo".
+    PESO_GLOBAL_MAX_ANTIGUEDAD = 15
+
+    def _peso_bascula_reciente(self):
+        """Devuelve el último peso global de la báscula si es reciente, o 0.
+
+        Reemplaza el antiguo fallback que tomaba el peso de OTRO pesaje activo
+        (podía capturar el peso de un camión distinto). El peso global lo
+        publica el bridge para la báscula física; solo se acepta si llegó
+        hace menos de PESO_GLOBAL_MAX_ANTIGUEDAD segundos.
+        """
+        ICP = self.env['ir.config_parameter'].sudo()
+        try:
+            peso = float(ICP.get_param('bascula.last_weight', '0') or 0)
+        except (TypeError, ValueError):
+            return 0.0
+        if peso <= 0:
+            return 0.0
+        ts_str = ICP.get_param('bascula.last_weight_timestamp', False)
+        if not ts_str:
+            return 0.0
+        try:
+            ts = fields.Datetime.from_string(ts_str)
+        except (TypeError, ValueError):
+            return 0.0
+        antiguedad = (fields.Datetime.now() - ts).total_seconds()
+        if antiguedad > self.PESO_GLOBAL_MAX_ANTIGUEDAD:
+            return 0.0
+        return peso
+
     def action_primera_pesada(self):
         for record in self:
             # Lock row to prevent race condition on concurrent state transitions
@@ -430,18 +486,13 @@ class SecadoraPesaje(models.Model):
             # Obtener peso actual de la báscula
             peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
 
-            # Si no hay peso_actual en este registro (ej: registro nuevo sin guardar),
-            # buscar el último peso disponible en la BD
+            # Si no hay peso_actual en este registro (ej: registro nuevo sin
+            # guardar), usar el peso global reciente del bridge. NO se toma el
+            # peso de otro pesaje (podría ser otro camión).
             if peso_a_usar <= 0:
-                ultimo_pesaje = self.search([
-                    ('peso_actual', '>', 0),
-                    ('state', 'in', ['borrador', 'en_transito']),
-                    ('company_id', 'in', self.env.user.company_ids.ids),
-                ], order='write_date desc', limit=1)
-
-                if ultimo_pesaje:
-                    peso_a_usar = ultimo_pesaje.peso_actual
-                    # Actualizar el peso_actual de este registro también
+                peso_global = self._peso_bascula_reciente()
+                if peso_global > 0:
+                    peso_a_usar = peso_global
                     record.peso_actual = peso_a_usar
 
             # Validación según tipo de proceso
@@ -475,17 +526,12 @@ class SecadoraPesaje(models.Model):
             # Obtener peso actual de la báscula
             peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
 
-            # Si no hay peso_actual en este registro, buscar el último peso disponible
+            # Si no hay peso_actual en este registro, usar el peso global
+            # reciente del bridge. NO se toma el peso de otro pesaje.
             if peso_a_usar <= 0:
-                ultimo_pesaje = self.search([
-                    ('peso_actual', '>', 0),
-                    ('state', 'in', ['borrador', 'en_transito']),
-                    ('company_id', 'in', self.env.user.company_ids.ids),
-                ], order='write_date desc', limit=1)
-
-                if ultimo_pesaje:
-                    peso_a_usar = ultimo_pesaje.peso_actual
-                    # Actualizar el peso_actual de este registro también
+                peso_global = self._peso_bascula_reciente()
+                if peso_global > 0:
+                    peso_a_usar = peso_global
                     record.peso_actual = peso_a_usar
 
             # Validación según tipo de proceso
@@ -549,7 +595,12 @@ class SecadoraPesaje(models.Model):
             return {'success': False, 'message': 'API Key inválida'}
 
         try:
-            pesaje = self.browse(pesaje_id)
+            try:
+                pesaje_id = int(pesaje_id)
+            except (TypeError, ValueError):
+                return {'success': False, 'message': 'pesaje_id inválido'}
+
+            pesaje = self.sudo().browse(pesaje_id)
             if not pesaje.exists():
                 return {'success': False, 'message': 'Pesaje no encontrado'}
 
@@ -565,13 +616,11 @@ class SecadoraPesaje(models.Model):
                 fields.Datetime.now().isoformat()
             )
 
-            # Actualizar peso en TODOS los pesajes activos (borrador/en_transito)
-            # para que el peso se vea en todas las pestañas/formularios abiertos
-            pesajes_activos = self.sudo().search([
-                ('state', 'in', ['borrador', 'en_transito']),
-            ])
-            if pesajes_activos:
-                pesajes_activos.write({'peso_actual': peso, 'escuchando_bascula': True})
+            # Actualizar el peso SOLO en el pesaje que está en la báscula.
+            # El bridge nos dice cuál es (pesaje_id). Escribir a todos los
+            # pesajes activos contaminaba el peso entre camiones simultáneos.
+            if pesaje.state in ('borrador', 'en_transito'):
+                pesaje.write({'peso_actual': peso, 'escuchando_bascula': True})
 
             return {
                 'success': True,
@@ -635,12 +684,10 @@ class SecadoraPesaje(models.Model):
             timestamp = fields.Datetime.now().isoformat()
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight_timestamp', timestamp)
 
-            # También actualizar todos los pesajes activos para que no pierdan el peso
-            pesajes_activos = self.sudo().search([
-                ('state', 'in', ['borrador', 'en_transito']),
-            ])
-            if pesajes_activos:
-                pesajes_activos.write({'peso_actual': peso_val, 'escuchando_bascula': True})
+            # Solo se guarda el peso global (para formularios nuevos sin guardar).
+            # NO se propaga a los pesajes activos: cada pesaje recibe su peso
+            # dirigido vía actualizar_peso_bascula(pesaje_id, ...). Propagar aquí
+            # contaminaba el peso entre camiones distintos.
 
             return {
                 'success': True,

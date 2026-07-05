@@ -2,6 +2,7 @@
 
 import logging
 from odoo import models, fields
+from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
@@ -159,17 +160,16 @@ class OrdenServicioStock(models.Model):
 
         # Ubicaciones
         loc_secado = self.env.ref('secadora_bascula.stock_location_secado', raise_if_not_found=False)
-        loc_production = self.env.ref('stock.stock_location_production', raise_if_not_found=False)
-        if not loc_production:
-            loc_production = self.env['stock.location'].search(
-                [('usage', '=', 'production'), ('company_id', '=', self.company_id.id)], limit=1
-            )
+        loc_production = self.env['stock.location']._get_produccion_secadora(self.company_id)
         loc_customers = self.env.ref('stock.stock_location_customers', raise_if_not_found=False)
         loc_merma = self.env.ref('secadora_bascula.stock_location_merma_secado', raise_if_not_found=False)
 
         if not all([loc_secado, loc_production, loc_customers, loc_merma]):
-            _logger.warning('Orden %s: Ubicaciones faltantes para transformacion', self.name)
-            return
+            raise UserError(
+                'No se pudieron crear los movimientos de transformación/merma: faltan '
+                'ubicaciones de inventario (Secado En Proceso, Producción, Clientes o '
+                'Merma Secado). Verifique la configuración del módulo antes de liquidar.'
+            )
 
         cliente_id = self.cliente_id.id
 

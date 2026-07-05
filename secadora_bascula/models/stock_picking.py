@@ -3,6 +3,25 @@
 from odoo import models, fields
 
 
+class StockLocation(models.Model):
+    _inherit = 'stock.location'
+
+    def _get_produccion_secadora(self, company=None):
+        """Devuelve la ubicación de Producción de forma robusta en Odoo 18.
+
+        En Odoo 18 la ubicación de Producción NO tiene un xmlid estático fiable
+        (`stock.location_production` / `stock.stock_location_production` pueden no
+        existir). Se busca por `usage='production'` aceptando la de la compañía
+        indicada o la global (company_id vacío).
+        """
+        company = company or self.env.company
+        return self.search(
+            ['&', ('usage', '=', 'production'),
+             '|', ('company_id', '=', company.id), ('company_id', '=', False)],
+            limit=1,
+        )
+
+
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 

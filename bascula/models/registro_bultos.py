@@ -223,41 +223,29 @@ class RegistroBultos(models.Model):
 
     # ==================== MÉTODOS ====================
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        registros = super().create(vals_list)
+        registros.mapped('orden_id').recalcular_servicios()
+        return registros
+
+    def write(self, vals):
+        res = super().write(vals)
+        if 'cantidad' in vals:
+            self.mapped('orden_id').recalcular_servicios()
+        return res
+
+    def unlink(self):
+        ordenes = self.mapped('orden_id')
+        res = super().unlink()
+        ordenes.recalcular_servicios()
+        return res
+
     def action_confirmar(self):
         for record in self:
             if record.state != 'borrador':
                 continue
-
-            # TODO: Descomentar cuando se instale el módulo 'stock'
-            # if record.proveedor_empaque == 'secadora' and record.producto_empaque_id:
-            #     record._crear_movimiento_inventario()
-
+            # El consumo de empaques del inventario lo maneja el módulo
+            # secadora_bascula (que extiende este método) cuando stock está
+            # instalado. Aquí solo se cambia el estado.
             record.state = 'confirmado'
-
-    # TODO: Descomentar cuando se instale el módulo 'stock'
-    # def _crear_movimiento_inventario(self):
-    #     self.ensure_one()
-    #
-    #     location_prod = self.env.ref('stock.location_production', raise_if_not_found=False)
-    #     location_inventory = self.env['stock.location'].search([
-    #         ('usage', '=', 'internal')
-    #     ], limit=1)
-    #
-    #     if not location_prod or not location_inventory:
-    #         raise UserError('No se encontraron las ubicaciones de inventario necesarias.')
-    #
-    #     move = self.env['stock.move'].create({
-    #         'name': f'Consumo empaques - {self.orden_id.name}',
-    #         'product_id': self.producto_empaque_id.id,
-    #         'product_uom_qty': self.cantidad,
-    #         'product_uom': self.producto_empaque_id.uom_id.id,
-    #         'location_id': location_inventory.id,
-    #         'location_dest_id': location_prod.id,
-    #         'origin': self.orden_id.name,
-    #     })
-    #
-    #     move._action_confirm()
-    #     move._action_assign()
-    #     move._action_done()
-    #
-    #     self.stock_move_id = move.id

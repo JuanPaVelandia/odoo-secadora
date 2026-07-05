@@ -103,17 +103,20 @@ class DespachoBultos(models.Model):
         for data in registros.values():
             reg = data['registro']
             cantidad_batch = data['cantidad_batch']
-            # Cantidad ya confirmada en despachos anteriores (excluir el batch actual)
-            ya_despachado = sum(
+            # Comprometido en OTRAS líneas del registro (fuera del batch actual),
+            # tanto confirmadas como pendientes: varias líneas en borrador que
+            # juntas exceden lo empacado también deben bloquearse, no solo las
+            # ya confirmadas.
+            ya_comprometido = sum(
                 d.cantidad for d in reg.despacho_ids
-                if d.confirmado and d.id not in self.ids
+                if d.id not in self.ids
             )
-            total = ya_despachado + cantidad_batch
+            total = ya_comprometido + cantidad_batch
             if total > reg.cantidad:
                 raise ValidationError(
                     f'No se pueden despachar más bultos de los empacados.\n'
                     f'Registro: {reg.name}\n'
                     f'Empacados: {reg.cantidad}\n'
-                    f'Ya despachados (confirmados): {ya_despachado}\n'
+                    f'Ya comprometidos (confirmados + pendientes): {ya_comprometido}\n'
                     f'Intentando despachar: {cantidad_batch}'
                 )
