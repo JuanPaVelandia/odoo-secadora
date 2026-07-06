@@ -34,7 +34,7 @@ class RegistroBultosStock(models.Model):
             return
 
         location_stock = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
-        location_production = self.env.ref('stock.location_production', raise_if_not_found=False)
+        location_production = self.env['stock.location']._get_produccion_secadora(self.company_id)
 
         if not location_stock or not location_production:
             raise UserError('No se encontraron las ubicaciones de inventario necesarias.')

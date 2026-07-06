@@ -2,6 +2,7 @@
 
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.float_utils import float_compare
 
 
 class OrdenServicio(models.Model):
@@ -356,10 +357,7 @@ class OrdenServicio(models.Model):
     def _compute_peso_entrada(self):
         """Calcular peso total de entrada sumando todos los pesajes de entrada"""
         for record in self:
-            peso_anterior = record.peso_entrada
             record.peso_entrada = sum(record.pesaje_entrada_ids.mapped('peso_neto'))
-            if record.peso_entrada != peso_anterior:
-                record._recalcular_servicios('peso_entrada')
 
 
     @api.depends('registro_bultos_ids.cantidad',
@@ -384,14 +382,11 @@ class OrdenServicio(models.Model):
                 else:
                     empaques_cliente += linea.cantidad
 
-            bultos_anterior = record.total_bultos
             record.total_bultos = total_bultos
             record.peso_total_bultos = peso_total
             record.total_empaques_secadora = empaques_secadora
             record.total_empaques_cliente = empaques_cliente
             record.subtotal_empaques = subtotal_empaques
-            if total_bultos != bultos_anterior:
-                record._recalcular_servicios('bultos')
 
     @api.depends('registro_bultos_ids.cantidad_despachada',
                  'registro_bultos_ids.cantidad_pendiente',
@@ -416,12 +411,9 @@ class OrdenServicio(models.Model):
     @api.depends('pesaje_salida_ids.peso_neto')
     def _compute_peso_salida_bascula(self):
         for record in self:
-            peso_anterior = record.peso_salida_bascula
             record.peso_salida_bascula = sum(
                 record.pesaje_salida_ids.mapped('peso_neto')
             )
-            if record.peso_salida_bascula != peso_anterior:
-                record._recalcular_servicios('peso_salida')
 
     @api.depends('modalidad_salida', 'peso_total_bultos', 'peso_salida_bascula')
     def _compute_peso_salida_real(self):
@@ -457,34 +449,38 @@ class OrdenServicio(models.Model):
 
     # ==================== MÉTODOS ====================
 
-    @api.model
-    def create(self, vals):
-        if not vals.get('name') or vals.get('name') in ('/', 'Nuevo'):
-            vals['name'] = self.env['ir.sequence'].next_by_code('secadora.orden.servicio') or 'OS-Nuevo'
+    @api.model_create_multi
+    def create(self, vals_list):
+        tipo_default = None
+        for vals in vals_list:
+            if not vals.get('name') or vals.get('name') in ('/', 'Nuevo'):
+                vals['name'] = self.env['ir.sequence'].next_by_code('secadora.orden.servicio') or 'OS-Nuevo'
 
-        # Establecer tipo_servicio_id por defecto si no se proporciona
-        if not vals.get('tipo_servicio_id'):
-            tipo_default = self.env['secadora.tipo.operacion'].search([
-                ('codigo', '=', 'SECAMIENTO'),
-                ('es_servicio', '=', True),
-                ('active', '=', True)
-            ], limit=1)
-            if tipo_default:
-                vals['tipo_servicio_id'] = tipo_default.id
+            # Establecer tipo_servicio_id por defecto si no se proporciona
+            if not vals.get('tipo_servicio_id'):
+                if tipo_default is None:
+                    tipo_default = self.env['secadora.tipo.operacion'].search([
+                        ('codigo', '=', 'SECAMIENTO'),
+                        ('es_servicio', '=', True),
+                        ('active', '=', True)
+                    ], limit=1)
+                if tipo_default:
+                    vals['tipo_servicio_id'] = tipo_default.id
 
-        orden = super(OrdenServicio, self).create(vals)
+        ordenes = super(OrdenServicio, self).create(vals_list)
 
-        orden.message_post(
-            body=(
-                f"<b>Orden de servicio creada</b><br/>"
-                f"Usuario: {self.env.user.display_name}<br/>"
-                f"Cliente: {orden.cliente_id.display_name or '-'}<br/>"
-                f"Tipo de servicio: {orden.tipo_servicio_id.display_name or '-'}"
-            ),
-            subtype_xmlid='mail.mt_note'
-        )
+        for orden in ordenes:
+            orden.message_post(
+                body=(
+                    f"<b>Orden de servicio creada</b><br/>"
+                    f"Usuario: {self.env.user.display_name}<br/>"
+                    f"Cliente: {orden.cliente_id.display_name or '-'}<br/>"
+                    f"Tipo de servicio: {orden.tipo_servicio_id.display_name or '-'}"
+                ),
+                subtype_xmlid='mail.mt_note'
+            )
 
-        return orden
+        return ordenes
 
     def action_iniciar_proceso(self):
         for record in self:
@@ -538,51 +534,43 @@ class OrdenServicio(models.Model):
                 raise UserError('Solo se puede volver a En Proceso desde Listo para Liquidar o Liquidado.')
             record.write({'state': 'en_proceso', 'fecha_fin': False})
 
-    def _recalcular_servicios(self, base_modificada=False):
-        """Recalcular cantidades de líneas de servicio cuando cambian los pesos o bultos.
+    def recalcular_servicios(self):
+        """Recalcula las cantidades de las líneas de servicio automáticas.
 
-        Solo actualiza líneas cuyo base_calculo corresponde al campo que cambió.
-        No toca líneas con base_calculo='fijo' ni líneas editadas manualmente.
+        Se llama desde puntos seguros (acciones y write de los modelos hijos),
+        NUNCA desde un campo calculado: escribir dentro de un compute provoca
+        recomputaciones en cadena. Solo toca líneas automáticas cuya base es un
+        peso o bultos; no toca 'fijo' ni líneas editadas manualmente.
         """
-        self.ensure_one()
-        if not self.linea_servicio_ids:
-            return
-
-        # Mapear qué bases de cálculo deben recalcularse
-        bases_a_recalcular = {
-            'peso_entrada': ['peso_entrada'],
-            'peso_salida': ['peso_salida'],
-            'bultos': ['bultos'],
-        }
-
-        bases = bases_a_recalcular.get(base_modificada, [])
-        if not bases:
-            return
-
-        for linea in self.linea_servicio_ids:
-            if linea.base_calculo not in bases:
+        for orden in self:
+            if not orden.linea_servicio_ids:
                 continue
 
-            # Buscar la regla original para obtener el factor_multiplicador
-            regla = self.env['secadora.servicio.regla'].search([
-                ('producto_id', '=', linea.producto_id.id),
-                ('base_calculo', '=', linea.base_calculo),
-                ('active', '=', True),
-            ], limit=1)
+            bases_dinamicas = ('peso_entrada', 'peso_salida', 'bultos')
+            for linea in orden.linea_servicio_ids:
+                if linea.base_calculo not in bases_dinamicas:
+                    continue
 
-            factor = regla.factor_multiplicador if regla else 1.0
+                # Buscar la regla para el factor, filtrando por empresa.
+                regla = self.env['secadora.servicio.regla'].search([
+                    ('producto_id', '=', linea.producto_id.id),
+                    ('base_calculo', '=', linea.base_calculo),
+                    ('active', '=', True),
+                    ('company_id', 'in', [False, orden.company_id.id]),
+                ], order='company_id desc', limit=1)
 
-            if linea.base_calculo == 'peso_entrada':
-                nueva_cantidad = self.peso_entrada * factor
-            elif linea.base_calculo == 'peso_salida':
-                nueva_cantidad = self.peso_salida_real * factor
-            elif linea.base_calculo == 'bultos':
-                nueva_cantidad = self.total_bultos * factor
-            else:
-                continue
+                factor = regla.factor_multiplicador if regla else 1.0
 
-            if nueva_cantidad != linea.cantidad:
-                linea.cantidad = nueva_cantidad
+                if linea.base_calculo == 'peso_entrada':
+                    nueva_cantidad = orden.peso_entrada * factor
+                elif linea.base_calculo == 'peso_salida':
+                    nueva_cantidad = orden.peso_salida_real * factor
+                else:  # bultos
+                    nueva_cantidad = orden.total_bultos * factor
+
+                # cantidad está definido con digits=(12, 2)
+                if float_compare(nueva_cantidad, linea.cantidad, precision_digits=2) != 0:
+                    linea.cantidad = nueva_cantidad
 
     def write(self, vals):
         """Detectar cambio de modalidad_salida para re-aplicar reglas"""

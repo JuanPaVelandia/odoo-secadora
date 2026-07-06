@@ -69,9 +69,9 @@
                                     <div class="tablero-card-peso tablero-peso-transito">
                                         ~<t t-esc="formatPeso(transito.peso_bruto)"/> kg (bruto)
                                     </div>
-                                    <div class="tablero-card-detail text-muted" t-if="transito.humedad or transito.impurezas">
-                                        <i class="fa fa-tint me-1"/>H: <t t-esc="transito.humedad.toFixed(1)"/>%
-                                        · Imp: <t t-esc="transito.impurezas.toFixed(1)"/>%
+                                    <div class="tablero-card-detail text-muted">
+                                        <i class="fa fa-tint me-1"/>H: <t t-esc="(transito.humedad || 0).toFixed(1)"/>%
+                                        · Imp: <t t-esc="(transito.impurezas || 0).toFixed(1)"/>%
                                     </div>
                                     <div class="tablero-card-detail text-muted" t-if="transito.pesaje_name">
                                         <i class="fa fa-ticket me-1"/>

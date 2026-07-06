@@ -58,17 +58,16 @@ class SecadoraVehiculo(models.Model):
             vals['placa'] = vals['placa'].upper()
         return super().write(vals)
 
-    def name_get(self):
-        """Muestra solo la placa del vehículo"""
-        result = []
+    @api.depends('placa')
+    def _compute_display_name(self):
+        """Muestra solo la placa del vehículo (Odoo 18 usa display_name)."""
         for record in self:
-            result.append((record.id, record.placa or 'Sin placa'))
-        return result
+            record.display_name = record.placa or 'Sin placa'
 
     @api.model
-    def _name_search(self, name='', args=None, operator='ilike', limit=100, name_get_uid=None):
-        """Permite buscar por placa"""
-        args = args or []
+    def _name_search(self, name='', domain=None, operator='ilike', limit=None, order=None):
+        """Permite buscar por placa (firma de Odoo 18)."""
+        domain = list(domain or [])
         if name:
-            args = ['|', ('placa', operator, name)] + args
-        return self._search(args, limit=limit, access_rights_uid=name_get_uid)
+            domain = ['|', ('placa', operator, name)] + domain
+        return self._search(domain, limit=limit, order=order)
