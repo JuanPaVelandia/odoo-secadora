@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_account_payment_form_webviewlink" model="ir.ui.view">
+        <field name="name">account.payment.form.webviewlink</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='ref']" position="after">
+                <field name="x_whatsapp_comprobante_link"
+                       widget="url"
+                       placeholder="https://drive.google.com/..."/>
+                <field name="x_whatsapp_mensaje"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
