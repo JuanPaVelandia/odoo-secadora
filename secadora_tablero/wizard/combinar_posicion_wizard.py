@@ -52,8 +52,17 @@ class CombinarPosicionWizard(models.TransientModel):
         if len(sitios) > 1:
             raise UserError('Todas las posiciones deben estar en la misma ubicación.')
 
+        # La semilla solo puede combinarse cuando todas las posiciones son del
+        # mismo viaje (pesaje) que fue dividido antes; nunca se mezclan viajes.
         if any(p.es_semilla for p in self.posicion_ids):
-            raise UserError('No se pueden combinar posiciones de semilla.')
+            if not all(p.es_semilla for p in self.posicion_ids):
+                raise UserError('No se pueden combinar posiciones de semilla con posiciones que no son semilla.')
+            pesajes = self.posicion_ids.mapped('pesaje_id')
+            if len(pesajes) > 1:
+                raise UserError(
+                    'Solo se pueden combinar posiciones de semilla del mismo viaje '
+                    '(mismo pesaje) que fue dividido previamente.'
+                )
 
         # La posición con mayor peso determina el pesaje de la combinación
         posicion_mayor = max(self.posicion_ids, key=lambda p: p.peso_kg)
