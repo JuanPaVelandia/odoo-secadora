@@ -73,13 +73,20 @@ class CombinarPosicionWizard(models.TransientModel):
         variedades = self.posicion_ids.mapped('variedad_id')
         variedad_id = variedades[0].id if len(set(variedades.ids)) == 1 and variedades else False
 
+        # La combinación de semilla (viaje dividido que se reúne) NO es comercial:
+        # todas las posiciones comparten el mismo pesaje, así que la posición
+        # resultante conserva la información del viaje (tercero, conductor, salida,
+        # etc.) vía los related de pesaje_id. Solo las combinaciones no-semilla se
+        # marcan como comerciales.
+        es_semilla_combinacion = all(p.es_semilla for p in self.posicion_ids)
+
         # Crear nueva posición combinada (sin humedad/impurezas)
         nueva_posicion = self.env['secadora.posicion.arroz'].create({
             'pesaje_id': posicion_mayor.pesaje_id.id,
             'sitio_id': self.sitio_id.id,
             'peso_kg': peso_total,
             'peso_original': peso_total,
-            'es_comercial': True,
+            'es_comercial': not es_semilla_combinacion,
             'variedad_id': variedad_id,
         })
 
