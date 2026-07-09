@@ -73,6 +73,26 @@ class SecadoraPesaje(models.Model):
         default=False,
         copy=False,
     )
+    # Verdadero cuando el pesaje debe estar de solo lectura (completado y sin
+    # desbloqueo). Se calcula en Python para poder usar en la vista un modificador
+    # simple `readonly="bloqueado"` — Odoo 18 no evalúa bien expresiones con `and`
+    # en los atributos readonly/invisible.
+    bloqueado = fields.Boolean(
+        string='Bloqueado',
+        compute='_compute_bloqueado',
+    )
+    # El peso es de solo lectura salvo cuando un pesaje completado fue reabierto.
+    peso_bloqueado = fields.Boolean(
+        string='Peso bloqueado',
+        compute='_compute_bloqueado',
+    )
+
+    @api.depends('state', 'permite_edicion')
+    def _compute_bloqueado(self):
+        for rec in self:
+            rec.bloqueado = rec.state == 'completado' and not rec.permite_edicion
+            # Peso editable únicamente al reabrir un completado; bloqueado el resto.
+            rec.peso_bloqueado = not (rec.state == 'completado' and rec.permite_edicion)
 
     # Vehículo y transporte
     vehiculo_id = fields.Many2one(
