@@ -77,24 +77,40 @@ class AsociarFacturaWizard(models.TransientModel):
         mismo NIT, aunque sea otro registro de contacto. Si la transportadora no
         tiene contacto o el contacto no tiene NIT cargado, no se puede filtrar
         por proveedor y se muestran todas las facturas de la empresa.
+
+        La búsqueda se hace sobre TODAS las compañías del usuario (no solo la
+        activa en la sesión), para que aparezca la factura aunque la empresa que
+        paga no esté seleccionada en el conmutador de compañías. El filtro por
+        company_id (empresa que paga del flete) evita mezclar empresas.
         """
+        # Compañías a las que el usuario tiene acceso (aunque no estén activas).
+        allowed_company_ids = self.env.user.company_ids.ids
+
         # Facturas ya vinculadas a algún flete (para no ofrecerlas de nuevo).
         facturas_usadas_ids = self.env['secadora.flete'].search(
             [('factura_transportadora_id', '!=', False)]
         ).mapped('factura_transportadora_id').ids
+
         for rec in self:
-            domain = [
+            search_domain = [
                 ('move_type', '=', 'in_invoice'),
                 ('state', '!=', 'cancel'),
             ]
             if facturas_usadas_ids:
-                domain.append(('id', 'not in', facturas_usadas_ids))
+                search_domain.append(('id', 'not in', facturas_usadas_ids))
             nit = rec.partner_transportadora_id.vat
             if nit:
-                domain.append(('partner_id.vat', '=', nit))
+                search_domain.append(('partner_id.vat', '=', nit))
             if rec.company_id:
-                domain.append(('company_id', '=', rec.company_id.id))
-            rec.factura_domain = domain
+                search_domain.append(('company_id', '=', rec.company_id.id))
+
+            # Buscar en todas las compañías permitidas del usuario y fijar el
+            # resultado como dominio por id, para saltar el filtro de la compañía
+            # activa sin exponer compañías fuera del alcance del usuario.
+            facturas = self.env['account.move'].with_context(
+                allowed_company_ids=allowed_company_ids,
+            ).search(search_domain)
+            rec.factura_domain = [('id', 'in', facturas.ids)]
 
     @api.depends('flete_ids.costo_total')
     def _compute_costo_total_fletes(self):
