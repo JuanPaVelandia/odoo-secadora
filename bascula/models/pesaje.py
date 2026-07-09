@@ -61,7 +61,7 @@ class SecadoraPesaje(models.Model):
         ('en_transito', 'En Tránsito'),
         ('completado', 'Completado'),
         ('cancelado', 'Cancelado'),
-    ], string='Estado', default='borrador', required=True, index=True)
+    ], string='Estado', default='borrador', required=True, index=True, tracking=True)
 
     # Flag de edición: cuando un pesaje está completado, sus campos quedan de
     # solo lectura (salvo producto y calidad). El botón "Reabrir para editar"
@@ -99,7 +99,8 @@ class SecadoraPesaje(models.Model):
         'secadora.vehiculo',
         string='Vehículo',
         required=True,
-        index=True
+        index=True,
+        tracking=True,
     )
     placa_texto = fields.Char(
         string='Placa',
@@ -109,7 +110,8 @@ class SecadoraPesaje(models.Model):
     )
     conductor_id = fields.Many2one(
         'secadora.conductor',
-        string='Conductor'
+        string='Conductor',
+        tracking=True,
     )
     cedula_conductor = fields.Char(
         string='Cédula Conductor',
@@ -118,7 +120,8 @@ class SecadoraPesaje(models.Model):
     )
     transportadora_id = fields.Many2one(
         'secadora.transportadora',
-        string='Transportadora'
+        string='Transportadora',
+        tracking=True,
     )
 
     # Multi-empresa
@@ -163,6 +166,7 @@ class SecadoraPesaje(models.Model):
         'secadora.lugar',
         string='Origen',
         required=True,
+        tracking=True,
         help='Lugar de origen (finca, bodega, etc.)'
     )
     lote_finca = fields.Char(
@@ -173,6 +177,7 @@ class SecadoraPesaje(models.Model):
         'secadora.lugar',
         string='Destino',
         required=True,
+        tracking=True,
         help='Lugar de destino (finca, bodega, etc.)'
     )
 
@@ -182,11 +187,13 @@ class SecadoraPesaje(models.Model):
         string='Producto',
         help='Producto del inventario',
         domain=[('type', '=', 'consu')],
-        index=True
+        index=True,
+        tracking=True,
     )
     variedad_id = fields.Many2one(
         'secadora.variedad.arroz',
-        string='Variedad de Arroz'
+        string='Variedad de Arroz',
+        tracking=True,
     )
 
     # Vínculo con Orden de Servicio
@@ -241,15 +248,18 @@ class SecadoraPesaje(models.Model):
     # Calidad
     humedad = fields.Float(
         string='Humedad (%)',
-        digits=(5, 2)
+        digits=(5, 2),
+        tracking=True,
     )
     grano_partido = fields.Float(
         string='Grano Partido (%)',
-        digits=(5, 2)
+        digits=(5, 2),
+        tracking=True,
     )
     impurezas = fields.Float(
         string='Impurezas (%)',
-        digits=(5, 2)
+        digits=(5, 2),
+        tracking=True,
     )
 
     # Campos relacionados para visibilidad en vista
@@ -301,10 +311,11 @@ class SecadoraPesaje(models.Model):
                 rec.alerta_diferencia_bultos = False
 
     # Remisión
-    bultos = fields.Integer(string='Bultos')
+    bultos = fields.Integer(string='Bultos', tracking=True)
     precio = fields.Float(
         string='Precio',
-        digits=(12, 0)
+        digits=(12, 0),
+        tracking=True,
     )
     plazo = fields.Char(string='Plazo')
     observaciones = fields.Text(string='Observaciones', help='Notas internas adicionales del proceso de pesaje.')
@@ -645,6 +656,11 @@ class SecadoraPesaje(models.Model):
         if self.state != 'completado':
             raise UserError('Solo se puede reabrir la edición de un pesaje completado.')
         self.permite_edicion = True
+        # Dejar rastro en el chatter de quién reabrió y cuándo; los cambios que
+        # haga después quedan registrados por el tracking de los campos.
+        self.message_post(
+            body=f'Pesaje reabierto para edición por {self.env.user.name}.',
+        )
 
     # ===== MÉTODOS PARA INTEGRACIÓN CON BÁSCULA =====
 
