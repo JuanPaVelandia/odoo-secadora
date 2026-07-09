@@ -63,18 +63,19 @@
                         </group>
 
                         <group>
-                            <group string="Información del Vehículo"
-                                   readonly="bloqueado">
-                                <field name="vehiculo_id" string="Placa"/>
-                                <field name="tercero_id"/>
-                                <field name="empresa_arroz_id"/>
+                            <!-- readonly campo por campo: Odoo 18 ignora readonly
+                                 declarado a nivel de <group>. -->
+                            <group string="Información del Vehículo">
+                                <field name="vehiculo_id" string="Placa" readonly="bloqueado"/>
+                                <field name="tercero_id" readonly="bloqueado"/>
+                                <field name="empresa_arroz_id" readonly="bloqueado"/>
                                 <field name="nit_tercero" readonly="1"/>
                                 <field name="company_id" invisible="1"/>
-                                <field name="conductor_id"/>
-                                <field name="transportadora_id"/>
-                                <field name="origen_id"/>
-                                <field name="lote_finca" placeholder="Ej: 180, La Esperanza"/>
-                                <field name="destino_id"/>
+                                <field name="conductor_id" readonly="bloqueado"/>
+                                <field name="transportadora_id" readonly="bloqueado"/>
+                                <field name="origen_id" readonly="bloqueado"/>
+                                <field name="lote_finca" placeholder="Ej: 180, La Esperanza" readonly="bloqueado"/>
+                                <field name="destino_id" readonly="bloqueado"/>
                             </group>
 
                             <group string="Pesaje">
@@ -118,14 +119,13 @@
                             </group>
                         </group>
 
-                        <group string="Remisión"
-                               readonly="bloqueado">
+                        <group string="Remisión">
                             <group>
-                                <field name="bultos"/>
-                                <field name="precio"/>
+                                <field name="bultos" readonly="bloqueado"/>
+                                <field name="precio" readonly="bloqueado"/>
                             </group>
                             <group>
-                                <field name="plazo"/>
+                                <field name="plazo" readonly="bloqueado"/>
                             </group>
                         </group>
 
