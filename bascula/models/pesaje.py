@@ -63,6 +63,17 @@ class SecadoraPesaje(models.Model):
         ('cancelado', 'Cancelado'),
     ], string='Estado', default='borrador', required=True, index=True)
 
+    # Flag de edición: cuando un pesaje está completado, sus campos quedan de
+    # solo lectura (salvo producto y calidad). El botón "Reabrir para editar"
+    # (solo Administrador Báscula) lo activa para permitir editar todo, incluido
+    # el peso. Es un desbloqueo temporal: al guardar los cambios se vuelve a
+    # poner en False automáticamente (ver write), re-bloqueando el pesaje.
+    permite_edicion = fields.Boolean(
+        string='Edición desbloqueada',
+        default=False,
+        copy=False,
+    )
+
     # Vehículo y transporte
     vehiculo_id = fields.Many2one(
         'secadora.vehiculo',
@@ -293,6 +304,17 @@ class SecadoraPesaje(models.Model):
         # (el simulador/bridge lo actualiza via API)
         if 'peso_actual' in vals and not vals['peso_actual']:
             vals.pop('peso_actual')
+
+        # Re-bloqueo automático: si un pesaje fue reabierto para editar
+        # (permite_edicion=True) y ahora se guardan cambios del usuario, volver a
+        # bloquearlo. Se excluye el propio flag y los computados/peso_actual para
+        # no re-bloquear en escrituras internas que no son la edición del admin.
+        campos_edicion = set(vals) - {'permite_edicion', 'peso_actual'}
+        if campos_edicion and 'permite_edicion' not in vals:
+            desbloqueados = self.filtered(lambda p: p.permite_edicion)
+            if desbloqueados:
+                vals = dict(vals, permite_edicion=False)
+
         res = super().write(vals)
         # Si cambió algo que afecta el peso de la orden, recalcular sus
         # servicios automáticos (fuera de cualquier campo calculado).
@@ -589,6 +611,20 @@ class SecadoraPesaje(models.Model):
     def action_borrador(self):
         for record in self:
             record.state = 'borrador'
+
+    def action_reabrir_edicion(self):
+        """Desbloquear un pesaje completado para editar todos sus campos.
+
+        Reservado al grupo Administrador Báscula (control en la vista). Activa el
+        flag permite_edicion para esta sesión de edición, permitiendo modificar
+        incluso el peso sin cambiar el estado del pesaje.
+        """
+        self.ensure_one()
+        if not self.env.user.has_group('bascula.group_bascula_admin'):
+            raise UserError('Solo el Administrador de Báscula puede reabrir un pesaje completado.')
+        if self.state != 'completado':
+            raise UserError('Solo se puede reabrir la edición de un pesaje completado.')
+        self.permite_edicion = True
 
     # ===== MÉTODOS PARA INTEGRACIÓN CON BÁSCULA =====
 

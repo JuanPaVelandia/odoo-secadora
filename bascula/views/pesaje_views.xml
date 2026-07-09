@@ -20,6 +20,12 @@
                                 invisible="state in ['completado', 'cancelado']"/>
                         <button name="action_borrador" string="Volver a Borrador" type="object"
                                 invisible="state != 'cancelado'" groups="bascula.group_bascula_admin"/>
+                        <button name="action_reabrir_edicion" string="Reabrir para editar" type="object"
+                                class="btn-warning"
+                                invisible="state != 'completado' or permite_edicion"
+                                groups="bascula.group_bascula_admin"
+                                confirm="Vas a desbloquear un pesaje completado para editar todos sus campos, incluido el peso. ¿Continuar?"/>
+                        <field name="permite_edicion" invisible="1"/>
                         <field name="state" widget="statusbar" statusbar_visible="borrador,en_transito,completado"/>
                     </header>
                     <sheet>
@@ -37,13 +43,15 @@
                             <group>
                                 <field name="tipo_operacion_id"
                                        options="{'no_create': False, 'no_open': True}"
-                                       readonly="orden_servicio_id"
+                                       readonly="orden_servicio_id or (state == 'completado' and not permite_edicion)"
                                        force_save="1"/>
                                 <field name="orden_servicio_id"
                                        options="{'no_create': False, 'no_open': False}"
                                        placeholder="Seleccione la orden de servicio (opcional)"
+                                       readonly="state == 'completado' and not permite_edicion"
                                        invisible="not tipo_operacion_id or not tipo_operacion_id.es_servicio"/>
-                                <field name="direccion"/>
+                                <field name="direccion"
+                                       readonly="state == 'completado' and not permite_edicion"/>
                                 <field name="tipo_proceso" invisible="1"/>
                             </group>
                             <group>
@@ -53,7 +61,8 @@
                         </group>
 
                         <group>
-                            <group string="Información del Vehículo">
+                            <group string="Información del Vehículo"
+                                   readonly="state == 'completado' and not permite_edicion">
                                 <field name="vehiculo_id" string="Placa"/>
                                 <field name="tercero_id"/>
                                 <field name="empresa_arroz_id"/>
@@ -74,11 +83,15 @@
                                        invisible="state == 'completado' or state == 'cancelado'"/>
                                 <field name="escuchando_bascula" invisible="1"/>
 
-                                <field name="peso_bruto" readonly="1"
-                                       help="ENTRADA: 1ª pesada (lleno) | SALIDA: 2ª pesada (lleno)"
+                                <field name="peso_bruto"
+                                       readonly="state != 'completado' or not permite_edicion"
+                                       force_save="1"
+                                       help="ENTRADA: 1ª pesada (lleno) | SALIDA: 2ª pesada (lleno). Editable solo al reabrir un pesaje completado."
                                        style="font-size: 18px; font-weight: bold;"/>
-                                <field name="peso_tara" readonly="1"
-                                       help="ENTRADA: 2ª pesada (vacío) | SALIDA: 1ª pesada (vacío)"
+                                <field name="peso_tara"
+                                       readonly="state != 'completado' or not permite_edicion"
+                                       force_save="1"
+                                       help="ENTRADA: 2ª pesada (vacío) | SALIDA: 1ª pesada (vacío). Editable solo al reabrir un pesaje completado."
                                        style="font-size: 18px; font-weight: bold;"/>
                                 <field name="peso_neto" readonly="1"
                                        style="font-size: 24px; font-weight: bold; color: #00A09D;"/>
@@ -87,11 +100,14 @@
                             </group>
                         </group>
 
+                        <!-- Producto y Calidad permanecen editables aunque el
+                             pesaje esté completado (salvo es_semilla). -->
                         <group string="Producto y Calidad">
                             <group>
                                 <field name="producto_id"/>
                                 <field name="variedad_id"/>
-                                <field name="es_semilla"/>
+                                <field name="es_semilla"
+                                       readonly="state == 'completado' and not permite_edicion"/>
                             </group>
                             <group>
                                 <field name="humedad"/>
@@ -100,7 +116,8 @@
                             </group>
                         </group>
 
-                        <group string="Remisión">
+                        <group string="Remisión"
+                               readonly="state == 'completado' and not permite_edicion">
                             <group>
                                 <field name="bultos"/>
                                 <field name="precio"/>
@@ -113,7 +130,8 @@
                         <field name="os_modalidad_salida" invisible="1"/>
                         <group string="Bultos a Despachar"
                                invisible="direccion != 'salida' or not tipo_operacion_id or not tipo_operacion_id.es_servicio">
-                            <field name="despacho_bultos_ids" nolabel="1">
+                            <field name="despacho_bultos_ids" nolabel="1"
+                                   readonly="state == 'completado' and not permite_edicion">
                                 <list editable="bottom">
                                     <field name="registro_bultos_id"
                                            domain="[('orden_id.cliente_id', '=', parent.tercero_id), ('despachado', '=', False)]"
@@ -149,7 +167,8 @@
                         </group>
 
                         <group>
-                            <field name="observaciones" placeholder="Observaciones adicionales..."/>
+                            <field name="observaciones" placeholder="Observaciones adicionales..."
+                                   readonly="state == 'completado' and not permite_edicion"/>
                         </group>
                     </sheet>
                 </form>
