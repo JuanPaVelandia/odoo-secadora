@@ -43,15 +43,15 @@
                             <group>
                                 <field name="tipo_operacion_id"
                                        options="{'no_create': False, 'no_open': True}"
-                                       readonly="orden_servicio_id or (state == 'completado' and not permite_edicion)"
+                                       readonly="orden_servicio_id or (state == 'completado' and permite_edicion == False)"
                                        force_save="1"/>
                                 <field name="orden_servicio_id"
                                        options="{'no_create': False, 'no_open': False}"
                                        placeholder="Seleccione la orden de servicio (opcional)"
-                                       readonly="state == 'completado' and not permite_edicion"
+                                       readonly="state == 'completado' and permite_edicion == False"
                                        invisible="not tipo_operacion_id or not tipo_operacion_id.es_servicio"/>
                                 <field name="direccion"
-                                       readonly="state == 'completado' and not permite_edicion"/>
+                                       readonly="state == 'completado' and permite_edicion == False"/>
                                 <field name="tipo_proceso" invisible="1"/>
                             </group>
                             <group>
@@ -62,7 +62,7 @@
 
                         <group>
                             <group string="Información del Vehículo"
-                                   readonly="state == 'completado' and not permite_edicion">
+                                   readonly="state == 'completado' and permite_edicion == False">
                                 <field name="vehiculo_id" string="Placa"/>
                                 <field name="tercero_id"/>
                                 <field name="empresa_arroz_id"/>
@@ -84,12 +84,12 @@
                                 <field name="escuchando_bascula" invisible="1"/>
 
                                 <field name="peso_bruto"
-                                       readonly="state != 'completado' or not permite_edicion"
+                                       readonly="state != 'completado' or permite_edicion == False"
                                        force_save="1"
                                        help="ENTRADA: 1ª pesada (lleno) | SALIDA: 2ª pesada (lleno). Editable solo al reabrir un pesaje completado."
                                        style="font-size: 18px; font-weight: bold;"/>
                                 <field name="peso_tara"
-                                       readonly="state != 'completado' or not permite_edicion"
+                                       readonly="state != 'completado' or permite_edicion == False"
                                        force_save="1"
                                        help="ENTRADA: 2ª pesada (vacío) | SALIDA: 1ª pesada (vacío). Editable solo al reabrir un pesaje completado."
                                        style="font-size: 18px; font-weight: bold;"/>
@@ -107,7 +107,7 @@
                                 <field name="producto_id"/>
                                 <field name="variedad_id"/>
                                 <field name="es_semilla"
-                                       readonly="state == 'completado' and not permite_edicion"/>
+                                       readonly="state == 'completado' and permite_edicion == False"/>
                             </group>
                             <group>
                                 <field name="humedad"/>
@@ -117,7 +117,7 @@
                         </group>
 
                         <group string="Remisión"
-                               readonly="state == 'completado' and not permite_edicion">
+                               readonly="state == 'completado' and permite_edicion == False">
                             <group>
                                 <field name="bultos"/>
                                 <field name="precio"/>
@@ -131,7 +131,7 @@
                         <group string="Bultos a Despachar"
                                invisible="direccion != 'salida' or not tipo_operacion_id or not tipo_operacion_id.es_servicio">
                             <field name="despacho_bultos_ids" nolabel="1"
-                                   readonly="state == 'completado' and not permite_edicion">
+                                   readonly="state == 'completado' and permite_edicion == False">
                                 <list editable="bottom">
                                     <field name="registro_bultos_id"
                                            domain="[('orden_id.cliente_id', '=', parent.tercero_id), ('despachado', '=', False)]"
@@ -168,7 +168,7 @@
 
                         <group>
                             <field name="observaciones" placeholder="Observaciones adicionales..."
-                                   readonly="state == 'completado' and not permite_edicion"/>
+                                   readonly="state == 'completado' and permite_edicion == False"/>
                         </group>
                     </sheet>
                 </form>
