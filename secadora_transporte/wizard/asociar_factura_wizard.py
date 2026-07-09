@@ -17,6 +17,16 @@ class AsociarFacturaWizard(models.TransientModel):
         string='Transportadora',
         compute='_compute_transportadora_id',
     )
+    partner_transportadora_id = fields.Many2one(
+        'res.partner',
+        string='Contacto Transportadora',
+        related='transportadora_id.partner_id',
+    )
+    company_id = fields.Many2one(
+        'res.company',
+        string='Empresa que Paga',
+        compute='_compute_company_id',
+    )
     costo_total_fletes = fields.Float(
         string='Costo Total Fletes',
         compute='_compute_costo_total_fletes',
@@ -30,7 +40,13 @@ class AsociarFacturaWizard(models.TransientModel):
     factura_id = fields.Many2one(
         'account.move',
         string='Factura Existente',
-        domain="[('move_type', '=', 'in_invoice'), ('state', '=', 'draft')]",
+        domain="factura_domain",
+    )
+    factura_domain = fields.Binary(
+        string='Dominio Factura',
+        compute='_compute_factura_domain',
+        help='Filtra las facturas por proveedor (contacto de la transportadora) '
+             'y por la empresa que paga.',
     )
     partner_factura_id = fields.Many2one(
         'res.partner',
@@ -44,6 +60,29 @@ class AsociarFacturaWizard(models.TransientModel):
             transportadoras = rec.flete_ids.mapped('transportadora_id')
             rec.transportadora_id = transportadoras[0] if len(transportadoras) == 1 else False
 
+    @api.depends('flete_ids.company_id')
+    def _compute_company_id(self):
+        for rec in self:
+            companies = rec.flete_ids.mapped('company_id')
+            rec.company_id = companies[0] if len(companies) == 1 else False
+
+    @api.depends('partner_transportadora_id', 'company_id')
+    def _compute_factura_domain(self):
+        """Dominio dinámico: facturas de proveedor en borrador, filtradas por el
+        contacto de la transportadora (NIT del dueño) y la empresa que paga."""
+        for rec in self:
+            domain = [('move_type', '=', 'in_invoice'), ('state', '=', 'draft')]
+            if rec.partner_transportadora_id:
+                # commercial_partner_id agrupa el contacto y sus hijos bajo el
+                # mismo dueño (mismo NIT), por si la factura usa un contacto hijo.
+                domain.append(
+                    ('commercial_partner_id', '=',
+                     rec.partner_transportadora_id.commercial_partner_id.id)
+                )
+            if rec.company_id:
+                domain.append(('company_id', '=', rec.company_id.id))
+            rec.factura_domain = domain
+
     @api.depends('flete_ids.costo_total')
     def _compute_costo_total_fletes(self):
         for rec in self:
@@ -56,6 +95,11 @@ class AsociarFacturaWizard(models.TransientModel):
         if active_ids:
             fletes = self.env['secadora.flete'].browse(active_ids)
             res['flete_ids'] = [(6, 0, fletes.ids)]
+            # Precargar el proveedor de la nueva factura con el contacto de la
+            # transportadora, si todos los fletes son de la misma.
+            transportadoras = fletes.mapped('transportadora_id')
+            if len(transportadoras) == 1 and transportadoras.partner_id:
+                res['partner_factura_id'] = transportadoras.partner_id.id
         return res
 
     def action_asociar(self):
