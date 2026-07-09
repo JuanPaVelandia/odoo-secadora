@@ -69,16 +69,19 @@ class AsociarFacturaWizard(models.TransientModel):
     @api.depends('partner_transportadora_id', 'company_id')
     def _compute_factura_domain(self):
         """Dominio dinámico: facturas de proveedor en borrador, filtradas por el
-        contacto de la transportadora (NIT del dueño) y la empresa que paga."""
+        NIT del dueño de la transportadora y la empresa que paga.
+
+        Se filtra por el NIT (vat) del contacto de la transportadora, no por el
+        contacto exacto: así aparece cualquier factura cuyo proveedor tenga el
+        mismo NIT, aunque sea otro registro de contacto. Si la transportadora no
+        tiene contacto o el contacto no tiene NIT cargado, no se puede filtrar
+        por proveedor y se muestran todas las facturas draft de la empresa.
+        """
         for rec in self:
             domain = [('move_type', '=', 'in_invoice'), ('state', '=', 'draft')]
-            if rec.partner_transportadora_id:
-                # commercial_partner_id agrupa el contacto y sus hijos bajo el
-                # mismo dueño (mismo NIT), por si la factura usa un contacto hijo.
-                domain.append(
-                    ('commercial_partner_id', '=',
-                     rec.partner_transportadora_id.commercial_partner_id.id)
-                )
+            nit = rec.partner_transportadora_id.vat
+            if nit:
+                domain.append(('partner_id.vat', '=', nit))
             if rec.company_id:
                 domain.append(('company_id', '=', rec.company_id.id))
             rec.factura_domain = domain
