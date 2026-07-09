@@ -22,6 +22,7 @@
     'post_init_hook': '_post_init_assign_analytic_accounts',
     'data': [
         'data/analytic_plan_data.xml',
+        'data/transportadora_category_data.xml',
         # 'data/company_data.xml',  # Crear compañías manualmente desde Ajustes > Compañías
         # 'data/sequence_data.xml',
         # 'data/sequences.xml',

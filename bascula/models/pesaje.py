@@ -336,13 +336,16 @@ class SecadoraPesaje(models.Model):
     def _onchange_vehiculo_datos(self):
         """Auto-llenar transportadora y conductor desde el vehículo seleccionado.
 
-        Solo rellena si el campo está vacío, para no pisar una elección manual
-        del usuario.
+        Al cambiar el vehículo (placa) se re-asignan la transportadora y el
+        conductor desde el vehículo, aunque ya tuvieran valor: si se corrige la
+        placa, la transportadora debe corregirse en consecuencia. Cuando el
+        vehículo no define transportadora/conductor propios, se conserva el
+        valor actual para no perder una elección manual previa.
         """
         if self.vehiculo_id:
-            if not self.transportadora_id and self.vehiculo_id.transportadora_id:
+            if self.vehiculo_id.transportadora_id:
                 self.transportadora_id = self.vehiculo_id.transportadora_id
-            if not self.conductor_id and self.vehiculo_id.conductor_habitual_id:
+            if self.vehiculo_id.conductor_habitual_id:
                 self.conductor_id = self.vehiculo_id.conductor_habitual_id
 
     @api.onchange('tercero_id')
