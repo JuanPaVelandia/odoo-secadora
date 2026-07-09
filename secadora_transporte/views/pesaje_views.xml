@@ -27,7 +27,8 @@
                 </xpath>
                 <!-- Agregar campo generar_flete antes de observaciones -->
                 <xpath expr="//field[@name='observaciones']/.." position="before">
-                    <group string="Transporte">
+                    <group string="Transporte"
+                           readonly="state == 'completado' and not permite_edicion">
                         <field name="generar_flete"/>
                     </group>
                 </xpath>
