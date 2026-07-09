@@ -201,21 +201,21 @@
                                                             <div class="tablero-card-footer" t-if="!state.bloqueado">
                                                                 <button class="tablero-btn-despachar"
                                                                         title="Despachar"
-                                                                        t-on-click.stop="(ev) => this.onClickDespacharPosicion(pos.id)"
-                                                                        t-on-touchend="(ev) => this.onTouchAction(ev, () => this.onClickDespacharPosicion(pos.id))">
+                                                                        t-on-click.stop="(ev) => this.onClickAction(() => this.onClickDespacharPosicion(pos.id))"
+                                                                        t-on-touchend.stop="(ev) => this.onTouchAction(ev, () => this.onClickDespacharPosicion(pos.id))">
                                                                     <i class="fa fa-truck"/> Despachar
                                                                 </button>
                                                                 <button class="tablero-btn-dividir"
                                                                         title="Dividir"
-                                                                        t-on-click.stop="(ev) => this.onClickDividir(pos.id)"
-                                                                        t-on-touchend="(ev) => this.onTouchAction(ev, () => this.onClickDividir(pos.id))">
+                                                                        t-on-click.stop="(ev) => this.onClickAction(() => this.onClickDividir(pos.id))"
+                                                                        t-on-touchend.stop="(ev) => this.onTouchAction(ev, () => this.onClickDividir(pos.id))">
                                                                     <i class="fa fa-code-fork"/> Dividir
                                                                 </button>
                                                                 <button class="tablero-btn-revertir"
                                                                         title="Revertir división"
                                                                         t-if="pos.es_division_hija"
-                                                                        t-on-click.stop="(ev) => this.onClickRevertirDivision(pos.id)"
-                                                                        t-on-touchend="(ev) => this.onTouchAction(ev, () => this.onClickRevertirDivision(pos.id))">
+                                                                        t-on-click.stop="(ev) => this.onClickAction(() => this.onClickRevertirDivision(pos.id))"
+                                                                        t-on-touchend.stop="(ev) => this.onTouchAction(ev, () => this.onClickRevertirDivision(pos.id))">
                                                                     <i class="fa fa-undo"/> Revertir
                                                                 </button>
                                                             </div>
