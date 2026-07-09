@@ -68,17 +68,27 @@ class AsociarFacturaWizard(models.TransientModel):
 
     @api.depends('partner_transportadora_id', 'company_id')
     def _compute_factura_domain(self):
-        """Dominio dinámico: facturas de proveedor en borrador, filtradas por el
-        NIT del dueño de la transportadora y la empresa que paga.
+        """Dominio dinámico: facturas de proveedor (borrador o validadas, no
+        canceladas) filtradas por el NIT del dueño de la transportadora y la
+        empresa que paga, excluyendo las ya asociadas a algún flete.
 
         Se filtra por el NIT (vat) del contacto de la transportadora, no por el
         contacto exacto: así aparece cualquier factura cuyo proveedor tenga el
         mismo NIT, aunque sea otro registro de contacto. Si la transportadora no
         tiene contacto o el contacto no tiene NIT cargado, no se puede filtrar
-        por proveedor y se muestran todas las facturas draft de la empresa.
+        por proveedor y se muestran todas las facturas de la empresa.
         """
+        # Facturas ya vinculadas a algún flete (para no ofrecerlas de nuevo).
+        facturas_usadas_ids = self.env['secadora.flete'].search(
+            [('factura_transportadora_id', '!=', False)]
+        ).mapped('factura_transportadora_id').ids
         for rec in self:
-            domain = [('move_type', '=', 'in_invoice'), ('state', '=', 'draft')]
+            domain = [
+                ('move_type', '=', 'in_invoice'),
+                ('state', '!=', 'cancel'),
+            ]
+            if facturas_usadas_ids:
+                domain.append(('id', 'not in', facturas_usadas_ids))
             nit = rec.partner_transportadora_id.vat
             if nit:
                 domain.append(('partner_id.vat', '=', nit))
