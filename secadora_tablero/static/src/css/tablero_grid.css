@@ -210,6 +210,22 @@
     color: #00A09D;
 }
 
+/* Botón Revertir división, en el footer de la tarjeta */
+.tablero-btn-revertir {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.tablero-btn-revertir:hover {
+    background: #e9ecef;
+    color: #e67e22;
+}
+
 /* Botón Combinar en el header de la celda */
 .tablero-btn-combinar {
     background: none;
@@ -242,6 +258,15 @@
 .tablero-btn-despachar:hover {
     background: #e9ecef;
     color: #dc3545;
+}
+
+/* La tarjeta es draggable; sin esto iOS trata el toque sobre un botón como
+   inicio de arrastre y la acción no llega a dispararse. */
+.tablero-btn-dividir,
+.tablero-btn-revertir,
+.tablero-btn-combinar,
+.tablero-btn-despachar {
+    touch-action: manipulation;
 }
 
 /* Sección de Vehículos en Tránsito */

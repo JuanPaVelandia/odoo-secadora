@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { Component, useState, onWillStart } from "@odoo/owl";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
@@ -11,6 +12,7 @@ class TableroGrid extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        this.dialog = useService("dialog");
         this.state = useState({
             sitios: [],
             posiciones: [],
@@ -321,10 +323,32 @@ class TableroGrid extends Component {
     // En iPad, las tarjetas son draggable y iOS Safari no soporta HTML5
     // drag-and-drop: el gesto táctil sobre un botón hijo se traga el "click",
     // por eso los botones del footer no responden. Escuchamos touchend y
-    // disparamos la misma acción, cancelando el gesto para no perder el toque.
+    // disparamos la acción desde ahí.
+    //
+    // Safari puede emitir igual un "click" sintético después del touchend, así
+    // que en vez de cancelar el gesto (preventDefault bloquearía cualquier
+    // diálogo nativo y rompe el scroll) marcamos el toque como ya atendido y
+    // dejamos que el click posterior se descarte solo.
     onTouchAction(ev, handler) {
-        ev.preventDefault();
         ev.stopPropagation();
+        this._touchHandled = true;
+        // Si Safari no llega a emitir el click sintético, el flag no debe
+        // quedar activo y tragarse el siguiente click legítimo.
+        clearTimeout(this._touchHandledTimer);
+        this._touchHandledTimer = setTimeout(() => {
+            this._touchHandled = false;
+        }, 700);
+        handler();
+    }
+
+    // Ejecuta la acción de un click de mouse, salvo que un touchend inmediato
+    // anterior ya la haya disparado (click sintético de iOS).
+    onClickAction(handler) {
+        if (this._touchHandled) {
+            this._touchHandled = false;
+            clearTimeout(this._touchHandledTimer);
+            return;
+        }
         handler();
     }
 
@@ -373,15 +397,26 @@ class TableroGrid extends Component {
         });
     }
 
-    async onClickRevertirDivision(posicionId) {
+    // Se usa ConfirmationDialog (DOM) y no el confirm() nativo: WebKit suprime
+    // los modales nativos invocados desde un handler táctil, y el botón quedaba
+    // muerto en iPad.
+    onClickRevertirDivision(posicionId) {
         if (this.state.bloqueado) return;
-        if (!confirm("¿Revertir esta división? El peso se devolverá a la posición origen.")) return;
-        await this.orm.call(
-            "secadora.posicion.arroz",
-            "action_revertir_division",
-            [posicionId],
-        );
-        await this.loadData();
+        this.dialog.add(ConfirmationDialog, {
+            title: "Revertir división",
+            body: "¿Revertir esta división? El peso se devolverá a la posición origen.",
+            confirmLabel: "Revertir",
+            cancelLabel: "Cancelar",
+            confirm: async () => {
+                await this.orm.call(
+                    "secadora.posicion.arroz",
+                    "action_revertir_division",
+                    [posicionId],
+                );
+                await this.loadData();
+            },
+            cancel: () => {},
+        });
     }
 
     async onClickCombinar(sitioId) {
