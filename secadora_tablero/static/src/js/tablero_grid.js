@@ -89,9 +89,18 @@ class TableroGrid extends Component {
     }
 
     getCombinableCount(sitioId) {
-        return this.state.posiciones.filter(
+        const combinables = this.state.posiciones.filter(
             (p) => p.sitio_id === sitioId && p.permite_combinar
-        ).length;
+        );
+        // Para semilla solo se permite combinar si todas las combinables son del
+        // mismo viaje (pesaje) que fue dividido antes; nunca se mezclan viajes.
+        if (combinables.some((p) => p.es_semilla)) {
+            const pesajes = new Set(combinables.map((p) => p.pesaje_id));
+            if (pesajes.size > 1) {
+                return 0;
+            }
+        }
+        return combinables.length;
     }
 
     /** Devuelve true si el sitio tiene ocultar_calidad marcado */
@@ -307,6 +316,16 @@ class TableroGrid extends Component {
             }
             await this.loadData();
         }
+    }
+
+    // En iPad, las tarjetas son draggable y iOS Safari no soporta HTML5
+    // drag-and-drop: el gesto táctil sobre un botón hijo se traga el "click",
+    // por eso los botones del footer no responden. Escuchamos touchend y
+    // disparamos la misma acción, cancelando el gesto para no perder el toque.
+    onTouchAction(ev, handler) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        handler();
     }
 
     async onClickPosicion(posicionId) {

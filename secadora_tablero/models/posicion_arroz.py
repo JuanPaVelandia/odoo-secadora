@@ -216,10 +216,18 @@ class PosicionArroz(models.Model):
         for rec in self:
             rec.es_division = bool(rec.posicion_origen_id) or bool(rec.posicion_hija_ids)
 
-    @api.depends('es_semilla', 'es_preasignado')
+    @api.depends('es_semilla', 'es_preasignado', 'posicion_origen_id', 'posicion_hija_ids')
     def _compute_permite_combinar(self):
         for rec in self:
-            rec.permite_combinar = not rec.es_semilla and not rec.es_preasignado
+            if rec.es_preasignado:
+                rec.permite_combinar = False
+            elif rec.es_semilla:
+                # La semilla normalmente no se combina, salvo cuando resulta de
+                # una división: tras separar un viaje suele reunirse para
+                # despachar. La restricción de "mismo viaje" se valida al combinar.
+                rec.permite_combinar = bool(rec.posicion_origen_id) or bool(rec.posicion_hija_ids)
+            else:
+                rec.permite_combinar = True
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -317,6 +325,7 @@ class PosicionArroz(models.Model):
                 'id': p.id,
                 'name': p.name,
                 'sitio_id': p.sitio_id.id if p.sitio_id else False,
+                'pesaje_id': p.pesaje_id.id if p.pesaje_id else False,
                 'peso_kg': p.peso_kg,
                 'tercero': p.tercero_id.name if p.tercero_id else '',
                 'variedad': p.variedad_id.name if p.variedad_id else '',
