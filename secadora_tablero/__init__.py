@@ -8,7 +8,9 @@ def _post_init_es_comercial(env):
     """Inicializar campos nuevos en posiciones existentes."""
     PosicionArroz = env['secadora.posicion.arroz']
 
-    # Marcar es_comercial en posiciones resultado de combinación
+    # Marcar es_comercial en posiciones resultado de combinación.
+    # Se excluyen las combinaciones de semilla (viaje dividido reunido): esas
+    # conservan la información del viaje y NO deben mostrarse como comerciales.
     posiciones_combinadas_ids = PosicionArroz.search([
         ('posicion_combinada_id', '!=', False),
     ]).mapped('posicion_combinada_id').ids
@@ -17,6 +19,7 @@ def _post_init_es_comercial(env):
         posiciones_a_marcar = PosicionArroz.search([
             ('id', 'in', posiciones_combinadas_ids),
             ('es_comercial', '!=', True),
+            ('es_semilla', '=', False),
         ])
         if posiciones_a_marcar:
             posiciones_a_marcar.write({'es_comercial': True})
