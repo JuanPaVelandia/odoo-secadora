@@ -41,7 +41,7 @@
                     <t t-call="web.basic_layout">
                         <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
                             <!-- Encabezado -->
-                            <div class="text-center" style="border-bottom: 2px solid #2E7D32; padding-bottom: 8px; margin-bottom: 12px;">
+                            <div class="text-center" style="border-bottom: 2px solid #444444; padding-bottom: 8px; margin-bottom: 12px;">
                                 <h3 style="margin: 0; font-size: 14px;"><strong t-field="o.company_id.name"/></h3>
                                 <p t-if="o.company_id.vat" style="margin: 2px 0; font-size: 10px; color: #666;">
                                     NIT: <span t-field="o.company_id.vat"/>
@@ -69,7 +69,7 @@
 
                             <!-- Información del vehículo -->
                             <div style="margin-bottom: 10px;">
-                                <h5 style="background-color: #2E7D32; color: white; padding: 3px 6px; margin: 0 0 5px 0; font-size: 11px;"><strong>Información del Vehículo</strong></h5>
+                                <h5 style="background-color: #444444; color: white; padding: 3px 6px; margin: 0 0 5px 0; font-size: 11px;"><strong>Información del Vehículo</strong></h5>
                                 <div class="row">
                                     <div class="col-6">
                                         <strong>Placa:</strong> <span t-field="o.placa_texto"/><br/>
@@ -88,7 +88,7 @@
 
                             <!-- Origen y Destino -->
                             <div style="margin-bottom: 10px;">
-                                <h5 style="background-color: #2E7D32; color: white; padding: 3px 6px; margin: 0 0 5px 0; font-size: 11px;"><strong>Origen y Destino</strong></h5>
+                                <h5 style="background-color: #444444; color: white; padding: 3px 6px; margin: 0 0 5px 0; font-size: 11px;"><strong>Origen y Destino</strong></h5>
                                 <div class="row">
                                     <div class="col-6">
                                         <strong>Origen:</strong> <span t-field="o.origen_id"/><br/>
@@ -103,7 +103,7 @@
                             <hr style="margin: 8px 0;"/>
 
                             <!-- PESAJE (destacado) -->
-                            <div style="margin-bottom: 10px; border: 2px solid #2E7D32; padding: 8px; background-color: #f9f9f9;">
+                            <div style="margin-bottom: 10px; border: 2px solid #444444; padding: 8px; background-color: #f9f9f9;">
                                 <h5 style="text-align: center; margin: 0 0 5px 0; font-size: 12px;"><strong>PESAJE</strong></h5>
                                 <table class="table table-borderless" style="font-size: 11px; margin-bottom: 0;">
                                     <tr>
@@ -114,9 +114,9 @@
                                         <td><strong>Peso Vacío:</strong></td>
                                         <td style="text-align: right;"><strong><span t-field="o.peso_tara"/> Kg</strong></td>
                                     </tr>
-                                    <tr style="border-top: 2px solid #2E7D32;">
+                                    <tr style="border-top: 2px solid #444444;">
                                         <td style="padding-top: 5px;"><strong style="font-size: 14px;">Peso Neto:</strong></td>
-                                        <td style="text-align: right; padding-top: 5px;"><strong style="font-size: 14px; color: #2E7D32;"><span t-field="o.peso_neto"/> Kg</strong></td>
+                                        <td style="text-align: right; padding-top: 5px;"><strong style="font-size: 14px; color: #444444;"><span t-field="o.peso_neto"/> Kg</strong></td>
                                     </tr>
                                 </table>
                             </div>
@@ -125,7 +125,7 @@
 
                             <!-- Producto y Calidad -->
                             <div style="margin-bottom: 10px;">
-                                <h5 style="background-color: #2E7D32; color: white; padding: 3px 6px; margin: 0 0 5px 0; font-size: 11px;"><strong>Producto y Calidad</strong></h5>
+                                <h5 style="background-color: #444444; color: white; padding: 3px 6px; margin: 0 0 5px 0; font-size: 11px;"><strong>Producto y Calidad</strong></h5>
                                 <div class="row">
                                     <div class="col-6">
                                         <strong>Producto:</strong> <span t-field="o.producto_id"/><br/>
@@ -167,7 +167,7 @@
 
                         <!-- Pie de página real: se repite en cada hoja del PDF -->
                         <div class="footer" style="font-family: Arial, sans-serif;">
-                            <div class="text-center" style="border-top: 2px solid #2E7D32; padding-top: 4px; font-size: 10px; color: #666;">
+                            <div class="text-center" style="border-top: 2px solid #444444; padding-top: 4px; font-size: 10px; color: #666;">
                                 Este documento es una constancia del pesaje realizado
                             </div>
                         </div>

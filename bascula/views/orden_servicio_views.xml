@@ -39,6 +39,9 @@
                     <button name="action_volver_borrador" type="object" string="← Volver a Borrador"
                             invisible="state not in ('en_proceso', 'listo_liquidar', 'liquidado')"/>
 
+                    <button name="action_imprimir_orden" string="Imprimir" type="object"
+                            icon="fa-print" class="btn-secondary"/>
+
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>

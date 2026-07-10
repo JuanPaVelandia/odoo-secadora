@@ -662,6 +662,17 @@ class SecadoraPesaje(models.Model):
             body=f'Pesaje reabierto para edición por {self.env.user.name}.',
         )
 
+    def action_imprimir_tiquete(self):
+        """Abrir el tiquete PDF en una pestaña del navegador (visor de PDF),
+        sin descargarlo: desde ahí se imprime directo con Ctrl+P o el botón
+        de imprimir del visor."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/report/pdf/bascula.report_pesaje_tiquete_document/{self.id}',
+            'target': 'new',
+        }
+
     # ===== MÉTODOS PARA INTEGRACIÓN CON BÁSCULA =====
 
     @api.model

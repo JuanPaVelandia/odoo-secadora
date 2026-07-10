@@ -9,7 +9,7 @@
             <!-- Sección Fletes Pagados por Secadora: antes del bloque Total General -->
             <xpath expr="//div[@name='total_general']" position="before">
                 <div t-if="o.flete_secadora_ids" style="margin-bottom: 20px;">
-                    <h4 style="background-color: #2E7D32; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Fletes Pagados por Secadora</h4>
+                    <h4 style="background-color: #444444; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Fletes Pagados por Secadora</h4>
                     <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                         <thead>
                             <tr style="background-color: #f0f0f0;">
