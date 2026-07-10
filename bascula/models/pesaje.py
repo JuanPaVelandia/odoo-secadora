@@ -461,6 +461,29 @@ class SecadoraPesaje(models.Model):
                         f'Solo se pueden vincular pesajes del mismo cliente a una orden de servicio.'
                     )
 
+    @api.constrains('vehiculo_id', 'transportadora_id')
+    def _check_vehiculo_transportadora(self):
+        """Validar que la placa pertenezca a la transportadora del pesaje.
+
+        Si el vehículo tiene transportadora asignada y difiere de la del
+        pesaje, no se permite guardar. Si el vehículo no tiene transportadora
+        registrada, no hay contra qué validar y se permite.
+        """
+        for record in self:
+            if (
+                record.vehiculo_id
+                and record.transportadora_id
+                and record.vehiculo_id.transportadora_id
+                and record.vehiculo_id.transportadora_id != record.transportadora_id
+            ):
+                raise UserError(
+                    f'La placa {record.vehiculo_id.placa} pertenece a la transportadora '
+                    f'"{record.vehiculo_id.transportadora_id.name}", no a '
+                    f'"{record.transportadora_id.name}".\n\n'
+                    f'Corrija la transportadora del pesaje o la placa. Si el vehículo '
+                    f'cambió de transportadora, actualícelo primero en el catálogo de vehículos.'
+                )
+
     @api.constrains('peso_bruto', 'peso_tara')
     def _check_pesos_coherentes(self):
         """Validar bruto >= tara cuando ambos están registrados (>0).
