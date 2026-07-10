@@ -465,20 +465,26 @@ class SecadoraPesaje(models.Model):
     def _check_vehiculo_transportadora(self):
         """Validar que la placa pertenezca a la transportadora del pesaje.
 
-        Si el vehículo tiene transportadora asignada y difiere de la del
-        pesaje, no se permite guardar. Si el vehículo no tiene transportadora
-        registrada, no hay contra qué validar y se permite.
+        Si el vehículo tiene transportadora asignada en el catálogo, el pesaje
+        debe tener esa misma transportadora: ni distinta ni vacía. Si el
+        vehículo no tiene transportadora registrada, no hay contra qué validar
+        y se permite guardar.
         """
         for record in self:
-            if (
-                record.vehiculo_id
-                and record.transportadora_id
-                and record.vehiculo_id.transportadora_id
-                and record.vehiculo_id.transportadora_id != record.transportadora_id
-            ):
+            transp_vehiculo = record.vehiculo_id.transportadora_id
+            if not record.vehiculo_id or not transp_vehiculo:
+                continue
+            if not record.transportadora_id:
+                raise UserError(
+                    f'El pesaje no tiene transportadora, pero la placa '
+                    f'{record.vehiculo_id.placa} pertenece a '
+                    f'"{transp_vehiculo.name}".\n\n'
+                    f'Asigne la transportadora al pesaje (o corrija la placa).'
+                )
+            if record.transportadora_id != transp_vehiculo:
                 raise UserError(
                     f'La placa {record.vehiculo_id.placa} pertenece a la transportadora '
-                    f'"{record.vehiculo_id.transportadora_id.name}", no a '
+                    f'"{transp_vehiculo.name}", no a '
                     f'"{record.transportadora_id.name}".\n\n'
                     f'Corrija la transportadora del pesaje o la placa. Si el vehículo '
                     f'cambió de transportadora, actualícelo primero en el catálogo de vehículos.'
