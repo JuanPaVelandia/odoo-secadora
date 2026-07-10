@@ -717,6 +717,17 @@ class OrdenServicio(models.Model):
             'context': {'default_orden_servicio_id': self.id}
         }
 
+    def action_imprimir_orden(self):
+        """Abrir la orden PDF en una pestaña del navegador (visor de PDF), sin
+        descargarla: desde ahí se imprime directo con Ctrl+P o el botón de
+        imprimir del visor."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f'/report/pdf/bascula.report_orden_servicio_document/{self.id}',
+            'target': 'new',
+        }
+
     def action_generar_factura(self):
         self.ensure_one()
 
