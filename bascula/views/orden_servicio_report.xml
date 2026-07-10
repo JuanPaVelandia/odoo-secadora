@@ -2,18 +2,20 @@
 <odoo>
     <data>
 
-        <!-- Formato de papel: Carta (8.5 x 11 pulgadas) -->
+        <!-- Formato de papel. El reporte usa web.basic_layout (sin encabezado ni
+             pie estándar de Odoo), así que el margen superior es solo estético y
+             el inferior reserva el espacio del pie propio (nota + paginación). -->
         <record id="paperformat_orden_servicio_carta" model="report.paperformat">
             <field name="name">Orden de Servicio Carta</field>
             <field name="default" eval="False"/>
             <field name="format">A4</field>
             <field name="orientation">Portrait</field>
-            <field name="margin_top">40</field>
-            <field name="margin_bottom">20</field>
+            <field name="margin_top">12</field>
+            <field name="margin_bottom">22</field>
             <field name="margin_left">15</field>
             <field name="margin_right">15</field>
             <field name="header_line" eval="False"/>
-            <field name="header_spacing">35</field>
+            <field name="header_spacing">5</field>
             <field name="dpi">90</field>
         </record>
 
@@ -30,16 +32,20 @@
             <field name="paperformat_id" ref="bascula.paperformat_orden_servicio_carta"/>
         </record>
 
-        <!-- Plantilla del reporte -->
+        <!-- Plantilla del reporte. Usa web.basic_layout: sin logo ni colores del
+             tema estándar de Odoo; encabezado y pie propios del documento. -->
         <template id="report_orden_servicio_document">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
-                    <t t-call="web.external_layout">
+                    <t t-call="web.basic_layout">
                         <div class="page" style="font-family: Arial, sans-serif; font-size: 12px;">
 
                             <!-- Encabezado -->
-                            <div class="text-center" style="border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
-                                <h2 style="margin: 0; font-size: 20px;"><strong>Secadora La Gran Colombia S.A.S</strong></h2>
+                            <div class="text-center" style="border-bottom: 3px solid #2E7D32; padding-bottom: 15px; margin-bottom: 20px;">
+                                <h2 style="margin: 0; font-size: 20px;"><strong t-field="o.company_id.name"/></h2>
+                                <p t-if="o.company_id.vat" style="margin: 2px 0; font-size: 11px; color: #666;">
+                                    NIT: <span t-field="o.company_id.vat"/>
+                                </p>
                                 <h3 style="margin: 5px 0; font-size: 16px;">ORDEN DE SERVICIO</h3>
                                 <p style="margin: 5px 0; font-size: 14px;">
                                     <strong>No. <span t-field="o.name"/></strong>
@@ -89,7 +95,7 @@
 
                             <!-- Pesajes de Entrada -->
                             <div style="margin-bottom: 20px;">
-                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Entrada</h4>
+                                <h4 style="background-color: #2E7D32; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Entrada</h4>
                                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                                     <thead>
                                         <tr style="background-color: #f0f0f0;">
@@ -120,7 +126,7 @@
 
                             <!-- Pesajes de Salida -->
                             <div style="margin-bottom: 20px;">
-                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Salida</h4>
+                                <h4 style="background-color: #2E7D32; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Salida</h4>
                                 <div t-if="o.modalidad_salida == 'bultos'" style="margin-bottom: 10px; padding: 8px; background-color: #fff3cd; border: 1px solid #ffc107; font-size: 11px;">
                                     <strong>Nota:</strong> La modalidad de salida es <strong>Empaque en Bultos</strong>.
                                     El peso de salida para la liquidación se toma del registro de bultos, no de estos pesajes.
@@ -155,7 +161,7 @@
 
                             <!-- Detalle de Bultos Empacados -->
                             <div t-if="o.modalidad_salida == 'bultos' and o.registro_bultos_ids" style="margin-bottom: 20px;">
-                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Registro de Bultos Empacados</h4>
+                                <h4 style="background-color: #2E7D32; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Registro de Bultos Empacados</h4>
                                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                                     <thead>
                                         <tr style="background-color: #f0f0f0;">
@@ -252,7 +258,7 @@
 
                             <!-- Servicios Adicionales -->
                             <div t-if="o.linea_servicio_ids" style="margin-bottom: 20px;">
-                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Servicios Adicionales</h4>
+                                <h4 style="background-color: #2E7D32; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Servicios Adicionales</h4>
                                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                                     <thead>
                                         <tr style="background-color: #f0f0f0;">
@@ -286,7 +292,7 @@
                             </div>
 
                             <!-- Total General -->
-                            <div t-if="o.total_a_facturar > 0 or o.descuento_monto > 0" style="margin-bottom: 20px; border: 3px solid #000; padding: 15px; background-color: #f9f9f9;">
+                            <div name="total_general" t-if="o.total_a_facturar > 0 or o.descuento_monto > 0" style="margin-bottom: 20px; border: 3px solid #2E7D32; padding: 15px; background-color: #f9f9f9;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <tr t-if="o.subtotal_servicios > 0">
                                         <td style="padding: 8px; font-size: 14px;"><strong>Subtotal Servicios:</strong></td>
@@ -314,17 +320,28 @@
                                     <tr style="border-top: 3px solid #000;">
                                         <td style="padding: 10px; font-size: 18px;"><strong>TOTAL A FACTURAR:</strong></td>
                                         <td style="padding: 10px; text-align: right; font-size: 18px;">
-                                            <strong style="color: #00A09D;">$<span t-field="o.total_a_facturar" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                            <strong style="color: #2E7D32;">$<span t-field="o.total_a_facturar" t-options='{"widget": "float", "precision": 0}'/></strong>
                                         </td>
                                     </tr>
                                 </table>
                             </div>
 
-                            <!-- Pie de página -->
-                            <div style="margin-top: 40px; text-align: center; font-size: 10px; color: #666;">
-                                <p>Este documento es un registro de la orden de servicio y no constituye factura.</p>
-                            </div>
+                        </div>
 
+                        <!-- Pie de página real: se repite en cada hoja del PDF -->
+                        <div class="footer" style="font-family: Arial, sans-serif;">
+                            <div style="border-top: 2px solid #2E7D32; padding-top: 5px; font-size: 10px; color: #666;">
+                                <table style="width: 100%;">
+                                    <tr>
+                                        <td style="text-align: left;">
+                                            Este documento es un registro de la orden de servicio y no constituye factura.
+                                        </td>
+                                        <td style="text-align: right; white-space: nowrap;">
+                                            Página <span class="page"/> de <span class="topage"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
                     </t>
                 </t>
