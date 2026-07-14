@@ -93,14 +93,46 @@ def _borrar_facturas_y_pickings():
         facturas.unlink()
         print(f'  [OK] {len(facturas):6} × account.move (canceladas y borradas)')
 
-    # 2. Pickings de pesajes: cancelar y borrar (con sus moves)
+    # 2. Pickings de pesajes: forzar moves a draft y borrar.
+    # Los moves 'done' no se pueden cancelar (Odoo exige devolución), pero en
+    # un reset de prueba queremos borrarlos directo. Los bajamos a 'draft'
+    # por escritura de bajo nivel para saltar action_cancel().
     pickings = _sudo('stock.picking', [('x_pesaje_id', '!=', False)])
     if pickings:
-        activos = pickings.filtered(lambda p: p.state not in ('draft', 'cancel'))
-        if activos:
-            activos.action_cancel()
-        pickings.unlink()
-        print(f'  [OK] {len(pickings):6} × stock.picking (cancelados y borrados)')
+        moves = pickings.mapped('move_ids')
+        move_lines = pickings.mapped('move_line_ids')
+        # Borrar primero las líneas de movimiento (stock.move.line)
+        if move_lines:
+            move_lines.sudo().write({'state': 'draft'})
+            move_lines.sudo().unlink()
+        # Bajar los moves a draft (evita la validación de 'done') y borrarlos
+        if moves:
+            moves.sudo().write({'state': 'draft'})
+            moves.sudo().unlink()
+        # Bajar los pickings a draft y borrarlos
+        pickings.sudo().write({'state': 'draft'})
+        pickings.sudo().unlink()
+        print(f'  [OK] {len(pickings):6} × stock.picking (forzados a draft y borrados)')
+        print('  [!] AVISO: borrar moves done deja stock.quant descuadrado.')
+        print('      Corre  limpiar_inventario()  aparte si quieres inventario en cero,')
+        print('      o hazlo desde Inventario > Ajustes de inventario en la interfaz.')
+
+
+def limpiar_inventario():
+    """OPCIONAL: pone a cero las existencias en ubicaciones internas.
+    Correr DESPUÉS de borrar_todo() si el inventario quedó descuadrado.
+    Solo toca ubicaciones internas (no proveedores/clientes/producción)."""
+    quants = env['stock.quant'].sudo().search([
+        ('location_id.usage', '=', 'internal'),
+        ('quantity', '!=', 0),
+    ])
+    print(f'\n{len(quants)} stock.quant internos con existencias.')
+    if quants:
+        # set_inventory_quantity=0 + apply = ajuste a cero soportado por Odoo
+        quants.sudo().write({'inventory_quantity': 0})
+        quants.sudo().action_apply_inventory()
+        env.cr.commit()
+        print('  [OK] Inventario interno ajustado a cero (commit hecho).')
 
 
 def borrar_todo():
