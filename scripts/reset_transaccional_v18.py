@@ -145,6 +145,14 @@ def borrar_todo():
         print('  -> NO se hace commit. Revisa y reintenta.')
         raise
 
+    # Pre-tratamiento: algunos modelos bloquean unlink por estado.
+    # Los bajamos a 'borrador' por escritura de bajo nivel (salta el unlink).
+    # - secadora.flete: unlink bloquea si no está en borrador/cancelado.
+    fletes = _sudo('secadora.flete', [('state', 'not in', ('borrador', 'cancelado'))])
+    if fletes:
+        fletes.sudo().write({'state': 'borrador'})
+        print(f'  [pre] {len(fletes):6} × Flete bajados a borrador')
+
     # Luego los registros secadora.* en orden hijo -> padre
     for etiqueta, modelo in PLAN:
         recs = _sudo(modelo)
