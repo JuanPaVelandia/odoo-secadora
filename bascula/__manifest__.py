@@ -28,8 +28,8 @@
         # 'data/sequences.xml',
         # 'data/variedad_arroz_data.xml',
         # 'data/product_empaque_data.xml',
-        # 'data/tipo_operacion_data.xml',
-        # 'data/tipo_operacion_update.xml',
+        'data/tipo_operacion_data.xml',
+        # 'data/tipo_operacion_update.xml',  # redundante: es_compraventa ya está en tipo_operacion_data.xml
         # 'data/tipo_vehiculo_data.xml',
         'security/security.xml',
         'security/ir.model.access.csv',
