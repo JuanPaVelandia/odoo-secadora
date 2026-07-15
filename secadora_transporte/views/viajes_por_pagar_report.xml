@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Formato de papel: Carta -->
+        <!-- IMPORTANTE: Debe ir ANTES del action_report para que la referencia funcione -->
+        <record id="paperformat_viajes_pagar_carta" model="report.paperformat">
+            <field name="name">Viajes por Pagar Carta</field>
+            <field name="default" eval="False"/>
+            <field name="format">Letter</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">12</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">5</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Acción de impresión. Sin binding: se lanza solo desde el wizard
+             "Imprimir Viajes Facturados por Pagar". -->
+        <record id="action_report_viajes_por_pagar" model="ir.actions.report">
+            <field name="name">Viajes Facturados por Pagar</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">secadora_transporte.report_viajes_por_pagar_document</field>
+            <field name="report_file">secadora_transporte.report_viajes_por_pagar_document</field>
+            <field name="print_report_name">'Viajes por Pagar'</field>
+            <field name="paperformat_id" ref="secadora_transporte.paperformat_viajes_pagar_carta"/>
+        </record>
+
+        <!-- Plantilla. Usa web.basic_layout (patrón de la casa): sin logo ni
+             colores del tema estándar; encabezado y pie propios. Una sección
+             de "orden de giro" por factura, con sus viajes debajo. -->
+        <template id="report_viajes_por_pagar_document">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <t t-set="total_general" t-value="sum(docs.mapped('amount_residual'))"/>
+                    <t t-set="total_viajes" t-value="sum(len(d.fletes_activos()) for d in docs)"/>
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
+
+                        <!-- Encabezado general -->
+                        <div class="text-center" style="border-bottom: 2px solid #444444; padding-bottom: 8px; margin-bottom: 12px;">
+                            <h3 style="margin: 0; font-size: 15px;"><strong>VIAJES FACTURADOS POR PAGAR</strong></h3>
+                            <p style="margin: 3px 0; font-size: 10px; color: #666;">
+                                Soporte de giro para pagadores — Transporte
+                            </p>
+                            <p style="margin: 2px 0; font-size: 10px;">
+                                Fecha de impresión: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
+                            </p>
+                        </div>
+
+                        <!-- Una orden de giro por factura -->
+                        <t t-foreach="docs" t-as="o">
+                            <div style="border: 1px solid #999999; border-radius: 4px; padding: 10px 12px; margin-bottom: 14px; page-break-inside: avoid;">
+
+                                <!-- Título de la sección -->
+                                <div style="background-color: #444444; color: white; padding: 4px 8px; margin: -10px -12px 8px -12px; font-size: 12px;">
+                                    <strong>ORDEN DE GIRO — TRANSPORTE</strong>
+                                    <span style="float: right;">Factura <span t-field="o.name"/></span>
+                                </div>
+
+                                <!-- Empresa que paga / proveedor -->
+                                <div class="row" style="margin-bottom: 8px;">
+                                    <div class="col-6">
+                                        <strong>Empresa que paga:</strong> <span t-field="o.company_id.name"/><br/>
+                                        <t t-if="o.company_id.vat">
+                                            <strong>NIT:</strong> <span t-field="o.company_id.vat"/><br/>
+                                        </t>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Girar a:</strong> <span t-field="o.partner_id.name"/><br/>
+                                        <t t-if="o.partner_id.vat">
+                                            <strong>NIT:</strong> <span t-field="o.partner_id.vat"/><br/>
+                                        </t>
+                                        <!-- La factura puede estar a nombre de un contacto distinto
+                                             al de la transportadora (se empareja por NIT) -->
+                                        <t t-set="fletes_factura" t-value="o.fletes_activos()"/>
+                                        <t t-set="transportadora_flete" t-value="fletes_factura[:1].transportadora_id"/>
+                                        <t t-if="transportadora_flete and transportadora_flete.partner_id != o.partner_id">
+                                            <span style="color: #666; font-size: 10px;">
+                                                Transportadora del flete: <span t-esc="transportadora_flete.name"/>
+                                            </span><br/>
+                                        </t>
+                                    </div>
+                                </div>
+
+                                <!-- Datos de la factura -->
+                                <div class="row" style="margin-bottom: 8px;">
+                                    <div class="col-6">
+                                        <strong>Factura:</strong> <span t-field="o.name"/><br/>
+                                        <t t-if="o.ref">
+                                            <strong>Ref. proveedor:</strong> <span t-field="o.ref"/><br/>
+                                        </t>
+                                        <strong>Fecha factura:</strong> <span t-field="o.invoice_date"/>
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Total factura:</strong>
+                                        $<span t-field="o.amount_total" t-options='{"widget": "float", "precision": 0}'/><br/>
+                                        <strong>Estado de pago:</strong>
+                                        <span t-if="o.payment_state == 'partial'" style="color: #b45309;"><strong>PAGO PARCIAL</strong></span>
+                                        <span t-elif="o.payment_state == 'not_paid'" style="color: #b91c1c;"><strong>SIN PAGAR</strong></span>
+                                        <!-- El wizard solo imprime por pagar, pero si el reporte se
+                                             lanza por otra vía no debe declarar SIN PAGAR una pagada -->
+                                        <span t-else=""><strong t-field="o.payment_state"/></span>
+                                    </div>
+                                </div>
+
+                                <!-- Cuenta bancaria -->
+                                <t t-set="bancos" t-value="o.partner_id.bank_ids"/>
+                                <t t-if="not bancos">
+                                    <div style="border: 2px solid #b91c1c; color: #b91c1c; padding: 6px 10px; margin-bottom: 8px; font-weight: bold;">
+                                        SIN CUENTA BANCARIA REGISTRADA — verificar con el proveedor antes de girar
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <table class="table table-sm" style="font-size: 11px; margin-bottom: 8px; width: 100%; border-collapse: collapse;">
+                                        <thead>
+                                            <tr style="border-bottom: 1px solid #444444;">
+                                                <th style="text-align: left; padding: 2px 6px;">Banco</th>
+                                                <th style="text-align: left; padding: 2px 6px;">Número de cuenta</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="bancos" t-as="banco">
+                                                <tr>
+                                                    <td style="padding: 2px 6px;">
+                                                        <span t-esc="banco.bank_id.name or 'Banco no especificado'"/>
+                                                        <t t-if="banco_index == 0"> (principal)</t>
+                                                    </td>
+                                                    <td style="padding: 2px 6px;"><span t-field="banco.acc_number"/></td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+
+                                <!-- Valor a girar -->
+                                <div style="text-align: right; background-color: #f0f0f0; border: 1px solid #444444; padding: 6px 10px; margin-bottom: 8px;">
+                                    <span style="font-size: 12px;">VALOR A GIRAR (saldo pendiente): </span>
+                                    <span style="font-size: 16px;"><strong>$<span t-field="o.amount_residual" t-options='{"widget": "float", "precision": 0}'/></strong></span>
+                                </div>
+
+                                <!-- Viajes de la factura -->
+                                <h5 style="font-size: 11px; margin: 6px 0 4px 0;"><strong>Viajes incluidos en esta factura</strong></h5>
+                                <table style="font-size: 10px; width: 100%; border-collapse: collapse; margin-bottom: 4px;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid #444444; background-color: #f0f0f0;">
+                                            <th style="text-align: left; padding: 2px 5px;">Flete</th>
+                                            <th style="text-align: left; padding: 2px 5px;">Ticket Báscula</th>
+                                            <th style="text-align: left; padding: 2px 5px;">Fecha</th>
+                                            <th style="text-align: left; padding: 2px 5px;">Placa</th>
+                                            <th style="text-align: left; padding: 2px 5px;">Ruta</th>
+                                            <th style="text-align: right; padding: 2px 5px;">Costo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="fletes_factura.sorted('fecha')" t-as="flete">
+                                            <tr style="border-bottom: 1px solid #dddddd;">
+                                                <td style="padding: 2px 5px;"><span t-field="flete.name"/></td>
+                                                <td style="padding: 2px 5px;"><span t-esc="flete.pesaje_id.name or '—'"/></td>
+                                                <td style="padding: 2px 5px;"><span t-field="flete.fecha"/></td>
+                                                <td style="padding: 2px 5px;"><span t-esc="flete.placa_texto or ''"/></td>
+                                                <td style="padding: 2px 5px;">
+                                                    <span t-esc="(flete.origen_id.name or '')"/>
+                                                    <t t-if="flete.origen_id or flete.destino_id"> → </t>
+                                                    <span t-esc="(flete.destino_id.name or '')"/>
+                                                </td>
+                                                <td style="text-align: right; padding: 2px 5px;">
+                                                    $<span t-field="flete.costo_total" t-options='{"widget": "float", "precision": 0}'/>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                        <tr style="border-top: 1px solid #444444;">
+                                            <td colspan="5" style="text-align: right; padding: 2px 5px;"><strong>Subtotal fletes:</strong></td>
+                                            <td style="text-align: right; padding: 2px 5px;">
+                                                <strong>$<span t-esc="sum(fletes_factura.mapped('costo_total'))" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p style="font-size: 9px; color: #666; margin: 0;">
+                                    El subtotal de fletes puede diferir del total de la factura si esta
+                                    incluye otros conceptos o impuestos.
+                                </p>
+                            </div>
+                        </t>
+
+                        <!-- Total general -->
+                        <div style="border: 2px solid #444444; padding: 8px 12px; margin-top: 10px; page-break-inside: avoid;">
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Facturas:</strong> <span t-esc="len(docs)"/><br/>
+                                    <strong>Viajes:</strong> <span t-esc="total_viajes"/>
+                                </div>
+                                <div class="col-6" style="text-align: right;">
+                                    <span style="font-size: 13px;">TOTAL GENERAL A GIRAR: </span>
+                                    <span style="font-size: 18px;"><strong>$<span t-esc="total_general" t-options='{"widget": "float", "precision": 0}'/></strong></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Firmas -->
+                        <table style="width: 100%; margin-top: 40px; page-break-inside: avoid;">
+                            <tr>
+                                <td style="width: 33%; text-align: center; padding: 0 15px;">
+                                    <div style="border-top: 1px solid #444444; padding-top: 4px;">Elaboró</div>
+                                </td>
+                                <td style="width: 33%; text-align: center; padding: 0 15px;">
+                                    <div style="border-top: 1px solid #444444; padding-top: 4px;">Autorizó</div>
+                                </td>
+                                <td style="width: 33%; text-align: center; padding: 0 15px;">
+                                    <div style="border-top: 1px solid #444444; padding-top: 4px;">Pagó</div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>
