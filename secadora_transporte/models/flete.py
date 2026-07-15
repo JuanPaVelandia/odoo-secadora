@@ -219,6 +219,12 @@ class SecadoraFlete(models.Model):
         tracking=True,
         copy=False,
     )
+    factura_domain = fields.Binary(
+        string='Dominio Factura Transportadora',
+        compute='_compute_factura_domain',
+        help='Filtra las facturas candidatas por el NIT de la transportadora '
+             'y la empresa que paga, excluyendo las ya asociadas a otro flete.',
+    )
 
     # Almacenados (store=True) a propósito: el filtro "Facturados por pagar"
     # busca sobre estos campos, y un related NO almacenado expande la búsqueda
@@ -275,6 +281,58 @@ class SecadoraFlete(models.Model):
             else:
                 base = 0.0
             rec.costo_total = base + (rec.valor_adicional or 0.0)
+
+    # ==================== FACTURAS ASOCIABLES ====================
+
+    @api.model
+    def _facturas_asociables_domain(self, partner, company, excluir_fletes=None):
+        """Dominio de facturas de proveedor candidatas a asociarse a fletes.
+
+        Fuente única del filtro que usan el campo del formulario de flete y
+        el wizard "Asociar a Factura": facturas de proveedor no canceladas,
+        no asociadas ya a otro flete, del NIT del contacto de la
+        transportadora (si lo hay — así aparece cualquier factura cuyo
+        proveedor tenga el mismo NIT aunque sea otro registro de contacto)
+        y de la empresa que paga (si se conoce).
+
+        excluir_fletes: fletes cuya factura actual NO debe descartarse
+        (p.ej. el propio flete al editarlo, para que su factura asignada
+        siga siendo seleccionable).
+
+        La búsqueda se hace sobre TODAS las compañías del usuario y se fija
+        el resultado como dominio por id, para saltar el filtro de la
+        compañía activa sin exponer compañías fuera de su alcance.
+        """
+        fletes_con_factura = self.search([('factura_transportadora_id', '!=', False)])
+        if excluir_fletes:
+            fletes_con_factura -= excluir_fletes
+        facturas_usadas_ids = fletes_con_factura.mapped('factura_transportadora_id').ids
+
+        search_domain = [
+            ('move_type', '=', 'in_invoice'),
+            ('state', '!=', 'cancel'),
+        ]
+        if facturas_usadas_ids:
+            search_domain.append(('id', 'not in', facturas_usadas_ids))
+        nit = partner.vat if partner else False
+        if nit:
+            search_domain.append(('partner_id.vat', '=', nit))
+        if company:
+            search_domain.append(('company_id', '=', company.id))
+
+        facturas = self.env['account.move'].with_context(
+            allowed_company_ids=self.env.user.company_ids.ids,
+        ).search(search_domain)
+        return [('id', 'in', facturas.ids)]
+
+    @api.depends('transportadora_id', 'company_id')
+    def _compute_factura_domain(self):
+        for rec in self:
+            rec.factura_domain = self._facturas_asociables_domain(
+                rec.transportadora_id.partner_id,
+                rec.company_id,
+                excluir_fletes=rec._origin,
+            )
 
     # ==================== ONCHANGE ====================
 

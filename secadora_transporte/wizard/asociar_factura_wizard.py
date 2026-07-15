@@ -68,49 +68,17 @@ class AsociarFacturaWizard(models.TransientModel):
 
     @api.depends('partner_transportadora_id', 'company_id')
     def _compute_factura_domain(self):
-        """Dominio dinámico: facturas de proveedor (borrador o validadas, no
-        canceladas) filtradas por el NIT del dueño de la transportadora y la
-        empresa que paga, excluyendo las ya asociadas a algún flete.
-
-        Se filtra por el NIT (vat) del contacto de la transportadora, no por el
-        contacto exacto: así aparece cualquier factura cuyo proveedor tenga el
-        mismo NIT, aunque sea otro registro de contacto. Si la transportadora no
-        tiene contacto o el contacto no tiene NIT cargado, no se puede filtrar
-        por proveedor y se muestran todas las facturas de la empresa.
-
-        La búsqueda se hace sobre TODAS las compañías del usuario (no solo la
-        activa en la sesión), para que aparezca la factura aunque la empresa que
-        paga no esté seleccionada en el conmutador de compañías. El filtro por
-        company_id (empresa que paga del flete) evita mezclar empresas.
-        """
-        # Compañías a las que el usuario tiene acceso (aunque no estén activas).
-        allowed_company_ids = self.env.user.company_ids.ids
-
-        # Facturas ya vinculadas a algún flete (para no ofrecerlas de nuevo).
-        facturas_usadas_ids = self.env['secadora.flete'].search(
-            [('factura_transportadora_id', '!=', False)]
-        ).mapped('factura_transportadora_id').ids
-
+        """Dominio dinámico de facturas candidatas. La lógica (filtro por NIT,
+        empresa que paga, exclusión de facturas ya usadas y búsqueda en todas
+        las compañías del usuario) vive en secadora.flete
+        _facturas_asociables_domain, compartida con el campo del formulario
+        de flete."""
+        Flete = self.env['secadora.flete']
         for rec in self:
-            search_domain = [
-                ('move_type', '=', 'in_invoice'),
-                ('state', '!=', 'cancel'),
-            ]
-            if facturas_usadas_ids:
-                search_domain.append(('id', 'not in', facturas_usadas_ids))
-            nit = rec.partner_transportadora_id.vat
-            if nit:
-                search_domain.append(('partner_id.vat', '=', nit))
-            if rec.company_id:
-                search_domain.append(('company_id', '=', rec.company_id.id))
-
-            # Buscar en todas las compañías permitidas del usuario y fijar el
-            # resultado como dominio por id, para saltar el filtro de la compañía
-            # activa sin exponer compañías fuera del alcance del usuario.
-            facturas = self.env['account.move'].with_context(
-                allowed_company_ids=allowed_company_ids,
-            ).search(search_domain)
-            rec.factura_domain = [('id', 'in', facturas.ids)]
+            rec.factura_domain = Flete._facturas_asociables_domain(
+                rec.partner_transportadora_id,
+                rec.company_id,
+            )
 
     @api.depends('flete_ids.costo_total')
     def _compute_costo_total_fletes(self):

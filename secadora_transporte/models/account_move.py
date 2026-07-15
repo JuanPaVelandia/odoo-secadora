@@ -40,9 +40,15 @@ class AccountMove(models.Model):
 
         Un flete puede cancelarse después de asociarse a la factura sin que
         se limpie el vínculo; el soporte de giro no debe listarlo ni sumarlo.
+
+        sudo acotado: el pesaje o los lugares del viaje pueden pertenecer a
+        una compañía distinta de la que paga la factura, y la regla
+        multi-compañía bloquearía su lectura al renderizar el PDF. Los datos
+        quedan acotados a los fletes de esta factura, que el usuario ya
+        puede leer.
         """
         self.ensure_one()
-        return self.flete_ids.filtered(lambda f: f.state != 'cancelado')
+        return self.sudo().flete_ids.filtered(lambda f: f.state != 'cancelado')
 
     def action_ver_fletes(self):
         self.ensure_one()

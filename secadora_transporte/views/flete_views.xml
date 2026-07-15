@@ -75,7 +75,10 @@
                                 <field name="razon_adicional" invisible="not valor_adicional" readonly="state in ('facturado', 'cancelado')"/>
                                 <field name="costo_total"
                                        style="font-size: 18px; font-weight: bold; color: #00A09D;"/>
-                                <field name="factura_transportadora_id" readonly="state in ('facturado', 'cancelado')"/>
+                                <field name="factura_domain" invisible="1"/>
+                                <field name="factura_transportadora_id"
+                                       domain="factura_domain"
+                                       readonly="state in ('facturado', 'cancelado')"/>
                             </group>
                         </group>
                         <field name="pesaje_direccion" invisible="1"/>
