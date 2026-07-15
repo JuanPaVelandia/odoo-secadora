@@ -71,9 +71,17 @@ class SecadoraPesajeTransporte(models.Model):
             'tercero_id': 'tercero_id',
         }
         campos_changed = set(vals) & set(campos_sync)
+        # peso_neto es un campo computado (depende de peso_bruto/peso_tara), por lo
+        # que NO aparece en vals al editar el peso. Detectar su cambio por los campos
+        # fuente para que el peso del flete también se sincronice.
+        if {'peso_bruto', 'peso_tara'} & set(vals):
+            campos_changed = campos_changed | {'peso_neto'}
         if campos_changed:
+            # Sincronizar mientras el transporte sigue activo. Se congela al
+            # liquidar/facturar (valores contables) o cancelar.
+            estados_sync = ('borrador', 'confirmado', 'en_ruta', 'entregado')
             for record in self:
-                for flete in record.flete_ids.filtered(lambda f: f.state in ('borrador', 'confirmado')):
+                for flete in record.flete_ids.filtered(lambda f: f.state in estados_sync):
                     sync_vals = {}
                     for campo_pesaje in campos_changed:
                         campo_flete = campos_sync[campo_pesaje]
