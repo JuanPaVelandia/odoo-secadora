@@ -124,6 +124,9 @@
                     <field name="costo_total"/>
                     <field name="company_id" optional="hide"/>
                     <field name="factura_transportadora_id" optional="hide"/>
+                    <field name="factura_currency_id" column_invisible="1"/>
+                    <field name="factura_estado_pago" optional="hide"/>
+                    <field name="factura_saldo" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-success="state == 'entregado'"
                            decoration-info="state == 'en_ruta'"
@@ -149,6 +152,12 @@
                     <filter string="En Ruta" name="filter_en_ruta" domain="[('state', '=', 'en_ruta')]"/>
                     <filter string="Entregados" name="filter_entregado" domain="[('state', '=', 'entregado')]"/>
                     <filter string="Liquidados" name="filter_liquidado" domain="[('state', '=', 'liquidado')]"/>
+                    <separator/>
+                    <!-- Misma semántica "por pagar" que el tablero y el wizard
+                         (account.move.es_por_pagar): factura publicada con saldo,
+                         sin exigir que el flete haya pasado a estado 'facturado'. -->
+                    <filter string="Facturados por pagar" name="filter_facturados_por_pagar"
+                            domain="[('state', '!=', 'cancelado'), ('factura_estado', '=', 'posted'), ('factura_estado_pago', 'in', ('not_paid', 'partial'))]"/>
                     <separator/>
                     <filter string="Hoy" name="filter_hoy" domain="[('fecha', '=', context_today().strftime('%Y-%m-%d'))]"/>
 

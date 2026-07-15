@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from collections import Counter, defaultdict
+
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
@@ -218,6 +220,31 @@ class SecadoraFlete(models.Model):
         copy=False,
     )
 
+    # Almacenados (store=True) a propósito: el filtro "Facturados por pagar"
+    # busca sobre estos campos, y un related NO almacenado expande la búsqueda
+    # a una subconsulta sobre account.move con las ACL del usuario — los
+    # usuarios de transporte sin permisos contables recibirían AccessError.
+    # Almacenados, la búsqueda queda sobre la tabla de fletes.
+    factura_estado = fields.Selection(
+        related='factura_transportadora_id.state',
+        string='Estado Factura',
+        store=True,
+    )
+    factura_estado_pago = fields.Selection(
+        related='factura_transportadora_id.payment_state',
+        string='Estado de Pago',
+        store=True,
+    )
+    factura_saldo = fields.Monetary(
+        related='factura_transportadora_id.amount_residual',
+        string='Saldo Factura',
+        currency_field='factura_currency_id',
+    )
+    factura_currency_id = fields.Many2one(
+        related='factura_transportadora_id.currency_id',
+        string='Moneda Factura',
+    )
+
     # ==================== ESTADO ====================
 
     state = fields.Selection([
@@ -420,4 +447,213 @@ class SecadoraFlete(models.Model):
             'res_id': self.factura_transportadora_id.id,
             'view_mode': 'form',
             'target': 'current',
+        }
+
+    # ==================== TABLERO DE TRANSPORTE ====================
+
+    @api.model
+    def _domain_tablero(self, filtros):
+        """Dominio de fletes según los filtros del tablero/wizard. Fuente
+        única: el tablero, el wizard de impresión y el drill-down "Ver
+        fletes" del frontend usan este mismo dominio."""
+        domain = [('state', '!=', 'cancelado')]
+        if filtros.get('fecha_desde'):
+            domain.append(('fecha', '>=', filtros['fecha_desde']))
+        if filtros.get('fecha_hasta'):
+            domain.append(('fecha', '<=', filtros['fecha_hasta']))
+        if filtros.get('transportadora_id'):
+            domain.append(('transportadora_id', '=', int(filtros['transportadora_id'])))
+        if filtros.get('company_id'):
+            domain.append(('company_id', '=', int(filtros['company_id'])))
+        if filtros.get('pago_flete') in ('secadora', 'agricultor'):
+            domain.append(('pago_flete', '=', filtros['pago_flete']))
+        return domain
+
+    @api.model
+    def get_tablero_transporte_data(self, filtros=None):
+        """Datos agregados para el tablero de gestión de transporte.
+
+        filtros: dict opcional con fecha_desde/fecha_hasta ('YYYY-MM-DD'),
+        transportadora_id (int), company_id (int) y pago_flete
+        ('todos'/'secadora'/'agricultor').
+
+        Semántica:
+        - Viaje: flete no cancelado.
+        - Facturado: con factura asociada Y publicada (posted). Las facturas
+          en borrador se cuentan aparte (viajes_factura_borrador); las
+          canceladas no cuentan como facturadas ni como borrador.
+        - Pagado: factura con payment_state paid/in_payment.
+        - Saldo: amount_residual sumado SOLO sobre facturas distintas por
+          pagar (ver account.move.es_por_pagar). Varios fletes comparten
+          factura: sumar el residual por flete o por placa lo duplicaría.
+
+        A nivel placa las cifras se expresan en valor de flete (costo_total);
+        el saldo por pagar es contable y solo existe a nivel transportadora
+        y totales.
+
+        Alcance: compañías activas de la sesión — las mismas que verá el
+        usuario al abrir listas desde el tablero, para que los conteos del
+        tablero y el drill-down coincidan.
+        """
+        filtros = filtros or {}
+        fletes = self.search(self._domain_tablero(filtros))
+
+        # sudo acotado: solo se leen facturas ya referenciadas por fletes a
+        # los que el usuario tiene acceso, para que usuarios de transporte
+        # sin permisos contables vean estado y saldo.
+        facturas = fletes.mapped('factura_transportadora_id').sudo()
+        etiquetas_pago = dict(
+            self.env['account.move']._fields['payment_state']
+            ._description_selection(self.env)
+        )
+        info_facturas = {}
+        for f in facturas:
+            if f.state == 'posted':
+                etiqueta = etiquetas_pago.get(f.payment_state, f.payment_state or '')
+            elif f.state == 'cancel':
+                etiqueta = 'Cancelada'
+            else:
+                etiqueta = 'Borrador'
+            info_facturas[f.id] = {
+                'name': f.name,
+                'ref': f.ref or '',
+                'fecha': str(f.invoice_date) if f.invoice_date else '',
+                'estado': f.state,
+                'estado_pago_raw': f.payment_state or 'not_paid',
+                'estado_pago': etiqueta,
+                'total': f.amount_total,
+                'saldo': f.amount_residual if f.state == 'posted' else 0.0,
+                'por_pagar': f.es_por_pagar(),
+                'pagada': f.state == 'posted'
+                and f.payment_state in ('paid', 'in_payment'),
+            }
+
+        def _info(flete):
+            return info_facturas.get(flete.factura_transportadora_id.id)
+
+        def _stats(grupo):
+            """Agregados de una lista de fletes, en valor de flete."""
+            stats = {
+                'viajes': len(grupo),
+                'valor_fletes': 0.0,
+                'viajes_facturados': 0,
+                'valor_facturado': 0.0,
+                'viajes_pagados': 0,
+                'valor_pagado': 0.0,
+                'viajes_sin_facturar': 0,
+                'valor_sin_facturar': 0.0,
+                'viajes_factura_borrador': 0,
+            }
+            for x in grupo:
+                info = _info(x)
+                stats['valor_fletes'] += x.costo_total
+                if info and info['estado'] == 'posted':
+                    stats['viajes_facturados'] += 1
+                    stats['valor_facturado'] += x.costo_total
+                    if info['pagada']:
+                        stats['viajes_pagados'] += 1
+                        stats['valor_pagado'] += x.costo_total
+                elif info and info['estado'] == 'draft':
+                    stats['viajes_factura_borrador'] += 1
+                else:
+                    # Sin factura, o con factura cancelada (que en la práctica
+                    # significa que hay que volver a facturar el viaje).
+                    stats['viajes_sin_facturar'] += 1
+                    stats['valor_sin_facturar'] += x.costo_total
+            return stats
+
+        def _bloque(grupo):
+            """Bloque completo de una transportadora (o del grupo sin
+            transportadora): stats + desglose por placa + facturas."""
+            stats = _stats(grupo)
+
+            por_placa = defaultdict(list)
+            for x in grupo:
+                por_placa[x.placa_texto or ''].append(x)
+            stats['placas'] = [
+                {'placa': placa or '(sin placa)', **_stats(sub)}
+                for placa, sub in sorted(por_placa.items())
+            ]
+
+            conteo_fletes = Counter(
+                x.factura_transportadora_id.id for x in grupo
+                if x.factura_transportadora_id
+            )
+            detalle_facturas = []
+            saldo_por_pagar = 0.0
+            facturas_por_pagar = 0
+            for factura_id, num_fletes in conteo_fletes.items():
+                info = info_facturas[factura_id]
+                if info['por_pagar']:
+                    saldo_por_pagar += info['saldo']
+                    facturas_por_pagar += 1
+                detalle_facturas.append({
+                    'id': factura_id,
+                    'num_fletes': num_fletes,
+                    **{k: info[k] for k in (
+                        'name', 'ref', 'fecha', 'estado',
+                        'estado_pago', 'estado_pago_raw', 'total', 'saldo',
+                    )},
+                })
+            detalle_facturas.sort(key=lambda d: d['fecha'], reverse=True)
+            stats['facturas'] = detalle_facturas
+            stats['saldo_por_pagar'] = saldo_por_pagar
+            stats['facturas_por_pagar'] = facturas_por_pagar
+            return stats
+
+        # Agrupar por transportadora en una sola pasada. Los fletes sin
+        # transportadora entran como un grupo más con id 0.
+        por_transportadora = defaultdict(list)
+        for x in fletes:
+            por_transportadora[x.transportadora_id.id or 0].append(x)
+
+        # sudo acotado también aquí: las ACL de secadora.transportadora
+        # viven en bascula (grupo basculero) y un usuario de solo transporte
+        # no puede leer el catálogo, pero sí debe ver nombre y NIT de las
+        # transportadoras de sus propios fletes.
+        catalogo = {
+            t.id: t for t in fletes.mapped('transportadora_id').sudo()
+        }
+        transportadoras = []
+        orden = sorted(
+            (tid for tid in por_transportadora if tid),
+            key=lambda tid: catalogo[tid].name or '',
+        )
+        for tid in orden:
+            transportadoras.append({
+                'id': tid,
+                'name': catalogo[tid].name,
+                'nit': catalogo[tid].nit or '',
+                **_bloque(por_transportadora[tid]),
+            })
+        if 0 in por_transportadora:
+            transportadoras.append({
+                'id': 0,
+                'name': 'Sin transportadora asignada',
+                'nit': '',
+                **_bloque(por_transportadora[0]),
+            })
+
+        totales = _bloque(list(fletes))
+        # El detalle por placa/factura no se muestra a nivel global.
+        totales.pop('placas')
+        totales.pop('facturas')
+
+        return {
+            'transportadoras': transportadoras,
+            'totales': totales,
+            'domain_fletes': self._domain_tablero(filtros),
+            # El wizard de impresión requiere leer account.move: solo tiene
+            # sentido para el rol pagador (mismo gate que el menú).
+            'puede_imprimir': self.env.user.has_group('account.group_account_invoice'),
+            'opciones': {
+                'transportadoras': [
+                    {'id': t.id, 'name': t.name}
+                    for t in self.env['secadora.transportadora'].sudo().search([])
+                ],
+                'companias': [
+                    {'id': c.id, 'name': c.name}
+                    for c in self.env.companies
+                ],
+            },
         }

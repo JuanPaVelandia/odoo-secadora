@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import account_move
 from . import flete
 from . import orden_servicio
 from . import pesaje
