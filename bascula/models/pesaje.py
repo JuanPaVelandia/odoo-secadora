@@ -684,6 +684,9 @@ class SecadoraPesaje(models.Model):
             raise UserError('Solo el Administrador de Báscula puede reabrir un pesaje completado.')
         if self.state != 'completado':
             raise UserError('Solo se puede reabrir la edición de un pesaje completado.')
+        # Idempotente: si ya estaba reabierto, no repetir el mensaje del chatter.
+        if self.permite_edicion:
+            return
         self.permite_edicion = True
         # Dejar rastro en el chatter de quién reabrió y cuándo; los cambios que
         # haga después quedan registrados por el tracking de los campos.

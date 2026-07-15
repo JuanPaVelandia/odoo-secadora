@@ -16,7 +16,7 @@
                     <field name="cantidad_despachada" sum="Total Despachados"/>
                     <field name="cantidad_pendiente" sum="Total Pendientes"/>
                     <field name="peso_total" sum="Peso Total"/>
-                    <field name="state"/>
+                    <field name="despachado" widget="boolean_toggle"/>
                 </list>
             </field>
         </record>
@@ -32,7 +32,7 @@
                     <field name="producto_id"/>
                     <group expand="1" string="Agrupar por">
                         <filter name="group_cliente" string="Dueño / Agricultor" context="{'group_by': 'cliente_id'}"/>
-                        <filter name="group_state" string="Estado" context="{'group_by': 'state'}"/>
+                        <filter name="group_despachado" string="Despachado" context="{'group_by': 'despachado'}"/>
                         <filter name="group_producto" string="Producto" context="{'group_by': 'producto_id'}"/>
                     </group>
                 </search>

@@ -22,7 +22,7 @@
                                 invisible="state != 'cancelado'" groups="bascula.group_bascula_admin"/>
                         <button name="action_reabrir_edicion" string="Reabrir para editar" type="object"
                                 class="btn-warning"
-                                invisible="state != 'completado' or permite_edicion"
+                                invisible="state != 'completado'"
                                 groups="bascula.group_bascula_admin"
                                 confirm="Vas a desbloquear un pesaje completado para editar todos sus campos, incluido el peso. ¿Continuar?"/>
                         <button name="action_imprimir_tiquete" string="Imprimir Tiquete" type="object"
