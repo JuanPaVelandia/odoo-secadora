@@ -59,19 +59,22 @@
                                 </div>
                             </div>
 
-                            <!-- Primera fila: cinco columnas limpias -->
-                            <table style="width: 100%; margin-bottom: 12px;">
+                            <!-- Primera fila: cinco columnas limpias.
+                                 table-layout fixed: ninguna celda puede empujar a las
+                                 demás. Las horas van solo con HH:mm (el Datetime
+                                 completo no cabe en una celda del 20%). -->
+                            <table style="width: 100%; table-layout: fixed; margin-bottom: 12px;">
                                 <tr style="font-size: 9px; letter-spacing: 1px; color: #555;">
-                                    <td style="width: 20%;">FECHA</td>
-                                    <td style="width: 20%;">ENTRADA</td>
-                                    <td style="width: 20%;">SALIDA</td>
-                                    <td style="width: 20%;">TIPO</td>
-                                    <td style="width: 20%;">ESTADO</td>
+                                    <td style="width: 22%;">FECHA</td>
+                                    <td style="width: 17%;">ENTRADA</td>
+                                    <td style="width: 17%;">SALIDA</td>
+                                    <td style="width: 22%;">TIPO</td>
+                                    <td style="width: 22%;">ESTADO</td>
                                 </tr>
                                 <tr style="font-size: 12px;">
-                                    <td><strong t-field="o.fecha"/></td>
-                                    <td><strong t-field="o.hora_entrada"/></td>
-                                    <td><strong t-field="o.hora_salida"/></td>
+                                    <td><strong t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></td>
+                                    <td><strong t-field="o.hora_entrada" t-options='{"format": "HH:mm"}'/></td>
+                                    <td><strong t-field="o.hora_salida" t-options='{"format": "HH:mm"}'/></td>
                                     <td><strong t-field="o.tipo_proceso"/></td>
                                     <td><strong t-field="o.state"/></td>
                                 </tr>
@@ -80,21 +83,21 @@
                             <div style="border-top: 1px solid #ccc; margin-bottom: 10px;"/>
 
                             <!-- Vehículo y Conductor: dos columnas -->
-                            <table style="width: 100%; margin-bottom: 12px;">
+                            <table style="width: 100%; table-layout: fixed; margin-bottom: 12px;">
                                 <tr style="font-size: 9px; letter-spacing: 1px; color: #555;">
                                     <td style="width: 42%; vertical-align: top;">VEHÍCULO — PLACA</td>
                                     <td style="width: 58%; vertical-align: top;">CONDUCTOR</td>
                                 </tr>
                                 <tr>
-                                    <td style="vertical-align: top;">
+                                    <td style="vertical-align: top; word-wrap: break-word;">
                                         <div style="font-size: 36px; line-height: 1.1;"><strong t-field="o.placa_texto"/></div>
                                         <div style="font-size: 12px; color: #333; margin-top: 6px;">
                                             Cédula <strong t-field="o.cedula_conductor"/><br/>
                                             Transportadora <strong t-field="o.transportadora_id"/>
                                         </div>
                                     </td>
-                                    <td style="vertical-align: top;">
-                                        <div style="font-size: 36px; line-height: 1.1;"><strong t-field="o.conductor_id"/></div>
+                                    <td style="vertical-align: top; word-wrap: break-word;">
+                                        <div style="font-size: 30px; line-height: 1.1;"><strong t-field="o.conductor_id"/></div>
                                     </td>
                                 </tr>
                             </table>
@@ -113,29 +116,31 @@
                                 &#160;&#160;&#160;Destino: <strong t-field="o.destino_id"/>
                             </div>
 
-                            <!-- Pesos: la única caja del documento -->
+                            <!-- Pesos: la única caja del documento. Sin decimales:
+                                 la báscula pesa kilos enteros y los ".00" alargan la
+                                 cifra grande hasta rozar el borde. -->
                             <div style="border: 1px solid #111; padding: 12px 18px; margin-bottom: 14px;">
-                                <table style="width: 100%;">
+                                <table style="width: 100%; table-layout: fixed;">
                                     <tr style="font-size: 22px;">
-                                        <td style="padding: 2px 0;">Peso Lleno</td>
-                                        <td style="text-align: right; padding: 2px 0;"><span t-field="o.peso_bruto"/> Kg</td>
+                                        <td style="width: 40%; padding: 2px 0;">Peso Lleno</td>
+                                        <td style="text-align: right; padding: 2px 0;"><span t-field="o.peso_bruto" t-options='{"widget": "float", "precision": 0}'/> Kg</td>
                                     </tr>
                                     <tr style="font-size: 22px;">
                                         <td style="padding: 2px 0;">Peso Vacío</td>
-                                        <td style="text-align: right; padding: 2px 0;"><span t-field="o.peso_tara"/> Kg</td>
+                                        <td style="text-align: right; padding: 2px 0;"><span t-field="o.peso_tara" t-options='{"widget": "float", "precision": 0}'/> Kg</td>
                                     </tr>
                                     <tr>
                                         <td colspan="2" style="border-top: 1px solid #111; padding: 0; height: 6px;"/>
                                     </tr>
                                     <tr>
                                         <td style="font-size: 15px; letter-spacing: 1px; vertical-align: middle;"><strong>PESO NETO</strong></td>
-                                        <td style="text-align: right; font-size: 40px; line-height: 1.05;"><strong><span t-field="o.peso_neto"/> Kg</strong></td>
+                                        <td style="text-align: right; font-size: 36px; line-height: 1.05; white-space: nowrap;"><strong><span t-field="o.peso_neto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
                                     </tr>
                                 </table>
                             </div>
 
                             <!-- Calidad: dos columnas -->
-                            <table style="width: 100%; margin-bottom: 12px;">
+                            <table style="width: 100%; table-layout: fixed; margin-bottom: 12px;">
                                 <tr style="font-size: 9px; letter-spacing: 1px; color: #555;">
                                     <td style="width: 42%;">HUMEDAD</td>
                                     <td style="width: 58%;">IMPUREZAS</td>
@@ -146,14 +151,16 @@
                                 </tr>
                             </table>
 
-                            <!-- Información técnica: una línea con separadores verticales -->
+                            <!-- Información técnica: una línea con separadores verticales.
+                                 Separador con carácter | : los spans vacíos con solo
+                                 border-left no siempre se dibujan en wkhtmltopdf. -->
                             <div style="font-size: 12px; color: #333; margin-bottom: 10px;">
                                 Producto <strong t-field="o.producto_id"/>
-                                <span style="border-left: 1px solid #999; margin: 0 8px;"/>
+                                <span style="color: #bbb;">&#160;|&#160;</span>
                                 Variedad <strong t-field="o.variedad_id"/>
-                                <span style="border-left: 1px solid #999; margin: 0 8px;"/>
+                                <span style="color: #bbb;">&#160;|&#160;</span>
                                 Grano Partido <strong><span t-field="o.grano_partido"/>%</strong>
-                                <span style="border-left: 1px solid #999; margin: 0 8px;"/>
+                                <span style="color: #bbb;">&#160;|&#160;</span>
                                 Bultos <strong t-field="o.bultos"/>
                             </div>
 
