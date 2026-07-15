@@ -694,6 +694,17 @@ class SecadoraPesaje(models.Model):
             body=f'Pesaje reabierto para edición por {self.env.user.name}.',
         )
 
+    def action_cerrar_edicion(self):
+        """Volver a bloquear un pesaje completado que estaba en edición.
+
+        Cierra explícitamente la sesión de edición abierta con
+        action_reabrir_edicion, sin depender de que se hayan guardado cambios.
+        """
+        self.ensure_one()
+        if not self.permite_edicion:
+            return
+        self.permite_edicion = False
+
     def action_imprimir_tiquete(self):
         """Abrir el tiquete PDF en una pestaña del navegador (visor de PDF),
         sin descargarlo: desde ahí se imprime directo con Ctrl+P o el botón
