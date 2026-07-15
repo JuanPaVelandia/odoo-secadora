@@ -35,6 +35,135 @@ class SecadoraPesajeStock(models.Model):
                 )
         return super().unlink()
 
+    def write(self, vals):
+        # Detectar corrección de peso sobre pesajes cuyo inventario ya se
+        # validó (picking done). Se captura el peso neto ANTES del cambio para
+        # calcular la diferencia y ajustar el stock.
+        # NOTA: peso_neto se calcula aquí como bruto - tara directamente, NO se
+        # lee el campo computado, porque su compute devuelve 0 si bruto o tara
+        # es 0 (usa 'and'), lo que falsearía la diferencia al poner uno en cero.
+        afecta_peso = {'peso_bruto', 'peso_tara'} & set(vals)
+        pesos_previos = {}
+        if afecta_peso:
+            for record in self:
+                if record.picking_id and record.picking_id.state == 'done':
+                    pesos_previos[record.id] = record.peso_bruto - record.peso_tara
+
+        res = super().write(vals)
+
+        for record in self:
+            if record.id not in pesos_previos:
+                continue
+            neto_viejo = pesos_previos[record.id]
+            neto_nuevo = record.peso_bruto - record.peso_tara
+            diferencia = neto_nuevo - neto_viejo
+            if abs(diferencia) < 0.01:
+                continue
+            record._ajustar_inventario_por_correccion(neto_viejo, neto_nuevo, diferencia)
+
+        return res
+
+    def _ajustar_inventario_por_correccion(self, neto_viejo, neto_nuevo, diferencia):
+        """Crea un stock.move SUELTO (sin picking) y validado por la DIFERENCIA
+        de peso cuando se corrige un pesaje cuyo picking ya estaba validado.
+
+        Deja intacto el movimiento original y el picking done; el ajuste es un
+        movimiento independiente (mismo patrón que _crear_transformacion_venta).
+
+        diferencia > 0: mismo sentido que el original (entró/salió más).
+        diferencia < 0: sentido inverso (se corrigió a la baja).
+        """
+        self.ensure_one()
+
+        # Guarda: el peso corregido debe ser físicamente válido.
+        if neto_nuevo <= 0:
+            raise UserError(
+                f'El peso neto corregido del pesaje {self.name} es {neto_nuevo:.0f} kg. '
+                'No se puede ajustar el inventario con un peso menor o igual a cero.'
+            )
+
+        picking = self.picking_id
+
+        # Caso NO soportado: ventas de Seco generan movimientos de transformación
+        # Verde→Seco (consumo + producción + merma) que dependen del peso. Ajustar
+        # solo el move principal dejaría la transformación descuadrada. Se bloquea
+        # y se pide corrección manual.
+        transformacion = self.env['stock.move'].search_count([
+            ('x_pesaje_id', '=', self.id),
+            ('x_tipo_movimiento_secadora', 'in',
+             ('transformacion_consumo', 'transformacion_produccion', 'merma')),
+        ])
+        if transformacion:
+            raise UserError(
+                f'El pesaje {self.name} generó movimientos de transformación '
+                'Verde→Seco. El ajuste automático de inventario no soporta este '
+                'caso: revierta y regenere el movimiento de inventario manualmente '
+                'desde Inventario.'
+            )
+
+        # Move principal del picking. Debe existir exactamente uno con el producto
+        # del pesaje; si el producto está vacío o hay ambigüedad, no adivinar.
+        moves_producto = picking.move_ids.filtered(
+            lambda m: m.product_id == self.producto_id
+        ) if self.producto_id else picking.move_ids
+        if len(moves_producto) != 1:
+            raise UserError(
+                f'No se pudo identificar el movimiento de inventario a ajustar '
+                f'para el pesaje {self.name} (se encontraron {len(moves_producto)}). '
+                'Corrija el inventario manualmente.'
+            )
+        move_orig = moves_producto
+
+        qty = abs(diferencia)
+        if diferencia > 0:
+            loc_src, loc_dest = move_orig.location_id, move_orig.location_dest_id
+        else:
+            loc_src, loc_dest = move_orig.location_dest_id, move_orig.location_id
+
+        # Owner del arroz (consignación de cliente). restrict_partner_id se debe
+        # setear ANTES de _action_confirm para que el override
+        # _update_reserved_quantity (stock_picking.py) filtre la reserva por dueño.
+        owner = move_orig.restrict_partner_id or move_orig.move_line_ids[:1].owner_id
+
+        move = self.env['stock.move'].create({
+            'name': f'Ajuste peso {self.name} ({diferencia:+.0f} kg)',
+            'product_id': move_orig.product_id.id,
+            'product_uom_qty': qty,
+            'product_uom': move_orig.product_uom.id,
+            'location_id': loc_src.id,
+            'location_dest_id': loc_dest.id,
+            'x_pesaje_id': self.id,
+            'restrict_partner_id': owner.id if owner else False,
+        })
+        if self.orden_servicio_id:
+            move.x_orden_servicio_id = self.orden_servicio_id.id
+        move._action_confirm()
+        move._action_assign()
+        # Si el ajuste SACA de una ubicación interna, exigir que haya stock
+        # reservable: forzar la cantidad sin disponibilidad crearía un quant
+        # negativo silencioso. Desde ubicaciones externas (proveedor/cliente/
+        # producción) no hay restricción de stock y se procede como el resto
+        # del módulo.
+        if loc_src.usage == 'internal' and move.state != 'assigned':
+            reservado = move.quantity
+            move._action_cancel()
+            raise UserError(
+                f'No hay stock suficiente para ajustar el pesaje {self.name}: '
+                f'se requieren {qty:.0f} kg en {loc_src.display_name} y solo hay '
+                f'{reservado:.0f} kg reservables. Corrija el inventario manualmente.'
+            )
+        move.quantity = qty
+        if owner:
+            for ml in move.move_line_ids:
+                ml.owner_id = owner.id
+        move.picked = True
+        move._action_done()
+        self.message_post(
+            body=f'Ajuste de inventario por corrección de peso: '
+                 f'{neto_viejo:.0f} kg → {neto_nuevo:.0f} kg '
+                 f'(diferencia {diferencia:+.0f} kg). Movimiento de ajuste: {move.name}.'
+        )
+
     def action_segunda_pesada(self):
         """Extiende la segunda pesada para crear picking si aplica"""
         res = super().action_segunda_pesada()
