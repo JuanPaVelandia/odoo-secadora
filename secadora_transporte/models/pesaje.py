@@ -30,6 +30,16 @@ class SecadoraPesajeTransporte(models.Model):
         for rec in self:
             rec.flete_count = len(rec.flete_ids)
 
+    def _motivos_bloqueo_reapertura(self):
+        motivos = super()._motivos_bloqueo_reapertura()
+        comprometidos = self.flete_ids.filtered(
+            lambda f: f.state in ('liquidado', 'facturado')
+        )
+        for flete in comprometidos:
+            estado = dict(flete._fields['state'].selection).get(flete.state, flete.state)
+            motivos.append(f'Flete {flete.name} ({estado})')
+        return motivos
+
     @api.onchange('tercero_id')
     def _onchange_tercero_id_flete(self):
         if self.tercero_id and self.tercero_id.generar_flete_automatico:

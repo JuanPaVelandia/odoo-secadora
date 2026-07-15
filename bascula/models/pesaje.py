@@ -672,6 +672,22 @@ class SecadoraPesaje(models.Model):
         for record in self:
             record.state = 'borrador'
 
+    def _motivos_bloqueo_reapertura(self):
+        """Razones por las que este pesaje NO debe poder reabrirse para editar.
+
+        Devuelve una lista de textos; vacía = se puede reabrir. Los módulos que
+        añaden documentos aguas abajo (transporte, liquidación) extienden este
+        método para añadir sus propias razones cuando esos documentos ya están
+        liquidados o facturados.
+        """
+        self.ensure_one()
+        motivos = []
+        os = self.orden_servicio_id
+        if os and os.state in ('liquidado', 'facturado'):
+            estado = dict(os._fields['state'].selection).get(os.state, os.state)
+            motivos.append(f'Orden de servicio {os.name} ({estado})')
+        return motivos
+
     def action_reabrir_edicion(self):
         """Desbloquear un pesaje completado para editar todos sus campos.
 
@@ -684,6 +700,15 @@ class SecadoraPesaje(models.Model):
             raise UserError('Solo el Administrador de Báscula puede reabrir un pesaje completado.')
         if self.state != 'completado':
             raise UserError('Solo se puede reabrir la edición de un pesaje completado.')
+        # Impedir reabrir si hay documentos aguas abajo ya comprometidos
+        # (liquidados/facturados): editar el peso los descuadraría. Cada módulo
+        # (transporte, liquidación, OS) añade sus razones en _motivos_bloqueo_reapertura.
+        motivos = self._motivos_bloqueo_reapertura()
+        if motivos:
+            raise UserError(
+                'No se puede reabrir el pesaje %s porque ya tiene documentos '
+                'facturados o liquidados:\n- %s' % (self.name, '\n- '.join(motivos))
+            )
         # Idempotente: si ya estaba reabierto, no repetir el mensaje del chatter.
         if self.permite_edicion:
             return

@@ -21,6 +21,16 @@ class SecadoraPesaje(models.Model):
         'peso_bruto', 'peso_tara', 'variedad_id', 'tercero_id', 'fecha',
     )
 
+    def _motivos_bloqueo_reapertura(self):
+        motivos = super()._motivos_bloqueo_reapertura()
+        liq = self.liquidacion_id
+        # La liquidación tiene estados borrador/confirmado/facturado (no hay
+        # 'liquidado'). Una liquidación facturada tiene el pago al agricultor
+        # emitido: editar el peso la descuadraría.
+        if liq and liq.state == 'facturado':
+            motivos.append(f'Liquidación {liq.name} (Facturado)')
+        return motivos
+
     def write(self, vals):
         # Capturar, ANTES de escribir, el peso/precio que cada línea de
         # liquidación en borrador tenía sugerido. Tras el cambio, solo
