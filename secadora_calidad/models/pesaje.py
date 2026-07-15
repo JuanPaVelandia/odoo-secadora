@@ -53,6 +53,25 @@ class SecadoraPesajeCalidad(models.Model):
                 record.humedad_analisis = 0.0
                 record.peso_comercial = 0.0
 
+    def write(self, vals):
+        res = super().write(vals)
+        # Re-sincronizar datos de identidad a los análisis vinculados NO
+        # confirmados. Solo campos que identifican el pesaje; humedad/impurezas
+        # NO se tocan porque el laboratorio las re-mide en el propio análisis.
+        campos_sync = ('tercero_id', 'variedad_id', 'tipo_operacion_id',
+                       'orden_servicio_id', 'company_id')
+        campos_changed = [c for c in campos_sync if c in vals]
+        if campos_changed:
+            for record in self:
+                analisis = record.analisis_lab_ids.filtered(
+                    lambda a: a.state != 'confirmado'
+                )
+                if not analisis:
+                    continue
+                sync_vals = {c: record[c].id or False for c in campos_changed}
+                analisis.write(sync_vals)
+        return res
+
     def action_segunda_pesada(self):
         res = super().action_segunda_pesada()
         for record in self:

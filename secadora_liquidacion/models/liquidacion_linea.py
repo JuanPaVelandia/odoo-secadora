@@ -119,27 +119,38 @@ class SecadoraLiquidacionLinea(models.Model):
                 }
                 self.pesaje_id = False
                 return {'warning': warning}
-            # Buscar análisis confirmado
-            analisis = self.env['secadora.analisis.lab'].search([
-                ('pesaje_id', '=', self.pesaje_id.id),
-                ('state', '=', 'confirmado'),
-            ], limit=1, order='id desc')
-            if analisis and analisis.peso_comercial > 0:
-                self.peso_comercial = analisis.peso_comercial
-            else:
-                self.peso_comercial = self.pesaje_id.peso_neto
-            # Prioridad de precio: agricultor > catálogo > pesaje
-            tercero = self.liquidacion_id.tercero_id or self.pesaje_id.tercero_id
-            if tercero and tercero.precio_compra_kg > 0:
-                self.precio = tercero.precio_compra_kg
-            else:
-                PrecioCompra = self.env['secadora.precio.compra']
-                precio_catalogo = PrecioCompra._obtener_precio(
-                    self.pesaje_id.variedad_id.id,
-                    self.pesaje_id.fecha,
-                    self.liquidacion_id.company_id.id,
-                )
-                self.precio = precio_catalogo if precio_catalogo else self.pesaje_id.precio
+            self.peso_comercial = self._peso_comercial_sugerido()
+            self.precio = self._precio_sugerido()
+
+    def _peso_comercial_sugerido(self):
+        """Peso comercial que sugiere el pesaje/análisis para esta línea.
+        Fuente única de la lógica, reutilizada por el onchange y el re-sync."""
+        self.ensure_one()
+        if not self.pesaje_id:
+            return 0.0
+        analisis = self.env['secadora.analisis.lab'].search([
+            ('pesaje_id', '=', self.pesaje_id.id),
+            ('state', '=', 'confirmado'),
+        ], limit=1, order='id desc')
+        if analisis and analisis.peso_comercial > 0:
+            return analisis.peso_comercial
+        return self.pesaje_id.peso_neto
+
+    def _precio_sugerido(self):
+        """Precio que sugiere el catálogo/tercero/pesaje. Prioridad:
+        agricultor > catálogo > pesaje."""
+        self.ensure_one()
+        if not self.pesaje_id:
+            return 0.0
+        tercero = self.liquidacion_id.tercero_id or self.pesaje_id.tercero_id
+        if tercero and tercero.precio_compra_kg > 0:
+            return tercero.precio_compra_kg
+        precio_catalogo = self.env['secadora.precio.compra']._obtener_precio(
+            self.pesaje_id.variedad_id.id,
+            self.pesaje_id.fecha,
+            self.liquidacion_id.company_id.id,
+        )
+        return precio_catalogo if precio_catalogo else self.pesaje_id.precio
 
     @api.model_create_multi
     def create(self, vals_list):
