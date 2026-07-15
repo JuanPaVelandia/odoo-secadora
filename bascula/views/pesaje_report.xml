@@ -52,54 +52,54 @@
                                 </p>
                             </div>
 
-                            <!-- Información general -->
-                            <div class="row" style="margin-bottom: 10px;">
-                                <div class="col-6">
-                                    <strong>Fecha:</strong> <span t-field="o.fecha"/><br/>
-                                    <strong>Tipo:</strong> <span t-field="o.tipo_proceso"/><br/>
-                                    <strong>Estado:</strong> <span t-field="o.state"/>
+                            <!-- Información general: compacta, en dos líneas -->
+                            <div style="margin-bottom: 8px; font-size: 12px;">
+                                <strong>Fecha:</strong> <span t-field="o.fecha"/>
+                                &#160;·&#160; <strong>Entrada:</strong> <span t-field="o.hora_entrada"/>
+                                &#160;·&#160; <strong>Salida:</strong> <span t-field="o.hora_salida"/><br/>
+                                <strong>Tipo:</strong> <span t-field="o.tipo_proceso"/>
+                                &#160;·&#160; <strong>Estado:</strong> <span t-field="o.state"/>
+                            </div>
+
+                            <!-- Vehículo -->
+                            <div style="margin-bottom: 8px;">
+                                <h5 style="background-color: #444444; color: white; padding: 4px 8px; margin: 0 0 5px 0; font-size: 13px;"><strong>Vehículo</strong></h5>
+                                <div class="row" style="align-items: baseline;">
+                                    <div class="col-5">
+                                        <span style="font-size: 12px;"><strong>PLACA</strong></span><br/>
+                                        <strong style="font-size: 30px;"><span t-field="o.placa_texto"/></strong>
+                                    </div>
+                                    <div class="col-7">
+                                        <span style="font-size: 12px;"><strong>CONDUCTOR</strong></span><br/>
+                                        <strong style="font-size: 20px;"><span t-field="o.conductor_id"/></strong>
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <strong>Entrada:</strong> <span t-field="o.hora_entrada"/><br/>
-                                    <strong>Salida:</strong> <span t-field="o.hora_salida"/>
+                                <div style="font-size: 12px; margin-top: 2px;">
+                                    <strong>Cédula:</strong> <span t-field="o.cedula_conductor"/>
+                                    &#160;·&#160; <strong>Transportadora:</strong> <span t-field="o.transportadora_id"/>
                                 </div>
                             </div>
 
-                            <!-- Información del vehículo -->
-                            <div style="margin-bottom: 10px;">
-                                <h5 style="background-color: #444444; color: white; padding: 4px 8px; margin: 0 0 6px 0; font-size: 13px;"><strong>Información del Vehículo</strong></h5>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <strong>Placa:</strong> <span t-field="o.placa_texto"/><br/>
-                                        <strong>Conductor:</strong> <span t-field="o.conductor_id"/><br/>
-                                        <strong>Cédula:</strong> <span t-field="o.cedula_conductor"/>
-                                    </div>
-                                    <div class="col-6">
-                                        <strong>Transportadora:</strong> <span t-field="o.transportadora_id"/><br/>
-                                        <strong>Tercero:</strong> <span t-field="o.tercero_id"/><br/>
-                                        <strong>NIT/CC:</strong> <span t-field="o.nit_tercero"/>
-                                    </div>
+                            <!-- Tercero -->
+                            <div style="margin-bottom: 8px;">
+                                <h5 style="background-color: #444444; color: white; padding: 4px 8px; margin: 0 0 5px 0; font-size: 13px;"><strong>Tercero</strong></h5>
+                                <strong style="font-size: 22px;"><span t-field="o.tercero_id"/></strong>
+                                <div style="font-size: 12px;">
+                                    <strong>NIT/CC:</strong> <span t-field="o.nit_tercero"/>
                                 </div>
                             </div>
 
-                            <!-- Origen y Destino -->
-                            <div style="margin-bottom: 10px;">
-                                <h5 style="background-color: #444444; color: white; padding: 4px 8px; margin: 0 0 6px 0; font-size: 13px;"><strong>Origen y Destino</strong></h5>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <strong>Origen:</strong> <span t-field="o.origen_id"/><br/>
-                                        <strong>Lote:</strong> <span t-field="o.lote_finca"/>
-                                    </div>
-                                    <div class="col-6">
-                                        <strong>Destino:</strong> <span t-field="o.destino_id"/>
-                                    </div>
-                                </div>
+                            <!-- Origen y Destino: compacto -->
+                            <div style="margin-bottom: 8px; font-size: 12px;">
+                                <h5 style="background-color: #444444; color: white; padding: 4px 8px; margin: 0 0 5px 0; font-size: 13px;"><strong>Origen y Destino</strong></h5>
+                                <strong>Origen:</strong> <span t-field="o.origen_id"/>
+                                <t t-if="o.lote_finca">&#160;·&#160; <strong>Lote:</strong> <span t-field="o.lote_finca"/></t>
+                                &#160;·&#160; <strong>Destino:</strong> <span t-field="o.destino_id"/>
                             </div>
 
                             <!-- PESAJE (destacado) -->
-                            <div style="margin-bottom: 10px; border: 2px solid #444444; padding: 8px 10px; background-color: #f9f9f9;">
-                                <h5 style="text-align: center; margin: 0 0 5px 0; font-size: 15px;"><strong>PESAJE</strong></h5>
-                                <table class="table table-borderless" style="font-size: 15px; margin-bottom: 0;">
+                            <div style="margin-bottom: 8px; border: 2px solid #444444; padding: 6px 10px; background-color: #f9f9f9;">
+                                <table class="table table-borderless" style="font-size: 14px; margin-bottom: 0;">
                                     <tr>
                                         <td style="width: 50%;"><strong>Peso Lleno:</strong></td>
                                         <td style="text-align: right;"><strong><span t-field="o.peso_bruto"/> Kg</strong></td>
@@ -109,26 +109,30 @@
                                         <td style="text-align: right;"><strong><span t-field="o.peso_tara"/> Kg</strong></td>
                                     </tr>
                                     <tr style="border-top: 2px solid #444444;">
-                                        <td style="padding-top: 6px;"><strong style="font-size: 20px;">Peso Neto:</strong></td>
-                                        <td style="text-align: right; padding-top: 6px;"><strong style="font-size: 20px;"><span t-field="o.peso_neto"/> Kg</strong></td>
+                                        <td style="padding-top: 5px;"><strong style="font-size: 20px;">Peso Neto:</strong></td>
+                                        <td style="text-align: right; padding-top: 5px;"><strong style="font-size: 20px;"><span t-field="o.peso_neto"/> Kg</strong></td>
                                     </tr>
                                 </table>
                             </div>
 
                             <!-- Producto y Calidad -->
                             <div style="margin-bottom: 8px;">
-                                <h5 style="background-color: #444444; color: white; padding: 4px 8px; margin: 0 0 6px 0; font-size: 13px;"><strong>Producto y Calidad</strong></h5>
-                                <div class="row">
+                                <h5 style="background-color: #444444; color: white; padding: 4px 8px; margin: 0 0 5px 0; font-size: 13px;"><strong>Producto y Calidad</strong></h5>
+                                <div class="row" style="text-align: center; margin-bottom: 3px;">
                                     <div class="col-6">
-                                        <strong>Producto:</strong> <span t-field="o.producto_id"/><br/>
-                                        <strong>Variedad:</strong> <span t-field="o.variedad_id"/><br/>
-                                        <strong>Humedad:</strong> <span t-field="o.humedad"/>%
+                                        <span style="font-size: 12px;"><strong>HUMEDAD</strong></span><br/>
+                                        <strong style="font-size: 28px;"><span t-field="o.humedad"/>%</strong>
                                     </div>
                                     <div class="col-6">
-                                        <strong>Grano Partido:</strong> <span t-field="o.grano_partido"/>%<br/>
-                                        <strong>Impurezas:</strong> <span t-field="o.impurezas"/>%<br/>
-                                        <strong>Bultos:</strong> <span t-field="o.bultos"/>
+                                        <span style="font-size: 12px;"><strong>IMPUREZAS</strong></span><br/>
+                                        <strong style="font-size: 28px;"><span t-field="o.impurezas"/>%</strong>
                                     </div>
+                                </div>
+                                <div style="font-size: 12px;">
+                                    <strong>Producto:</strong> <span t-field="o.producto_id"/>
+                                    &#160;·&#160; <strong>Variedad:</strong> <span t-field="o.variedad_id"/>
+                                    &#160;·&#160; <strong>Grano Partido:</strong> <span t-field="o.grano_partido"/>%
+                                    &#160;·&#160; <strong>Bultos:</strong> <span t-field="o.bultos"/>
                                 </div>
                             </div>
 
