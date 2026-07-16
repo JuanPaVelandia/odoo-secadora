@@ -15,45 +15,62 @@ class IrActionsReport(models.Model):
     _inherit = 'ir.actions.report'
 
     def _render_qweb_pdf(self, report_ref, res_ids=None, data=None):
-        """Anexa al final del reporte 'Viajes Facturados por Pagar' el PDF
-        físico de cada factura de proveedor (adjunto de account.move).
+        """Reporte 'Viajes Facturados por Pagar' con el PDF físico de cada
+        factura INTERCALADO justo después del grupo de fletes de esa factura.
 
-        wkhtmltopdf no puede embeber un PDF dentro del HTML, así que primero se
-        genera el reporte QWeb normal y luego se hace merge con los PDFs de las
-        facturas usando la utilidad de Odoo.
+        wkhtmltopdf no puede embeber un PDF en el HTML ni sabe en qué página
+        termina cada factura. Para intercalar de forma fiable, se renderiza el
+        reporte QWeb factura POR factura y se concatena:
+            [reporte factura A, PDF A, reporte factura B, PDF B, ...]
+        seguido de una hoja final con el total general y las firmas.
+        Si el modo intercalado falla, cae al render normal (todo junto).
         """
-        pdf_content, report_type = super()._render_qweb_pdf(
-            report_ref, res_ids=res_ids, data=data
-        )
-
-        # Solo actuar sobre nuestro reporte de viajes.
         report = self._get_report(report_ref)
-        if not report or report.report_name != REPORT_VIAJES or report_type != 'pdf':
-            return pdf_content, report_type
+        es_viajes = report and report.report_name == REPORT_VIAJES
 
-        # res_ids normalmente llega poblado (el wizard usa report_action con el
-        # recordset), pero si el reporte se invoca pasando los ids dentro de
-        # data, tomarlos de ahí como respaldo.
+        if not es_viajes:
+            return super()._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
+
         ids = res_ids or (data or {}).get('ids') or (data or {}).get('docids')
         if not ids:
-            return pdf_content, report_type
-
-        facturas = self.env['account.move'].browse(ids)
-        pdfs_facturas = self._recolectar_pdfs_facturas(facturas)
-        if not pdfs_facturas:
-            return pdf_content, report_type
+            return super()._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
 
         try:
-            merged = merge_pdf([pdf_content] + pdfs_facturas)
-            return merged, report_type
+            return self._render_viajes_intercalado(report_ref, ids, data)
         except Exception as e:
-            # Si el merge falla (PDF corrupto, etc.), devolver al menos el
-            # reporte base en vez de romper la impresión.
             _logger.warning(
-                'No se pudieron anexar los PDF de facturas al reporte de '
-                'viajes por pagar: %s', e
+                'Reporte viajes por pagar: falló el modo intercalado (%s). '
+                'Se genera el reporte sin intercalar.', e
             )
-            return pdf_content, report_type
+            return super()._render_qweb_pdf(report_ref, res_ids=ids, data=data)
+
+    def _render_viajes_intercalado(self, report_ref, ids, data):
+        """Construye el PDF intercalando factura por factura. Devuelve
+        (bytes, 'pdf')."""
+        facturas = self.env['account.move'].browse(ids)
+        partes = []  # lista de PDFs en bytes, en orden
+        # Contexto para que el render por-factura NO pinte el total/firmas
+        # globales (esos van una sola vez al final).
+        ctx_parcial = dict(self.env.context, viajes_solo_grupos=True)
+        report_parcial = self.with_context(ctx_parcial)
+
+        for factura in facturas:
+            # Render QWeb del grupo de fletes de esta sola factura.
+            pdf_grupo, _ = super(IrActionsReport, report_parcial)._render_qweb_pdf(
+                report_ref, res_ids=[factura.id], data=data
+            )
+            partes.append(pdf_grupo)
+            # PDF físico de la factura, justo detrás.
+            partes.extend(self._recolectar_pdfs_facturas(factura))
+
+        # Hoja final: total general + firmas (render con solo ese bloque).
+        ctx_cierre = dict(self.env.context, viajes_solo_cierre=True)
+        pdf_cierre, _ = super(IrActionsReport, self.with_context(ctx_cierre))._render_qweb_pdf(
+            report_ref, res_ids=ids, data=data
+        )
+        partes.append(pdf_cierre)
+
+        return merge_pdf(partes), 'pdf'
 
     def _recolectar_pdfs_facturas(self, facturas):
         """Devuelve la lista de contenidos PDF (bytes) de las facturas, en el

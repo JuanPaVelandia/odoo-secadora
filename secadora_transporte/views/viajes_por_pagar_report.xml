@@ -40,7 +40,9 @@
                     <t t-set="total_viajes" t-value="sum(len(d.fletes_activos()) for d in docs)"/>
                     <div class="page" style="font-family: Arial, sans-serif; font-size: 11px;">
 
-                        <!-- Encabezado general -->
+                        <!-- Encabezado general. Se omite en la hoja de cierre
+                             (viajes_solo_cierre), que solo lleva total y firmas. -->
+                        <t t-if="not viajes_solo_cierre">
                         <div class="text-center" style="border-bottom: 2px solid #444444; padding-bottom: 8px; margin-bottom: 12px;">
                             <h3 style="margin: 0; font-size: 15px;"><strong>VIAJES FACTURADOS POR PAGAR</strong></h3>
                             <p style="margin: 3px 0; font-size: 10px; color: #666;">
@@ -50,185 +52,170 @@
                                 Fecha de impresión: <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
                             </p>
                         </div>
+                        </t>
 
-                        <!-- Una orden de giro por factura. Sin page-break-inside:avoid:
-                             una factura con varios tiquetes puede superar una página, y
-                             forzar "no partir" hace que wkhtmltopdf corte o descarte
-                             contenido. Se deja fluir entre páginas. Cada factura sí
-                             empieza en página nueva (salvo la primera) para separarlas. -->
+                        <!-- Un GRUPO por flete: cada flete arranca en hoja nueva con
+                             sus datos de pago (de su factura), su tiquete de báscula y,
+                             tras el último flete de una factura, se anexa el PDF físico
+                             de esa factura (una sola vez, lo hace el merge en Python).
+                             Solo el primer flete de la primera factura NO salta de
+                             página (evita una hoja en blanco al inicio); los demás sí.
+                             Se usan los índices del loop (o_first / flete_first), robustos
+                             frente al scope de t-set en QWeb.
+                             Se omiten en la hoja de cierre (viajes_solo_cierre). -->
+                        <t t-if="not viajes_solo_cierre">
                         <t t-foreach="docs" t-as="o">
-                            <div t-attf-style="border: 1px solid #999999; border-radius: 4px; padding: 10px 12px; margin-bottom: 14px; #{'page-break-before: always;' if not o_first else ''}">
+                            <t t-set="fletes_factura" t-value="o.fletes_activos().sorted('fecha')"/>
+                            <t t-foreach="fletes_factura" t-as="flete">
+                                <div t-attf-style="border: 1px solid #999999; border-radius: 4px; padding: 10px 12px; margin-bottom: 14px; #{'' if (o_first and flete_first) else 'page-break-before: always;'}">
 
-                                <!-- Título de la sección -->
-                                <div style="background-color: #444444; color: white; padding: 4px 8px; margin: -10px -12px 8px -12px; font-size: 12px;">
-                                    <strong>ORDEN DE GIRO — TRANSPORTE</strong>
-                                    <span style="float: right;">Factura <span t-field="o.name"/></span>
-                                </div>
+                                    <!-- Título del grupo -->
+                                    <div style="background-color: #444444; color: white; padding: 4px 8px; margin: -10px -12px 8px -12px; font-size: 12px;">
+                                        <strong>ORDEN DE GIRO — FLETE <span t-field="flete.name"/></strong>
+                                        <span style="float: right;">Factura <span t-field="o.name"/></span>
+                                    </div>
 
-                                <!-- Empresa que paga / proveedor -->
-                                <div class="row" style="margin-bottom: 8px;">
-                                    <div class="col-6">
-                                        <strong>Empresa que paga:</strong> <span t-field="o.company_id.name"/><br/>
-                                        <t t-if="o.company_id.vat">
-                                            <strong>NIT:</strong> <span t-field="o.company_id.vat"/><br/>
-                                        </t>
-                                    </div>
-                                    <div class="col-6">
-                                        <strong>Girar a:</strong> <span t-field="o.partner_id.name"/><br/>
-                                        <t t-if="o.partner_id.vat">
-                                            <strong>NIT:</strong> <span t-field="o.partner_id.vat"/><br/>
-                                        </t>
-                                        <!-- La factura puede estar a nombre de un contacto distinto
-                                             al de la transportadora (se empareja por NIT) -->
-                                        <t t-set="fletes_factura" t-value="o.fletes_activos()"/>
-                                        <t t-set="transportadora_flete" t-value="fletes_factura[:1].transportadora_id"/>
-                                        <t t-if="transportadora_flete and transportadora_flete.partner_id != o.partner_id">
-                                            <span style="color: #666; font-size: 10px;">
-                                                Transportadora del flete: <span t-esc="transportadora_flete.name"/>
-                                            </span><br/>
-                                        </t>
-                                    </div>
-                                </div>
-
-                                <!-- Datos de la factura -->
-                                <div class="row" style="margin-bottom: 8px;">
-                                    <div class="col-6">
-                                        <strong>Factura:</strong> <span t-field="o.name"/><br/>
-                                        <t t-if="o.ref">
-                                            <strong>Ref. proveedor:</strong> <span t-field="o.ref"/><br/>
-                                        </t>
-                                        <strong>Fecha factura:</strong> <span t-field="o.invoice_date"/>
-                                        <t t-if="o.x_webviewlink">
-                                            <br/>
-                                            <strong>Factura (Drive):</strong>
-                                            <span style="font-size: 9px; word-break: break-all;">
-                                                <a t-att-href="o.x_webviewlink" t-esc="o.x_webviewlink"/>
-                                            </span>
-                                        </t>
-                                    </div>
-                                    <div class="col-6">
-                                        <strong>Total factura:</strong>
-                                        $<span t-field="o.amount_total" t-options='{"widget": "float", "precision": 0}'/><br/>
-                                        <strong>Estado de pago:</strong>
-                                        <span t-if="o.payment_state == 'partial'" style="color: #b45309;"><strong>PAGO PARCIAL</strong></span>
-                                        <span t-elif="o.payment_state == 'not_paid'" style="color: #b91c1c;"><strong>SIN PAGAR</strong></span>
-                                        <!-- El wizard solo imprime por pagar, pero si el reporte se
-                                             lanza por otra vía no debe declarar SIN PAGAR una pagada -->
-                                        <span t-else=""><strong t-field="o.payment_state"/></span>
-                                    </div>
-                                </div>
-
-                                <!-- Datos para inscribir el beneficiario en el banco.
-                                     Un solo cuadro con la cuenta PRINCIPAL del proveedor. -->
-                                <t t-set="banco" t-value="o.partner_id.bank_ids[:1]"/>
-                                <t t-if="not banco">
-                                    <div style="border: 2px solid #b91c1c; color: #b91c1c; padding: 8px 12px; margin: 14px 0; font-weight: bold;">
-                                        SIN CUENTA BANCARIA REGISTRADA — verificar con el proveedor antes de girar
-                                    </div>
-                                </t>
-                                <t t-else="">
-                                    <div style="margin: 14px 0;">
-                                        <div style="font-size: 10px; letter-spacing: 1px; color: #555; margin-bottom: 4px;">
-                                            <strong>DATOS PARA INSCRIPCIÓN DEL BENEFICIARIO</strong>
+                                    <!-- Empresa que paga / proveedor -->
+                                    <div class="row" style="margin-bottom: 8px;">
+                                        <div class="col-6">
+                                            <strong>Empresa que paga:</strong> <span t-field="o.company_id.name"/><br/>
+                                            <t t-if="o.company_id.vat">
+                                                <strong>NIT:</strong> <span t-field="o.company_id.vat"/><br/>
+                                            </t>
                                         </div>
-                                        <table style="font-size: 11px; width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #999;">
-                                            <tr>
-                                                <td style="width: 32%; padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">RAZÓN SOCIAL</td>
-                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-field="o.partner_id.name"/></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NIT / CC</td>
-                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="o.partner_id.vat or '—'"/></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">BANCO</td>
-                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="banco.bank_id.name or '—'"/></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">TIPO DE CUENTA</td>
-                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="dict(banco._fields['type_account'].selection).get(banco.type_account, '—') if banco.type_account else '—'"/></td>
-                                            </tr>
-                                            <tr>
-                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NÚMERO DE CUENTA</td>
-                                                <td style="padding: 7px 12px; vertical-align: middle;"><strong style="font-size: 13px;" t-field="banco.acc_number"/></td>
-                                            </tr>
-                                        </table>
+                                        <div class="col-6">
+                                            <strong>Girar a:</strong> <span t-field="o.partner_id.name"/><br/>
+                                            <t t-if="o.partner_id.vat">
+                                                <strong>NIT:</strong> <span t-field="o.partner_id.vat"/><br/>
+                                            </t>
+                                            <t t-if="flete.transportadora_id and flete.transportadora_id.partner_id != o.partner_id">
+                                                <span style="color: #666; font-size: 10px;">
+                                                    Transportadora del flete: <span t-esc="flete.transportadora_id.name"/>
+                                                </span><br/>
+                                            </t>
+                                        </div>
                                     </div>
-                                </t>
 
-                                <!-- Valor a girar -->
-                                <div style="text-align: right; background-color: #f0f0f0; border: 1px solid #444444; padding: 6px 10px; margin-bottom: 8px;">
-                                    <span style="font-size: 12px;">VALOR A GIRAR (saldo pendiente): </span>
-                                    <span style="font-size: 16px;"><strong>$<span t-field="o.amount_residual" t-options='{"widget": "float", "precision": 0}'/></strong></span>
-                                </div>
+                                    <!-- Datos de la factura -->
+                                    <div class="row" style="margin-bottom: 8px;">
+                                        <div class="col-6">
+                                            <strong>Factura:</strong> <span t-field="o.name"/><br/>
+                                            <t t-if="o.ref">
+                                                <strong>Ref. proveedor:</strong> <span t-field="o.ref"/><br/>
+                                            </t>
+                                            <strong>Fecha factura:</strong> <span t-field="o.invoice_date"/>
+                                            <t t-if="o.x_webviewlink">
+                                                <br/>
+                                                <strong>Factura (Drive):</strong>
+                                                <span style="font-size: 9px; word-break: break-all;">
+                                                    <a t-att-href="o.x_webviewlink" t-esc="o.x_webviewlink"/>
+                                                </span>
+                                            </t>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Total factura:</strong>
+                                            $<span t-field="o.amount_total" t-options='{"widget": "float", "precision": 0}'/><br/>
+                                            <strong>Estado de pago:</strong>
+                                            <span t-if="o.payment_state == 'partial'" style="color: #b45309;"><strong>PAGO PARCIAL</strong></span>
+                                            <span t-elif="o.payment_state == 'not_paid'" style="color: #b91c1c;"><strong>SIN PAGAR</strong></span>
+                                            <span t-else=""><strong t-field="o.payment_state"/></span>
+                                        </div>
+                                    </div>
 
-                                <!-- Viajes de la factura -->
-                                <h5 style="font-size: 11px; margin: 6px 0 4px 0;"><strong>Viajes incluidos en esta factura</strong></h5>
-                                <table style="font-size: 10px; width: 100%; border-collapse: collapse; margin-bottom: 4px;">
-                                    <thead>
-                                        <tr style="border-bottom: 1px solid #444444; background-color: #f0f0f0;">
-                                            <th style="text-align: left; padding: 2px 5px;">Flete</th>
-                                            <th style="text-align: left; padding: 2px 5px;">Ticket Báscula</th>
-                                            <th style="text-align: left; padding: 2px 5px;">Fecha</th>
-                                            <th style="text-align: left; padding: 2px 5px;">Placa</th>
-                                            <th style="text-align: left; padding: 2px 5px;">Ruta</th>
-                                            <th style="text-align: right; padding: 2px 5px;">Costo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <t t-foreach="fletes_factura.sorted('fecha')" t-as="flete">
-                                            <tr style="border-bottom: 1px solid #dddddd;">
-                                                <td style="padding: 2px 5px;"><span t-field="flete.name"/></td>
-                                                <td style="padding: 2px 5px;"><span t-esc="flete.pesaje_id.name or '—'"/></td>
-                                                <td style="padding: 2px 5px;"><span t-field="flete.fecha"/></td>
-                                                <td style="padding: 2px 5px;"><span t-esc="flete.placa_texto or ''"/></td>
-                                                <td style="padding: 2px 5px;">
-                                                    <span t-esc="(flete.origen_id.name or '')"/>
-                                                    <t t-if="flete.origen_id or flete.destino_id"> → </t>
-                                                    <span t-esc="(flete.destino_id.name or '')"/>
-                                                </td>
-                                                <td style="text-align: right; padding: 2px 5px;">
-                                                    $<span t-field="flete.costo_total" t-options='{"widget": "float", "precision": 0}'/>
-                                                </td>
-                                            </tr>
+                                    <!-- Datos para inscribir el beneficiario en el banco -->
+                                    <t t-set="banco" t-value="o.partner_id.bank_ids[:1]"/>
+                                    <t t-if="not banco">
+                                        <div style="border: 2px solid #b91c1c; color: #b91c1c; padding: 8px 12px; margin: 14px 0; font-weight: bold;">
+                                            SIN CUENTA BANCARIA REGISTRADA — verificar con el proveedor antes de girar
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div style="margin: 14px 0;">
+                                            <div style="font-size: 10px; letter-spacing: 1px; color: #555; margin-bottom: 4px;">
+                                                <strong>DATOS PARA INSCRIPCIÓN DEL BENEFICIARIO</strong>
+                                            </div>
+                                            <table style="font-size: 11px; width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #999;">
+                                                <tr>
+                                                    <td style="width: 32%; padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">RAZÓN SOCIAL</td>
+                                                    <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-field="o.partner_id.name"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NIT / CC</td>
+                                                    <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="o.partner_id.vat or '—'"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">BANCO</td>
+                                                    <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="banco.bank_id.name or '—'"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">TIPO DE CUENTA</td>
+                                                    <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="dict(banco._fields['type_account'].selection).get(banco.type_account, '—') if banco.type_account else '—'"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 7px 12px; background-color: #f4f4f4; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NÚMERO DE CUENTA</td>
+                                                    <td style="padding: 7px 12px; vertical-align: middle;"><strong style="font-size: 13px;" t-field="banco.acc_number"/></td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </t>
+
+                                    <!-- Valor a girar (saldo de la factura). Nota si la
+                                         factura cubre más de un flete. -->
+                                    <div style="text-align: right; background-color: #f0f0f0; border: 1px solid #444444; padding: 6px 10px; margin-bottom: 8px;">
+                                        <span style="font-size: 12px;">VALOR A GIRAR (saldo de la factura): </span>
+                                        <span style="font-size: 16px;"><strong>$<span t-field="o.amount_residual" t-options='{"widget": "float", "precision": 0}'/></strong></span>
+                                        <t t-if="len(fletes_factura) &gt; 1">
+                                            <div style="font-size: 9px; color: #b45309;">
+                                                Esta factura cubre <span t-esc="len(fletes_factura)"/> fletes: el saldo se gira una sola vez.
+                                            </div>
                                         </t>
-                                        <tr style="border-top: 1px solid #444444;">
-                                            <td colspan="5" style="text-align: right; padding: 2px 5px;"><strong>Subtotal fletes:</strong></td>
-                                            <td style="text-align: right; padding: 2px 5px;">
-                                                <strong>$<span t-esc="sum(fletes_factura.mapped('costo_total'))" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                    </div>
+
+                                    <!-- Datos del flete (este viaje) -->
+                                    <h5 style="font-size: 11px; margin: 6px 0 4px 0;"><strong>Datos del flete</strong></h5>
+                                    <table style="font-size: 10px; width: 100%; border-collapse: collapse; margin-bottom: 8px;">
+                                        <tr style="border-bottom: 1px solid #444444; background-color: #f0f0f0;">
+                                            <th style="text-align: left; padding: 3px 6px;">Flete</th>
+                                            <th style="text-align: left; padding: 3px 6px;">Ticket Báscula</th>
+                                            <th style="text-align: left; padding: 3px 6px;">Fecha</th>
+                                            <th style="text-align: left; padding: 3px 6px;">Placa</th>
+                                            <th style="text-align: left; padding: 3px 6px;">Ruta</th>
+                                            <th style="text-align: right; padding: 3px 6px;">Costo</th>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 3px 6px;"><span t-field="flete.name"/></td>
+                                            <td style="padding: 3px 6px;"><span t-esc="flete.pesaje_id.name or '—'"/></td>
+                                            <td style="padding: 3px 6px;"><span t-field="flete.fecha"/></td>
+                                            <td style="padding: 3px 6px;"><span t-esc="flete.placa_texto or ''"/></td>
+                                            <td style="padding: 3px 6px;">
+                                                <span t-esc="(flete.origen_id.name or '')"/>
+                                                <t t-if="flete.origen_id or flete.destino_id"> → </t>
+                                                <span t-esc="(flete.destino_id.name or '')"/>
+                                            </td>
+                                            <td style="text-align: right; padding: 3px 6px;">
+                                                <strong>$<span t-field="flete.costo_total" t-options='{"widget": "float", "precision": 0}'/></strong>
                                             </td>
                                         </tr>
-                                    </tbody>
-                                </table>
-                                <p style="font-size: 9px; color: #666; margin: 0;">
-                                    El subtotal de fletes puede diferir del total de la factura si esta
-                                    incluye otros conceptos o impuestos.
-                                </p>
+                                    </table>
 
-                                <!-- Tiquetes de báscula de los viajes: se embebe el
-                                     cuerpo del tiquete de pesaje (bascula) por cada flete
-                                     que tenga pesaje asociado. Se recalcula desde o para no
-                                     depender del scope de t-set anteriores. -->
-                                <t t-set="fletes_con_pesaje" t-value="o.fletes_activos().filtered(lambda f: f.pesaje_id)"/>
-                                <t t-if="fletes_con_pesaje">
-                                    <h5 style="font-size: 11px; margin: 12px 0 6px 0;">
-                                        <strong>Tiquetes de báscula</strong>
-                                    </h5>
-                                    <t t-foreach="fletes_con_pesaje.sorted('fecha')" t-as="flete_tk">
-                                        <div style="border: 1px solid #ccc; padding: 8px; margin-bottom: 10px; page-break-inside: avoid;">
-                                            <!-- t-call con scope propio: 'o' apunta al pesaje SOLO
-                                                 dentro de este t-call, sin pisar el 'o' (factura) del
-                                                 bucle exterior. -->
+                                    <!-- Tiquete de báscula de ESTE flete -->
+                                    <t t-if="flete.pesaje_id">
+                                        <h5 style="font-size: 11px; margin: 12px 0 6px 0;"><strong>Tiquete de báscula</strong></h5>
+                                        <div style="border: 1px solid #ccc; padding: 8px;">
                                             <t t-call="bascula.report_pesaje_tiquete_body">
-                                                <t t-set="o" t-value="flete_tk.pesaje_id"/>
+                                                <t t-set="o" t-value="flete.pesaje_id"/>
                                             </t>
                                         </div>
                                     </t>
-                                </t>
-                            </div>
+                                </div>
+                            </t>
+                        </t>
                         </t>
 
-                        <!-- Total general -->
+                        <!-- Total general + firmas: cierre global. Se omite en los
+                             renders por-factura (viajes_solo_grupos) y aparece solo en
+                             la hoja de cierre / render normal. -->
+                        <t t-if="not viajes_solo_grupos">
                         <div style="border: 2px solid #444444; padding: 8px 12px; margin-top: 10px; page-break-inside: avoid;">
                             <div class="row">
                                 <div class="col-6">
@@ -256,6 +243,7 @@
                                 </td>
                             </tr>
                         </table>
+                        </t>
 
                     </div>
                 </t>
