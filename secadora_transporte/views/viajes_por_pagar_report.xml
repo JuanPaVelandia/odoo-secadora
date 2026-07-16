@@ -114,32 +114,38 @@
                                     </div>
                                 </div>
 
-                                <!-- Cuenta bancaria -->
-                                <t t-set="bancos" t-value="o.partner_id.bank_ids"/>
-                                <t t-if="not bancos">
+                                <!-- Datos para inscribir el beneficiario en el banco.
+                                     Un solo cuadro con la cuenta PRINCIPAL del proveedor. -->
+                                <t t-set="banco" t-value="o.partner_id.bank_ids[:1]"/>
+                                <t t-if="not banco">
                                     <div style="border: 2px solid #b91c1c; color: #b91c1c; padding: 6px 10px; margin-bottom: 8px; font-weight: bold;">
                                         SIN CUENTA BANCARIA REGISTRADA — verificar con el proveedor antes de girar
                                     </div>
                                 </t>
                                 <t t-else="">
-                                    <table class="table table-sm" style="font-size: 11px; margin-bottom: 8px; width: 100%; border-collapse: collapse;">
-                                        <thead>
-                                            <tr style="border-bottom: 1px solid #444444;">
-                                                <th style="text-align: left; padding: 2px 6px;">Banco</th>
-                                                <th style="text-align: left; padding: 2px 6px;">Número de cuenta</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <t t-foreach="bancos" t-as="banco">
-                                                <tr>
-                                                    <td style="padding: 2px 6px;">
-                                                        <span t-esc="banco.bank_id.name or 'Banco no especificado'"/>
-                                                        <t t-if="banco_index == 0"> (principal)</t>
-                                                    </td>
-                                                    <td style="padding: 2px 6px;"><span t-field="banco.acc_number"/></td>
-                                                </tr>
-                                            </t>
-                                        </tbody>
+                                    <table style="font-size: 11px; margin-bottom: 8px; width: 100%; border-collapse: collapse; border: 1px solid #444444;">
+                                        <tr>
+                                            <td style="width: 35%; padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>RAZÓN SOCIAL</strong></td>
+                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><span t-field="o.partner_id.name"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>NIT</strong></td>
+                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><span t-esc="o.partner_id.vat or '—'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>BANCO</strong></td>
+                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><span t-esc="banco.bank_id.name or '—'"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>TIPO DE CUENTA</strong></td>
+                                            <td style="padding: 3px 8px; border: 1px solid #ccc;">
+                                                <span t-esc="dict(banco._fields['type_account'].selection).get(banco.type_account, '—') if banco.type_account else '—'"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>NÚMERO DE CUENTA</strong></td>
+                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><strong t-field="banco.acc_number"/></td>
+                                        </tr>
                                     </table>
                                 </t>
 
