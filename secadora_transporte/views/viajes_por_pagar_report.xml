@@ -118,35 +118,38 @@
                                      Un solo cuadro con la cuenta PRINCIPAL del proveedor. -->
                                 <t t-set="banco" t-value="o.partner_id.bank_ids[:1]"/>
                                 <t t-if="not banco">
-                                    <div style="border: 2px solid #b91c1c; color: #b91c1c; padding: 6px 10px; margin-bottom: 8px; font-weight: bold;">
+                                    <div style="border: 2px solid #b91c1c; color: #b91c1c; padding: 8px 12px; margin: 14px 0; font-weight: bold;">
                                         SIN CUENTA BANCARIA REGISTRADA — verificar con el proveedor antes de girar
                                     </div>
                                 </t>
                                 <t t-else="">
-                                    <table style="font-size: 11px; margin-bottom: 8px; width: 100%; border-collapse: collapse; border: 1px solid #444444;">
-                                        <tr>
-                                            <td style="width: 35%; padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>RAZÓN SOCIAL</strong></td>
-                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><span t-field="o.partner_id.name"/></td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>NIT</strong></td>
-                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><span t-esc="o.partner_id.vat or '—'"/></td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>BANCO</strong></td>
-                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><span t-esc="banco.bank_id.name or '—'"/></td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>TIPO DE CUENTA</strong></td>
-                                            <td style="padding: 3px 8px; border: 1px solid #ccc;">
-                                                <span t-esc="dict(banco._fields['type_account'].selection).get(banco.type_account, '—') if banco.type_account else '—'"/>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td style="padding: 3px 8px; background-color: #f0f0f0; border: 1px solid #ccc;"><strong>NÚMERO DE CUENTA</strong></td>
-                                            <td style="padding: 3px 8px; border: 1px solid #ccc;"><strong t-field="banco.acc_number"/></td>
-                                        </tr>
-                                    </table>
+                                    <div style="margin: 14px 0;">
+                                        <div style="font-size: 10px; letter-spacing: 1px; color: #555; margin-bottom: 4px;">
+                                            <strong>DATOS PARA INSCRIPCIÓN DEL BENEFICIARIO</strong>
+                                        </div>
+                                        <table style="font-size: 11px; width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid #999;">
+                                            <tr>
+                                                <td style="width: 32%; padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">RAZÓN SOCIAL</td>
+                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-field="o.partner_id.name"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NIT / CC</td>
+                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="o.partner_id.vat or '—'"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">BANCO</td>
+                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="banco.bank_id.name or '—'"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">TIPO DE CUENTA</td>
+                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="dict(banco._fields['type_account'].selection).get(banco.type_account, '—') if banco.type_account else '—'"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 7px 12px; background-color: #f4f4f4; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NÚMERO DE CUENTA</td>
+                                                <td style="padding: 7px 12px; vertical-align: middle;"><strong style="font-size: 13px;" t-field="banco.acc_number"/></td>
+                                            </tr>
+                                        </table>
+                                    </div>
                                 </t>
 
                                 <!-- Valor a girar -->
