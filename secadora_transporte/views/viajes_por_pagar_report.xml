@@ -65,7 +65,9 @@
                              Se omiten en la hoja de cierre (viajes_solo_cierre). -->
                         <t t-if="not viajes_solo_cierre">
                         <t t-foreach="docs" t-as="o">
-                            <t t-set="fletes_factura" t-value="o.fletes_activos().sorted('fecha')"/>
+                            <!-- Ordenar por número de flete: la tabla y los tiquetes
+                                 (que usan esta misma variable) quedan en el mismo orden. -->
+                            <t t-set="fletes_factura" t-value="o.fletes_activos().sorted('name')"/>
 
                             <!-- UNA orden de giro por FACTURA (los datos de pago van una
                                  sola vez, aunque la factura cubra varios fletes: el saldo
