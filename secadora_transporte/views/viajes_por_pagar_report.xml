@@ -198,16 +198,19 @@
                                         </tr>
                                     </table>
 
-                                    <!-- Tiquete de báscula de ESTE flete. page-break-inside:
-                                         avoid para que el tiquete NO se parta entre páginas:
-                                         si no cabe en lo que resta de la hoja, salta entero a
-                                         la siguiente. -->
+                                    <!-- Tiquete de báscula de ESTE flete. Siempre en hoja
+                                         nueva (page-break-before), separado de los datos de
+                                         pago, y sin partirse (page-break-inside: avoid). Así
+                                         cada flete = hoja de datos de pago + hoja de tiquete,
+                                         uniforme para todos. -->
                                     <t t-if="flete.pesaje_id">
-                                        <h5 style="font-size: 11px; margin: 12px 0 6px 0; page-break-after: avoid;"><strong>Tiquete de báscula</strong></h5>
-                                        <div style="border: 1px solid #ccc; padding: 8px; page-break-inside: avoid;">
-                                            <t t-call="bascula.report_pesaje_tiquete_body">
-                                                <t t-set="o" t-value="flete.pesaje_id"/>
-                                            </t>
+                                        <div style="page-break-before: always;">
+                                            <h5 style="font-size: 11px; margin: 0 0 6px 0; page-break-after: avoid;"><strong>Tiquete de báscula — Flete <span t-esc="flete.name"/></strong></h5>
+                                            <div style="border: 1px solid #ccc; padding: 8px; page-break-inside: avoid;">
+                                                <t t-call="bascula.report_pesaje_tiquete_body">
+                                                    <t t-set="o" t-value="flete.pesaje_id"/>
+                                                </t>
+                                            </div>
                                         </div>
                                     </t>
                                 </div>
