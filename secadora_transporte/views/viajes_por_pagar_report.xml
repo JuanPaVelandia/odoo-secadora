@@ -184,6 +184,27 @@
                                     El subtotal de fletes puede diferir del total de la factura si esta
                                     incluye otros conceptos o impuestos.
                                 </p>
+
+                                <!-- Tiquetes de báscula de los viajes: se embebe el
+                                     cuerpo del tiquete de pesaje (bascula) por cada flete
+                                     que tenga pesaje asociado. Se recalcula desde o para no
+                                     depender del scope de t-set anteriores. -->
+                                <t t-set="fletes_con_pesaje" t-value="o.fletes_activos().filtered(lambda f: f.pesaje_id)"/>
+                                <t t-if="fletes_con_pesaje">
+                                    <h5 style="font-size: 11px; margin: 10px 0 4px 0; page-break-before: always;">
+                                        <strong>Tiquetes de báscula</strong>
+                                    </h5>
+                                    <t t-foreach="fletes_con_pesaje.sorted('fecha')" t-as="flete_tk">
+                                        <div style="border: 1px solid #ccc; padding: 8px; margin-bottom: 10px; page-break-inside: avoid;">
+                                            <!-- t-call con scope propio: 'o' apunta al pesaje SOLO
+                                                 dentro de este t-call, sin pisar el 'o' (factura) del
+                                                 bucle exterior. -->
+                                            <t t-call="bascula.report_pesaje_tiquete_body">
+                                                <t t-set="o" t-value="flete_tk.pesaje_id"/>
+                                            </t>
+                                        </div>
+                                    </t>
+                                </t>
                             </div>
                         </t>
 

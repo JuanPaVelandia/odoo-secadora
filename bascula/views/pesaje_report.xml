@@ -33,161 +33,179 @@
             <field name="paperformat_id" ref="bascula.paperformat_tiquete_media_carta"/>
         </record>
 
-        <!-- Plantilla del tiquete. Usa web.basic_layout: sin logo ni colores del
-             tema estándar de Odoo; encabezado y pie propios del documento.
+        <!-- Cuerpo del tiquete, reutilizable: espera 'o' (un secadora.pesaje)
+             en el contexto. Lo usan report_pesaje_tiquete_document (tiquete
+             imprimible, que añade firmas y pie) y el reporte de viajes por
+             pagar de secadora_transporte, que embebe un tiquete por flete.
 
-             Diseño editorial (certificado, no formulario):
-             - Tres tamaños: 36px (nº tiquete, placa, conductor, peso neto),
-               22px (tercero, pesos lleno/vacío, humedad, impurezas),
-               12px (todo lo demás; etiquetas a 9px en mayúscula espaciada).
-             - Un solo acento de color: rojo en el número del tiquete.
-             - Separadores de línea fina, sin fondos ni bordes gruesos;
-               la única caja es el bloque de pesos. -->
+             Diseño editorial (imagen guía):
+             - 38px nº en rojo · 34px placa · 28px conductor · 26px tercero ·
+               38px peso neto sobre banda gris · 24px humedad/impurezas ·
+               etiquetas 10px negras en mayúscula espaciada · resto 12px.
+             - Divisores como bordes de celda (lo único que wkhtmltopdf
+               dibuja siempre) y table-layout fixed: ninguna celda puede
+               empujar a las demás. -->
+        <template id="report_pesaje_tiquete_body">
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.35; color: #111;">
+
+                <!-- Encabezado -->
+                <div class="text-center" style="margin-bottom: 10px;">
+                    <div style="font-size: 20px; line-height: 1.1;"><strong t-field="o.company_id.name"/></div>
+                    <div t-if="o.company_id.vat" style="font-size: 11px; color: #555; margin-top: 2px;">NIT: <span t-field="o.company_id.vat"/></div>
+                    <div style="font-size: 11px; letter-spacing: 4px; color: #555; margin-top: 6px;">TIQUETE DE PESAJE</div>
+                    <div style="font-size: 38px; line-height: 1.1; color: #cc1111; margin-top: 2px;">
+                        <strong>No. <span t-field="o.name"/></strong>
+                    </div>
+                </div>
+
+                <!-- Fila de datos generales: 5 columnas con divisores verticales -->
+                <table style="width: 100%; table-layout: fixed; border-top: 1px solid #333; border-bottom: 1px solid #333; margin-bottom: 12px;">
+                    <tr>
+                        <td style="width: 21%; padding: 6px 4px 6px 10px;">
+                            <div style="font-size: 10px; letter-spacing: 1px;"><strong>FECHA</strong></div>
+                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                        </td>
+                        <td style="width: 19%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                            <div style="font-size: 10px; letter-spacing: 1px;"><strong>ENTRADA</strong></div>
+                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.hora_entrada" t-options='{"format": "HH:mm:ss"}'/></div>
+                        </td>
+                        <td style="width: 19%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                            <div style="font-size: 10px; letter-spacing: 1px;"><strong>SALIDA</strong></div>
+                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.hora_salida" t-options='{"format": "HH:mm:ss"}'/></div>
+                        </td>
+                        <td style="width: 18%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                            <div style="font-size: 10px; letter-spacing: 1px;"><strong>TIPO</strong></div>
+                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.tipo_proceso"/></div>
+                        </td>
+                        <td style="width: 23%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                            <div style="font-size: 10px; letter-spacing: 1px;"><strong>ESTADO</strong></div>
+                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.state"/></div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Vehículo y Conductor -->
+                <table style="width: 100%; table-layout: fixed; border-bottom: 1px solid #333; margin-bottom: 10px;">
+                    <tr>
+                        <td style="width: 46%; vertical-align: top; padding: 0 10px 10px 0; word-wrap: break-word;">
+                            <div style="font-size: 10px; letter-spacing: 1px;"><strong>VEHÍCULO</strong></div>
+                            <div style="font-size: 10px; letter-spacing: 1px; margin-top: 6px;"><strong>PLACA</strong></div>
+                            <div style="font-size: 34px; line-height: 1.1;"><strong t-field="o.placa_texto"/></div>
+                            <div style="font-size: 12px; margin-top: 8px;">
+                                <strong>CÉDULA:</strong> <span t-field="o.cedula_conductor"/>
+                            </div>
+                            <div style="font-size: 12px; margin-top: 3px;">
+                                <strong>TRANSPORTADORA:</strong><br/>
+                                <span t-field="o.transportadora_id"/>
+                            </div>
+                        </td>
+                        <td style="width: 54%; vertical-align: top; padding: 4px 0 10px 14px; border-left: 1px solid #ccc; word-wrap: break-word;">
+                            <div style="font-size: 10px; letter-spacing: 1px;"><strong>CONDUCTOR</strong></div>
+                            <div style="font-size: 28px; line-height: 1.15; margin-top: 4px;"><strong t-field="o.conductor_id"/></div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Tercero -->
+                <div style="border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 10px;">
+                    <div style="font-size: 10px; letter-spacing: 1px;"><strong>TERCERO</strong></div>
+                    <div style="font-size: 26px; line-height: 1.15; margin-top: 2px;"><strong t-field="o.tercero_id"/></div>
+                    <div style="font-size: 12px; margin-top: 2px;">NIT/CC: <span t-field="o.nit_tercero"/></div>
+                </div>
+
+                <!-- Origen y Destino -->
+                <div style="margin-bottom: 10px;">
+                    <div style="font-size: 10px; letter-spacing: 1px; margin-bottom: 3px;"><strong>ORIGEN Y DESTINO</strong></div>
+                    <table style="width: 100%; table-layout: fixed;">
+                        <tr style="font-size: 12px;">
+                            <td style="width: 36%; padding-right: 8px;"><strong>ORIGEN:</strong> <span t-field="o.origen_id"/></td>
+                            <td style="width: 22%; padding: 0 8px; border-left: 1px solid #ccc;"><strong>LOTE:</strong> <span t-field="o.lote_finca"/></td>
+                            <td style="width: 42%; padding-left: 8px; border-left: 1px solid #ccc;"><strong>DESTINO:</strong> <span t-field="o.destino_id"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Pesos: caja redondeada, neto sobre banda gris -->
+                <div style="border: 1px solid #333; border-radius: 10px; padding: 4px 0 6px 0; margin-bottom: 12px;">
+                    <table style="width: 100%; table-layout: fixed;">
+                        <tr style="font-size: 20px;">
+                            <td style="padding: 8px 18px;">PESO LLENO</td>
+                            <td style="padding: 8px 18px; text-align: right;"><strong><span t-field="o.peso_bruto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
+                        </tr>
+                        <tr style="font-size: 20px;">
+                            <td style="padding: 8px 18px; border-top: 1px solid #ccc;">PESO VACÍO</td>
+                            <td style="padding: 8px 18px; text-align: right; border-top: 1px solid #ccc;"><strong><span t-field="o.peso_tara" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
+                        </tr>
+                    </table>
+                    <div style="background-color: #ebebeb; border-radius: 6px; margin: 4px 8px 2px 8px; padding: 6px 10px;">
+                        <table style="width: 100%; table-layout: fixed;">
+                            <tr>
+                                <td style="font-size: 20px; vertical-align: middle;"><strong>PESO NETO</strong></td>
+                                <td style="text-align: right; font-size: 38px; line-height: 1.05; white-space: nowrap;"><strong><span t-field="o.peso_neto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Producto y Calidad -->
+                <div style="border-top: 1px solid #333; padding-top: 6px; margin-bottom: 10px;">
+                    <div style="font-size: 10px; letter-spacing: 1px; margin-bottom: 4px;"><strong>PRODUCTO Y CALIDAD</strong></div>
+                    <table style="width: 100%; table-layout: fixed; margin-bottom: 6px;">
+                        <tr>
+                            <td style="width: 46%; padding-bottom: 4px;">
+                                <div style="font-size: 10px; letter-spacing: 1px;"><strong>HUMEDAD</strong></div>
+                                <div style="font-size: 24px;"><strong><span t-field="o.humedad"/>%</strong></div>
+                            </td>
+                            <td style="width: 54%; padding-left: 14px; border-left: 1px solid #ccc;">
+                                <div style="font-size: 10px; letter-spacing: 1px;"><strong>IMPUREZAS</strong></div>
+                                <div style="font-size: 24px;"><strong><span t-field="o.impurezas"/>%</strong></div>
+                            </td>
+                        </tr>
+                    </table>
+                    <table style="width: 100%; table-layout: fixed; border-top: 1px solid #ccc;">
+                        <tr style="font-size: 11px;">
+                            <td style="width: 32%; padding: 5px 6px 0 0; word-wrap: break-word;"><strong>PRODUCTO:</strong> <span t-field="o.producto_id"/></td>
+                            <td style="width: 27%; padding: 5px 6px 0 8px; border-left: 1px solid #ccc; word-wrap: break-word;"><strong>VARIEDAD:</strong> <span t-field="o.variedad_id"/></td>
+                            <td style="width: 26%; padding: 5px 6px 0 8px; border-left: 1px solid #ccc;"><strong>GRANO PARTIDO:</strong> <span t-field="o.grano_partido"/>%</td>
+                            <td style="width: 15%; padding: 5px 0 0 8px; border-left: 1px solid #ccc;"><strong>BULTOS:</strong> <span t-field="o.bultos"/></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Observaciones -->
+                <t t-if="o.observaciones">
+                    <div style="font-size: 12px; margin-bottom: 8px;">
+                        <strong>OBSERVACIONES:</strong> <span t-field="o.observaciones"/>
+                    </div>
+                </t>
+
+            </div>
+        </template>
+
+        <!-- Tiquete imprimible: cuerpo + firmas + pie de página -->
         <template id="report_pesaje_tiquete_document">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.basic_layout">
-                        <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; line-height: 1.4; color: #111;">
+                        <div class="page">
+                            <t t-call="bascula.report_pesaje_tiquete_body"/>
 
-                            <!-- Encabezado -->
-                            <div class="text-center" style="padding-bottom: 10px; border-bottom: 1px solid #ccc; margin-bottom: 12px;">
-                                <div style="font-size: 13px; letter-spacing: 0.5px;"><strong t-field="o.company_id.name"/></div>
-                                <div t-if="o.company_id.vat" style="font-size: 11px; color: #555;">NIT <span t-field="o.company_id.vat"/></div>
-                                <div style="font-size: 10px; letter-spacing: 3px; color: #555; margin-top: 8px;">TIQUETE DE PESAJE</div>
-                                <div style="font-size: 36px; line-height: 1.1; color: #cc0000; margin-top: 2px;">
-                                    <strong>No. <span t-field="o.name"/></strong>
-                                </div>
-                            </div>
-
-                            <!-- Primera fila: cinco columnas limpias.
-                                 table-layout fixed: ninguna celda puede empujar a las
-                                 demás. Las horas van solo con HH:mm (el Datetime
-                                 completo no cabe en una celda del 20%). -->
-                            <table style="width: 100%; table-layout: fixed; margin-bottom: 12px;">
-                                <tr style="font-size: 9px; letter-spacing: 1px; color: #555;">
-                                    <td style="width: 22%;">FECHA</td>
-                                    <td style="width: 17%;">ENTRADA</td>
-                                    <td style="width: 17%;">SALIDA</td>
-                                    <td style="width: 22%;">TIPO</td>
-                                    <td style="width: 22%;">ESTADO</td>
-                                </tr>
-                                <tr style="font-size: 12px;">
-                                    <td><strong t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></td>
-                                    <td><strong t-field="o.hora_entrada" t-options='{"format": "HH:mm"}'/></td>
-                                    <td><strong t-field="o.hora_salida" t-options='{"format": "HH:mm"}'/></td>
-                                    <td><strong t-field="o.tipo_proceso"/></td>
-                                    <td><strong t-field="o.state"/></td>
-                                </tr>
-                            </table>
-
-                            <div style="border-top: 1px solid #ccc; margin-bottom: 10px;"/>
-
-                            <!-- Vehículo y Conductor: dos columnas -->
-                            <table style="width: 100%; table-layout: fixed; margin-bottom: 12px;">
-                                <tr style="font-size: 9px; letter-spacing: 1px; color: #555;">
-                                    <td style="width: 42%; vertical-align: top;">VEHÍCULO — PLACA</td>
-                                    <td style="width: 58%; vertical-align: top;">CONDUCTOR</td>
-                                </tr>
+                            <!-- Firmas -->
+                            <table style="width: 100%; table-layout: fixed; margin-top: 30px; font-family: Arial, Helvetica, sans-serif;">
                                 <tr>
-                                    <td style="vertical-align: top; word-wrap: break-word;">
-                                        <div style="font-size: 36px; line-height: 1.1;"><strong t-field="o.placa_texto"/></div>
-                                        <div style="font-size: 12px; color: #333; margin-top: 6px;">
-                                            Cédula <strong t-field="o.cedula_conductor"/><br/>
-                                            Transportadora <strong t-field="o.transportadora_id"/>
-                                        </div>
+                                    <td style="width: 50%; padding: 0 30px;">
+                                        <div style="border-top: 1px solid #111; padding-top: 5px; font-size: 12px; text-align: center;">Firma del Basculero</div>
                                     </td>
-                                    <td style="vertical-align: top; word-wrap: break-word;">
-                                        <div style="font-size: 30px; line-height: 1.1;"><strong t-field="o.conductor_id"/></div>
+                                    <td style="width: 50%; padding: 0 30px;">
+                                        <div style="border-top: 1px solid #111; padding-top: 5px; font-size: 12px; text-align: center;">Firma del Conductor</div>
                                     </td>
                                 </tr>
                             </table>
-
-                            <!-- Tercero -->
-                            <div style="margin-bottom: 12px;">
-                                <div style="font-size: 9px; letter-spacing: 1px; color: #555;">TERCERO</div>
-                                <div style="font-size: 22px; line-height: 1.15;"><strong t-field="o.tercero_id"/></div>
-                                <div style="font-size: 12px; color: #333;">NIT / CC <strong t-field="o.nit_tercero"/></div>
-                            </div>
-
-                            <!-- Origen: una línea simple, sin cajas -->
-                            <div style="font-size: 12px; margin-bottom: 12px;">
-                                Origen: <strong t-field="o.origen_id"/>
-                                <t t-if="o.lote_finca">&#160;&#160;&#160;Lote: <strong t-field="o.lote_finca"/></t>
-                                &#160;&#160;&#160;Destino: <strong t-field="o.destino_id"/>
-                            </div>
-
-                            <!-- Pesos: la única caja del documento. Sin decimales:
-                                 la báscula pesa kilos enteros y los ".00" alargan la
-                                 cifra grande hasta rozar el borde. -->
-                            <div style="border: 1px solid #111; padding: 12px 18px; margin-bottom: 14px;">
-                                <table style="width: 100%; table-layout: fixed;">
-                                    <tr style="font-size: 22px;">
-                                        <td style="width: 40%; padding: 2px 0;">Peso Lleno</td>
-                                        <td style="text-align: right; padding: 2px 0;"><span t-field="o.peso_bruto" t-options='{"widget": "float", "precision": 0}'/> Kg</td>
-                                    </tr>
-                                    <tr style="font-size: 22px;">
-                                        <td style="padding: 2px 0;">Peso Vacío</td>
-                                        <td style="text-align: right; padding: 2px 0;"><span t-field="o.peso_tara" t-options='{"widget": "float", "precision": 0}'/> Kg</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" style="border-top: 1px solid #111; padding: 0; height: 6px;"/>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-size: 15px; letter-spacing: 1px; vertical-align: middle;"><strong>PESO NETO</strong></td>
-                                        <td style="text-align: right; font-size: 36px; line-height: 1.05; white-space: nowrap;"><strong><span t-field="o.peso_neto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <!-- Calidad: dos columnas -->
-                            <table style="width: 100%; table-layout: fixed; margin-bottom: 12px;">
-                                <tr style="font-size: 9px; letter-spacing: 1px; color: #555;">
-                                    <td style="width: 42%;">HUMEDAD</td>
-                                    <td style="width: 58%;">IMPUREZAS</td>
-                                </tr>
-                                <tr style="font-size: 22px;">
-                                    <td><strong><span t-field="o.humedad"/>%</strong></td>
-                                    <td><strong><span t-field="o.impurezas"/>%</strong></td>
-                                </tr>
-                            </table>
-
-                            <!-- Información técnica: una línea con separadores verticales.
-                                 Separador con carácter | : los spans vacíos con solo
-                                 border-left no siempre se dibujan en wkhtmltopdf. -->
-                            <div style="font-size: 12px; color: #333; margin-bottom: 10px;">
-                                Producto <strong t-field="o.producto_id"/>
-                                <span style="color: #bbb;">&#160;|&#160;</span>
-                                Variedad <strong t-field="o.variedad_id"/>
-                                <span style="color: #bbb;">&#160;|&#160;</span>
-                                Grano Partido <strong><span t-field="o.grano_partido"/>%</strong>
-                                <span style="color: #bbb;">&#160;|&#160;</span>
-                                Bultos <strong t-field="o.bultos"/>
-                            </div>
-
-                            <!-- Observaciones -->
-                            <t t-if="o.observaciones">
-                                <div style="font-size: 12px; margin-bottom: 10px;">
-                                    Observaciones: <span t-field="o.observaciones"/>
-                                </div>
-                            </t>
-
-                            <!-- Firmas: dos líneas, sin cajas -->
-                            <table style="width: 100%; margin-top: 40px;">
-                                <tr>
-                                    <td style="width: 50%; padding: 0 18px;">
-                                        <div style="border-top: 1px solid #111; padding-top: 5px; font-size: 11px; text-align: center;">Firma Basculero</div>
-                                    </td>
-                                    <td style="width: 50%; padding: 0 18px;">
-                                        <div style="border-top: 1px solid #111; padding-top: 5px; font-size: 11px; text-align: center;">Firma Conductor</div>
-                                    </td>
-                                </tr>
-                            </table>
-
                         </div>
 
                         <!-- Pie de página real: se repite en cada hoja del PDF -->
                         <div class="footer" style="font-family: Arial, Helvetica, sans-serif;">
-                            <div class="text-center" style="font-size: 9px; color: #999; padding-top: 4px;">
+                            <div class="text-center" style="font-size: 10px; color: #888; padding-top: 4px;">
                                 Este documento es una constancia del pesaje realizado
                             </div>
                         </div>
