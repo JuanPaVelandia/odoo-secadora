@@ -58,116 +58,120 @@
                     </div>
                 </div>
 
-                <!-- Fila de datos generales: 5 columnas con divisores verticales -->
+                <!-- Fila de datos generales: 5 columnas con divisores verticales.
+                     Respiración uniforme: 9px de aire contra las líneas
+                     horizontales, 12px a cada lado de los divisores, y la
+                     primera columna alineada al borde izquierdo de la página
+                     como el resto de las secciones. -->
                 <table style="width: 100%; table-layout: fixed; border-top: 1px solid #333; border-bottom: 1px solid #333; margin-bottom: 12px;">
                     <tr>
-                        <td style="width: 21%; padding: 6px 4px 6px 10px;">
+                        <td style="width: 21%; padding: 9px 12px 9px 0;">
                             <div style="font-size: 10px; letter-spacing: 1px;"><strong>FECHA</strong></div>
-                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                            <div style="font-size: 13px; margin-top: 3px;"><span t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></div>
                         </td>
-                        <td style="width: 19%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                        <td style="width: 19%; padding: 9px 12px; border-left: 1px solid #ccc;">
                             <div style="font-size: 10px; letter-spacing: 1px;"><strong>ENTRADA</strong></div>
-                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.hora_entrada" t-options='{"format": "HH:mm:ss"}'/></div>
+                            <div style="font-size: 13px; margin-top: 3px;"><span t-field="o.hora_entrada" t-options='{"format": "HH:mm:ss"}'/></div>
                         </td>
-                        <td style="width: 19%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                        <td style="width: 19%; padding: 9px 12px; border-left: 1px solid #ccc;">
                             <div style="font-size: 10px; letter-spacing: 1px;"><strong>SALIDA</strong></div>
-                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.hora_salida" t-options='{"format": "HH:mm:ss"}'/></div>
+                            <div style="font-size: 13px; margin-top: 3px;"><span t-field="o.hora_salida" t-options='{"format": "HH:mm:ss"}'/></div>
                         </td>
-                        <td style="width: 18%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                        <td style="width: 18%; padding: 9px 12px; border-left: 1px solid #ccc;">
                             <div style="font-size: 10px; letter-spacing: 1px;"><strong>TIPO</strong></div>
-                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.tipo_proceso"/></div>
+                            <div style="font-size: 13px; margin-top: 3px;"><span t-field="o.tipo_proceso"/></div>
                         </td>
-                        <td style="width: 23%; padding: 6px 4px 6px 12px; border-left: 1px solid #ccc;">
+                        <td style="width: 23%; padding: 9px 0 9px 12px; border-left: 1px solid #ccc;">
                             <div style="font-size: 10px; letter-spacing: 1px;"><strong>ESTADO</strong></div>
-                            <div style="font-size: 13px; margin-top: 2px;"><span t-field="o.state"/></div>
+                            <div style="font-size: 13px; margin-top: 3px;"><span t-field="o.state"/></div>
                         </td>
                     </tr>
                 </table>
 
                 <!-- Vehículo y Conductor -->
-                <table style="width: 100%; table-layout: fixed; border-bottom: 1px solid #333; margin-bottom: 10px;">
+                <table style="width: 100%; table-layout: fixed; border-bottom: 1px solid #333; margin-bottom: 12px;">
                     <tr>
-                        <td style="width: 46%; vertical-align: top; padding: 0 10px 10px 0; word-wrap: break-word;">
+                        <td style="width: 46%; vertical-align: top; padding: 0 16px 12px 0; word-wrap: break-word;">
                             <div style="font-size: 10px; letter-spacing: 1px;"><strong>VEHÍCULO</strong></div>
-                            <div style="font-size: 10px; letter-spacing: 1px; margin-top: 6px;"><strong>PLACA</strong></div>
-                            <div style="font-size: 34px; line-height: 1.1;"><strong t-field="o.placa_texto"/></div>
-                            <div style="font-size: 12px; margin-top: 8px;">
+                            <div style="font-size: 10px; letter-spacing: 1px; margin-top: 8px;"><strong>PLACA</strong></div>
+                            <div style="font-size: 34px; line-height: 1.15; margin-top: 2px;"><strong t-field="o.placa_texto"/></div>
+                            <div style="font-size: 12px; margin-top: 10px;">
                                 <strong>CÉDULA:</strong> <span t-field="o.cedula_conductor"/>
                             </div>
-                            <div style="font-size: 12px; margin-top: 3px;">
+                            <div style="font-size: 12px; margin-top: 4px;">
                                 <strong>TRANSPORTADORA:</strong><br/>
                                 <span t-field="o.transportadora_id"/>
                             </div>
                         </td>
-                        <td style="width: 54%; vertical-align: top; padding: 4px 0 10px 14px; border-left: 1px solid #ccc; word-wrap: break-word;">
+                        <td style="width: 54%; vertical-align: top; padding: 4px 0 12px 16px; border-left: 1px solid #ccc; word-wrap: break-word;">
                             <div style="font-size: 10px; letter-spacing: 1px;"><strong>CONDUCTOR</strong></div>
-                            <div style="font-size: 28px; line-height: 1.15; margin-top: 4px;"><strong t-field="o.conductor_id"/></div>
+                            <div style="font-size: 28px; line-height: 1.2; margin-top: 6px;"><strong t-field="o.conductor_id"/></div>
                         </td>
                     </tr>
                 </table>
 
                 <!-- Tercero -->
-                <div style="border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 10px;">
+                <div style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 12px;">
                     <div style="font-size: 10px; letter-spacing: 1px;"><strong>TERCERO</strong></div>
-                    <div style="font-size: 26px; line-height: 1.15; margin-top: 2px;"><strong t-field="o.tercero_id"/></div>
-                    <div style="font-size: 12px; margin-top: 2px;">NIT/CC: <span t-field="o.nit_tercero"/></div>
+                    <div style="font-size: 26px; line-height: 1.2; margin-top: 4px;"><strong t-field="o.tercero_id"/></div>
+                    <div style="font-size: 12px; margin-top: 4px;">NIT/CC: <span t-field="o.nit_tercero"/></div>
                 </div>
 
                 <!-- Origen y Destino -->
-                <div style="margin-bottom: 10px;">
-                    <div style="font-size: 10px; letter-spacing: 1px; margin-bottom: 3px;"><strong>ORIGEN Y DESTINO</strong></div>
+                <div style="margin-bottom: 12px;">
+                    <div style="font-size: 10px; letter-spacing: 1px; margin-bottom: 5px;"><strong>ORIGEN Y DESTINO</strong></div>
                     <table style="width: 100%; table-layout: fixed;">
                         <tr style="font-size: 12px;">
-                            <td style="width: 36%; padding-right: 8px;"><strong>ORIGEN:</strong> <span t-field="o.origen_id"/></td>
-                            <td style="width: 22%; padding: 0 8px; border-left: 1px solid #ccc;"><strong>LOTE:</strong> <span t-field="o.lote_finca"/></td>
-                            <td style="width: 42%; padding-left: 8px; border-left: 1px solid #ccc;"><strong>DESTINO:</strong> <span t-field="o.destino_id"/></td>
+                            <td style="width: 36%; padding: 2px 12px 2px 0;"><strong>ORIGEN:</strong> <span t-field="o.origen_id"/></td>
+                            <td style="width: 22%; padding: 2px 12px; border-left: 1px solid #ccc;"><strong>LOTE:</strong> <span t-field="o.lote_finca"/></td>
+                            <td style="width: 42%; padding: 2px 0 2px 12px; border-left: 1px solid #ccc;"><strong>DESTINO:</strong> <span t-field="o.destino_id"/></td>
                         </tr>
                     </table>
                 </div>
 
                 <!-- Pesos: caja redondeada, neto sobre banda gris -->
-                <div style="border: 1px solid #333; border-radius: 10px; padding: 4px 0 6px 0; margin-bottom: 12px;">
+                <div style="border: 1px solid #333; border-radius: 10px; padding: 6px 0 8px 0; margin-bottom: 12px;">
                     <table style="width: 100%; table-layout: fixed;">
                         <tr style="font-size: 20px;">
-                            <td style="padding: 8px 18px;">PESO LLENO</td>
-                            <td style="padding: 8px 18px; text-align: right;"><strong><span t-field="o.peso_bruto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
+                            <td style="padding: 10px 20px;">PESO LLENO</td>
+                            <td style="padding: 10px 20px; text-align: right;"><strong><span t-field="o.peso_bruto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
                         </tr>
                         <tr style="font-size: 20px;">
-                            <td style="padding: 8px 18px; border-top: 1px solid #ccc;">PESO VACÍO</td>
-                            <td style="padding: 8px 18px; text-align: right; border-top: 1px solid #ccc;"><strong><span t-field="o.peso_tara" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
+                            <td style="padding: 10px 20px; border-top: 1px solid #ccc;">PESO VACÍO</td>
+                            <td style="padding: 10px 20px; text-align: right; border-top: 1px solid #ccc;"><strong><span t-field="o.peso_tara" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
                         </tr>
                     </table>
-                    <div style="background-color: #ebebeb; border-radius: 6px; margin: 4px 8px 2px 8px; padding: 6px 10px;">
+                    <div style="background-color: #ebebeb; border-radius: 6px; margin: 6px 10px 2px 10px; padding: 10px 12px;">
                         <table style="width: 100%; table-layout: fixed;">
                             <tr>
-                                <td style="font-size: 20px; vertical-align: middle;"><strong>PESO NETO</strong></td>
-                                <td style="text-align: right; font-size: 38px; line-height: 1.05; white-space: nowrap;"><strong><span t-field="o.peso_neto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
+                                <td style="font-size: 20px; vertical-align: middle; padding-left: 8px;"><strong>PESO NETO</strong></td>
+                                <td style="text-align: right; font-size: 38px; line-height: 1.1; white-space: nowrap; padding-right: 8px;"><strong><span t-field="o.peso_neto" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></td>
                             </tr>
                         </table>
                     </div>
                 </div>
 
                 <!-- Producto y Calidad -->
-                <div style="border-top: 1px solid #333; padding-top: 6px; margin-bottom: 10px;">
-                    <div style="font-size: 10px; letter-spacing: 1px; margin-bottom: 4px;"><strong>PRODUCTO Y CALIDAD</strong></div>
-                    <table style="width: 100%; table-layout: fixed; margin-bottom: 6px;">
+                <div style="border-top: 1px solid #333; padding-top: 9px; margin-bottom: 12px;">
+                    <div style="font-size: 10px; letter-spacing: 1px; margin-bottom: 6px;"><strong>PRODUCTO Y CALIDAD</strong></div>
+                    <table style="width: 100%; table-layout: fixed; margin-bottom: 8px;">
                         <tr>
-                            <td style="width: 46%; padding-bottom: 4px;">
+                            <td style="width: 46%; padding: 0 16px 6px 0;">
                                 <div style="font-size: 10px; letter-spacing: 1px;"><strong>HUMEDAD</strong></div>
-                                <div style="font-size: 24px;"><strong><span t-field="o.humedad"/>%</strong></div>
+                                <div style="font-size: 24px; margin-top: 2px;"><strong><span t-field="o.humedad"/>%</strong></div>
                             </td>
-                            <td style="width: 54%; padding-left: 14px; border-left: 1px solid #ccc;">
+                            <td style="width: 54%; padding: 0 0 6px 16px; border-left: 1px solid #ccc;">
                                 <div style="font-size: 10px; letter-spacing: 1px;"><strong>IMPUREZAS</strong></div>
-                                <div style="font-size: 24px;"><strong><span t-field="o.impurezas"/>%</strong></div>
+                                <div style="font-size: 24px; margin-top: 2px;"><strong><span t-field="o.impurezas"/>%</strong></div>
                             </td>
                         </tr>
                     </table>
                     <table style="width: 100%; table-layout: fixed; border-top: 1px solid #ccc;">
                         <tr style="font-size: 11px;">
-                            <td style="width: 32%; padding: 5px 6px 0 0; word-wrap: break-word;"><strong>PRODUCTO:</strong> <span t-field="o.producto_id"/></td>
-                            <td style="width: 27%; padding: 5px 6px 0 8px; border-left: 1px solid #ccc; word-wrap: break-word;"><strong>VARIEDAD:</strong> <span t-field="o.variedad_id"/></td>
-                            <td style="width: 26%; padding: 5px 6px 0 8px; border-left: 1px solid #ccc;"><strong>GRANO PARTIDO:</strong> <span t-field="o.grano_partido"/>%</td>
-                            <td style="width: 15%; padding: 5px 0 0 8px; border-left: 1px solid #ccc;"><strong>BULTOS:</strong> <span t-field="o.bultos"/></td>
+                            <td style="width: 32%; padding: 8px 12px 0 0; word-wrap: break-word;"><strong>PRODUCTO:</strong> <span t-field="o.producto_id"/></td>
+                            <td style="width: 27%; padding: 8px 12px 0 12px; border-left: 1px solid #ccc; word-wrap: break-word;"><strong>VARIEDAD:</strong> <span t-field="o.variedad_id"/></td>
+                            <td style="width: 26%; padding: 8px 12px 0 12px; border-left: 1px solid #ccc;"><strong>GRANO PARTIDO:</strong> <span t-field="o.grano_partido"/>%</td>
+                            <td style="width: 15%; padding: 8px 0 0 12px; border-left: 1px solid #ccc;"><strong>BULTOS:</strong> <span t-field="o.bultos"/></td>
                         </tr>
                     </table>
                 </div>
