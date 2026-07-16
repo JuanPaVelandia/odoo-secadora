@@ -198,10 +198,13 @@
                                         </tr>
                                     </table>
 
-                                    <!-- Tiquete de báscula de ESTE flete -->
+                                    <!-- Tiquete de báscula de ESTE flete. page-break-inside:
+                                         avoid para que el tiquete NO se parta entre páginas:
+                                         si no cabe en lo que resta de la hoja, salta entero a
+                                         la siguiente. -->
                                     <t t-if="flete.pesaje_id">
-                                        <h5 style="font-size: 11px; margin: 12px 0 6px 0;"><strong>Tiquete de báscula</strong></h5>
-                                        <div style="border: 1px solid #ccc; padding: 8px;">
+                                        <h5 style="font-size: 11px; margin: 12px 0 6px 0; page-break-after: avoid;"><strong>Tiquete de báscula</strong></h5>
+                                        <div style="border: 1px solid #ccc; padding: 8px; page-break-inside: avoid;">
                                             <t t-call="bascula.report_pesaje_tiquete_body">
                                                 <t t-set="o" t-value="flete.pesaje_id"/>
                                             </t>

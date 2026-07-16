@@ -46,27 +46,31 @@ class IrActionsReport(models.Model):
 
     def _render_viajes_intercalado(self, report_ref, ids, data):
         """Construye el PDF intercalando factura por factura. Devuelve
-        (bytes, 'pdf')."""
+        (bytes, 'pdf').
+
+        Los flags que controlan qué pinta cada render (viajes_solo_grupos /
+        viajes_solo_cierre) se pasan por `data`, no por contexto: las claves de
+        `data` se inyectan directamente en el namespace del template QWeb, que
+        es la vía fiable en Odoo 18 (el contexto no siempre llega íntegro al
+        render del sub-reporte)."""
         facturas = self.env['account.move'].browse(ids)
         partes = []  # lista de PDFs en bytes, en orden
-        # Contexto para que el render por-factura NO pinte el total/firmas
-        # globales (esos van una sola vez al final).
-        ctx_parcial = dict(self.env.context, viajes_solo_grupos=True)
-        report_parcial = self.with_context(ctx_parcial)
 
         for factura in facturas:
-            # Render QWeb del grupo de fletes de esta sola factura.
-            pdf_grupo, _ = super(IrActionsReport, report_parcial)._render_qweb_pdf(
-                report_ref, res_ids=[factura.id], data=data
+            # Render QWeb del grupo de fletes de esta sola factura (sin
+            # total/firmas globales).
+            data_grupo = dict(data or {}, viajes_solo_grupos=True)
+            pdf_grupo, _ = super()._render_qweb_pdf(
+                report_ref, res_ids=[factura.id], data=data_grupo
             )
             partes.append(pdf_grupo)
             # PDF físico de la factura, justo detrás.
             partes.extend(self._recolectar_pdfs_facturas(factura))
 
-        # Hoja final: total general + firmas (render con solo ese bloque).
-        ctx_cierre = dict(self.env.context, viajes_solo_cierre=True)
-        pdf_cierre, _ = super(IrActionsReport, self.with_context(ctx_cierre))._render_qweb_pdf(
-            report_ref, res_ids=ids, data=data
+        # Hoja final: solo total general + firmas (sin los grupos).
+        data_cierre = dict(data or {}, viajes_solo_cierre=True)
+        pdf_cierre, _ = super()._render_qweb_pdf(
+            report_ref, res_ids=ids, data=data_cierre
         )
         partes.append(pdf_cierre)
 
