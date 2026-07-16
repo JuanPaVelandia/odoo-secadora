@@ -51,9 +51,13 @@
                             </p>
                         </div>
 
-                        <!-- Una orden de giro por factura -->
+                        <!-- Una orden de giro por factura. Sin page-break-inside:avoid:
+                             una factura con varios tiquetes puede superar una página, y
+                             forzar "no partir" hace que wkhtmltopdf corte o descarte
+                             contenido. Se deja fluir entre páginas. Cada factura sí
+                             empieza en página nueva (salvo la primera) para separarlas. -->
                         <t t-foreach="docs" t-as="o">
-                            <div style="border: 1px solid #999999; border-radius: 4px; padding: 10px 12px; margin-bottom: 14px; page-break-inside: avoid;">
+                            <div t-attf-style="border: 1px solid #999999; border-radius: 4px; padding: 10px 12px; margin-bottom: 14px; #{'page-break-before: always;' if not o_first else ''}">
 
                                 <!-- Título de la sección -->
                                 <div style="background-color: #444444; color: white; padding: 4px 8px; margin: -10px -12px 8px -12px; font-size: 12px;">
@@ -207,7 +211,7 @@
                                      depender del scope de t-set anteriores. -->
                                 <t t-set="fletes_con_pesaje" t-value="o.fletes_activos().filtered(lambda f: f.pesaje_id)"/>
                                 <t t-if="fletes_con_pesaje">
-                                    <h5 style="font-size: 11px; margin: 10px 0 4px 0; page-break-before: always;">
+                                    <h5 style="font-size: 11px; margin: 12px 0 6px 0;">
                                         <strong>Tiquetes de báscula</strong>
                                     </h5>
                                     <t t-foreach="fletes_con_pesaje.sorted('fecha')" t-as="flete_tk">
