@@ -56,6 +56,12 @@ class IrActionsReport(models.Model):
         facturas = self.env['account.move'].browse(ids)
         partes = []  # lista de PDFs en bytes, en orden
 
+        # Validación temprana: cada PDF que entre al merge debe empezar por
+        # %PDF. Un adjunto corrupto no debe tumbar el intercalado entero — se
+        # omite (la factura ya muestra su enlace de Drive como respaldo).
+        def _pdf_valido(b):
+            return isinstance(b, (bytes, bytearray)) and b[:4] == b'%PDF'
+
         for factura in facturas:
             # Render QWeb del grupo de fletes de esta sola factura (sin
             # total/firmas globales).
@@ -64,8 +70,17 @@ class IrActionsReport(models.Model):
                 report_ref, res_ids=[factura.id], data=data_grupo
             )
             partes.append(pdf_grupo)
-            # PDF físico de la factura, justo detrás.
-            partes.extend(self._recolectar_pdfs_facturas(factura))
+            # PDF físico de la factura, justo detrás. Solo se anexan los
+            # válidos; uno corrupto se omite (con warning) sin tumbar el resto.
+            for pdf in self._recolectar_pdfs_facturas(factura):
+                if _pdf_valido(pdf):
+                    partes.append(pdf)
+                else:
+                    _logger.warning(
+                        'Viajes por pagar: el PDF de la factura %s no es válido, '
+                        'se omite del intercalado (queda su enlace en el reporte).',
+                        factura.name
+                    )
 
         # Hoja final: solo total general + firmas (sin los grupos).
         data_cierre = dict(data or {}, viajes_solo_cierre=True)
@@ -89,6 +104,9 @@ class IrActionsReport(models.Model):
         """
         Attachment = self.env['ir.attachment'].sudo()
         downloader = self.env.get('custom_webviewlink.drive_downloader')
+        # Construir el cliente de Drive UNA vez y reutilizarlo para todas las
+        # facturas (evita leer la clave JSON y crear el cliente por factura).
+        drive_service = downloader._get_drive_service() if downloader is not None else None
         pdfs = []
         for factura in facturas:
             adjuntos = Attachment.search([
@@ -106,7 +124,7 @@ class IrActionsReport(models.Model):
             # Sin adjunto local: intentar Drive.
             enlace = getattr(factura, 'x_webviewlink', False)
             if enlace and downloader is not None:
-                data = downloader.descargar_pdf(enlace)
+                data = downloader.descargar_pdf(enlace, service=drive_service)
                 if data:
                     pdfs.append(data)
         return pdfs

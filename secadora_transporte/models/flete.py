@@ -387,13 +387,11 @@ class SecadoraFlete(models.Model):
     @api.onchange('tercero_id')
     def _onchange_tercero_id(self):
         if self.tercero_id:
+            # "Quién paga" lo lleva pago_flete (agricultor/secadora), NO
+            # company_id. company_id es la propiedad del registro (la operadora)
+            # y se deja en su default; asignarle la compañía del agricultor
+            # rompía la regla multi-compañía (AccessError al leer/imprimir).
             self.pago_flete = self.tercero_id.flete_pago or 'agricultor'
-            # Auto-detectar empresa que paga desde el tercero
-            empresa = self.env['res.company'].search([
-                ('partner_id', '=', self.tercero_id.id)
-            ], limit=1)
-            if empresa:
-                self.company_id = empresa
 
     @api.onchange('pesaje_id')
     def _onchange_pesaje_id(self):

@@ -88,14 +88,22 @@ class DriveDownloader(models.AbstractModel):
             _logger.warning('Drive: no se pudo inicializar el cliente: %s', e)
             return None
 
-    def descargar_pdf(self, url):
+    def descargar_pdf(self, url, service=None):
         """Descarga el archivo de Drive apuntado por `url` y lo devuelve en
         bytes. Devuelve None si no se pudo (enlace no reconocido, sin permisos,
-        sin credencial, error de red). Nunca lanza."""
-        file_id = self._extraer_file_id(url)
+        sin credencial, error de red). Nunca lanza.
+
+        `service`: cliente de Drive ya construido, para reutilizarlo entre
+        varias descargas (evita leer la clave y crear el cliente por archivo).
+        Si es None, se construye aquí."""
+        try:
+            file_id = self._extraer_file_id(url)
+        except Exception:
+            file_id = None
         if not file_id:
             return None
-        service = self._get_drive_service()
+        if service is None:
+            service = self._get_drive_service()
         if not service:
             return None
         try:

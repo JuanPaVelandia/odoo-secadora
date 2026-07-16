@@ -95,6 +95,11 @@ class SecadoraPesajeTransporte(models.Model):
                     sync_vals = {}
                     for campo_pesaje in campos_changed:
                         campo_flete = campos_sync[campo_pesaje]
+                        # peso_neto computado da 0 si bruto o tara es 0 (usa 'and');
+                        # calcularlo directo para no sincronizar un peso_kg=0 falso.
+                        if campo_pesaje == 'peso_neto':
+                            sync_vals[campo_flete] = record.peso_bruto - record.peso_tara
+                            continue
                         value = record[campo_pesaje]
                         if hasattr(value, 'id'):
                             sync_vals[campo_flete] = value.id or False

@@ -155,7 +155,10 @@
                                             </tr>
                                             <tr>
                                                 <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">TIPO DE CUENTA</td>
-                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="dict(banco._fields['type_account'].selection).get(banco.type_account, '—') if banco.type_account else '—'"/></td>
+                                                <!-- type_account es de la localización colombiana (l10n_co);
+                                                     se accede con getattr para no romper el reporte si el
+                                                     campo no existe en la instalación. -->
+                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="dict(banco._fields['type_account'].selection).get(banco.type_account, '—') if 'type_account' in banco._fields and banco.type_account else '—'"/></td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 7px 12px; background-color: #f4f4f4; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NÚMERO DE CUENTA</td>
@@ -198,7 +201,7 @@
                                                 <td style="padding: 3px 6px;"><span t-esc="flete.placa_texto or ''"/></td>
                                                 <td style="padding: 3px 6px;">
                                                     <span t-esc="(flete.origen_id.name or '')"/>
-                                                    <t t-if="flete.origen_id or flete.destino_id"> → </t>
+                                                    <t t-if="flete.origen_id and flete.destino_id"> → </t>
                                                     <span t-esc="(flete.destino_id.name or '')"/>
                                                 </td>
                                                 <td style="text-align: right; padding: 3px 6px;">

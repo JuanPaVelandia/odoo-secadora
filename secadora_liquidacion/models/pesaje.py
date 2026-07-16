@@ -24,11 +24,12 @@ class SecadoraPesaje(models.Model):
     def _motivos_bloqueo_reapertura(self):
         motivos = super()._motivos_bloqueo_reapertura()
         liq = self.liquidacion_id
-        # La liquidación tiene estados borrador/confirmado/facturado (no hay
-        # 'liquidado'). Una liquidación facturada tiene el pago al agricultor
-        # emitido: editar el peso la descuadraría.
-        if liq and liq.state == 'facturado':
-            motivos.append(f'Liquidación {liq.name} (Facturado)')
+        # La liquidación tiene estados borrador/confirmado/facturado. Una
+        # liquidación confirmada o facturada ya tiene cifras comprometidas:
+        # editar el peso del pesaje la descuadraría.
+        if liq and liq.state in ('confirmado', 'facturado'):
+            estado = dict(liq._fields['state'].selection).get(liq.state, liq.state)
+            motivos.append(f'Liquidación {liq.name} ({estado})')
         return motivos
 
     def write(self, vals):
