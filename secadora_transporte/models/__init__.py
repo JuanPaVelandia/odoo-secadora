@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import account_move
+from . import ir_actions_report
 from . import flete
 from . import orden_servicio
 from . import pesaje
