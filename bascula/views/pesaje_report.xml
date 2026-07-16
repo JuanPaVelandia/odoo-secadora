@@ -63,27 +63,26 @@
                     <div style="font-size: 30px; line-height: 1.1; color: #cc1111; margin-top: 3px;">
                         <strong>No. <span t-field="o.name"/></strong>
                     </div>
+                    <div style="display: inline-block; border: 2px solid #111; padding: 2px 14px; font-size: 13px; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase;">
+                        <strong t-field="o.tipo_proceso"/>
+                    </div>
                 </div>
 
                 <!-- Fila de datos generales: 5 columnas flotadas -->
                 <div style="overflow: hidden; border-top: 1px solid #333; border-bottom: 1px solid #333; margin-bottom: 12px;">
-                    <div style="float: left; width: 21%; box-sizing: border-box; padding: 8px 10px 8px 2px;">
+                    <div style="float: left; width: 27%; box-sizing: border-box; padding: 8px 10px 8px 2px;">
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>FECHA</strong></div>
-                        <div style="font-size: 12px; margin-top: 3px;"><span t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                        <div style="font-size: 14px; margin-top: 2px;"><strong t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></div>
                     </div>
-                    <div style="float: left; width: 19%; box-sizing: border-box; padding: 8px 10px; border-left: 1px solid #ccc;">
+                    <div style="float: left; width: 21%; box-sizing: border-box; padding: 8px 10px; border-left: 1px solid #ccc;">
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>ENTRADA</strong></div>
                         <div style="font-size: 12px; margin-top: 3px;"><span t-field="o.hora_entrada" t-options='{"format": "HH:mm:ss"}'/></div>
                     </div>
-                    <div style="float: left; width: 19%; box-sizing: border-box; padding: 8px 10px; border-left: 1px solid #ccc;">
+                    <div style="float: left; width: 21%; box-sizing: border-box; padding: 8px 10px; border-left: 1px solid #ccc;">
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>SALIDA</strong></div>
                         <div style="font-size: 12px; margin-top: 3px;"><span t-field="o.hora_salida" t-options='{"format": "HH:mm:ss"}'/></div>
                     </div>
-                    <div style="float: left; width: 18%; box-sizing: border-box; padding: 8px 10px; border-left: 1px solid #ccc;">
-                        <div style="font-size: 9px; letter-spacing: 1px;"><strong>TIPO</strong></div>
-                        <div style="font-size: 12px; margin-top: 3px;"><span t-field="o.tipo_proceso"/></div>
-                    </div>
-                    <div style="float: left; width: 23%; box-sizing: border-box; padding: 8px 2px 8px 10px; border-left: 1px solid #ccc;">
+                    <div style="float: left; width: 31%; box-sizing: border-box; padding: 8px 2px 8px 10px; border-left: 1px solid #ccc;">
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>ESTADO</strong></div>
                         <div style="font-size: 12px; margin-top: 3px;"><span t-field="o.state"/></div>
                     </div>
@@ -115,7 +114,7 @@
                 <!-- Origen y Destino -->
                 <div style="margin-bottom: 12px; padding: 0 2px;">
                     <div style="font-size: 11px; letter-spacing: 2px; margin-bottom: 5px;"><strong>ORIGEN Y DESTINO</strong></div>
-                    <div style="overflow: hidden; font-size: 11px;">
+                    <div style="overflow: hidden; font-size: 13px;">
                         <div style="float: left; width: 36%; box-sizing: border-box; padding: 2px 10px 2px 0;"><strong>ORIGEN:</strong> <span t-field="o.origen_id"/></div>
                         <div style="float: left; width: 22%; box-sizing: border-box; padding: 2px 10px; border-left: 1px solid #ccc;"><strong>LOTE:</strong> <span t-field="o.lote_finca"/></div>
                         <div style="float: left; width: 42%; box-sizing: border-box; padding: 2px 0 2px 10px; border-left: 1px solid #ccc;"><strong>DESTINO:</strong> <span t-field="o.destino_id"/></div>
@@ -178,7 +177,7 @@
                             <t t-call="bascula.report_pesaje_tiquete_body"/>
 
                             <!-- Firmas: sin tabla, dos columnas flotadas -->
-                            <div style="overflow: hidden; margin-top: 18px; font-family: Arial, Helvetica, sans-serif;">
+                            <div style="overflow: hidden; margin-top: 10px; font-family: Arial, Helvetica, sans-serif;">
                                 <div style="float: left; width: 50%; box-sizing: border-box; padding: 0 30px;">
                                     <div style="border-top: 1px solid #111; padding-top: 5px; font-size: 12px; text-align: center;">Firma del Basculero</div>
                                 </div>
