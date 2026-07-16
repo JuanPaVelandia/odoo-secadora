@@ -94,6 +94,13 @@
                                             <strong>Ref. proveedor:</strong> <span t-field="o.ref"/><br/>
                                         </t>
                                         <strong>Fecha factura:</strong> <span t-field="o.invoice_date"/>
+                                        <t t-if="o.x_webviewlink">
+                                            <br/>
+                                            <strong>Factura (Drive):</strong>
+                                            <span style="font-size: 9px; word-break: break-all;">
+                                                <a t-att-href="o.x_webviewlink" t-esc="o.x_webviewlink"/>
+                                            </span>
+                                        </t>
                                     </div>
                                     <div class="col-6">
                                         <strong>Total factura:</strong>

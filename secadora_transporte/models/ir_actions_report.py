@@ -56,14 +56,18 @@ class IrActionsReport(models.Model):
             return pdf_content, report_type
 
     def _recolectar_pdfs_facturas(self, facturas):
-        """Devuelve la lista de contenidos PDF (bytes) de los adjuntos de las
-        facturas, en el mismo orden en que aparecen en el reporte.
+        """Devuelve la lista de contenidos PDF (bytes) de las facturas, en el
+        mismo orden en que aparecen en el reporte.
 
-        Por cada factura se anexa UN solo PDF: el adjunto principal si es PDF,
-        o en su defecto el PDF adjunto más reciente. Así se evita meter
-        comprobantes u otros PDFs colgados de la misma factura.
+        Por cada factura se toma UN solo PDF, en este orden de preferencia:
+        1. El adjunto PDF local (principal, o el más reciente).
+        2. Si no hay adjunto pero la factura tiene enlace a Drive
+           (x_webviewlink), se descarga el PDF de Drive vía cuenta de servicio.
+        Si nada de lo anterior da un PDF, la factura se omite (el reporte
+        muestra igualmente el enlace de Drive como respaldo).
         """
         Attachment = self.env['ir.attachment'].sudo()
+        downloader = self.env.get('custom_webviewlink.drive_downloader')
         pdfs = []
         for factura in facturas:
             adjuntos = Attachment.search([
@@ -72,11 +76,16 @@ class IrActionsReport(models.Model):
                 '|', ('mimetype', 'in', ('application/pdf', 'application/x-pdf')),
                      ('name', '=ilike', '%.pdf'),
             ], order='id desc')
-            if not adjuntos:
-                continue
-            # Preferir el adjunto principal de la factura si es uno de los PDF.
-            principal = factura.message_main_attachment_id
-            elegido = principal if principal in adjuntos else adjuntos[:1]
-            if elegido.datas:
-                pdfs.append(base64.b64decode(elegido.datas))
+            if adjuntos:
+                principal = factura.message_main_attachment_id
+                elegido = principal if principal in adjuntos else adjuntos[:1]
+                if elegido.datas:
+                    pdfs.append(base64.b64decode(elegido.datas))
+                    continue
+            # Sin adjunto local: intentar Drive.
+            enlace = getattr(factura, 'x_webviewlink', False)
+            if enlace and downloader is not None:
+                data = downloader.descargar_pdf(enlace)
+                if data:
+                    pdfs.append(data)
         return pdfs

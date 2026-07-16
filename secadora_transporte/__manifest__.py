@@ -15,7 +15,7 @@
         - Soporte cross-company (flete visible desde empresa origen y destino)
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
-    'depends': ['bascula', 'mail', 'account'],
+    'depends': ['bascula', 'mail', 'account', 'custom_webviewlink'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
