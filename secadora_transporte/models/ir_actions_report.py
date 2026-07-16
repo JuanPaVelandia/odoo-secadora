@@ -31,10 +31,14 @@ class IrActionsReport(models.Model):
         if not report or report.report_name != REPORT_VIAJES or report_type != 'pdf':
             return pdf_content, report_type
 
-        if not res_ids:
+        # res_ids normalmente llega poblado (el wizard usa report_action con el
+        # recordset), pero si el reporte se invoca pasando los ids dentro de
+        # data, tomarlos de ahí como respaldo.
+        ids = res_ids or (data or {}).get('ids') or (data or {}).get('docids')
+        if not ids:
             return pdf_content, report_type
 
-        facturas = self.env['account.move'].browse(res_ids)
+        facturas = self.env['account.move'].browse(ids)
         pdfs_facturas = self._recolectar_pdfs_facturas(facturas)
         if not pdfs_facturas:
             return pdf_content, report_type
@@ -53,16 +57,26 @@ class IrActionsReport(models.Model):
 
     def _recolectar_pdfs_facturas(self, facturas):
         """Devuelve la lista de contenidos PDF (bytes) de los adjuntos de las
-        facturas, en el mismo orden en que aparecen en el reporte."""
+        facturas, en el mismo orden en que aparecen en el reporte.
+
+        Por cada factura se anexa UN solo PDF: el adjunto principal si es PDF,
+        o en su defecto el PDF adjunto más reciente. Así se evita meter
+        comprobantes u otros PDFs colgados de la misma factura.
+        """
         Attachment = self.env['ir.attachment'].sudo()
         pdfs = []
         for factura in facturas:
             adjuntos = Attachment.search([
                 ('res_model', '=', 'account.move'),
                 ('res_id', '=', factura.id),
-                ('mimetype', '=', 'application/pdf'),
-            ], order='id')
-            for adj in adjuntos:
-                if adj.datas:
-                    pdfs.append(base64.b64decode(adj.datas))
+                '|', ('mimetype', 'in', ('application/pdf', 'application/x-pdf')),
+                     ('name', '=ilike', '%.pdf'),
+            ], order='id desc')
+            if not adjuntos:
+                continue
+            # Preferir el adjunto principal de la factura si es uno de los PDF.
+            principal = factura.message_main_attachment_id
+            elegido = principal if principal in adjuntos else adjuntos[:1]
+            if elegido.datas:
+                pdfs.append(base64.b64decode(elegido.datas))
         return pdfs
