@@ -64,6 +64,20 @@ class SecadoraPesajeTransporte(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
+        # Si se marca 'generar flete' en un pesaje YA completado (p. ej. al
+        # reabrirlo y activarlo después), crear el flete en ese momento. Al
+        # completar normalmente ya lo hace action_segunda_pesada; esto cubre
+        # el caso de activarlo más tarde. _crear_flete_automatico no duplica.
+        if vals.get('generar_flete'):
+            for record in self:
+                if record.state == 'completado' and not record.flete_ids:
+                    try:
+                        record._crear_flete_automatico()
+                    except Exception as e:
+                        _logger.error(
+                            'Error creando flete al marcar el flag en pesaje %s: %s',
+                            record.name, str(e)
+                        )
         # Sincronizar campos del pesaje a fletes vinculados
         # Mapeo: campo_pesaje -> campo_flete (None = mismo nombre)
         campos_sync = {
