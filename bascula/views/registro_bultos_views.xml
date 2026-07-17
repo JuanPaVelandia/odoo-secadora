@@ -11,6 +11,7 @@
                     <field name="cliente_id"/>
                     <field name="orden_id"/>
                     <field name="producto_id"/>
+                    <field name="observaciones" string="Variedad"/>
                     <field name="fecha"/>
                     <field name="cantidad" sum="Total Bultos"/>
                     <field name="cantidad_despachada" sum="Total Despachados"/>
