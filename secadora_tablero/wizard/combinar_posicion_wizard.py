@@ -80,7 +80,18 @@ class CombinarPosicionWizard(models.TransientModel):
         # marcan como comerciales.
         es_semilla_combinacion = all(p.es_semilla for p in self.posicion_ids)
 
-        # Crear nueva posición combinada (sin humedad/impurezas)
+        # Calidad consolidada: promedio ponderado por peso de los viajes que
+        # se combinan. Solo cuentan las posiciones que traen el dato — incluir
+        # una sin medición como 0% diluiría el promedio falsamente.
+        def _promedio_ponderado(campo):
+            con_dato = self.posicion_ids.filtered(
+                lambda p: getattr(p, campo) > 0 and p.peso_kg > 0
+            )
+            peso_base = sum(con_dato.mapped('peso_kg'))
+            if not peso_base:
+                return 0.0
+            return sum(getattr(p, campo) * p.peso_kg for p in con_dato) / peso_base
+
         nueva_posicion = self.env['secadora.posicion.arroz'].create({
             'pesaje_id': posicion_mayor.pesaje_id.id,
             'sitio_id': self.sitio_id.id,
@@ -88,6 +99,8 @@ class CombinarPosicionWizard(models.TransientModel):
             'peso_original': peso_total,
             'es_comercial': not es_semilla_combinacion,
             'variedad_id': variedad_id,
+            'humedad': _promedio_ponderado('humedad'),
+            'impurezas': _promedio_ponderado('impurezas'),
         })
 
         MovimientoArroz = self.env['secadora.movimiento.arroz']
