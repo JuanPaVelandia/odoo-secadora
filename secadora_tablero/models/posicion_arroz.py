@@ -328,6 +328,7 @@ class PosicionArroz(models.Model):
                 'pesaje_id': p.pesaje_id.id if p.pesaje_id else False,
                 'peso_kg': p.peso_kg,
                 'tercero': p.tercero_id.name if p.tercero_id else '',
+                'producto': p.producto_id.name if p.producto_id else '',
                 'variedad': p.variedad_id.name if p.variedad_id else '',
                 'pesaje_name': p.pesaje_name or '',
                 'placa_texto': p.placa_texto or '',
@@ -364,6 +365,7 @@ class PosicionArroz(models.Model):
             en_transito_data.append({
                 'id': pes.id,
                 'tercero': pes.tercero_id.name if pes.tercero_id else '',
+                'producto': pes.producto_id.name if pes.producto_id else '',
                 'variedad': pes.variedad_id.name if pes.variedad_id else '',
                 'peso_bruto': pes.peso_bruto,
                 'placa_texto': pes.placa_texto or '',
