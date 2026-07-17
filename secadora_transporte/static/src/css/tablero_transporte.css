@@ -1,19 +1,12 @@
 .tablero-transporte-container {
     background: #f8f9fa;
-    /* Sin height fijo ni overflow propio: el contenedor crece con su
-       contenido y deja que .o_content (el contenedor de acción de Odoo,
-       que ya scrollea) haga el scroll. Antes, min-height:100% + overflow:auto
-       creaba un contenedor que no scrolleaba y recortaba lo de abajo cuando
-       se expandían varias transportadoras. */
-    min-height: 100%;
-    padding-bottom: 24px;
-}
-
-/* Asegurar que el contenedor de acción de Odoo permita scroll vertical
-   cuando este tablero es la acción activa (algunos temas ponen overflow
-   hidden en .o_content). */
-.o_action_manager .o_content:has(.tablero-transporte-container) {
+    /* Es hijo directo de .o_action_manager (que tiene altura fija y
+       overflow:hidden). height:100% lo acota a ese alto y overflow-y:auto le
+       da scroll propio; así, al expandir varias transportadoras, el contenido
+       de abajo se alcanza scrolleando en vez de quedar recortado. */
+    height: 100%;
     overflow-y: auto;
+    padding-bottom: 24px;
 }
 
 .tablero-transporte-filtros {
