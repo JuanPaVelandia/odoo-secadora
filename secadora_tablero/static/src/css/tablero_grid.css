@@ -197,6 +197,21 @@
     border-top: 1px solid #f0f0f0;
 }
 
+.tablero-btn-mover {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.tablero-btn-mover:hover {
+    background: #e9ecef;
+    color: #0d6efd;
+}
+
 .tablero-btn-dividir {
     background: none;
     border: none;
@@ -264,6 +279,7 @@
 
 /* La tarjeta es draggable; sin esto iOS trata el toque sobre un botón como
    inicio de arrastre y la acción no llega a dispararse. */
+.tablero-btn-mover,
 .tablero-btn-dividir,
 .tablero-btn-revertir,
 .tablero-btn-combinar,
@@ -342,4 +358,46 @@
     border: 2px dashed #e67e22;
     border-left: 4px solid #e67e22;
     background: rgba(230, 126, 34, 0.06);
+}
+
+/* Diálogo "Mover tarjeta a..." — alternativa táctil al arrastre en iPad */
+.tablero-mover-lista {
+    max-height: 55vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tablero-mover-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    /* Objetivo táctil cómodo para el dedo (>= 44px de alto) */
+    padding: 12px 14px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.tablero-mover-item:hover {
+    background: #f1f3f5;
+    border-color: #0d6efd;
+}
+
+.tablero-mover-item-actual {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.tablero-mover-item-nombre {
+    font-weight: 600;
+    flex: 1;
+}
+
+.tablero-mover-item-cap {
+    font-size: 0.85em;
 }

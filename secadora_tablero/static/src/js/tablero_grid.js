@@ -4,6 +4,7 @@ import { Component, useState, onWillStart, onWillUnmount } from "@odoo/owl";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { MoverDialog } from "./mover_dialog";
 
 class TableroGrid extends Component {
     static template = "secadora_tablero.TableroGrid";
@@ -379,6 +380,24 @@ class TableroGrid extends Component {
             return;
         }
         handler();
+    }
+
+    // Mover una tarjeta a otra ubicación vía diálogo (alternativa táctil al
+    // arrastrar-y-soltar, que iOS Safari no soporta en iPad).
+    onClickMover(posicionId) {
+        if (this.state.bloqueado) return;
+        const pos = this.state.posiciones.find((p) => p.id === posicionId);
+        this.dialog.add(MoverDialog, {
+            title: "Mover tarjeta a...",
+            sitios: this.state.sitios,
+            sitioActualId: pos ? pos.sitio_id : false,
+            onSelect: async (sitioId) => {
+                await this.orm.write("secadora.posicion.arroz", [posicionId], {
+                    sitio_id: sitioId,
+                });
+                await this.loadData();
+            },
+        });
     }
 
     async onClickPosicion(posicionId) {

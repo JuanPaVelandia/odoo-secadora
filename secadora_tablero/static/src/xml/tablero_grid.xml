@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <templates xml:space="preserve">
 
+    <t t-name="secadora_tablero.MoverDialog">
+        <Dialog title="props.title" size="'md'">
+            <div class="tablero-mover-dialog">
+                <input type="text" class="form-control mb-2"
+                       placeholder="Buscar ubicación..."
+                       t-model="state.busqueda"/>
+                <div class="tablero-mover-lista">
+                    <t t-foreach="sitiosFiltrados" t-as="sitio" t-key="sitio.id">
+                        <button type="button"
+                                t-att-class="'tablero-mover-item' + (sitio.id === props.sitioActualId ? ' tablero-mover-item-actual' : '')"
+                                t-att-disabled="sitio.id === props.sitioActualId ? 'disabled' : undefined"
+                                t-on-click="() => this.seleccionar(sitio.id)">
+                            <span class="tablero-mover-item-nombre" t-esc="sitio.name"/>
+                            <span class="tablero-mover-item-cap text-muted" t-if="sitio.capacidad_kg">
+                                <t t-esc="Math.round(sitio.capacidad_kg).toLocaleString('es-CO')"/> kg
+                            </span>
+                            <span class="badge text-bg-secondary ms-2" t-if="sitio.id === props.sitioActualId">Actual</span>
+                        </button>
+                    </t>
+                    <div class="text-muted text-center p-3" t-if="!sitiosFiltrados.length">
+                        No hay ubicaciones que coincidan.
+                    </div>
+                </div>
+            </div>
+        </Dialog>
+    </t>
+
     <t t-name="secadora_tablero.TableroGrid">
         <div class="tablero-grid-container p-3">
             <div class="d-flex align-items-center mb-3">
@@ -203,6 +230,12 @@
                                                                 </div>
                                                             </div>
                                                             <div class="tablero-card-footer" t-if="!state.bloqueado">
+                                                                <button class="tablero-btn-mover"
+                                                                        title="Mover a otra ubicación"
+                                                                        t-on-click.stop="(ev) => this.onClickAction(() => this.onClickMover(pos.id))"
+                                                                        t-on-touchend.stop="(ev) => this.onTouchAction(ev, () => this.onClickMover(pos.id))">
+                                                                    <i class="fa fa-arrows"/> Mover
+                                                                </button>
                                                                 <button class="tablero-btn-despachar"
                                                                         title="Despachar"
                                                                         t-on-click.stop="(ev) => this.onClickAction(() => this.onClickDespacharPosicion(pos.id))"
@@ -256,6 +289,14 @@
                                     </div>
                                     <div class="tablero-card-peso">
                                         <t t-esc="formatPeso(pos.peso_kg)"/> kg
+                                    </div>
+                                    <div class="tablero-card-footer" t-if="!state.bloqueado">
+                                        <button class="tablero-btn-mover"
+                                                title="Mover a una ubicación"
+                                                t-on-click.stop="(ev) => this.onClickAction(() => this.onClickMover(pos.id))"
+                                                t-on-touchend.stop="(ev) => this.onTouchAction(ev, () => this.onClickMover(pos.id))">
+                                            <i class="fa fa-arrows"/> Ubicar
+                                        </button>
                                     </div>
                                 </div>
                             </t>

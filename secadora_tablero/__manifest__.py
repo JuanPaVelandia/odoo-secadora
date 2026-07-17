@@ -34,6 +34,7 @@
         'web.assets_backend': [
             'secadora_tablero/static/src/css/tablero_grid.css',
             'secadora_tablero/static/src/xml/tablero_grid.xml',
+            'secadora_tablero/static/src/js/mover_dialog.js',
             'secadora_tablero/static/src/js/tablero_grid.js',
         ],
     },
