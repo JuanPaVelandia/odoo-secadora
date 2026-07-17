@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, useState, onWillStart } from "@odoo/owl";
+import { Component, useState, onWillStart, onWillUnmount } from "@odoo/owl";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
@@ -23,6 +23,14 @@ class TableroGrid extends Component {
             bloqueado: localStorage.getItem('tablero_bloqueado') === 'true',
         });
 
+        // Se marca al desmontar para no escribir el estado tras un await si
+        // el componente ya se destruyó (p. ej. loadData disparado desde el
+        // onClose de un wizard cuando el tablero ya no está montado).
+        this._destruido = false;
+        onWillUnmount(() => {
+            this._destruido = true;
+        });
+
         onWillStart(async () => {
             await this.loadData();
         });
@@ -35,6 +43,12 @@ class TableroGrid extends Component {
             "get_tablero_grid_data",
             [],
         );
+        // Si el componente se destruyó durante la llamada al servidor, no
+        // tocar el estado: escribir en un componente muerto lanza
+        // "Component is destroyed".
+        if (this._destruido) {
+            return;
+        }
         this.state.sitios = data.sitios;
         this.state.posiciones = data.posiciones;
         this.state.filas = data.filas;
