@@ -62,9 +62,11 @@
                                         <t t-if="transito.conductor and transito.placa_texto"> - </t>
                                         <t t-if="transito.placa_texto" t-esc="transito.placa_texto"/>
                                     </div>
-                                    <div class="tablero-card-variedad text-muted" t-if="transito.variedad">
-                                        <i class="fa fa-leaf me-1"/>
-                                        <t t-esc="transito.variedad"/>
+                                    <div class="tablero-card-variedad" t-if="transito.producto or transito.variedad">
+                                        <i class="fa fa-leaf me-1 text-muted"/>
+                                        <strong t-if="transito.producto" t-esc="transito.producto"/>
+                                        <t t-if="transito.producto and transito.variedad"> · </t>
+                                        <span class="text-muted" t-if="transito.variedad" t-esc="transito.variedad"/>
                                     </div>
                                     <div class="tablero-card-peso tablero-peso-transito">
                                         ~<t t-esc="formatPeso(transito.peso_bruto)"/> kg (bruto)
@@ -175,9 +177,11 @@
                                                                         <i class="fa fa-sign-out me-1"/>
                                                                         <t t-esc="pos.modalidad_salida"/>
                                                                     </div>
-                                                                    <div class="tablero-card-variedad text-muted" t-if="pos.variedad">
-                                                                        <i class="fa fa-leaf me-1"/>
-                                                                        <t t-esc="pos.variedad"/>
+                                                                    <div class="tablero-card-variedad" t-if="pos.producto or pos.variedad">
+                                                                        <i class="fa fa-leaf me-1 text-muted"/>
+                                                                        <strong t-if="pos.producto" t-esc="pos.producto"/>
+                                                                        <t t-if="pos.producto and pos.variedad"> · </t>
+                                                                        <span class="text-muted" t-if="pos.variedad" t-esc="pos.variedad"/>
                                                                     </div>
                                                                     <div t-att-class="'tablero-card-peso' + (pos.es_preasignado ? ' tablero-peso-transito' : '')">
                                                                         <t t-if="pos.es_preasignado">~</t><t t-esc="formatPeso(pos.peso_kg)"/> kg<t t-if="pos.es_preasignado"> (bruto)</t>
