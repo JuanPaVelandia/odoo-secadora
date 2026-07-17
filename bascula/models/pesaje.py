@@ -562,7 +562,8 @@ class SecadoraPesaje(models.Model):
         if not ts_str:
             return 0.0
         try:
-            ts = fields.Datetime.from_string(ts_str)
+            # Tolerar el formato isoformat con 'T' de valores ya guardados.
+            ts = fields.Datetime.from_string(ts_str.replace('T', ' ')[:19])
         except (TypeError, ValueError):
             return 0.0
         antiguedad = (fields.Datetime.now() - ts).total_seconds()
@@ -848,7 +849,10 @@ class SecadoraPesaje(models.Model):
                 return {'success': False, 'message': 'Peso fuera de rango'}
 
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso_val))
-            timestamp = fields.Datetime.now().isoformat()
+            # Formato estándar de Odoo (espacio, no la 'T' de isoformat): el
+            # lector usa fields.Datetime.from_string y la 'T' lo rompía, con lo
+            # que el peso global se descartaba SIEMPRE por "viejo".
+            timestamp = fields.Datetime.to_string(fields.Datetime.now())
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight_timestamp', timestamp)
 
             # Solo se guarda el peso global (para formularios nuevos sin guardar).
