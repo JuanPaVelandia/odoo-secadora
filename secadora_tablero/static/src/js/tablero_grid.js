@@ -37,15 +37,30 @@ class TableroGrid extends Component {
     }
 
     async loadData() {
+        // Si el componente ya se destruyó, NO llamar al ORM: el orm de OWL
+        // está ligado al ciclo de vida del componente y rechaza con
+        // "Component is destroyed" al resolver la promesa. Esto pasa cuando
+        // loadData se dispara desde el onClose de un wizard tras el cual el
+        // tablero ya no está montado.
+        if (this._destruido) {
+            return;
+        }
         this.state.loading = true;
-        const data = await this.orm.call(
-            "secadora.posicion.arroz",
-            "get_tablero_grid_data",
-            [],
-        );
-        // Si el componente se destruyó durante la llamada al servidor, no
-        // tocar el estado: escribir en un componente muerto lanza
-        // "Component is destroyed".
+        let data;
+        try {
+            data = await this.orm.call(
+                "secadora.posicion.arroz",
+                "get_tablero_grid_data",
+                [],
+            );
+        } catch (e) {
+            // El propio orm.call rechaza si el componente murió durante la
+            // llamada. No es un error real: se ignora silenciosamente.
+            if (this._destruido) {
+                return;
+            }
+            throw e;
+        }
         if (this._destruido) {
             return;
         }
