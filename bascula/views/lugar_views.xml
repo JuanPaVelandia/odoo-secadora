@@ -15,6 +15,7 @@
                     <field name="departamento"/>
                     <field name="contacto"/>
                     <field name="telefono"/>
+                    <field name="incluir_reporte_produccion" optional="hide"/>
                 </list>
             </field>
         </record>
@@ -38,6 +39,7 @@
                                 <field name="municipio"/>
                                 <field name="departamento"/>
                                 <field name="active"/>
+                                <field name="incluir_reporte_produccion"/>
                             </group>
                         </group>
                         <group>

@@ -47,6 +47,9 @@
                     <field name="peso_kg" sum="Total"/>
                     <field name="hectareas" optional="hide"/>
                     <field name="produccion_ha" optional="show" sum="Total"/>
+                    <field name="peso_kg_corregido" optional="hide" sum="Total"/>
+                    <field name="produccion_ha_corregida" optional="hide" sum="Total"/>
+                    <field name="bultos_ha" optional="hide" sum="Total"/>
                     <field name="humedad" optional="show"/>
                     <field name="impurezas" optional="show"/>
                     <field name="grano_partido" optional="hide"/>
@@ -99,12 +102,7 @@
             </field>
         </record>
 
-        <!-- Menú: bajo Calidad -->
-        <menuitem id="menu_calidad_produccion_lote"
-                  name="Producción por Lote"
-                  parent="menu_bascula_calidad"
-                  action="action_produccion_lote_report"
-                  sequence="20"/>
+        <!-- El menú vive en el módulo secadora_gerencia (menú Gerencia) -->
 
     </data>
 </odoo>

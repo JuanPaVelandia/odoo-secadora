@@ -37,11 +37,7 @@
             <field name="target">new</field>
         </record>
 
-        <menuitem id="menu_calidad_produccion_lote_imprimir"
-                  name="Imprimir Producción por Lote"
-                  parent="menu_bascula_calidad"
-                  action="action_produccion_lote_wizard"
-                  sequence="25"/>
+        <!-- El menú vive en el módulo secadora_gerencia (menú Gerencia) -->
 
     </data>
 </odoo>
