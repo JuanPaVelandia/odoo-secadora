@@ -31,6 +31,15 @@ class ProduccionLoteReport(models.Model):
     placa = fields.Char(string='Placa', readonly=True)
     bultos = fields.Integer(string='Bultos', readonly=True, aggregator='sum')
     peso_kg = fields.Float(string='Peso (kg)', readonly=True, digits=(12, 2), aggregator='sum')
+    hectareas = fields.Float(
+        string='Hectáreas', readonly=True, digits=(10, 2), aggregator='max',
+        help='Hectáreas del lote (del catálogo, o del nombre si es numérico). '
+             'Igual en todas las filas del lote: agregada con máximo, válida '
+             'solo agrupando por lote.')
+    produccion_ha = fields.Float(
+        string='Producción (kg/ha)', readonly=True, digits=(12, 2), aggregator='sum',
+        help='Peso de la fila ÷ hectáreas del lote. La suma es exacta agrupando '
+             'por lote; a nivel de finca es la suma de los kg/ha de sus lotes.')
     humedad = fields.Float(string='Humedad (%)', readonly=True, digits=(5, 2), aggregator='avg')
     impurezas = fields.Float(string='Impurezas (%)', readonly=True, digits=(5, 2), aggregator='avg')
     grano_partido = fields.Float(string='Grano Partido (%)', readonly=True, digits=(5, 2), aggregator='avg')
@@ -93,12 +102,25 @@ class ProduccionLoteReport(models.Model):
                        p.placa_texto AS placa,
                        b.bultos,
                        b.peso_kg,
+                       ha.hectareas,
+                       CASE WHEN ha.hectareas > 0
+                            THEN b.peso_kg / ha.hectareas END AS produccion_ha,
                        NULLIF(p.humedad, 0) AS humedad,
                        NULLIF(p.impurezas, 0) AS impurezas,
                        NULLIF(p.grano_partido, 0) AS grano_partido,
                        lab.temperatura
                 FROM base b
                 JOIN secadora_pesaje p ON p.id = b.pesaje_id
+                LEFT JOIN secadora_lote l ON l.id = b.lote_id
+                LEFT JOIN LATERAL (
+                    -- Hectáreas efectivas: campo del catálogo, o el nombre
+                    -- del lote si es numérico (convención de la secadora)
+                    SELECT COALESCE(
+                        NULLIF(l.hectareas, 0),
+                        CASE WHEN TRIM(l.name) ~ '^\\d+([.,]\\d+)?$'
+                             THEN REPLACE(TRIM(l.name), ',', '.')::numeric
+                        END) AS hectareas
+                ) ha ON TRUE
                 LEFT JOIN lab ON lab.pesaje_id = b.pesaje_id
                 WHERE p.direccion = 'entrada'
                   AND p.state = 'completado'

@@ -13,6 +13,7 @@
                     <field name="fecha" interval="month" type="col"/>
                     <field name="peso_kg" type="measure"/>
                     <field name="bultos" type="measure"/>
+                    <field name="produccion_ha" type="measure"/>
                 </pivot>
             </field>
         </record>
@@ -44,6 +45,8 @@
                     <field name="placa" optional="show"/>
                     <field name="bultos" sum="Total"/>
                     <field name="peso_kg" sum="Total"/>
+                    <field name="hectareas" optional="hide"/>
+                    <field name="produccion_ha" optional="show" sum="Total"/>
                     <field name="humedad" optional="show"/>
                     <field name="impurezas" optional="show"/>
                     <field name="grano_partido" optional="hide"/>
