@@ -25,3 +25,7 @@ access_secadora_despacho_bultos_basculero,secadora.despacho.bultos.basculero,mod
 access_secadora_despacho_bultos_admin,secadora.despacho.bultos.admin,model_secadora_despacho_bultos,group_bascula_admin,1,1,1,1
 access_secadora_tipo_vehiculo_basculero,secadora.tipo.vehiculo.basculero,model_secadora_tipo_vehiculo,group_basculero,1,0,0,0
 access_secadora_tipo_vehiculo_admin,secadora.tipo.vehiculo.admin,model_secadora_tipo_vehiculo,group_bascula_admin,1,1,1,1
+access_secadora_lote_basculero,secadora.lote.basculero,model_secadora_lote,group_basculero,1,1,1,0
+access_secadora_lote_admin,secadora.lote.admin,model_secadora_lote,group_bascula_admin,1,1,1,1
+access_secadora_pesaje_distribucion_basculero,secadora.pesaje.distribucion.basculero,model_secadora_pesaje_distribucion,group_basculero,1,1,1,1
+access_secadora_pesaje_distribucion_admin,secadora.pesaje.distribucion.admin,model_secadora_pesaje_distribucion,group_bascula_admin,1,1,1,1

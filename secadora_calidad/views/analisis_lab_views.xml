@@ -61,6 +61,7 @@
                                         <field name="grano_partido"/>
                                         <field name="grano_partido_verde"/>
                                         <field name="grano_rojo"/>
+                                        <field name="temperatura"/>
                                         <field name="infestacion"/>
                                     </group>
                                     <group>
@@ -143,6 +144,7 @@
                     <field name="humedad"/>
                     <field name="impurezas"/>
                     <field name="grano_partido"/>
+                    <field name="temperatura" optional="hide"/>
                     <field name="peso_comercial" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-success="state == 'confirmado'"

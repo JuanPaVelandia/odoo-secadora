@@ -80,7 +80,13 @@
                                 <field name="conductor_id" readonly="bloqueado"/>
                                 <field name="transportadora_id" readonly="bloqueado"/>
                                 <field name="origen_id" readonly="bloqueado"/>
-                                <field name="lote_finca" placeholder="Ej: 180, La Esperanza" readonly="bloqueado"/>
+                                <field name="lote_finca" invisible="1"/>
+                                <field name="carga_mixta" readonly="bloqueado"/>
+                                <field name="lote_id"
+                                       readonly="bloqueado"
+                                       invisible="carga_mixta"
+                                       context="{'default_finca_id': origen_id}"
+                                       options="{'no_create': False, 'no_open': True}"/>
                                 <field name="destino_id" readonly="bloqueado"/>
                             </group>
 
@@ -107,6 +113,23 @@
                                 <field name="hora_entrada" readonly="1"/>
                                 <field name="hora_salida" readonly="1"/>
                             </group>
+                        </group>
+
+                        <group string="Distribución por Finca/Lote"
+                               invisible="not carga_mixta">
+                            <field name="distribucion_ids" nolabel="1"
+                                   readonly="bloqueado"
+                                   context="{'default_finca_id': origen_id}">
+                                <list editable="bottom">
+                                    <field name="finca_id"
+                                           options="{'no_create': True, 'no_open': True}"/>
+                                    <field name="lote_id"
+                                           options="{'no_create': False, 'no_open': True}"/>
+                                    <field name="bultos" sum="Total Bultos"/>
+                                    <field name="peso_kg" readonly="1" sum="Total Kg"/>
+                                    <field name="porcentaje" readonly="1"/>
+                                </list>
+                            </field>
                         </group>
 
                         <!-- Producto y Calidad permanecen editables aunque el

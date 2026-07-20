@@ -6,8 +6,10 @@ from . import conductor
 from . import transportadora
 from . import variedad_arroz
 from . import lugar
+from . import lote
 from . import tipo_operacion
 from . import pesaje
+from . import pesaje_distribucion
 from . import res_config_settings
 from . import orden_servicio
 from . import registro_bultos
