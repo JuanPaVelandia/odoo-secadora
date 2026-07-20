@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Gerencia - Secadora',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.1.0',
     'category': 'Operations',
     'summary': 'Reportes y tablero gerencial de la secadora',
     'description': """
@@ -18,7 +18,7 @@
         'views/menu_views.xml',
     ],
     'installable': True,
-    'application': True,
+    'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
 }
