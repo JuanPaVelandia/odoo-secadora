@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class SecadoraLote(models.Model):
@@ -37,3 +37,13 @@ class SecadoraLote(models.Model):
         default=True,
     )
     notes = fields.Text(string='Notas')
+
+    @api.onchange('name')
+    def _onchange_name_hectareas(self):
+        """Convención de la secadora: el nombre del lote suele ser su número
+        de hectáreas (Ej: lote "180" = 180 ha). Auto-llenar si está vacío."""
+        if self.name and not self.hectareas:
+            try:
+                self.hectareas = float(self.name.strip().replace(',', '.'))
+            except ValueError:
+                pass

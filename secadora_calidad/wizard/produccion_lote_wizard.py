@@ -79,12 +79,16 @@ class ProduccionLoteWizard(models.TransientModel):
         resultado = []
         for (finca_id, lote_id), grupo in grupos.items():
             fechas = grupo.mapped('fecha')
+            total_kg = sum(grupo.mapped('peso_kg'))
+            hectareas = self._hectareas_lote(grupo[0].lote_id)
             resultado.append({
                 'finca': grupo[0].finca_id,
                 'lote': grupo[0].lote_id,  # vacío = pesajes viejos sin lote
                 'fecha_inicio_corta': min(fechas) - timedelta(days=1),
                 'fecha_fin_corta': max(fechas) - timedelta(days=1),
-                'total_kg': sum(grupo.mapped('peso_kg')),
+                'total_kg': total_kg,
+                'hectareas': hectareas,
+                'produccion_ha': total_kg / hectareas if hectareas else False,
                 'total_bultos': sum(grupo.mapped('bultos')),
                 'num_mulas': len(set(grupo.mapped('pesaje_id').ids)),
                 'agricultores': ', '.join(sorted(set(
@@ -100,6 +104,19 @@ class ProduccionLoteWizard(models.TransientModel):
 
         resultado.sort(key=lambda g: (g['finca'].name or '', g['lote'].name or ''))
         return resultado
+
+    @staticmethod
+    def _hectareas_lote(lote):
+        """Hectáreas del lote: campo del catálogo, o el nombre si es numérico
+        (convención de la secadora: lote "180" = 180 ha)."""
+        if not lote:
+            return 0.0
+        if lote.hectareas:
+            return lote.hectareas
+        try:
+            return float((lote.name or '').strip().replace(',', '.'))
+        except ValueError:
+            return 0.0
 
     @staticmethod
     def _ponderado(grupo, campo):
