@@ -2,9 +2,10 @@
 <odoo>
     <data>
 
-        <!-- Menú raíz: Gerencia -->
+        <!-- Menú Gerencia: submenú dentro de Báscula (como Calidad) -->
         <menuitem id="menu_gerencia_root"
                   name="Gerencia"
+                  parent="bascula.menu_bascula_root"
                   sequence="35"
                   groups="secadora_gerencia.group_gerencia,bascula.group_bascula_admin"/>
 
