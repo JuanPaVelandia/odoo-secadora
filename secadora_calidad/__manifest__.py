@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Calidad y Laboratorio - Secadora',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.1.0',
     'category': 'Operations',
     'summary': 'Análisis de calidad de arroz y peso comercial',
     'description': """
@@ -26,7 +26,10 @@
         'views/orden_servicio_views.xml',
         'views/res_config_settings_views.xml',
         'views/menu_views.xml',
+        'views/produccion_lote_report_views.xml',
+        'wizard/produccion_lote_wizard_views.xml',
         'report/analisis_lab_report.xml',
+        'report/produccion_lote_report.xml',
     ],
     'installable': True,
     'application': False,

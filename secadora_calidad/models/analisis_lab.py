@@ -102,6 +102,12 @@ class AnalisisLab(models.Model):
     grano_partido = fields.Float(string='Grano Partido (%)', digits=(5, 2))
     grano_partido_verde = fields.Float(string='Grano Partido Verde (%)', digits=(5, 2))
     grano_rojo = fields.Float(string='Grano Rojo (%)', digits=(5, 2))
+    temperatura = fields.Float(
+        string='Temperatura (°C)',
+        digits=(5, 2),
+        tracking=True,
+        help='Temperatura del grano al momento de la muestra. 0 = no medida.'
+    )
     infestacion = fields.Float(string='Infestación', digits=(5, 2))
     dispersion = fields.Float(string='Dispersión', digits=(5, 2))
     merma_estufa = fields.Float(string='Merma en Estufa', digits=(5, 2))
