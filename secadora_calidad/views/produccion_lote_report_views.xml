@@ -50,6 +50,7 @@
                     <field name="peso_kg_corregido" optional="hide" sum="Total"/>
                     <field name="produccion_ha_corregida" optional="hide" sum="Total"/>
                     <field name="bultos_ha" optional="hide" sum="Total"/>
+                    <field name="bultos_ha_corregido" optional="hide" sum="Total"/>
                     <field name="humedad" optional="show"/>
                     <field name="impurezas" optional="show"/>
                     <field name="grano_partido" optional="hide"/>

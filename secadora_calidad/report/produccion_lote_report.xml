@@ -103,9 +103,9 @@
 
                                     <!-- Rendimiento por hectárea -->
                                     <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; margin-bottom: 8px; padding: 6px 0;">
-                                        <t t-set="rendimientos" t-value="[('KG/HA', g['produccion_ha']), ('KG/HA CORREGIDO (H. 22%)', g['produccion_ha_corregida']), ('BULTOS/HA (62,5 KG)', g['bultos_ha'])]"/>
+                                        <t t-set="rendimientos" t-value="[('KG/HA', g['produccion_ha']), ('KG/HA CORREG. (H. 22%)', g['produccion_ha_corregida']), ('BULTOS/HA (62,5 KG)', g['bultos_ha']), ('BULTOS/HA CORREG.', g['bultos_ha_corregido'])]"/>
                                         <t t-foreach="rendimientos" t-as="rnd">
-                                            <div t-att-style="'float: left; width: 33%; box-sizing: border-box; text-align: center; padding: 3px 8px;' + ('' if rnd_first else ' border-left: 1px solid #ccc;')">
+                                            <div t-att-style="'float: left; width: 25%; box-sizing: border-box; text-align: center; padding: 3px 8px;' + ('' if rnd_first else ' border-left: 1px solid #ccc;')">
                                                 <div style="font-size: 9px; letter-spacing: 1px;"><strong><t t-esc="rnd[0]"/></strong></div>
                                                 <div style="font-size: 17px; margin-top: 1px;">
                                                     <strong><t t-if="rnd[1]"><t t-esc="'{:,.1f}'.format(rnd[1])"/></t><t t-else="">N/D</t></strong>

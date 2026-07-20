@@ -51,6 +51,9 @@ class ProduccionLoteReport(models.Model):
     bultos_ha = fields.Float(
         string='Bultos/ha (62,5 kg)', readonly=True, digits=(12, 2), aggregator='sum',
         help='Peso ÷ 62,5 kg por bulto ÷ hectáreas del lote.')
+    bultos_ha_corregido = fields.Float(
+        string='Bultos/ha Corregido', readonly=True, digits=(12, 2), aggregator='sum',
+        help='Peso corregido a humedad 22% ÷ 62,5 kg por bulto ÷ hectáreas del lote.')
     humedad = fields.Float(string='Humedad (%)', readonly=True, digits=(5, 2), aggregator='avg')
     impurezas = fields.Float(string='Impurezas (%)', readonly=True, digits=(5, 2), aggregator='avg')
     grano_partido = fields.Float(string='Grano Partido (%)', readonly=True, digits=(5, 2), aggregator='avg')
@@ -121,6 +124,8 @@ class ProduccionLoteReport(models.Model):
                             THEN corr.peso_kg_corregido / ha.hectareas END AS produccion_ha_corregida,
                        CASE WHEN ha.hectareas > 0
                             THEN b.peso_kg / 62.5 / ha.hectareas END AS bultos_ha,
+                       CASE WHEN ha.hectareas > 0
+                            THEN corr.peso_kg_corregido / 62.5 / ha.hectareas END AS bultos_ha_corregido,
                        NULLIF(p.humedad, 0) AS humedad,
                        NULLIF(p.impurezas, 0) AS impurezas,
                        NULLIF(p.grano_partido, 0) AS grano_partido,

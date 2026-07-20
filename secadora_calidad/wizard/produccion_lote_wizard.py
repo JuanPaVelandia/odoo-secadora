@@ -93,6 +93,7 @@ class ProduccionLoteWizard(models.TransientModel):
                 'produccion_ha': total_kg / hectareas if hectareas else False,
                 'produccion_ha_corregida': total_kg_corregido / hectareas if hectareas else False,
                 'bultos_ha': total_kg / 62.5 / hectareas if hectareas else False,
+                'bultos_ha_corregido': total_kg_corregido / 62.5 / hectareas if hectareas else False,
                 'total_bultos': sum(grupo.mapped('bultos')),
                 'num_mulas': len(set(grupo.mapped('pesaje_id').ids)),
                 'agricultores': ', '.join(sorted(set(
