@@ -66,11 +66,8 @@
                     <div style="display: inline-block; border: 2px solid #111; padding: 2px 14px; font-size: 13px; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase;">
                         <strong t-field="o.tipo_proceso"/>
                     </div>
-                    <div t-if="o.tipo_operacion_id" style="display: inline-block; border: 2px solid #111; padding: 2px 14px; font-size: 13px; letter-spacing: 3px; margin-top: 5px; margin-left: 6px; text-transform: uppercase;">
-                        <strong t-field="o.tipo_operacion_id"/>
-                    </div>
-                    <div t-if="o.orden_servicio_id" style="font-size: 12px; margin-top: 5px;">
-                        <strong>ORDEN DE SERVICIO: <span t-field="o.orden_servicio_id.name"/></strong>
+                    <div style="font-size: 10px; letter-spacing: 2px; color: #555; margin-top: 5px; text-transform: uppercase;">
+                        <span t-field="o.tipo_operacion_id"/><t t-if="o.orden_servicio_id"> &#183; <span t-field="o.orden_servicio_id.name"/></t>
                     </div>
                 </div>
 
