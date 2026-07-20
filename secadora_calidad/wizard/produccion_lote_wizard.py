@@ -80,6 +80,7 @@ class ProduccionLoteWizard(models.TransientModel):
         for (finca_id, lote_id), grupo in grupos.items():
             fechas = grupo.mapped('fecha')
             total_kg = sum(grupo.mapped('peso_kg'))
+            total_kg_corregido = sum(grupo.mapped('peso_kg_corregido'))
             hectareas = self._hectareas_lote(grupo[0].lote_id)
             resultado.append({
                 'finca': grupo[0].finca_id,
@@ -87,8 +88,11 @@ class ProduccionLoteWizard(models.TransientModel):
                 'fecha_inicio_corta': min(fechas) - timedelta(days=1),
                 'fecha_fin_corta': max(fechas) - timedelta(days=1),
                 'total_kg': total_kg,
+                'total_kg_corregido': total_kg_corregido,
                 'hectareas': hectareas,
                 'produccion_ha': total_kg / hectareas if hectareas else False,
+                'produccion_ha_corregida': total_kg_corregido / hectareas if hectareas else False,
+                'bultos_ha': total_kg / 62.5 / hectareas if hectareas else False,
                 'total_bultos': sum(grupo.mapped('bultos')),
                 'num_mulas': len(set(grupo.mapped('pesaje_id').ids)),
                 'agricultores': ', '.join(sorted(set(

@@ -40,6 +40,17 @@ class ProduccionLoteReport(models.Model):
         string='Producción (kg/ha)', readonly=True, digits=(12, 2), aggregator='sum',
         help='Peso de la fila ÷ hectáreas del lote. La suma es exacta agrupando '
              'por lote; a nivel de finca es la suma de los kg/ha de sus lotes.')
+    peso_kg_corregido = fields.Float(
+        string='Peso Corregido (kg)', readonly=True, digits=(12, 2), aggregator='sum',
+        help='Peso ajustado a humedad base 22%: peso × (100 − humedad) / 78 '
+             'cuando la humedad medida es menor a 22%. Sin corrección si la '
+             'humedad es ≥ 22% o no fue medida.')
+    produccion_ha_corregida = fields.Float(
+        string='Producción Corregida (kg/ha)', readonly=True, digits=(12, 2), aggregator='sum',
+        help='Peso corregido a humedad 22% ÷ hectáreas del lote.')
+    bultos_ha = fields.Float(
+        string='Bultos/ha (62,5 kg)', readonly=True, digits=(12, 2), aggregator='sum',
+        help='Peso ÷ 62,5 kg por bulto ÷ hectáreas del lote.')
     humedad = fields.Float(string='Humedad (%)', readonly=True, digits=(5, 2), aggregator='avg')
     impurezas = fields.Float(string='Impurezas (%)', readonly=True, digits=(5, 2), aggregator='avg')
     grano_partido = fields.Float(string='Grano Partido (%)', readonly=True, digits=(5, 2), aggregator='avg')
@@ -105,12 +116,18 @@ class ProduccionLoteReport(models.Model):
                        ha.hectareas,
                        CASE WHEN ha.hectareas > 0
                             THEN b.peso_kg / ha.hectareas END AS produccion_ha,
+                       corr.peso_kg_corregido,
+                       CASE WHEN ha.hectareas > 0
+                            THEN corr.peso_kg_corregido / ha.hectareas END AS produccion_ha_corregida,
+                       CASE WHEN ha.hectareas > 0
+                            THEN b.peso_kg / 62.5 / ha.hectareas END AS bultos_ha,
                        NULLIF(p.humedad, 0) AS humedad,
                        NULLIF(p.impurezas, 0) AS impurezas,
                        NULLIF(p.grano_partido, 0) AS grano_partido,
                        lab.temperatura
                 FROM base b
                 JOIN secadora_pesaje p ON p.id = b.pesaje_id
+                JOIN secadora_lugar lg ON lg.id = b.finca_id
                 LEFT JOIN secadora_lote l ON l.id = b.lote_id
                 LEFT JOIN LATERAL (
                     -- Hectáreas efectivas: campo del catálogo, o el nombre
@@ -121,8 +138,16 @@ class ProduccionLoteReport(models.Model):
                              THEN REPLACE(TRIM(l.name), ',', '.')::numeric
                         END) AS hectareas
                 ) ha ON TRUE
+                LEFT JOIN LATERAL (
+                    -- Peso ajustado a humedad base 22%: solo cuando la humedad
+                    -- medida es menor a 22 (arroz más seco vale más)
+                    SELECT CASE WHEN COALESCE(p.humedad, 0) > 0 AND p.humedad < 22
+                                THEN b.peso_kg * (100 - p.humedad) / 78.0
+                                ELSE b.peso_kg END AS peso_kg_corregido
+                ) corr ON TRUE
                 LEFT JOIN lab ON lab.pesaje_id = b.pesaje_id
                 WHERE p.direccion = 'entrada'
                   AND p.state = 'completado'
+                  AND COALESCE(lg.incluir_reporte_produccion, TRUE)
             )
         """)

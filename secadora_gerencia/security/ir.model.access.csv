@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_produccion_lote_report_gerencia,secadora.produccion.lote.report.gerencia,secadora_calidad.model_secadora_produccion_lote_report,group_gerencia,1,0,0,0
+access_produccion_lote_wizard_gerencia,secadora.produccion.lote.wizard.gerencia,secadora_calidad.model_secadora_produccion_lote_wizard,group_gerencia,1,1,1,0

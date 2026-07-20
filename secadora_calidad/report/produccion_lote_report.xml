@@ -86,25 +86,32 @@
                                     </div>
 
                                     <!-- Caja de totales -->
-                                    <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; margin-bottom: 10px; padding: 8px 0;">
-                                        <div style="float: left; width: 28%; box-sizing: border-box; text-align: center; padding: 4px 10px;">
+                                    <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; margin-bottom: 8px; padding: 8px 0;">
+                                        <div style="float: left; width: 34%; box-sizing: border-box; text-align: center; padding: 4px 10px;">
                                             <div style="font-size: 9px; letter-spacing: 1px;"><strong>TOTAL KG</strong></div>
                                             <div style="font-size: 22px; margin-top: 2px;"><strong><t t-esc="'{:,.0f}'.format(g['total_kg'])"/></strong></div>
                                         </div>
-                                        <div style="float: left; width: 22%; box-sizing: border-box; text-align: center; padding: 4px 10px; border-left: 1px solid #ccc;">
+                                        <div style="float: left; width: 33%; box-sizing: border-box; text-align: center; padding: 4px 10px; border-left: 1px solid #ccc;">
                                             <div style="font-size: 9px; letter-spacing: 1px;"><strong>BULTOS</strong></div>
                                             <div style="font-size: 22px; margin-top: 2px;"><strong><t t-esc="'{:,.0f}'.format(g['total_bultos'])"/></strong></div>
                                         </div>
-                                        <div style="float: left; width: 20%; box-sizing: border-box; text-align: center; padding: 4px 10px; border-left: 1px solid #ccc;">
+                                        <div style="float: left; width: 33%; box-sizing: border-box; text-align: center; padding: 4px 10px; border-left: 1px solid #ccc;">
                                             <div style="font-size: 9px; letter-spacing: 1px;"><strong>MULAS</strong></div>
                                             <div style="font-size: 22px; margin-top: 2px;"><strong><t t-esc="g['num_mulas']"/></strong></div>
                                         </div>
-                                        <div style="float: left; width: 30%; box-sizing: border-box; text-align: center; padding: 4px 10px; border-left: 1px solid #ccc;">
-                                            <div style="font-size: 9px; letter-spacing: 1px;"><strong>PRODUCCIÓN KG/HA</strong></div>
-                                            <div style="font-size: 22px; margin-top: 2px;">
-                                                <strong><t t-if="g['produccion_ha']"><t t-esc="'{:,.0f}'.format(g['produccion_ha'])"/></t><t t-else="">N/D</t></strong>
+                                    </div>
+
+                                    <!-- Rendimiento por hectárea -->
+                                    <div style="border: 1px solid #333; border-radius: 8px; overflow: hidden; margin-bottom: 8px; padding: 6px 0;">
+                                        <t t-set="rendimientos" t-value="[('KG/HA', g['produccion_ha']), ('KG/HA CORREGIDO (H. 22%)', g['produccion_ha_corregida']), ('BULTOS/HA (62,5 KG)', g['bultos_ha'])]"/>
+                                        <t t-foreach="rendimientos" t-as="rnd">
+                                            <div t-att-style="'float: left; width: 33%; box-sizing: border-box; text-align: center; padding: 3px 8px;' + ('' if rnd_first else ' border-left: 1px solid #ccc;')">
+                                                <div style="font-size: 9px; letter-spacing: 1px;"><strong><t t-esc="rnd[0]"/></strong></div>
+                                                <div style="font-size: 17px; margin-top: 1px;">
+                                                    <strong><t t-if="rnd[1]"><t t-esc="'{:,.1f}'.format(rnd[1])"/></t><t t-else="">N/D</t></strong>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </t>
                                     </div>
 
                                     <!-- Ponderados por peso -->
