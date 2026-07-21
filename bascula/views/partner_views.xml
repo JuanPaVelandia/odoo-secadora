@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_partner_form_inherit_bultos" model="ir.ui.view">
+            <field name="name">res.partner.form.inherit.bultos</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Bultos Empacados" name="bultos_empacados">
+                        <field name="bultos_ids" readonly="1">
+                            <list>
+                                <field name="orden_id"/>
+                                <field name="producto_id"/>
+                                <field name="fecha"/>
+                                <field name="cantidad" sum="Total Bultos"/>
+                                <field name="cantidad_despachada" sum="Total Despachados"/>
+                                <field name="cantidad_pendiente" sum="Total Pendientes"/>
+                                <field name="peso_total" sum="Peso Total"/>
+                                <field name="state"/>
+                            </list>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

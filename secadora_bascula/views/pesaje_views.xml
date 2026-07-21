@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Herencia: Smart button de inventario en formulario de pesaje -->
+    <record id="view_pesaje_form_inherit_stock" model="ir.ui.view">
+        <field name="name">secadora.pesaje.form.inherit.stock</field>
+        <field name="model">secadora.pesaje</field>
+        <field name="inherit_id" ref="bascula.view_secadora_pesaje_form"/>
+        <field name="arch" type="xml">
+            <!-- Agregar smart button de picking en button_box -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_ver_picking" type="object"
+                        class="oe_stat_button" icon="fa-truck"
+                        invisible="not picking_id">
+                    <field name="picking_state" widget="statusbar"
+                           statusbar_visible="assigned,done"
+                           invisible="1"/>
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">Ver</span>
+                        <span class="o_stat_text">Inventario</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- Agregar campo picking_id despues de observaciones (al final) -->
+            <xpath expr="//field[@name='observaciones']/.." position="after">
+                <group invisible="not picking_id">
+                    <group string="Inventario">
+                        <field name="picking_id" readonly="1" options="{'no_open': False}"/>
+                        <field name="picking_state" readonly="1"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

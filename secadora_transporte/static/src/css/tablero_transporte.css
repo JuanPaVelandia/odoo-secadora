@@ -1,0 +1,110 @@
+.tablero-transporte-container {
+    background: #f8f9fa;
+    /* Es hijo directo de .o_action_manager (que tiene altura fija y
+       overflow:hidden). height:100% lo acota a ese alto y overflow-y:auto le
+       da scroll propio; así, al expandir varias transportadoras, el contenido
+       de abajo se alcanza scrolleando en vez de quedar recortado. */
+    height: 100%;
+    overflow-y: auto;
+    padding-bottom: 24px;
+}
+
+.tablero-transporte-filtros {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+/* KPIs */
+.tablero-transporte-kpis {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tablero-kpi {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-left: 4px solid #00A09D;
+    border-radius: 8px;
+    padding: 10px 16px;
+    min-width: 150px;
+}
+
+.tablero-kpi-valor {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: #00A09D;
+}
+
+.tablero-kpi-label {
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+.tablero-kpi-detalle {
+    font-size: 0.8em;
+    color: #495057;
+}
+
+.tablero-kpi-saldo {
+    border-left-color: #dc3545;
+}
+
+.tablero-kpi-saldo .tablero-kpi-valor {
+    color: #dc3545;
+}
+
+/* Tarjetas por transportadora */
+.tablero-transportadora-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tablero-transportadora-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    cursor: pointer;
+}
+
+.tablero-transportadora-header:hover {
+    background: #f1f3f5;
+}
+
+.tablero-transportadora-body {
+    padding: 8px 14px 12px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.tablero-tabla-detalle {
+    margin-bottom: 4px;
+}
+
+.tablero-tabla-detalle th {
+    font-size: 0.8em;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+.tablero-tabla-detalle td {
+    font-size: 0.9em;
+}
+
+.tablero-saldo-badge {
+    font-size: 0.85em;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.tablero-saldo-pendiente {
+    color: #dc3545;
+    font-weight: 700;
+}
+
+.tablero-sin-transportadora {
+    border-left: 4px solid #dc3545;
+}

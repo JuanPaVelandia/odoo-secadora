@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Heredar vista de contacto para agregar pestaña Liquidaciones -->
+        <record id="view_partner_form_liquidacion" model="ir.ui.view">
+            <field name="name">res.partner.form.liquidacion</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Liquidaciones" name="liquidaciones">
+                        <group>
+                            <field name="precio_compra_kg"/>
+                            <field name="tipo_deduccion_ids" widget="many2many_tags"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

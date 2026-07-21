@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Vista List de Tipos de Vehículo -->
+        <record id="view_tipo_vehiculo_list" model="ir.ui.view">
+            <field name="name">secadora.tipo.vehiculo.list</field>
+            <field name="model">secadora.tipo.vehiculo</field>
+            <field name="arch" type="xml">
+                <list string="Tipos de Vehículo" editable="bottom">
+                    <field name="name"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Acción de Tipos de Vehículo -->
+        <record id="action_tipo_vehiculo" model="ir.actions.act_window">
+            <field name="name">Tipos de Vehículo</field>
+            <field name="res_model">secadora.tipo.vehiculo</field>
+            <field name="view_mode">list</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Crear un nuevo tipo de vehículo
+                </p>
+                <p>
+                    Los tipos de vehículo se usan para clasificar los vehículos
+                    y configurar reglas de servicios diferenciadas.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

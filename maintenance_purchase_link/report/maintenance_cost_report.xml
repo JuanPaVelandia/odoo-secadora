@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista pivot vinculada a la acción de costos por equipo -->
+    <record id="action_equipment_cost_lines_view_pivot" model="ir.actions.act_window.view">
+        <field name="sequence">3</field>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="view_equipment_cost_line_pivot"/>
+        <field name="act_window_id" ref="action_equipment_cost_lines"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_paramo_punto_operativo_user,paramo.punto.operativo.user,model_paramo_punto_operativo,base.group_user,1,0,0,0
+access_paramo_punto_operativo_stock,paramo.punto.operativo.stock,model_paramo_punto_operativo,stock.group_stock_manager,1,1,1,1
+access_paramo_cosecha_user,paramo.cosecha.user,model_paramo_cosecha,base.group_user,1,0,0,0
+access_paramo_cosecha_stock,paramo.cosecha.stock,model_paramo_cosecha,stock.group_stock_manager,1,1,1,1
+access_paramo_cosecha_account,paramo.cosecha.account,model_paramo_cosecha,account.group_account_manager,1,1,1,1
+access_paramo_cosecha_close,paramo.cosecha.close,model_paramo_cosecha_close,stock.group_stock_manager,1,1,1,1
+access_paramo_cosecha_close_acc,paramo.cosecha.close.acc,model_paramo_cosecha_close,account.group_account_manager,1,1,1,1

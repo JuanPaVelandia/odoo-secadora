@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="secadora_transporte.TableroTransporte">
+        <div class="tablero-transporte-container p-3">
+            <div class="d-flex align-items-center flex-wrap mb-3">
+                <h2 class="mb-0 me-3">Tablero de Transporte</h2>
+                <button class="btn btn-outline-secondary btn-sm me-2"
+                        t-on-click="() => this.loadData()">
+                    <i class="fa fa-refresh"/> Actualizar
+                </button>
+                <button class="btn btn-primary btn-sm"
+                        t-if="state.data and state.data.puede_imprimir"
+                        t-on-click="onClickImprimirPorPagar">
+                    <i class="fa fa-print"/> Imprimir viajes facturados por pagar
+                </button>
+            </div>
+
+            <!-- Filtros -->
+            <div class="tablero-transporte-filtros mb-3">
+                <div class="row g-2 align-items-end">
+                    <div class="col-auto">
+                        <label class="form-label mb-0">Desde</label>
+                        <input type="date" class="form-control form-control-sm"
+                               t-model="state.filtros.fecha_desde"
+                               t-on-change="() => this.loadData()"/>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label mb-0">Hasta</label>
+                        <input type="date" class="form-control form-control-sm"
+                               t-model="state.filtros.fecha_hasta"
+                               t-on-change="() => this.loadData()"/>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label mb-0">Transportadora</label>
+                        <select class="form-select form-select-sm"
+                                t-model="state.filtros.transportadora_id"
+                                t-on-change="() => this.loadData()">
+                            <option value="">Todas</option>
+                            <t t-if="state.data">
+                                <t t-foreach="state.data.opciones.transportadoras" t-as="opt" t-key="opt.id">
+                                    <option t-att-value="opt.id" t-esc="opt.name"/>
+                                </t>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label mb-0">Empresa que paga</label>
+                        <select class="form-select form-select-sm"
+                                t-model="state.filtros.company_id"
+                                t-on-change="() => this.loadData()">
+                            <option value="">Todas</option>
+                            <t t-if="state.data">
+                                <t t-foreach="state.data.opciones.companias" t-as="opt" t-key="opt.id">
+                                    <option t-att-value="opt.id" t-esc="opt.name"/>
+                                </t>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <label class="form-label mb-0">Modalidad de pago</label>
+                        <select class="form-select form-select-sm"
+                                t-model="state.filtros.pago_flete"
+                                t-on-change="() => this.loadData()">
+                            <option value="todos">Todas</option>
+                            <option value="secadora">Secadora paga y descuenta</option>
+                            <option value="agricultor">Agricultor paga directo</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button class="btn btn-link btn-sm" t-on-click="onClickLimpiarFiltros">
+                            Limpiar filtros
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <t t-if="state.loading">
+                <div class="text-center p-5">
+                    <i class="fa fa-spinner fa-spin fa-2x"/>
+                    <p class="mt-2 text-muted">Cargando tablero...</p>
+                </div>
+            </t>
+
+            <t t-elif="state.data">
+                <!-- KPIs de totales -->
+                <div class="tablero-transporte-kpis mb-3">
+                    <div class="tablero-kpi">
+                        <div class="tablero-kpi-valor" t-esc="state.data.totales.viajes"/>
+                        <div class="tablero-kpi-label">Viajes</div>
+                        <div class="tablero-kpi-detalle" t-esc="formatMoneda(state.data.totales.valor_fletes)"/>
+                    </div>
+                    <div class="tablero-kpi">
+                        <div class="tablero-kpi-valor" t-esc="state.data.totales.viajes_facturados"/>
+                        <div class="tablero-kpi-label">Facturados</div>
+                        <div class="tablero-kpi-detalle" t-esc="formatMoneda(state.data.totales.valor_facturado)"/>
+                    </div>
+                    <div class="tablero-kpi">
+                        <div class="tablero-kpi-valor" t-esc="state.data.totales.viajes_pagados"/>
+                        <div class="tablero-kpi-label">Pagados</div>
+                        <div class="tablero-kpi-detalle" t-esc="formatMoneda(state.data.totales.valor_pagado)"/>
+                    </div>
+                    <div class="tablero-kpi">
+                        <div class="tablero-kpi-valor" t-esc="state.data.totales.viajes_sin_facturar"/>
+                        <div class="tablero-kpi-label">Sin facturar</div>
+                        <div class="tablero-kpi-detalle" t-esc="formatMoneda(state.data.totales.valor_sin_facturar)"/>
+                    </div>
+                    <div class="tablero-kpi tablero-kpi-saldo">
+                        <div class="tablero-kpi-valor" t-esc="formatMoneda(state.data.totales.saldo_por_pagar)"/>
+                        <div class="tablero-kpi-label">Saldo por pagar (según facturas)</div>
+                        <div class="tablero-kpi-detalle">
+                            <t t-esc="state.data.totales.facturas_por_pagar"/> factura(s)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning py-1 px-2 mb-3"
+                     t-if="state.data.totales.viajes_factura_borrador">
+                    <i class="fa fa-exclamation-triangle me-1"/>
+                    <t t-esc="state.data.totales.viajes_factura_borrador"/> viaje(s) con factura
+                    en borrador: no cuentan como facturados hasta publicar la factura.
+                </div>
+
+                <!-- Tabla por transportadora (incluye el grupo id 0 = sin transportadora) -->
+                <t t-if="!state.data.transportadoras.length">
+                    <div class="text-center text-muted p-5">
+                        <i class="fa fa-truck fa-2x mb-2"/>
+                        <p>No hay fletes que coincidan con los filtros.</p>
+                    </div>
+                </t>
+
+                <t t-foreach="state.data.transportadoras" t-as="tr" t-key="tr.id">
+                    <div t-att-class="'tablero-transportadora-card mb-2' + (tr.id ? '' : ' tablero-sin-transportadora')">
+                        <div class="tablero-transportadora-header"
+                             t-on-click="() => this.toggleExpandida(tr.id)">
+                            <i t-att-class="'fa me-2 ' + (state.expandidas[tr.id] ? 'fa-chevron-down' : 'fa-chevron-right')"/>
+                            <strong t-esc="tr.name"/>
+                            <span class="text-muted ms-2" t-if="tr.nit">NIT: <t t-esc="tr.nit"/></span>
+                            <span class="ms-auto d-flex gap-3 align-items-center">
+                                <span title="Viajes"><i class="fa fa-truck me-1"/><t t-esc="tr.viajes"/></span>
+                                <span title="Facturados / Pagados" class="text-muted">
+                                    <t t-esc="tr.viajes_facturados"/> fact. · <t t-esc="tr.viajes_pagados"/> pag.
+                                </span>
+                                <span t-att-class="'tablero-saldo-badge' + (tr.saldo_por_pagar > 0 ? ' tablero-saldo-pendiente' : '')">
+                                    Saldo: <t t-esc="formatMoneda(tr.saldo_por_pagar)"/>
+                                </span>
+                                <button class="btn btn-outline-secondary btn-sm"
+                                        t-on-click.stop="() => this.onClickVerFletes(tr.id)">
+                                    Ver fletes
+                                </button>
+                            </span>
+                        </div>
+
+                        <t t-if="state.expandidas[tr.id]">
+                            <div class="tablero-transportadora-body">
+                                <h6 class="text-muted mb-1">Por placa (valores de flete)</h6>
+                                <table class="table table-sm tablero-tabla-detalle">
+                                    <thead>
+                                        <tr>
+                                            <th>Placa</th>
+                                            <th class="text-end">Viajes</th>
+                                            <th class="text-end">Valor fletes</th>
+                                            <th class="text-end">Facturados</th>
+                                            <th class="text-end">Valor facturado</th>
+                                            <th class="text-end">Pagados</th>
+                                            <th class="text-end">Valor pagado</th>
+                                            <th class="text-end">Sin facturar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="tr.placas" t-as="pl" t-key="pl.placa">
+                                            <tr>
+                                                <td t-esc="pl.placa"/>
+                                                <td class="text-end" t-esc="pl.viajes"/>
+                                                <td class="text-end" t-esc="formatMoneda(pl.valor_fletes)"/>
+                                                <td class="text-end" t-esc="pl.viajes_facturados"/>
+                                                <td class="text-end" t-esc="formatMoneda(pl.valor_facturado)"/>
+                                                <td class="text-end" t-esc="pl.viajes_pagados"/>
+                                                <td class="text-end" t-esc="formatMoneda(pl.valor_pagado)"/>
+                                                <td class="text-end" t-esc="pl.viajes_sin_facturar"/>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+
+                                <t t-if="tr.facturas.length">
+                                    <h6 class="text-muted mb-1 mt-2">Facturas (saldo contable)</h6>
+                                    <table class="table table-sm tablero-tabla-detalle">
+                                        <thead>
+                                            <tr>
+                                                <th>Factura</th>
+                                                <th>Ref. proveedor</th>
+                                                <th>Fecha</th>
+                                                <th class="text-end">Fletes</th>
+                                                <th class="text-end">Total</th>
+                                                <th class="text-end">Saldo</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="tr.facturas" t-as="fac" t-key="fac.id">
+                                                <tr>
+                                                    <td>
+                                                        <a href="#" t-on-click.prevent="() => this.onClickVerFactura(fac.id)"
+                                                           t-esc="fac.name"/>
+                                                    </td>
+                                                    <td t-esc="fac.ref"/>
+                                                    <td t-esc="fac.fecha"/>
+                                                    <td class="text-end" t-esc="fac.num_fletes"/>
+                                                    <td class="text-end" t-esc="formatMoneda(fac.total)"/>
+                                                    <td class="text-end" t-esc="formatMoneda(fac.saldo)"/>
+                                                    <td>
+                                                        <span t-att-class="'badge ' + (
+                                                                fac.estado != 'posted' ? 'text-bg-secondary'
+                                                                : fac.estado_pago_raw == 'paid' or fac.estado_pago_raw == 'in_payment' ? 'text-bg-success'
+                                                                : fac.estado_pago_raw == 'partial' ? 'text-bg-warning'
+                                                                : 'text-bg-danger')"
+                                                              t-esc="fac.estado_pago"/>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </t>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+
+            </t>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Los dos planes analíticos del modelo de costo agro -->
+        <record id="plan_punto_operativo" model="account.analytic.plan">
+            <field name="name">Punto Operativo</field>
+        </record>
+        <record id="plan_cosecha" model="account.analytic.plan">
+            <field name="name">Cosecha</field>
+        </record>
+    </data>
+</odoo>

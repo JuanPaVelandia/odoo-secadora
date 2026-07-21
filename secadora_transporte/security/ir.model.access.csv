@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_flete_usuario,secadora.flete.usuario,model_secadora_flete,group_transporte_usuario,1,1,1,0
+access_flete_admin,secadora.flete.admin,model_secadora_flete,group_transporte_admin,1,1,1,1
+access_flete_basculero,secadora.flete.basculero,model_secadora_flete,bascula.group_basculero,1,1,1,0
+access_tarifa_flete_usuario,secadora.tarifa.flete.usuario,model_secadora_tarifa_flete,group_transporte_usuario,1,0,0,0
+access_tarifa_flete_admin,secadora.tarifa.flete.admin,model_secadora_tarifa_flete,group_transporte_admin,1,1,1,1
+access_tarifa_flete_basculero,secadora.tarifa.flete.basculero,model_secadora_tarifa_flete,bascula.group_basculero,1,0,0,0
+access_asociar_factura_wizard_usuario,secadora.asociar.factura.wizard.usuario,model_secadora_asociar_factura_wizard,group_transporte_usuario,1,1,1,0
+access_asociar_factura_wizard_admin,secadora.asociar.factura.wizard.admin,model_secadora_asociar_factura_wizard,group_transporte_admin,1,1,1,1
+access_imprimir_viajes_pagar_wizard_contabilidad,secadora.imprimir.viajes.pagar.wizard.contabilidad,model_secadora_imprimir_viajes_pagar_wizard,account.group_account_invoice,1,1,1,0
+access_imprimir_viajes_pagar_wizard_admin,secadora.imprimir.viajes.pagar.wizard.admin,model_secadora_imprimir_viajes_pagar_wizard,group_transporte_admin,1,1,1,1
+access_transportadora_transporte,secadora.transportadora.transporte,bascula.model_secadora_transportadora,group_transporte_usuario,1,0,0,0
+access_flete_contabilidad,secadora.flete.contabilidad,model_secadora_flete,account.group_account_invoice,1,0,0,0
+access_transportadora_contabilidad,secadora.transportadora.contabilidad,bascula.model_secadora_transportadora,account.group_account_invoice,1,0,0,0
+access_pesaje_contabilidad,secadora.pesaje.contabilidad,bascula.model_secadora_pesaje,account.group_account_invoice,1,0,0,0
+access_lugar_contabilidad,secadora.lugar.contabilidad,bascula.model_secadora_lugar,account.group_account_invoice,1,0,0,0

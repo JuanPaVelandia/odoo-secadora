@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Formato de papel: A4 Portrait -->
+        <record id="paperformat_liquidacion" model="report.paperformat">
+            <field name="name">Liquidación de Compra</field>
+            <field name="default" eval="False"/>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">40</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">15</field>
+            <field name="margin_right">15</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">35</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Acción de impresión -->
+        <record id="action_report_liquidacion" model="ir.actions.report">
+            <field name="name">Liquidación de Compra</field>
+            <field name="model">secadora.liquidacion</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">secadora_liquidacion.report_liquidacion_document</field>
+            <field name="report_file">secadora_liquidacion.report_liquidacion_document</field>
+            <field name="binding_model_id" ref="model_secadora_liquidacion"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Liquidacion %s' % (object.name)</field>
+            <field name="paperformat_id" ref="secadora_liquidacion.paperformat_liquidacion"/>
+        </record>
+
+        <!-- Plantilla del reporte -->
+        <template id="report_liquidacion_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <div class="page" style="font-family: Arial, sans-serif; font-size: 12px;">
+
+                            <!-- Encabezado -->
+                            <div class="text-center" style="border-bottom: 3px solid #000; padding-bottom: 15px; margin-bottom: 20px;">
+                                <h2 style="margin: 0; font-size: 20px;"><strong>Secadora La Gran Colombia S.A.S</strong></h2>
+                                <h3 style="margin: 5px 0; font-size: 16px;">LIQUIDACIÓN DE COMPRA</h3>
+                                <p style="margin: 5px 0; font-size: 14px;">
+                                    <strong>No. <span t-field="o.name"/></strong>
+                                </p>
+                            </div>
+
+                            <!-- Información general -->
+                            <div class="row" style="margin-bottom: 20px;">
+                                <div class="col-6">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Agricultor:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.tercero_id"/></td>
+                                        </tr>
+                                        <tr t-if="o.tercero_id.vat">
+                                            <td style="padding: 5px;"><strong>NIT/CC:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.tercero_id.vat"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Fecha:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.fecha"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-6">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <tr t-if="o.fecha_desde">
+                                            <td style="padding: 5px;"><strong>Período Desde:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.fecha_desde"/></td>
+                                        </tr>
+                                        <tr t-if="o.fecha_hasta">
+                                            <td style="padding: 5px;"><strong>Período Hasta:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.fecha_hasta"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 5px;"><strong>Empresa:</strong></td>
+                                            <td style="padding: 5px;"><span t-field="o.company_id"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Tabla de Pesajes -->
+                            <div style="margin-bottom: 20px;">
+                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes</h4>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                    <thead>
+                                        <tr style="background-color: #f0f0f0;">
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Número</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Fecha</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Variedad</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Neto</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Peso Comercial</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Humedad</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Precio</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Subtotal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.linea_ids" t-as="linea">
+                                            <td style="border: 1px solid #ddd; padding: 8px;">
+                                                <span t-field="linea.pesaje_id"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;">
+                                                <span t-field="linea.fecha_pesaje"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;">
+                                                <span t-field="linea.variedad_id"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="linea.peso_neto" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="linea.peso_comercial" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="linea.humedad" t-options='{"widget": "float", "precision": 2}'/>%
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="linea.precio" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="linea.subtotal" t-options='{"widget": "float", "precision": 0}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                            <td colspan="3" style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTALES:</td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <t t-set="total_peso_neto" t-value="sum(o.linea_ids.mapped('peso_neto'))"/>
+                                                <span t-out="'%.2f' % total_peso_neto"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                <span t-field="o.total_peso_comercial" t-options='{"widget": "float", "precision": 2}'/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;"></td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="o.total_bruto" t-options='{"widget": "float", "precision": 0}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Tabla de Deducciones -->
+                            <div t-if="o.deduccion_ids" style="margin-bottom: 20px;">
+                                <h4 style="background-color: #333; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Deducciones</h4>
+                                <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
+                                    <thead>
+                                        <tr style="background-color: #f0f0f0;">
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Tipo</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Descripción</th>
+                                            <th style="border: 1px solid #ddd; padding: 8px; text-align: right;">Monto</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="o.deduccion_ids" t-as="ded">
+                                            <td style="border: 1px solid #ddd; padding: 8px;">
+                                                <span t-field="ded.tipo"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px;">
+                                                <span t-field="ded.descripcion"/>
+                                            </td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">
+                                                $<span t-field="ded.monto" t-options='{"widget": "float", "precision": 0}'/>
+                                            </td>
+                                        </tr>
+                                        <tr style="background-color: #f0f0f0; font-weight: bold;">
+                                            <td colspan="2" style="border: 1px solid #ddd; padding: 8px; text-align: right;">TOTAL DEDUCCIONES:</td>
+                                            <td style="border: 1px solid #ddd; padding: 8px; text-align: right; color: #c00;">
+                                                $<span t-field="o.total_deducciones" t-options='{"widget": "float", "precision": 0}'/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Caja Resumen -->
+                            <div style="margin-bottom: 20px; border: 3px solid #000; padding: 15px; background-color: #f9f9f9;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px; font-size: 14px;"><strong>Total Bruto:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px;">
+                                            <strong>$<span t-field="o.total_bruto" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                        </td>
+                                    </tr>
+                                    <tr t-if="o.total_deducciones > 0">
+                                        <td style="padding: 8px; font-size: 14px;"><strong>Total Deducciones:</strong></td>
+                                        <td style="padding: 8px; text-align: right; font-size: 14px; color: #c00;">
+                                            <strong>- $<span t-field="o.total_deducciones" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                        </td>
+                                    </tr>
+                                    <tr style="border-top: 3px solid #000;">
+                                        <td style="padding: 10px; font-size: 18px;"><strong>TOTAL NETO A PAGAR:</strong></td>
+                                        <td style="padding: 10px; text-align: right; font-size: 18px;">
+                                            <strong style="color: #00A09D;">$<span t-field="o.total_neto" t-options='{"widget": "float", "precision": 0}'/></strong>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Observaciones -->
+                            <div t-if="o.observaciones" style="margin-bottom: 20px; padding: 10px; background-color: #f9f9f9; border-left: 3px solid #333;">
+                                <strong>Observaciones:</strong><br/>
+                                <span t-field="o.observaciones"/>
+                            </div>
+
+                            <!-- Pie de página -->
+                            <div style="margin-top: 40px; text-align: center; font-size: 10px; color: #666;">
+                                <p>Este documento es soporte de la liquidación de compra y no constituye factura.</p>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

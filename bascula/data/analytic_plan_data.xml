@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Plan analítico: Punto operativo -->
+        <record id="analytic_plan_punto_operativo" model="account.analytic.plan">
+            <field name="name">Punto operativo</field>
+        </record>
+
+    </data>
+</odoo>

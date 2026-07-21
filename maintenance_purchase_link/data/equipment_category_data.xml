@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Categorías de equipo = Áreas de planta -->
+        <record id="equipment_category_campo" model="maintenance.equipment.category">
+            <field name="name">Campo/Cultivo</field>
+        </record>
+
+        <record id="equipment_category_recepcion" model="maintenance.equipment.category">
+            <field name="name">Recepción</field>
+        </record>
+
+        <record id="equipment_category_secado" model="maintenance.equipment.category">
+            <field name="name">Secado</field>
+        </record>
+
+        <record id="equipment_category_almacenamiento" model="maintenance.equipment.category">
+            <field name="name">Almacenamiento</field>
+        </record>
+
+        <record id="equipment_category_molienda" model="maintenance.equipment.category">
+            <field name="name">Molienda</field>
+        </record>
+
+        <record id="equipment_category_empaque" model="maintenance.equipment.category">
+            <field name="name">Empaque</field>
+        </record>
+
+        <record id="equipment_category_servicios_generales" model="maintenance.equipment.category">
+            <field name="name">Servicios generales</field>
+        </record>
+
+    </data>
+</odoo>

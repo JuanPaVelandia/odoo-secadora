@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menú padre: Costos (bajo Mantenimiento) -->
+    <menuitem
+        id="menu_maintenance_costs_root"
+        name="Costos"
+        parent="maintenance.menu_maintenance_title"
+        sequence="40"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <!-- Submenú: Costos de mantenimiento (modelo unificado) -->
+    <menuitem
+        id="menu_equipment_cost_lines"
+        name="Costos de mantenimiento"
+        parent="menu_maintenance_costs_root"
+        action="action_equipment_cost_lines"
+        sequence="5"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <!-- Submenú: Asignar factura -->
+    <menuitem
+        id="menu_assign_invoice"
+        name="Asignar factura"
+        parent="menu_maintenance_costs_root"
+        action="action_assign_invoice_wizard"
+        sequence="10"
+        groups="maintenance.group_equipment_manager"
+    />
+
+
+    <!-- Submenú: Lecturas de horómetro -->
+    <menuitem
+        id="menu_horometro_readings"
+        name="Lecturas de horómetro"
+        parent="maintenance.menu_maintenance_title"
+        action="action_horometro_readings"
+        sequence="45"
+        groups="maintenance.group_equipment_manager"
+    />
+
+</odoo>

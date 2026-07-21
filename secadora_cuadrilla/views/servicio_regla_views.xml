@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Agregar es_cuadrilla a la vista list de reglas -->
+        <record id="view_servicio_regla_list_inherit_cuadrilla" model="ir.ui.view">
+            <field name="name">secadora.servicio.regla.list.inherit.cuadrilla</field>
+            <field name="model">secadora.servicio.regla</field>
+            <field name="inherit_id" ref="bascula.view_servicio_regla_list"/>
+            <field name="arch" type="xml">
+                <field name="incluir_en_factura" position="after">
+                    <field name="es_cuadrilla" widget="boolean_toggle"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Agregar es_cuadrilla a la vista form de reglas -->
+        <record id="view_servicio_regla_form_inherit_cuadrilla" model="ir.ui.view">
+            <field name="name">secadora.servicio.regla.form.inherit.cuadrilla</field>
+            <field name="model">secadora.servicio.regla</field>
+            <field name="inherit_id" ref="bascula.view_servicio_regla_form"/>
+            <field name="arch" type="xml">
+                <field name="incluir_en_factura" position="after">
+                    <field name="es_cuadrilla"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

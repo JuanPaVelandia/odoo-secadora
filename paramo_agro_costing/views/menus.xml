@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_agro_root" name="Agro Costing" sequence="55"
+              web_icon="stock,static/description/icon.png"/>
+
+    <menuitem id="menu_agro_cosechas" name="Cosechas"
+              parent="menu_agro_root" action="action_paramo_cosecha" sequence="10"/>
+
+    <menuitem id="menu_agro_config" name="Configuración"
+              parent="menu_agro_root" sequence="90"/>
+
+    <menuitem id="menu_agro_puntos_operativos" name="Puntos Operativos"
+              parent="menu_agro_config" action="action_paramo_punto_operativo" sequence="10"/>
+</odoo>

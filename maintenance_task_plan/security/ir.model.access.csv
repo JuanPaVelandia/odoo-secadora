@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_counter_type_manager,maintenance.counter.type.manager,model_maintenance_counter_type,maintenance.group_equipment_manager,1,1,1,1
+access_counter_type_user,maintenance.counter.type.user,model_maintenance_counter_type,base.group_user,1,0,0,0
+access_task_plan_manager,maintenance.task.plan.manager,model_maintenance_task_plan,maintenance.group_equipment_manager,1,1,1,1
+access_task_plan_user,maintenance.task.plan.user,model_maintenance_task_plan,base.group_user,1,0,0,0
+access_task_plan_line_manager,maintenance.task.plan.line.manager,model_maintenance_task_plan_line,maintenance.group_equipment_manager,1,1,1,1
+access_task_plan_line_user,maintenance.task.plan.line.user,model_maintenance_task_plan_line,base.group_user,1,0,0,0
+access_update_wizard_manager,maintenance.update.counters.wizard.manager,model_maintenance_update_counters_wizard,maintenance.group_equipment_manager,1,1,1,1
+access_update_wizard_line_manager,maintenance.update.counters.wizard.line.manager,model_maintenance_update_counters_wizard_line,maintenance.group_equipment_manager,1,1,1,1

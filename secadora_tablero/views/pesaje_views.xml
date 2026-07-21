@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Smart button en formulario de pesaje -->
+        <record id="view_pesaje_form_inherit_tablero" model="ir.ui.view">
+            <field name="name">secadora.pesaje.form.inherit.tablero</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="inherit_id" ref="bascula.view_secadora_pesaje_form"/>
+            <field name="arch" type="xml">
+                <div name="button_box" position="inside">
+                    <button name="action_ver_posiciones" type="object"
+                            class="oe_stat_button" icon="fa-map-marker"
+                            invisible="posicion_count == 0">
+                        <field name="posicion_count" widget="statinfo"
+                               string="Posiciones"/>
+                    </button>
+                </div>
+            </field>
+        </record>
+
+    </data>
+</odoo>

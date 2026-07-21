@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ============================================ -->
+        <!-- UBICACIONES DE ALMACÉN                       -->
+        <!-- ============================================ -->
+
+        <!-- Ubicación: Secado En Proceso (hija de WH/Stock) -->
+        <record id="stock_location_secado" model="stock.location">
+            <field name="name">Secado En Proceso</field>
+            <field name="usage">internal</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+        </record>
+
+        <!-- Ubicación: Prelimpieza (hija de WH/Stock) -->
+        <record id="stock_location_prelimpieza" model="stock.location">
+            <field name="name">Prelimpieza</field>
+            <field name="usage">internal</field>
+            <field name="location_id" ref="stock.stock_location_stock"/>
+        </record>
+
+        <!-- Ubicación: Merma Secado (raíz virtual; en v19 ya no existe un
+             padre fijo "Virtual Locations" para agrupar suppliers/customers/inventory) -->
+        <record id="stock_location_merma_secado" model="stock.location">
+            <field name="name">Merma Secado</field>
+            <field name="usage">inventory</field>
+        </record>
+
+        <!-- Nota: Los picking types se crean via post_init_hook
+             para compatibilidad con constraints SQL de modulos instalados -->
+
+    </data>
+</odoo>

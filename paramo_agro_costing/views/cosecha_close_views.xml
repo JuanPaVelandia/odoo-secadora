@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_paramo_cosecha_close_form" model="ir.ui.view">
+        <field name="name">paramo.cosecha.close.form</field>
+        <field name="model">paramo.cosecha.close</field>
+        <field name="arch" type="xml">
+            <form string="Cerrar cosecha">
+                <field name="is_intercompany" invisible="1"/>
+                <p class="text-muted" invisible="is_intercompany">
+                    El paddy entra a inventario al costo/kg (acumulado 1425 ÷ kg secos,
+                    merma incorporada) y se postea la contrapartida <b>D 1430 / C 1425</b>.
+                </p>
+                <p class="text-muted" invisible="not is_intercompany">
+                    <b>Intercompañía (al costo):</b> el paddy entra a la secadora
+                    (<b>D 1430 / C CxP</b>) y en la finca se relieva el activo biológico
+                    (<b>D CxC / C 1425</b>, con analítica). Sin margen intragrupo.
+                </p>
+                <group>
+                    <group>
+                        <field name="cosecha_id" readonly="1"/>
+                        <field name="acumulado_1425" widget="monetary"/>
+                        <field name="currency_id" invisible="1"/>
+                    </group>
+                    <group>
+                        <field name="kg_secos"/>
+                        <field name="costo_kg" widget="monetary"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_confirm" type="object" string="Confirmar cosecha"
+                            class="btn-primary"/>
+                    <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

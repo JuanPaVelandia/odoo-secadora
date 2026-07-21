@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Client action: Tablero de Transporte (componente OWL) -->
+        <record id="action_tablero_transporte" model="ir.actions.client">
+            <field name="name">Tablero de Transporte</field>
+            <field name="tag">secadora_tablero_transporte</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_factura_email_usuario,secadora.factura.email.usuario,model_secadora_factura_email,group_factura_email_usuario,1,1,1,0
+access_factura_email_admin,secadora.factura.email.admin,model_secadora_factura_email,group_factura_email_admin,1,1,1,1
+access_factura_email_bascula_admin,secadora.factura.email.bascula_admin,model_secadora_factura_email,bascula.group_bascula_admin,1,0,0,0
+access_reprocesar_wizard_usuario,secadora.reprocesar.factura.wizard.usuario,model_secadora_reprocesar_factura_wizard,group_factura_email_usuario,1,1,1,0
+access_reprocesar_wizard_admin,secadora.reprocesar.factura.wizard.admin,model_secadora_reprocesar_factura_wizard,group_factura_email_admin,1,1,1,1

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Grupo: Laboratorista -->
+        <record id="group_laboratorista" model="res.groups">
+            <field name="name">Laboratorista</field>
+            <field name="privilege_id" ref="bascula.res_groups_privilege_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Calidad (hereda de laboratorista) -->
+        <record id="group_calidad_admin" model="res.groups">
+            <field name="name">Administrador Calidad</field>
+            <field name="privilege_id" ref="bascula.res_groups_privilege_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_laboratorista'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+
+        <!-- ====== Reglas Multi-Empresa ====== -->
+
+        <!-- Análisis de Laboratorio: Multi-Company -->
+        <record id="analisis_lab_company_rule" model="ir.rule">
+            <field name="name">Análisis Lab: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_analisis_lab"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <!-- Descuento de Calidad: Multi-Company -->
+        <record id="descuento_calidad_company_rule" model="ir.rule">
+            <field name="name">Descuento Calidad: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_descuento_calidad"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+    </data>
+</odoo>

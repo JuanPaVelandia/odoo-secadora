@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_cargar_servicios_wizard_form" model="ir.ui.view">
+            <field name="name">secadora.cuadrilla.cargar.servicios.wizard.form</field>
+            <field name="model">secadora.cuadrilla.cargar.servicios.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cargar Servicios de Cuadrilla">
+                    <group>
+                        <group>
+                            <field name="liquidacion_id" readonly="1" invisible="not liquidacion_id"/>
+                        </group>
+                        <group>
+                            <field name="fecha_desde"/>
+                            <field name="fecha_hasta"/>
+                        </group>
+                    </group>
+                    <separator string="Líneas de Servicio Encontradas"/>
+                    <field name="linea_ids">
+                        <list>
+                            <field name="orden_id" string="Orden"/>
+                            <field name="producto_id" string="Servicio"/>
+                            <field name="cantidad"/>
+                            <field name="precio_unitario"/>
+                            <field name="subtotal"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_cargar" string="Cargar Servicios" type="object"
+                                class="oe_highlight"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

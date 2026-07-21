@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Heredar vista form de Orden de Servicio para agregar cobro de flete -->
+    <record id="view_orden_servicio_form_flete" model="ir.ui.view">
+        <field name="name">secadora.orden.servicio.form.flete</field>
+        <field name="model">secadora.orden.servicio</field>
+        <field name="inherit_id" ref="bascula.view_orden_servicio_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Agregar flete secadora en la sección Descuento -->
+            <xpath expr="//field[@name='descuento_motivo']" position="after">
+                <field name="cobro_flete" readonly="1"/>
+                <field name="flete_secadora_ids" readonly="1"
+                       invisible="cobro_flete == 0" nolabel="1" colspan="2">
+                    <list create="0" delete="0" edit="0">
+                        <field name="name" string="Número"/>
+                        <field name="origen_id" string="Origen"/>
+                        <field name="destino_id" string="Destino"/>
+                        <field name="peso_kg" string="Peso (Kg)" sum="Total Peso"/>
+                        <field name="costo_total" string="Costo Total" sum="Total Costo"/>
+                    </list>
+                </field>
+            </xpath>
+
+            <!-- Agregar cobro flete en el footer de totales (antes del total) -->
+            <xpath expr="//field[@name='total_a_facturar']" position="before">
+                <field name="cobro_flete" string="Flete Secadora (+)" readonly="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>

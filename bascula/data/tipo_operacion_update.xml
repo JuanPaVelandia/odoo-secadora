@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- noupdate=0: Forzar actualización de es_compraventa en BD existentes -->
+    <data noupdate="0">
+
+        <record id="tipo_op_compra" model="secadora.tipo.operacion" forcecreate="0">
+            <field name="es_compraventa" eval="True"/>
+        </record>
+
+        <record id="tipo_op_venta" model="secadora.tipo.operacion" forcecreate="0">
+            <field name="es_compraventa" eval="True"/>
+        </record>
+
+    </data>
+</odoo>

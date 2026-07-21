@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!--
+            Record rule: el coordinador de mantenimiento (group_equipment_manager)
+            puede leer líneas de factura de proveedor que tengan analítica de mantenimiento.
+            Se implementa como regla global que no restringe, ya que el filtrado real
+            se hace en la acción/vista. Los permisos de escritura sobre los campos M2M
+            se controlan vía groups= en la definición del campo en la vista.
+        -->
+
+    </data>
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Renombrar la empresa principal existente -->
+        <record id="base.main_company" model="res.company">
+            <field name="name">Secadora La Gran Colombia SAS</field>
+        </record>
+        <record id="base.main_partner" model="res.partner">
+            <field name="name">Secadora La Gran Colombia SAS</field>
+        </record>
+
+        <!-- ====== Empresas de Agricultores ====== -->
+
+        <!-- Jose Velandia -->
+        <record id="company_jose_velandia" model="res.company">
+            <field name="name">Jose Velandia</field>
+            <field name="parent_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Juan Pablo Velandia -->
+        <record id="company_juan_pablo_velandia" model="res.company">
+            <field name="name">Juan Pablo Velandia</field>
+            <field name="parent_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Felipe Tibocha -->
+        <record id="company_felipe_tibocha" model="res.company">
+            <field name="name">Felipe Tibocha</field>
+            <field name="parent_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Luis Cubides -->
+        <record id="company_luis_cubides" model="res.company">
+            <field name="name">Luis Cubides</field>
+            <field name="parent_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Dar acceso al admin a todas las empresas -->
+        <record id="base.user_admin" model="res.users">
+            <field name="company_ids" eval="[
+                (4, ref('base.main_company')),
+                (4, ref('company_jose_velandia')),
+                (4, ref('company_juan_pablo_velandia')),
+                (4, ref('company_felipe_tibocha')),
+                (4, ref('company_luis_cubides')),
+            ]"/>
+        </record>
+
+    </data>
+</odoo>

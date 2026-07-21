@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_counter_type_list" model="ir.ui.view">
+        <field name="name">maintenance.counter.type.list</field>
+        <field name="model">maintenance.counter.type</field>
+        <field name="arch" type="xml">
+            <list string="Tipos de Contador">
+                <field name="name"/>
+                <field name="unit"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_counter_type_form" model="ir.ui.view">
+        <field name="name">maintenance.counter.type.form</field>
+        <field name="model">maintenance.counter.type</field>
+        <field name="arch" type="xml">
+            <form string="Tipo de Contador">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" placeholder="Ej: Horómetro"/>
+                            <field name="unit" placeholder="Ej: Horas"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_counter_type" model="ir.actions.act_window">
+        <field name="name">Tipos de Contador</field>
+        <field name="res_model">maintenance.counter.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

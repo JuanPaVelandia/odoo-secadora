@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menú Cuadrilla bajo el menú raíz de báscula -->
+        <menuitem id="menu_cuadrilla"
+                  name="Cuadrilla"
+                  parent="bascula.menu_bascula_root"
+                  sequence="40"/>
+
+        <menuitem id="menu_cuadrilla_liquidaciones"
+                  name="Liquidaciones Cuadrilla"
+                  parent="menu_cuadrilla"
+                  action="action_cuadrilla_liquidacion"
+                  sequence="10"/>
+
+        <!-- Submenú Configuración -->
+        <menuitem id="menu_cuadrilla_config"
+                  name="Configuración"
+                  parent="menu_cuadrilla"
+                  sequence="90"
+                  groups="group_cuadrilla_admin"/>
+
+        <menuitem id="menu_cuadrilla_tarifas"
+                  name="Tarifas"
+                  parent="menu_cuadrilla_config"
+                  action="action_cuadrilla_tarifa"
+                  sequence="10"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Añade método de reparto y precio VNR a las líneas de subproducto, y el botón
+         de recálculo en la LdM (molienda). -->
+    <record id="view_mrp_bom_form_agro" model="ir.ui.view">
+        <field name="name">mrp.bom.form.agro</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='byproduct_ids']/list//field[@name='cost_share']"
+                   position="before">
+                <field name="paramo_share_method"/>
+                <field name="paramo_market_price" optional="show"/>
+                <field name="currency_id" column_invisible="1"/>
+            </xpath>
+            <xpath expr="//field[@name='byproduct_ids']" position="after">
+                <group>
+                    <field name="paramo_main_market_price"/>
+                    <field name="currency_id" invisible="1"/>
+                </group>
+                <button name="action_recompute_cost_share" type="object"
+                        string="Recalcular reparto (costo conjunto)" class="btn-secondary"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

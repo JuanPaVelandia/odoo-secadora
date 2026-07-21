@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Submenú bajo Contabilidad → Proveedores -->
+    <menuitem id="menu_factura_email_list"
+              name="Facturas desde Correo"
+              parent="account.menu_finance_payables"
+              action="action_secadora_factura_email"
+              sequence="30"/>
+
+</odoo>

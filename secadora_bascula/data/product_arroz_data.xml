@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Categoría de Productos: Arroz -->
+        <record id="product_category_arroz" model="product.category">
+            <field name="name">Arroz</field>
+            <field name="parent_id" ref="product.product_category_goods"/>
+        </record>
+
+        <!-- Nota: El producto Arroz Paddy se crea via post_init_hook
+             para compatibilidad con modulos que agregan constraints SQL
+             (sale, account, etc.) -->
+
+    </data>
+</odoo>

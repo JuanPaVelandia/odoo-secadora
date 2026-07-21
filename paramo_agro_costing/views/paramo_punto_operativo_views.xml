@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_paramo_punto_operativo_list" model="ir.ui.view">
+        <field name="name">paramo.punto.operativo.list</field>
+        <field name="model">paramo.punto.operativo</field>
+        <field name="arch" type="xml">
+            <list string="Puntos Operativos">
+                <field name="code" optional="show"/>
+                <field name="name"/>
+                <field name="analytic_account_id"/>
+                <field name="company_id" optional="show"/>
+                <field name="cosecha_count" string="Cosechas"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_paramo_punto_operativo_form" model="ir.ui.view">
+        <field name="name">paramo.punto.operativo.form</field>
+        <field name="model">paramo.punto.operativo</field>
+        <field name="arch" type="xml">
+            <form string="Punto Operativo">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name" placeholder="Camelias"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                            <field name="analytic_account_id"/>
+                        </group>
+                        <group>
+                            <field name="company_id"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_paramo_punto_operativo" model="ir.actions.act_window">
+        <field name="name">Puntos Operativos</field>
+        <field name="res_model">paramo.punto.operativo</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
