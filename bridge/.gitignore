@@ -1,8 +1,0 @@
-# Ignorar logs del simulador
-*.log
-
-# Configuración local sensible
-.env
-
-# Carpeta de logs para Docker
-logs/

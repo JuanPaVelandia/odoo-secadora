@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Etiqueta nativa de contacto para identificar transportadoras.
-         Permite filtrar contactos y facturas por la categoría "Transportadora". -->
-    <record id="partner_category_transportadora" model="res.partner.category">
-        <field name="name">Transportadora</field>
-        <field name="color">4</field>
-    </record>
-</odoo>
