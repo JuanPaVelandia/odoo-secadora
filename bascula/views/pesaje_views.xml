@@ -47,6 +47,15 @@
                                 </div>
                             </button>
                         </div>
+
+                        <!-- Alerta de diferencia báscula vs bultos: arriba,
+                             donde el basculero la vea de inmediato -->
+                        <div class="alert alert-danger text-center" role="alert"
+                             style="font-size: 16px;"
+                             invisible="not alerta_diferencia_bultos">
+                            <strong>⚠ Alerta:</strong> La diferencia entre el peso de báscula y el peso de bultos supera el 0,1%.
+                            Verifique que los bultos están correctamente registrados.
+                        </div>
                         <group>
                             <group>
                                 <field name="tipo_operacion_id"
@@ -132,32 +141,9 @@
                             </field>
                         </group>
 
-                        <!-- Producto y Calidad permanecen editables aunque el
-                             pesaje esté completado (salvo es_semilla). -->
-                        <group string="Producto y Calidad">
-                            <group>
-                                <field name="producto_id"/>
-                                <field name="variedad_id"/>
-                                <field name="es_semilla"
-                                       readonly="bloqueado"/>
-                            </group>
-                            <group>
-                                <field name="humedad"/>
-                                <field name="grano_partido"/>
-                                <field name="impurezas"/>
-                            </group>
-                        </group>
-
-                        <group string="Remisión">
-                            <group>
-                                <field name="bultos" readonly="bloqueado"/>
-                                <field name="precio" readonly="bloqueado"/>
-                            </group>
-                            <group>
-                                <field name="plazo" readonly="bloqueado"/>
-                            </group>
-                        </group>
-
+                        <!-- En salidas va ANTES de Producto y Calidad: al escoger
+                             los bultos empacados se auto-llenan producto, variedad
+                             y es_semilla desde la OS del registro. -->
                         <field name="os_modalidad_salida" invisible="1"/>
                         <group string="Bultos a Despachar"
                                invisible="direccion != 'salida' or not tipo_operacion_id or not tipo_operacion_id.es_servicio">
@@ -190,11 +176,32 @@
                                     <field name="alerta_diferencia_bultos" invisible="1"/>
                                 </group>
                             </group>
-                            <div class="alert alert-danger" role="alert"
-                                 invisible="not alerta_diferencia_bultos">
-                                <strong>Alerta:</strong> La diferencia entre el peso de báscula y el peso de bultos supera el 0,1%.
-                                Verifique que los bultos están correctamente registrados.
-                            </div>
+                        </group>
+
+                        <!-- Producto y Calidad permanecen editables aunque el
+                             pesaje esté completado (salvo es_semilla). -->
+                        <group string="Producto y Calidad">
+                            <group>
+                                <field name="producto_id"/>
+                                <field name="variedad_id"/>
+                                <field name="es_semilla"
+                                       readonly="bloqueado"/>
+                            </group>
+                            <group>
+                                <field name="humedad"/>
+                                <field name="grano_partido"/>
+                                <field name="impurezas"/>
+                            </group>
+                        </group>
+
+                        <group string="Remisión">
+                            <group>
+                                <field name="bultos" readonly="bloqueado"/>
+                                <field name="precio" readonly="bloqueado"/>
+                            </group>
+                            <group>
+                                <field name="plazo" readonly="bloqueado"/>
+                            </group>
                         </group>
 
                         <group>
