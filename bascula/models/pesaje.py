@@ -763,6 +763,43 @@ class SecadoraPesaje(models.Model):
             # Confirmar líneas de despacho de bultos
             if record.despacho_bultos_ids:
                 record.despacho_bultos_ids.write({'confirmado': True})
+                record._aplicar_resumen_despacho()
+
+    def _aplicar_resumen_despacho(self):
+        """Escribe en observaciones un resumen del despacho de bultos.
+
+        Las observaciones se imprimen en el tiquete, así el conductor y el
+        cliente ven qué bultos salieron. Si el pesaje se reabre y se vuelve a
+        completar, el resumen anterior se reemplaza (se conserva el texto que
+        el basculero haya escrito antes del resumen).
+        """
+        self.ensure_one()
+        if self.direccion != 'salida' or not self.despacho_bultos_ids:
+            return
+        lineas = []
+        for d in self.despacho_bultos_ids:
+            reg = d.registro_bultos_id
+            detalle = f"{d.cantidad} bultos x {reg.peso_promedio:g} kg"
+            extras = [
+                reg.producto_id.display_name if reg.producto_id else '',
+                f"OS {reg.orden_id.name}" if reg.orden_id else '',
+            ]
+            extras = [e for e in extras if e]
+            if extras:
+                detalle += f" ({', '.join(extras)})"
+            detalle += f" = {d.peso_subtotal:,.0f} kg"
+            lineas.append(detalle)
+        total_bultos = sum(self.despacho_bultos_ids.mapped('cantidad'))
+        resumen = (
+            'Despacho: ' + '; '.join(lineas)
+            + f". Total: {total_bultos} bultos = "
+              f"{self.peso_total_bultos_despacho:,.0f} kg"
+              f" (báscula: {self.peso_neto:,.0f} kg)."
+        )
+        base = self.observaciones or ''
+        if 'Despacho:' in base:
+            base = base.split('Despacho:')[0].rstrip()
+        self.observaciones = (base + '\n' if base else '') + resumen
 
     def action_cancelar(self):
         for record in self:
