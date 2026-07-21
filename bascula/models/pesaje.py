@@ -447,6 +447,27 @@ class SecadoraPesaje(models.Model):
                         f'Bultos distribuidos: {total_lineas}'
                     )
 
+    @api.onchange('despacho_bultos_ids')
+    def _onchange_despacho_producto_calidad(self):
+        """Al escoger bultos empacados en una salida, auto-llenar Producto y
+        Calidad: producto desde el registro de bultos, y variedad/es_semilla
+        desde los pesajes de entrada de la orden de servicio del registro."""
+        if self.direccion != 'salida':
+            return
+        registros = self.despacho_bultos_ids.mapped('registro_bultos_id')
+        if not registros:
+            return
+        registro = registros[0]
+        if registro.producto_id:
+            self.producto_id = registro.producto_id
+        entradas = registro.orden_id.pesaje_entrada_ids
+        if entradas:
+            variedades = [e.variedad_id for e in entradas if e.variedad_id]
+            if variedades:
+                # La variedad más frecuente entre las entradas de la OS
+                self.variedad_id = max(set(variedades), key=variedades.count)
+            self.es_semilla = any(entradas.mapped('es_semilla'))
+
     @api.onchange('vehiculo_id')
     def _onchange_vehiculo_datos(self):
         """Auto-llenar transportadora y conductor desde el vehículo seleccionado.
