@@ -779,23 +779,22 @@ class SecadoraPesaje(models.Model):
         lineas = []
         for d in self.despacho_bultos_ids:
             reg = d.registro_bultos_id
-            detalle = f"{d.cantidad} bultos x {reg.peso_promedio:g} kg"
-            extras = [
-                reg.producto_id.display_name if reg.producto_id else '',
-                f"OS {reg.orden_id.name}" if reg.orden_id else '',
-            ]
-            extras = [e for e in extras if e]
-            if extras:
-                detalle += f" ({', '.join(extras)})"
-            detalle += f" = {d.peso_subtotal:,.0f} kg"
+            detalle = f"{d.cantidad} bultos"
+            if reg.orden_id:
+                detalle += f" ({reg.orden_id.name})"
             lineas.append(detalle)
         total_bultos = sum(self.despacho_bultos_ids.mapped('cantidad'))
-        resumen = (
-            'Despacho: ' + '; '.join(lineas)
-            + f". Total: {total_bultos} bultos = "
-              f"{self.peso_total_bultos_despacho:,.0f} kg"
-              f" (báscula: {self.peso_neto:,.0f} kg)."
-        )
+        productos = ', '.join(dict.fromkeys(
+            d.registro_bultos_id.producto_id.display_name
+            for d in self.despacho_bultos_ids
+            if d.registro_bultos_id.producto_id))
+        resumen = 'Despacho'
+        if productos:
+            resumen += f' {productos}'
+        resumen += ': ' + ', '.join(lineas)
+        if len(lineas) > 1:
+            resumen += f" = {total_bultos} bultos"
+        resumen += f" / {self.peso_total_bultos_despacho:,.0f} kg."
         base = self.observaciones or ''
         if 'Despacho:' in base:
             base = base.split('Despacho:')[0].rstrip()
