@@ -7,9 +7,15 @@
             <field name="sequence">22</field>
         </record>
 
-        <record id="group_gerencia" model="res.groups">
+        <!-- Privilegio (v19): agrupa el grupo bajo la categoría en Ajustes > Usuarios -->
+        <record id="res_groups_privilege_gerencia" model="res.groups.privilege">
             <field name="name">Gerencia</field>
             <field name="category_id" ref="module_category_gerencia"/>
+        </record>
+
+        <record id="group_gerencia" model="res.groups">
+            <field name="name">Gerencia</field>
+            <field name="privilege_id" ref="res_groups_privilege_gerencia"/>
             <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
             <field name="comment">Acceso al menú Gerencia: reportes de producción y tablero gerencial.</field>
         </record>
