@@ -4,6 +4,7 @@ import json
 import logging
 from odoo import http, api, SUPERUSER_ID
 from odoo.http import request, Response
+from odoo.modules.registry import Registry
 
 _logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ def _json_response(data, status=200):
 
 def _get_env_from_db(db_name):
     """Obtiene un Environment para la BD especificada (para auth='none')."""
-    registry = api.Registry(db_name)
+    registry = Registry(db_name)
     cr = registry.cursor()
     env = api.Environment(cr, SUPERUSER_ID, {})
     return env, cr
