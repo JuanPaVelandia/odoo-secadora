@@ -24,8 +24,8 @@ class AccountMove(models.Model):
         # compañías por las reglas multi-compañía).
         maquinaria_keys = {
             str(a.id) for a in self.env['account.analytic.account'].sudo().search([
-                ('name', '=', 'Maquinaria'),
-                ('plan_id.name', '=', 'Unidad de negocio'),
+                ('name', '=ilike', 'maquinaria'),
+                ('plan_id.name', '=ilike', 'unidad de negocio'),
             ])
         }
         if not maquinaria_keys:
