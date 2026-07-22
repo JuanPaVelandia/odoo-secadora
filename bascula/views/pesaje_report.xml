@@ -66,6 +66,9 @@
                     <div style="display: inline-block; border: 2px solid #111; padding: 2px 14px; font-size: 13px; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase;">
                         <strong t-field="o.tipo_proceso"/>
                     </div>
+                    <div style="font-size: 10px; letter-spacing: 2px; color: #555; margin-top: 5px; text-transform: uppercase;">
+                        <span t-field="o.tipo_operacion_id"/><t t-if="o.orden_servicio_id"> &#183; <span t-field="o.orden_servicio_id.name"/></t>
+                    </div>
                 </div>
 
                 <!-- Fila de datos generales: 5 columnas flotadas -->
@@ -116,10 +119,28 @@
                     <div style="font-size: 11px; letter-spacing: 2px; margin-bottom: 5px;"><strong>ORIGEN Y DESTINO</strong></div>
                     <div style="overflow: hidden; font-size: 13px;">
                         <div style="float: left; width: 36%; box-sizing: border-box; padding: 2px 10px 2px 0;"><strong>ORIGEN:</strong> <span t-field="o.origen_id"/></div>
-                        <div style="float: left; width: 22%; box-sizing: border-box; padding: 2px 10px; border-left: 1px solid #ccc;"><strong>LOTE:</strong> <span t-field="o.lote_finca"/></div>
+                        <div style="float: left; width: 22%; box-sizing: border-box; padding: 2px 10px; border-left: 1px solid #ccc;"><strong>LOTE:</strong>
+                            <t t-if="o.carga_mixta and o.distribucion_ids">MIXTO</t>
+                            <t t-elif="o.lote_id"><span t-field="o.lote_id.name"/></t>
+                            <t t-else=""><span t-field="o.lote_finca"/></t>
+                        </div>
                         <div style="float: left; width: 42%; box-sizing: border-box; padding: 2px 0 2px 10px; border-left: 1px solid #ccc;"><strong>DESTINO:</strong> <span t-field="o.destino_id"/></div>
                     </div>
                 </div>
+
+                <!-- Detalle de carga mixta: una línea por finca/lote -->
+                <t t-if="o.carga_mixta and o.distribucion_ids">
+                    <div style="margin-bottom: 12px; padding: 0 2px;">
+                        <div style="font-size: 11px; letter-spacing: 2px; margin-bottom: 4px;"><strong>DISTRIBUCIÓN POR LOTE</strong></div>
+                        <t t-foreach="o.distribucion_ids" t-as="d">
+                            <div style="overflow: hidden; font-size: 11px; padding: 2px 0; border-bottom: 1px solid #eee;">
+                                <div style="float: left; width: 46%; box-sizing: border-box; padding-right: 8px;"><span t-field="d.finca_id.name"/> — Lote <span t-field="d.lote_id.name"/></div>
+                                <div style="float: left; width: 24%; box-sizing: border-box; text-align: right;"><span t-field="d.bultos"/> bultos</div>
+                                <div style="float: left; width: 30%; box-sizing: border-box; text-align: right;"><strong><span t-field="d.peso_kg" t-options='{"widget": "float", "precision": 0}'/> Kg</strong></div>
+                            </div>
+                        </t>
+                    </div>
+                </t>
 
                 <!-- Pesos: caja redondeada, neto sobre banda gris -->
                 <div style="border: 1px solid #333; border-radius: 8px; padding: 5px 0 6px 0; margin-bottom: 12px;">
@@ -176,8 +197,10 @@
                         <div class="page">
                             <t t-call="bascula.report_pesaje_tiquete_body"/>
 
-                            <!-- Firmas: sin tabla, dos columnas flotadas -->
-                            <div style="overflow: hidden; margin-top: 10px; font-family: Arial, Helvetica, sans-serif;">
+                            <!-- Firmas: sin tabla, dos columnas flotadas.
+                                 margin-top generoso: es el espacio donde la
+                                 gente firma, encima de la línea. -->
+                            <div style="overflow: hidden; margin-top: 65px; font-family: Arial, Helvetica, sans-serif;">
                                 <div style="float: left; width: 50%; box-sizing: border-box; padding: 0 30px;">
                                     <div style="border-top: 1px solid #111; padding-top: 5px; font-size: 12px; text-align: center;">Firma del Basculero</div>
                                 </div>

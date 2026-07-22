@@ -3,7 +3,7 @@
 from datetime import datetime
 import pytz
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class SecadoraPesaje(models.Model):
@@ -175,9 +175,27 @@ class SecadoraPesaje(models.Model):
         tracking=True,
         help='Lugar de origen (finca, bodega, etc.)'
     )
-    lote_finca = fields.Char(
+    lote_id = fields.Many2one(
+        'secadora.lote',
         string='Lote',
-        help='Lote o número específico (ej: 180, La Esperanza)'
+        tracking=True,
+        domain="[('finca_id', '=', origen_id)]",
+        help='Lote de la finca de origen. Para cargas de varios lotes, marcar "Carga Mixta".',
+    )
+    carga_mixta = fields.Boolean(
+        string='Carga Mixta',
+        help='Marcar cuando la mula trae arroz de varios lotes/fincas. '
+             'El peso neto se prorratea por bultos entre las líneas de distribución.',
+    )
+    distribucion_ids = fields.One2many(
+        'secadora.pesaje.distribucion',
+        'pesaje_id',
+        string='Distribución por Finca/Lote',
+    )
+    lote_finca = fields.Char(
+        string='Lote (texto legacy)',
+        help='(Legacy) Texto libre del lote, migrado al catálogo en lote_id. '
+             'Se conserva como respaldo de auditoría de la migración.'
     )
     destino_id = fields.Many2one(
         'secadora.lugar',
@@ -390,6 +408,64 @@ class SecadoraPesaje(models.Model):
             self.origen_id = planta
             if self.destino_id == planta:
                 self.destino_id = False
+
+    @api.onchange('origen_id')
+    def _onchange_origen_lote(self):
+        """Limpiar el lote si no pertenece a la nueva finca de origen.
+
+        No se limpia la distribución de carga mixta: sus líneas pueden
+        referirse a fincas distintas del origen del pesaje.
+        """
+        if self.lote_id and self.lote_id.finca_id != self.origen_id:
+            self.lote_id = False
+
+    @api.onchange('carga_mixta')
+    def _onchange_carga_mixta(self):
+        if self.carga_mixta:
+            self.lote_id = False
+        elif self.distribucion_ids:
+            return {
+                'warning': {
+                    'title': 'Carga mixta con líneas',
+                    'message': 'Este pesaje tiene líneas de distribución por lote. '
+                               'Mientras existan, el reporte de producción usará las líneas. '
+                               'Elimínalas si la carga es de un solo lote.',
+                }
+            }
+
+    @api.constrains('bultos', 'distribucion_ids')
+    def _check_distribucion_bultos(self):
+        """La distribución por lote debe cuadrar con los bultos del pesaje."""
+        for record in self:
+            if record.distribucion_ids and record.bultos > 0:
+                total_lineas = sum(record.distribucion_ids.mapped('bultos'))
+                if total_lineas != record.bultos:
+                    raise ValidationError(
+                        f'La distribución por finca/lote no cuadra con los bultos del pesaje.\n'
+                        f'Bultos del pesaje: {record.bultos}\n'
+                        f'Bultos distribuidos: {total_lineas}'
+                    )
+
+    @api.onchange('despacho_bultos_ids')
+    def _onchange_despacho_producto_calidad(self):
+        """Al escoger bultos empacados en una salida, auto-llenar Producto y
+        Calidad: producto desde el registro de bultos, y variedad/es_semilla
+        desde los pesajes de entrada de la orden de servicio del registro."""
+        if self.direccion != 'salida':
+            return
+        registros = self.despacho_bultos_ids.mapped('registro_bultos_id')
+        if not registros:
+            return
+        registro = registros[0]
+        if registro.producto_id:
+            self.producto_id = registro.producto_id
+        entradas = registro.orden_id.pesaje_entrada_ids
+        if entradas:
+            variedades = [e.variedad_id for e in entradas if e.variedad_id]
+            if variedades:
+                # La variedad más frecuente entre las entradas de la OS
+                self.variedad_id = max(set(variedades), key=variedades.count)
+            self.es_semilla = any(entradas.mapped('es_semilla'))
 
     @api.onchange('vehiculo_id')
     def _onchange_vehiculo_datos(self):
@@ -667,6 +743,42 @@ class SecadoraPesaje(models.Model):
             # Confirmar líneas de despacho de bultos
             if record.despacho_bultos_ids:
                 record.despacho_bultos_ids.write({'confirmado': True})
+                record._aplicar_resumen_despacho()
+
+    def _aplicar_resumen_despacho(self):
+        """Escribe en observaciones un resumen del despacho de bultos.
+
+        Las observaciones se imprimen en el tiquete, así el conductor y el
+        cliente ven qué bultos salieron. Si el pesaje se reabre y se vuelve a
+        completar, el resumen anterior se reemplaza (se conserva el texto que
+        el basculero haya escrito antes del resumen).
+        """
+        self.ensure_one()
+        if self.direccion != 'salida' or not self.despacho_bultos_ids:
+            return
+        lineas = []
+        for d in self.despacho_bultos_ids:
+            reg = d.registro_bultos_id
+            detalle = f"{d.cantidad} bultos"
+            if reg.orden_id:
+                detalle += f" ({reg.orden_id.name})"
+            lineas.append(detalle)
+        total_bultos = sum(self.despacho_bultos_ids.mapped('cantidad'))
+        productos = ', '.join(dict.fromkeys(
+            d.registro_bultos_id.producto_id.display_name
+            for d in self.despacho_bultos_ids
+            if d.registro_bultos_id.producto_id))
+        resumen = 'Despacho'
+        if productos:
+            resumen += f' {productos}'
+        resumen += ': ' + ', '.join(lineas)
+        if len(lineas) > 1:
+            resumen += f" = {total_bultos} bultos"
+        resumen += f" / {self.peso_total_bultos_despacho:,.0f} kg."
+        base = self.observaciones or ''
+        if 'Despacho:' in base:
+            base = base.split('Despacho:')[0].rstrip()
+        self.observaciones = (base + '\n' if base else '') + resumen
 
     def action_cancelar(self):
         for record in self:

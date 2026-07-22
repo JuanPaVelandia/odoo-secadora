@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Pivot -->
+        <record id="view_produccion_lote_report_pivot" model="ir.ui.view">
+            <field name="name">secadora.produccion.lote.report.pivot</field>
+            <field name="model">secadora.produccion.lote.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Producción por Finca y Lote" sample="1">
+                    <field name="finca_id" type="row"/>
+                    <field name="lote_id" type="row"/>
+                    <field name="fecha" interval="month" type="col"/>
+                    <field name="peso_kg" type="measure"/>
+                    <field name="bultos" type="measure"/>
+                    <field name="produccion_ha" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Graph -->
+        <record id="view_produccion_lote_report_graph" model="ir.ui.view">
+            <field name="name">secadora.produccion.lote.report.graph</field>
+            <field name="model">secadora.produccion.lote.report</field>
+            <field name="arch" type="xml">
+                <graph string="Producción por Finca y Lote" type="bar" sample="1">
+                    <field name="finca_id"/>
+                    <field name="peso_kg" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- List de detalle (para auditar el prorrateo) -->
+        <record id="view_produccion_lote_report_list" model="ir.ui.view">
+            <field name="name">secadora.produccion.lote.report.list</field>
+            <field name="model">secadora.produccion.lote.report</field>
+            <field name="arch" type="xml">
+                <list string="Producción por Finca y Lote" create="false" edit="false" delete="false">
+                    <field name="name"/>
+                    <field name="fecha"/>
+                    <field name="finca_id"/>
+                    <field name="lote_id"/>
+                    <field name="tercero_id"/>
+                    <field name="variedad_id" optional="hide"/>
+                    <field name="placa" optional="show"/>
+                    <field name="bultos" sum="Total"/>
+                    <field name="peso_kg" sum="Total"/>
+                    <field name="hectareas" optional="hide"/>
+                    <field name="produccion_ha" optional="show" sum="Total"/>
+                    <field name="peso_kg_corregido" optional="hide" sum="Total"/>
+                    <field name="produccion_ha_corregida" optional="hide" sum="Total"/>
+                    <field name="bultos_ha" optional="hide" sum="Total"/>
+                    <field name="bultos_ha_corregido" optional="hide" sum="Total"/>
+                    <field name="humedad" optional="show"/>
+                    <field name="impurezas" optional="show"/>
+                    <field name="grano_partido" optional="hide"/>
+                    <field name="temperatura" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Search -->
+        <record id="view_produccion_lote_report_search" model="ir.ui.view">
+            <field name="name">secadora.produccion.lote.report.search</field>
+            <field name="model">secadora.produccion.lote.report</field>
+            <field name="arch" type="xml">
+                <search string="Buscar Producción">
+                    <field name="finca_id"/>
+                    <field name="lote_id"/>
+                    <field name="tercero_id"/>
+                    <field name="name"/>
+                    <field name="placa"/>
+                    <filter string="Fecha" name="filter_fecha" date="fecha"/>
+                    <group>
+                        <filter string="Finca" name="group_finca" context="{'group_by': 'finca_id'}"/>
+                        <filter string="Lote" name="group_lote" context="{'group_by': 'lote_id'}"/>
+                        <filter string="Tercero" name="group_tercero" context="{'group_by': 'tercero_id'}"/>
+                        <filter string="Variedad" name="group_variedad" context="{'group_by': 'variedad_id'}"/>
+                        <filter string="Mes" name="group_mes" context="{'group_by': 'fecha:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Acción -->
+        <record id="action_produccion_lote_report" model="ir.actions.act_window">
+            <field name="name">Producción por Lote</field>
+            <field name="res_model">secadora.produccion.lote.report</field>
+            <field name="view_mode">pivot,graph,list</field>
+            <field name="search_view_id" ref="view_produccion_lote_report_search"/>
+            <field name="context">{'search_default_group_finca': 1, 'search_default_group_lote': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Sin datos de producción todavía
+                </p>
+                <p>
+                    Entradas de arroz por finca y lote (pesajes completados).
+                    En cargas mixtas cada mula aparece una vez por lote, con el
+                    peso prorrateado por bultos; el conteo de mulas exacto está
+                    en el reporte PDF. Los promedios de calidad ignoran los
+                    valores en 0 (no medidos).
+                </p>
+            </field>
+        </record>
+
+        <!-- El menú vive en el módulo secadora_gerencia (menú Gerencia) -->
+
+    </data>
+</odoo>
