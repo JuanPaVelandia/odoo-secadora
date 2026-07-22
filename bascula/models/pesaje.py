@@ -244,6 +244,13 @@ class SecadoraPesaje(models.Model):
         digits=(12, 0),
         readonly=True
     )
+    peso_actual_fecha = fields.Datetime(
+        string='Hora del Peso Actual',
+        readonly=True,
+        help='Cuándo escribió el bridge el último peso en este pesaje. '
+             'Sin esta marca, un peso viejo quedaba pegado al registro y '
+             'las pesadas capturaban el peso de otro momento u otro camión.',
+    )
     escuchando_bascula = fields.Boolean(
         string='Escuchando Báscula',
         default=False,
@@ -644,13 +651,30 @@ class SecadoraPesaje(models.Model):
         if not ts_str:
             return 0.0
         try:
-            ts = fields.Datetime.from_string(ts_str)
+            # Tolerar el formato isoformat con 'T' de valores ya guardados.
+            ts = fields.Datetime.from_string(ts_str.replace('T', ' ')[:19])
         except (TypeError, ValueError):
             return 0.0
         antiguedad = (fields.Datetime.now() - ts).total_seconds()
         if antiguedad > self.PESO_GLOBAL_MAX_ANTIGUEDAD:
             return 0.0
         return peso
+
+    def _peso_actual_fresco(self):
+        """peso_actual del registro solo si el bridge lo escribió hace poco.
+
+        Cuando el bridge se detiene, el último peso queda guardado en el
+        registro; sin control de antigüedad, una pesada posterior capturaba
+        ese valor viejo (de otro momento u otro camión) en vez del peso real
+        de la báscula.
+        """
+        self.ensure_one()
+        if self.peso_actual <= 0 or not self.peso_actual_fecha:
+            return 0.0
+        antiguedad = (fields.Datetime.now() - self.peso_actual_fecha).total_seconds()
+        if antiguedad > self.PESO_GLOBAL_MAX_ANTIGUEDAD:
+            return 0.0
+        return self.peso_actual
 
     def action_primera_pesada(self):
         for record in self:
@@ -663,17 +687,18 @@ class SecadoraPesaje(models.Model):
             if record.state != 'borrador':
                 raise UserError('Solo se puede registrar la primera pesada en estado borrador.')
 
-            # Obtener peso actual de la báscula
-            peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+            # Obtener peso actual de la báscula (solo si es reciente)
+            peso_a_usar = record._peso_actual_fresco()
 
-            # Si no hay peso_actual en este registro (ej: registro nuevo sin
-            # guardar), usar el peso global reciente del bridge. NO se toma el
-            # peso de otro pesaje (podría ser otro camión).
+            # Si no hay peso_actual fresco en este registro (ej: registro
+            # nuevo sin guardar, o bridge detenido), usar el peso global
+            # reciente. NO se toma el peso de otro pesaje (otro camión).
             if peso_a_usar <= 0:
                 peso_global = self._peso_bascula_reciente()
                 if peso_global > 0:
                     peso_a_usar = peso_global
                     record.peso_actual = peso_a_usar
+                    record.peso_actual_fecha = fields.Datetime.now()
 
             # Validación según tipo de proceso
             if record.tipo_proceso == 'entrada':
@@ -703,16 +728,17 @@ class SecadoraPesaje(models.Model):
             if record.state != 'en_transito':
                 raise UserError('Solo se puede registrar la segunda pesada en estado en tránsito.')
 
-            # Obtener peso actual de la báscula
-            peso_a_usar = record.peso_actual if record.peso_actual > 0 else 0
+            # Obtener peso actual de la báscula (solo si es reciente)
+            peso_a_usar = record._peso_actual_fresco()
 
-            # Si no hay peso_actual en este registro, usar el peso global
-            # reciente del bridge. NO se toma el peso de otro pesaje.
+            # Si no hay peso_actual fresco en este registro, usar el peso
+            # global reciente. NO se toma el peso de otro pesaje.
             if peso_a_usar <= 0:
                 peso_global = self._peso_bascula_reciente()
                 if peso_global > 0:
                     peso_a_usar = peso_global
                     record.peso_actual = peso_a_usar
+                    record.peso_actual_fecha = fields.Datetime.now()
 
             # Validación según tipo de proceso
             if record.tipo_proceso == 'entrada':
@@ -894,18 +920,23 @@ class SecadoraPesaje(models.Model):
             # ya provee la autenticación. Los métodos de usuario (action_primera_pesada,
             # action_segunda_pesada) sí filtran por empresa del usuario.
 
-            # Guardar como peso global para formularios nuevos (sin guardar)
+            # Guardar como peso global para formularios nuevos (sin guardar).
+            # Formato estándar (no isoformat): el lector no entiende la 'T'.
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso))
             self.env['ir.config_parameter'].sudo().set_param(
                 'bascula.last_weight_timestamp',
-                fields.Datetime.now().isoformat()
+                fields.Datetime.to_string(fields.Datetime.now())
             )
 
             # Actualizar el peso SOLO en el pesaje que está en la báscula.
             # El bridge nos dice cuál es (pesaje_id). Escribir a todos los
             # pesajes activos contaminaba el peso entre camiones simultáneos.
             if pesaje.state in ('borrador', 'en_transito'):
-                pesaje.write({'peso_actual': peso, 'escuchando_bascula': True})
+                pesaje.write({
+                    'peso_actual': peso,
+                    'peso_actual_fecha': fields.Datetime.now(),
+                    'escuchando_bascula': True,
+                })
 
             return {
                 'success': True,
@@ -966,7 +997,10 @@ class SecadoraPesaje(models.Model):
                 return {'success': False, 'message': 'Peso fuera de rango'}
 
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight', str(peso_val))
-            timestamp = fields.Datetime.now().isoformat()
+            # Formato estándar de Odoo (espacio, no la 'T' de isoformat): el
+            # lector usa fields.Datetime.from_string y la 'T' lo rompía, con lo
+            # que el peso global se descartaba SIEMPRE por "viejo".
+            timestamp = fields.Datetime.to_string(fields.Datetime.now())
             self.env['ir.config_parameter'].sudo().set_param('bascula.last_weight_timestamp', timestamp)
 
             # Solo se guarda el peso global (para formularios nuevos sin guardar).
@@ -1009,8 +1043,11 @@ class SecadoraPesaje(models.Model):
     def action_usar_peso_actual(self):
         """Usar el peso actual de la báscula y asignarlo al campo correspondiente"""
         for record in self:
-            if record.peso_actual <= 0:
-                raise UserError('No hay peso actual de la báscula disponible.')
+            if record._peso_actual_fresco() <= 0:
+                raise UserError(
+                    'No hay peso reciente de la báscula. Verifica que el '
+                    'bridge/simulador esté corriendo y enviando datos.'
+                )
 
             if record.state == 'borrador':
                 # Asignar a peso bruto (entrada) o peso tara (salida)
