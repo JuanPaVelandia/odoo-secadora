@@ -37,8 +37,11 @@
                 </button>
             </xpath>
 
-            <!-- Campo de ubicación (secadora.lugar) -->
-            <xpath expr="//field[@name='owner_user_id']" position="after">
+            <!-- Campo de ubicación (secadora.lugar).
+                 Se ancla en category_id (siempre presente) en vez de owner_user_id,
+                 porque el módulo core hr_maintenance reemplaza owner_user_id por
+                 employee_id en el formulario cuando hr está instalado. -->
+            <xpath expr="//field[@name='category_id']" position="after">
                 <field name="lugar_id"/>
             </xpath>
 
