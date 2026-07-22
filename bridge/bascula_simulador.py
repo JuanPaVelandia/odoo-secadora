@@ -160,7 +160,7 @@ class BasculaSimulador:
             response = requests.post(
                 url,
                 json=payload,
-                headers={'Content-Type': 'application/json'},
+                headers={'Content-Type': 'application/json', 'X-Odoo-Database': ODOO_DB},
                 timeout=5
             )
 
@@ -213,7 +213,7 @@ class BasculaSimulador:
             response = requests.post(
                 url,
                 json=payload,
-                headers={'Content-Type': 'application/json'},
+                headers={'Content-Type': 'application/json', 'X-Odoo-Database': ODOO_DB},
                 timeout=3
             )
 
@@ -249,7 +249,7 @@ class BasculaSimulador:
             response = requests.post(
                 url,
                 json=payload,
-                headers={'Content-Type': 'application/json'},
+                headers={'Content-Type': 'application/json', 'X-Odoo-Database': ODOO_DB},
                 timeout=3
             )
 
