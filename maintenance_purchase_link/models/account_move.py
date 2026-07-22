@@ -19,19 +19,24 @@ class AccountMove(models.Model):
     def _auto_create_maintenance_cost_lines(self):
         """Crear cost lines automáticamente para líneas con Unidad de negocio = Maquinaria."""
         CostLine = self.env['maintenance.equipment.cost.line']
-        maquinaria_account = self.env['account.analytic.account'].search([
-            ('name', '=', 'Maquinaria'),
-            ('plan_id.name', '=', 'Unidad de negocio'),
-        ], limit=1)
-        if not maquinaria_account:
+        # Hay una cuenta "Maquinaria" POR COMPAÑÍA: aceptar cualquiera de
+        # ellas (con sudo: el usuario que publica puede no ver las de otras
+        # compañías por las reglas multi-compañía).
+        maquinaria_keys = {
+            str(a.id) for a in self.env['account.analytic.account'].sudo().search([
+                ('name', '=', 'Maquinaria'),
+                ('plan_id.name', '=', 'Unidad de negocio'),
+            ])
+        }
+        if not maquinaria_keys:
             return
-
-        maquinaria_key = str(maquinaria_account.id)
 
         for move in self.filtered(lambda m: m.move_type == 'in_invoice'):
             for ml in move.invoice_line_ids.filtered(lambda l: l.display_type == 'product'):
                 distribution = ml.analytic_distribution or {}
-                if maquinaria_key not in distribution:
+                # Las claves de la distribución pueden ser compuestas
+                # ("16,45") cuando la línea combina varios planes analíticos.
+                if not any(maquinaria_keys & set(k.split(',')) for k in distribution):
                     continue
 
                 # Solo crear si no existe ya una cost line para esta línea

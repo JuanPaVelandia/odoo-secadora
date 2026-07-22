@@ -56,18 +56,22 @@ class AccountMoveLine(models.Model):
     @api.constrains('equipment_cost_line_ids', 'maintenance_request_ids', 'analytic_distribution')
     def _check_maintenance_analytic(self):
         """No permitir asociar equipo/OT si la línea no tiene Unidad de negocio = Maquinaria."""
-        maquinaria_account = self.env['account.analytic.account'].search([
-            ('name', '=', 'Maquinaria'),
-            ('plan_id.name', '=', 'Unidad de negocio'),
-        ], limit=1)
-        if not maquinaria_account:
+        # Una cuenta "Maquinaria" por compañía: aceptar cualquiera (sudo por
+        # las reglas multi-compañía). Las claves pueden ser compuestas
+        # ("16,45") cuando la línea combina varios planes analíticos.
+        maquinaria_keys = {
+            str(a.id) for a in self.env['account.analytic.account'].sudo().search([
+                ('name', '=', 'Maquinaria'),
+                ('plan_id.name', '=', 'Unidad de negocio'),
+            ])
+        }
+        if not maquinaria_keys:
             return
-        maquinaria_key = str(maquinaria_account.id)
         for line in self:
             if not line.equipment_cost_line_ids and not line.maintenance_request_ids:
                 continue
             distribution = line.analytic_distribution or {}
-            if maquinaria_key not in distribution:
+            if not any(maquinaria_keys & set(k.split(',')) for k in distribution):
                 raise ValidationError(_(
                     'Solo puede asociar equipos u órdenes de trabajo a líneas '
                     'con Unidad de negocio = "Maquinaria".'
