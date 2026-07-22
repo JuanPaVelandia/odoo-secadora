@@ -104,6 +104,7 @@
                                 <field name="peso_actual"
                                        widget="peso_actual_field"
                                        nolabel="1"
+                                       colspan="2"
                                        invisible="state == 'completado' or state == 'cancelado'"/>
                                 <field name="escuchando_bascula" invisible="1"/>
 
