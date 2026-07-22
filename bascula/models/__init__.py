@@ -18,3 +18,4 @@ from . import orden_servicio_linea
 from . import servicio_regla
 from . import producto
 from . import res_partner
+from . import res_partner_bank

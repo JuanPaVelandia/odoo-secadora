@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Báscula Secadora La Gran Colombia',
-    'version': '19.0.2.2.0',
+    'version': '19.0.2.3.0',
     'category': 'Operations',
     'summary': 'Módulo de pesaje para secadora de arroz',
     'description': """
@@ -48,6 +48,7 @@
         'views/pesaje_report.xml',
         'views/registro_bultos_views.xml',
         'views/partner_views.xml',
+        'views/res_partner_bank_views.xml',
         'views/res_config_settings_views.xml',
         'views/menu_views.xml',
         'views/producto_views.xml',

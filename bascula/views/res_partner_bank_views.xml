@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Tipo de cuenta en el formulario de cuenta bancaria (el diálogo
+             que abre el contacto al agregar una cuenta) -->
+        <record id="view_partner_bank_form_inherit_tipo" model="ir.ui.view">
+            <field name="name">res.partner.bank.form.inherit.tipo</field>
+            <field name="model">res.partner.bank</field>
+            <field name="inherit_id" ref="base.view_partner_bank_form"/>
+            <field name="arch" type="xml">
+                <field name="acc_number" position="after">
+                    <field name="type_account"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Y en la lista de cuentas bancarias -->
+        <record id="view_partner_bank_list_inherit_tipo" model="ir.ui.view">
+            <field name="name">res.partner.bank.list.inherit.tipo</field>
+            <field name="model">res.partner.bank</field>
+            <field name="inherit_id" ref="base.view_partner_bank_tree"/>
+            <field name="arch" type="xml">
+                <field name="acc_number" position="after">
+                    <field name="type_account" optional="show"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>
