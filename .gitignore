@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# Odoo
+*.pyc
+*.pyo
+*.swp
+*.swo
+.~lock.*
+*.log
+bascula_simulador.log
+
+# Base de datos / backups
+*.sql
+*.dump
+*.bak
+
+# IDE / Editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*~
+.DS_Store
+
+# Claude / herramientas locales
+.claude/settings.local.json
+
+# Archivos temporales
+*.tmp
+*.temp
+tmp/
