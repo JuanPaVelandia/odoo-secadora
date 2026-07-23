@@ -25,6 +25,14 @@ class SecadoraTarifaFlete(models.Model):
         required=True,
         index=True,
     )
+    producto_id = fields.Many2one(
+        'product.product',
+        string='Producto',
+        index=True,
+        help='Producto al que aplica esta tarifa. Vacío = tarifa general para '
+             'cualquier producto de la ruta. Si hay una tarifa específica para '
+             'el producto del flete, esa tiene prioridad sobre la general.',
+    )
     tarifa_tipo = fields.Selection([
         ('por_kg', 'Por Kilogramo'),
         ('por_viaje', 'Por Viaje'),

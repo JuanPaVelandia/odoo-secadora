@@ -341,19 +341,31 @@ class SecadoraFlete(models.Model):
     # ==================== ONCHANGE ====================
 
     @api.model
-    def _buscar_tarifa(self, origen_id, destino_id):
-        """Busca tarifa activa para el par origen→destino."""
+    def _buscar_tarifa(self, origen_id, destino_id, producto_id=False):
+        """Busca la tarifa activa de la ruta, priorizando la del producto.
+
+        Si existe una tarifa específica para el producto del flete, se usa esa
+        (p.ej. cascarilla por viaje); si no, la tarifa general de la ruta
+        (producto vacío, p.ej. arroz por kg).
+        """
         if not origen_id or not destino_id:
             return False
-        return self.env['secadora.tarifa.flete'].search([
+        Tarifa = self.env['secadora.tarifa.flete']
+        base = [
             ('origen_id', '=', origen_id),
             ('destino_id', '=', destino_id),
             ('active', '=', True),
-        ], limit=1)
+        ]
+        if producto_id:
+            especifica = Tarifa.search(base + [('producto_id', '=', producto_id)], limit=1)
+            if especifica:
+                return especifica
+        return Tarifa.search(base + [('producto_id', '=', False)], limit=1)
 
     def _aplicar_tarifa(self):
         """Aplica tarifa encontrada a los campos del flete."""
-        tarifa = self._buscar_tarifa(self.origen_id.id, self.destino_id.id)
+        tarifa = self._buscar_tarifa(
+            self.origen_id.id, self.destino_id.id, self.producto_id.id)
         if tarifa:
             self.tarifa_id = tarifa
             self.tarifa_tipo = tarifa.tarifa_tipo
@@ -370,6 +382,12 @@ class SecadoraFlete(models.Model):
     def _onchange_destino_id(self):
         if self.destino_id and self.destino_id.company_id:
             self.empresa_destino_id = self.destino_id.company_id
+        if self.origen_id and self.destino_id:
+            self._aplicar_tarifa()
+
+    @api.onchange('producto_id')
+    def _onchange_producto_tarifa(self):
+        # Al cambiar el producto, re-evaluar la tarifa (arroz vs cascarilla)
         if self.origen_id and self.destino_id:
             self._aplicar_tarifa()
 
@@ -429,7 +447,8 @@ class SecadoraFlete(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.flete') or 'Nuevo'
             # Auto-aplicar tarifa si no viene tarifa_unitaria
             if not vals.get('tarifa_unitaria') and vals.get('origen_id') and vals.get('destino_id'):
-                tarifa = self._buscar_tarifa(vals['origen_id'], vals['destino_id'])
+                tarifa = self._buscar_tarifa(
+                    vals['origen_id'], vals['destino_id'], vals.get('producto_id'))
                 if tarifa:
                     vals['tarifa_id'] = tarifa.id
                     vals['tarifa_tipo'] = tarifa.tarifa_tipo

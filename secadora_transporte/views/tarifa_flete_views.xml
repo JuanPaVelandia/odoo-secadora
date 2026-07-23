@@ -13,6 +13,9 @@
                             <group string="Ruta">
                                 <field name="origen_id"/>
                                 <field name="destino_id"/>
+                                <field name="producto_id"
+                                       options="{'no_create': True}"
+                                       placeholder="Vacío = cualquier producto"/>
                                 <field name="active"/>
                             </group>
                             <group string="Tarifa">
@@ -36,6 +39,7 @@
                 <list string="Tarifas de Flete" editable="bottom">
                     <field name="origen_id"/>
                     <field name="destino_id"/>
+                    <field name="producto_id" options="{'no_create': True}"/>
                     <field name="tarifa_tipo"/>
                     <field name="tarifa_unitaria"/>
                     <field name="active" optional="hide"/>
