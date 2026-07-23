@@ -97,19 +97,35 @@ class SecadoraPesaje(models.Model):
 
     def write(self, vals):
         res = super().write(vals)
-        if 'humedad' in vals or 'impurezas' in vals:
+        # El peso_neto es computado (bruto - tara); detectar su cambio por las fuentes
+        cambia_peso = bool({'peso_bruto', 'peso_tara'} & set(vals))
+        if 'humedad' in vals or 'impurezas' in vals or 'variedad_id' in vals or cambia_peso:
             for rec in self:
                 update = {}
                 if 'humedad' in vals:
                     update['humedad'] = rec.humedad
                 if 'impurezas' in vals:
                     update['impurezas'] = rec.impurezas
+                if 'variedad_id' in vals:
+                    update['variedad_id'] = rec.variedad_id.id if rec.variedad_id else False
                 posiciones = self.env['secadora.posicion.arroz'].search([
                     ('pesaje_id', '=', rec.id),
                     ('es_comercial', '=', False),
                 ])
-                if posiciones:
+                if update and posiciones:
                     posiciones.write(update)
+                # El peso solo se sincroniza a una posición ÚNICA e intacta:
+                # activa, sin dividir ni combinar. Si ya se manipuló en el
+                # tablero, corregir el peso del pesaje NO debe alterarlo.
+                if cambia_peso:
+                    intactas = posiciones.filtered(
+                        lambda p: p.state == 'activo'
+                        and not p.posicion_origen_id
+                        and not p.posicion_hija_ids
+                    )
+                    if len(intactas) == 1:
+                        nuevo = rec.peso_bruto - rec.peso_tara
+                        intactas.write({'peso_kg': nuevo, 'peso_original': nuevo})
                 # Propagar a fletes vinculados
                 fletes = self.env['secadora.flete'].search([
                     ('pesaje_id', '=', rec.id),
