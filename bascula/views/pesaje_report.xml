@@ -192,6 +192,12 @@
         <!-- Tiquete imprimible: cuerpo + firmas + pie de página -->
         <template id="report_pesaje_tiquete_document">
             <t t-call="web.html_container">
+                <!-- Forzar media carta VERTICAL en la impresión: sin esta regla
+                     @page, el diálogo de impresión de Chrome/Windows a veces
+                     reinterpreta la orientación y saca el tiquete apaisado. -->
+                <style>
+                    @page { size: 140mm 216mm portrait; margin: 0; }
+                </style>
                 <t t-foreach="docs" t-as="o">
                     <t t-call="web.basic_layout">
                         <div class="page">
