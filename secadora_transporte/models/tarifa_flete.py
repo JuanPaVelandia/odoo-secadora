@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class SecadoraTarifaFlete(models.Model):
     _name = 'secadora.tarifa.flete'
     _description = 'Tarifa de Flete por Ruta'
     _order = 'origen_id, destino_id'
-    _ruta_unica = models.Constraint(
-        'UNIQUE(origen_id, destino_id)',
-        'Ya existe una tarifa para esta ruta (origen → destino).',
+    _ruta_producto_unico = models.Constraint(
+        'UNIQUE(origen_id, destino_id, producto_id)',
+        'Ya existe una tarifa para esta ruta y producto (origen → destino → producto).',
     )
 
     origen_id = fields.Many2one(
@@ -46,6 +46,27 @@ class SecadoraTarifaFlete(models.Model):
     )
     active = fields.Boolean(string='Activo', default=True)
     notas = fields.Text(string='Notas')
+
+    @api.constrains('origen_id', 'destino_id', 'producto_id')
+    def _check_general_unica(self):
+        """Una sola tarifa GENERAL (sin producto) por ruta.
+
+        El UNIQUE de PostgreSQL trata cada NULL como distinto, así que no
+        impide dos tarifas generales de la misma ruta; se valida aquí.
+        """
+        for rec in self:
+            if rec.producto_id:
+                continue
+            dup = self.search_count([
+                ('origen_id', '=', rec.origen_id.id),
+                ('destino_id', '=', rec.destino_id.id),
+                ('producto_id', '=', False),
+                ('id', '!=', rec.id),
+            ])
+            if dup:
+                raise ValidationError(
+                    'Ya existe una tarifa general (sin producto) para esta ruta. '
+                    'Edita esa, o asígnale un producto a esta tarifa.')
 
     @api.constrains('origen_id', 'destino_id')
     def _check_origen_destino_diferente(self):
