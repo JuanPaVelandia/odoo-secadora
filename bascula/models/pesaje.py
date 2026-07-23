@@ -1033,6 +1033,36 @@ class SecadoraPesaje(models.Model):
             'timestamp': timestamp,
         }
 
+    @api.model
+    def recibir_peso_web_serial(self, peso, pesaje_id=False):
+        """Recibe el peso leído por el navegador vía Web Serial API.
+
+        Lo llama el widget del pesaje (usuario autenticado en Odoo, sin API
+        key: la sesión ya autentica). Guarda el peso global (para formularios
+        nuevos sin guardar) y, si el pesaje ya existe, también en el registro.
+        """
+        try:
+            peso_val = float(peso)
+        except (TypeError, ValueError):
+            return {'success': False, 'message': 'Peso inválido'}
+        if peso_val < 0 or peso_val > 100000:
+            return {'success': False, 'message': 'Peso fuera de rango'}
+
+        ahora = fields.Datetime.now()
+        Param = self.env['ir.config_parameter'].sudo()
+        Param.set_param('bascula.last_weight', str(peso_val))
+        Param.set_param('bascula.last_weight_timestamp', fields.Datetime.to_string(ahora))
+
+        if pesaje_id:
+            pesaje = self.browse(pesaje_id).exists()
+            if pesaje and pesaje.state in ('borrador', 'en_transito'):
+                pesaje.write({
+                    'peso_actual': peso_val,
+                    'peso_actual_fecha': ahora,
+                    'escuchando_bascula': True,
+                })
+        return {'success': True, 'peso_actual': peso_val}
+
     def action_refrescar_peso(self):
         """Refrescar el peso actual desde la base de datos"""
         for record in self:

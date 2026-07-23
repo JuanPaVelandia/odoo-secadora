@@ -11,6 +11,23 @@
                     <small style="color: #666;">
                         Actualizado: <t t-esc="state.timestamp"/>
                     </small>
+                    <div style="margin-top: 10px;">
+                        <t t-if="!state.soportado">
+                            <span class="text-danger" style="font-size: 12px;">
+                                Este navegador no lee la báscula. Usa Chrome o Edge.
+                            </span>
+                        </t>
+                        <t t-elif="state.conectado">
+                            <span class="badge text-bg-success">
+                                <i class="fa fa-link me-1"/> Báscula conectada
+                            </span>
+                        </t>
+                        <t t-else="">
+                            <button type="button" class="btn btn-primary btn-sm" t-on-click="() => this.conectar()">
+                                <i class="fa fa-plug me-1"/> Conectar báscula
+                            </button>
+                        </t>
+                    </div>
                 </div>
             </div>
         </div>
