@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, models, fields
+from odoo import models, fields
 
 
 class SecadoraLugar(models.Model):
@@ -53,20 +53,6 @@ class SecadoraLugar(models.Model):
 
     def _get_analytic_plan_punto_operativo(self):
         return self.env.ref('bascula.analytic_plan_punto_operativo', raise_if_not_found=False)
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        records = super().create(vals_list)
-        plan = self._get_analytic_plan_punto_operativo()
-        if plan:
-            for rec in records:
-                if not rec.analytic_account_id:
-                    account = self.env['account.analytic.account'].create({
-                        'name': rec.name,
-                        'plan_id': plan.id,
-                    })
-                    rec.analytic_account_id = account
-        return records
 
     def write(self, vals):
         res = super().write(vals)
