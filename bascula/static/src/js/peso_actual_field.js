@@ -81,11 +81,26 @@ class PesoActualField extends Component {
                 stopBits: 1,
             });
         } catch (e) {
-            // Ya abierto o en uso: intentamos leer igual.
-            if (e && e.name !== "InvalidStateError") {
-                this.notification.add("Error abriendo la báscula: " + e.message, {
-                    type: "danger",
+            if (e && e.name === "InvalidStateError") {
+                // El puerto ya estaba abierto (otra pestaña, o esta misma):
+                // se puede leer sin volver a abrir.
+                this.notification.add("La báscula ya estaba abierta, reutilizando.", {
+                    type: "info",
                 });
+            } else if (e && e.name === "NetworkError") {
+                // Causa típica: el puerto está ocupado por otro programa
+                // (el bridge/simulador Python, u otro software de báscula).
+                this.notification.add(
+                    "El puerto de la báscula está ocupado por otro programa. " +
+                        "Cierra el simulador/bridge de Python u otras pestañas y reintenta.",
+                    { type: "danger", sticky: true }
+                );
+                return;
+            } else {
+                this.notification.add(
+                    "No se pudo abrir la báscula: " + (e ? e.message : "error desconocido"),
+                    { type: "danger", sticky: true }
+                );
                 return;
             }
         }
