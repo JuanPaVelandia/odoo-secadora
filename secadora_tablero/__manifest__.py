@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Tablero de Arroz en Planta',
-    'version': '19.0.1.2.0',
+    'version': '19.0.1.3.0',
     'category': 'Operations',
     'summary': 'Tablero Kanban para rastrear arroz en ubicaciones físicas de la planta',
     'description': """
