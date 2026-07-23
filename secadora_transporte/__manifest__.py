@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Transporte - Secadora La Gran Colombia',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Operations',
     'summary': 'Gestión de fletes y transporte de arroz',
     'description': """

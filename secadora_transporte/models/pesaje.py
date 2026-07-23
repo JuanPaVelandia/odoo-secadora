@@ -164,7 +164,10 @@ class SecadoraPesajeTransporte(models.Model):
             vals['empresa_destino_id'] = self.destino_id.company_id.id
         try:
             with self.env.cr.savepoint():
-                self.env['secadora.flete'].create(vals)
+                # sudo: la empresa del arroz (company_id del flete) puede diferir
+                # de la compañía activa del usuario; sin sudo la regla
+                # multi-compañía bloquea la creación y el flete no se genera.
+                self.env['secadora.flete'].sudo().create(vals)
         except IntegrityError:
             _logger.info('Flete duplicado evitado para pesaje %s (race condition)', self.name)
 
