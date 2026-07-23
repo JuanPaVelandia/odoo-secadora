@@ -5,12 +5,19 @@
             <div class="alert alert-success" style="padding: 15px; background-color: #d4edda; border: 2px solid #28a745; margin: 0;">
                 <div style="text-align: center;">
                     <strong style="font-size: 14px;">PESO ACTUAL DESDE BASCULA</strong><br/>
-                    <span style="font-size: 48px; font-weight: bold; color: #28a745;">
-                        <t t-esc="formattedPeso"/> Kg
-                    </span><br/>
-                    <small style="color: #666;">
-                        Actualizado: <t t-esc="state.timestamp"/>
-                    </small>
+                    <t t-if="state.recibido">
+                        <span style="font-size: 48px; font-weight: bold; color: #28a745;">
+                            <t t-esc="formattedPeso"/> Kg
+                        </span><br/>
+                        <small style="color: #666;">
+                            Actualizado: <t t-esc="state.timestamp"/>
+                        </small>
+                    </t>
+                    <t t-else="">
+                        <span style="font-size: 28px; font-weight: bold; color: #888;">
+                            Esperando báscula…
+                        </span>
+                    </t>
                     <div style="margin-top: 10px;">
                         <t t-if="!state.soportado">
                             <span class="text-danger" style="font-size: 12px;">

@@ -17,8 +17,13 @@ class PesoActualField extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");
+        // El peso arranca en 0 (esperando lectura fresca del serial). NO se
+        // muestra el peso_actual guardado en el registro: sería un valor viejo
+        // de una lectura anterior de ese pesaje, no lo que hay en la báscula
+        // ahora — confundía al reabrir un pesaje en tránsito.
         this.state = useState({
-            peso: this.props.record.data.peso_actual || 0.0,
+            peso: 0.0,
+            recibido: false, // ¿ya llegó al menos una lectura del serial?
             timestamp: new Date().toLocaleTimeString("es-CO"),
             conectado: false,
             soportado: "serial" in navigator, // Web Serial disponible
@@ -155,6 +160,7 @@ class PesoActualField extends Component {
         const peso = parseFloat(match[1]);
         if (isNaN(peso) || peso < 0 || peso > 100000) return;
 
+        this.state.recibido = true;
         if (Math.abs(this.state.peso - peso) > 0.01) {
             this.state.peso = peso;
             this.state.timestamp = new Date().toLocaleTimeString("es-CO");
