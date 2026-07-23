@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Calidad y Laboratorio - Secadora',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Operations',
     'summary': 'Análisis de calidad de arroz y peso comercial',
     'description': """
@@ -22,6 +22,7 @@
         'views/descuento_calidad_views.xml',
         'views/origen_muestra_views.xml',
         'views/analisis_lab_views.xml',
+        'views/product_template_views.xml',
         'views/pesaje_views.xml',
         'views/orden_servicio_views.xml',
         'views/res_config_settings_views.xml',

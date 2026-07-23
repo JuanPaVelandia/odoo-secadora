@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import origen_muestra
+from . import product_template
 from . import analisis_lab
 from . import descuento_calidad
 from . import pesaje

@@ -81,6 +81,8 @@ class SecadoraPesajeCalidad(models.Model):
                 continue
             if record.analisis_lab_ids:
                 continue
+            if record.producto_id.excluir_analisis:
+                continue
             try:
                 self.env['secadora.analisis.lab'].create({
                     'pesaje_id': record.id,
