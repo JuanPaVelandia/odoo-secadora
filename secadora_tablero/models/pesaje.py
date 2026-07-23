@@ -24,7 +24,9 @@ class SecadoraPesaje(models.Model):
     def action_segunda_pesada(self):
         res = super().action_segunda_pesada()
         for record in self:
-            if record.state == 'completado' and record.direccion == 'entrada':
+            if (record.state == 'completado'
+                    and record.direccion == 'entrada'
+                    and not record.producto_id.excluir_tablero):
                 self._crear_posicion_arroz(record)
         return res
 

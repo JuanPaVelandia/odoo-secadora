@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Tablero de Arroz en Planta',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Operations',
     'summary': 'Tablero Kanban para rastrear arroz en ubicaciones físicas de la planta',
     'description': """
@@ -25,6 +25,7 @@
         'views/movimiento_arroz_views.xml',
         'views/sitio_muestra_views.xml',
         'views/pesaje_views.xml',
+        'views/product_template_views.xml',
         'wizard/dividir_posicion_wizard_views.xml',
         'wizard/combinar_posicion_wizard_views.xml',
         'wizard/despachar_posicion_wizard_views.xml',
