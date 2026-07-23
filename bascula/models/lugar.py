@@ -37,9 +37,10 @@ class SecadoraLugar(models.Model):
     )
     incluir_reporte_produccion = fields.Boolean(
         string='Incluir en Reporte de Producción',
-        default=True,
+        default=False,
         help='Si está desmarcado, las entradas desde este lugar no aparecen '
-             'en el reporte de producción por finca y lote (Gerencia).',
+             'en el reporte de producción por finca y lote (Gerencia). '
+             'Marcar solo en las fincas que deben ir al reporte.',
     )
     notes = fields.Text(string='Notas')
     analytic_account_id = fields.Many2one(
