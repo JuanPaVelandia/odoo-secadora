@@ -292,33 +292,16 @@
                     <field name="hora_entrada"/>
                     <field name="state"/>
                     <templates>
-                        <t t-name="kanban-box">
-                            <div class="oe_kanban_global_click">
-                                <div class="oe_kanban_content">
-                                    <div class="o_kanban_record_top">
-                                        <div class="o_kanban_record_headings">
-                                            <strong class="o_kanban_record_title">
-                                                <field name="placa_texto"/>
-                                            </strong>
-                                            <br/>
-                                            <span class="o_kanban_record_subtitle">
-                                                <field name="name"/>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="o_kanban_record_body">
-                                        <field name="tercero_id"/>
-                                        <br/>
-                                        Producto: <field name="producto_id"/>
-                                        <br/>
-                                        Tipo: <field name="tipo_proceso"/>
-                                        <br/>
-                                        Peso Bruto: <field name="peso_bruto"/> Kg
-                                        <br/>
-                                        Entrada: <field name="hora_entrada"/>
-                                    </div>
-                                </div>
-                            </div>
+                        <t t-name="card">
+                            <main>
+                                <strong class="fs-5"><field name="placa_texto"/></strong>
+                                <div class="text-muted"><field name="name"/></div>
+                                <div class="mt-1"><field name="tercero_id"/></div>
+                                <div>Producto: <field name="producto_id"/></div>
+                                <div>Tipo: <field name="tipo_proceso"/></div>
+                                <div>Peso Bruto: <field name="peso_bruto"/> Kg</div>
+                                <div>Entrada: <field name="hora_entrada"/></div>
+                            </main>
                         </t>
                     </templates>
                 </kanban>
