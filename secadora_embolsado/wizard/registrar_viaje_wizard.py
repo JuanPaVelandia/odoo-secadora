@@ -88,7 +88,11 @@ class RegistrarViajeWizard(models.TransientModel):
         for rec in self:
             if rec.sitio_id:
                 posiciones = Viaje._posiciones_fifo(rec.sitio_id, self.env.company)
-                rec.peso_disponible_kg = sum(posiciones.mapped('peso_kg'))
+                if rec.sitio_id.mostrar_estimacion_seco:
+                    # Contenedor de arroz seco: el viaje pesa kilos secos
+                    rec.peso_disponible_kg = sum(p._estimar_peso_seco() for p in posiciones)
+                else:
+                    rec.peso_disponible_kg = sum(posiciones.mapped('peso_kg'))
             else:
                 rec.peso_disponible_kg = 0.0
 

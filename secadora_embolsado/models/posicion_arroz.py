@@ -26,19 +26,18 @@ class PosicionArroz(models.Model):
         i_pct = float(Param.get_param('secadora_embolsado.impureza_objetivo_pct_inicial', '60.0'))
         return h_obj, i_pct
 
-    def _estimar_peso_seco(self):
-        """Peso seco estimado por doble descuento (humedad e impureza).
+    def _factor_seco(self):
+        """Factor verde→seco por doble descuento (humedad e impureza).
 
         Misma matemática que el modo 'doble_descuento' de secadora.descuento.calidad
         (factores (100−valor)/(100−umbral) con tope en 1.0), replicada aquí porque
         esas reglas están ancladas a tipo de operación y análisis de pesajes, no a
         posiciones del tablero. El umbral de impureza es relativo: un porcentaje
-        de la impureza inicial de la tarjeta. Sin humedad registrada se devuelve
-        el peso verde.
+        de la impureza inicial de la tarjeta. Sin humedad registrada el factor es 1.
         """
         self.ensure_one()
         if not self.humedad:
-            return self.peso_kg
+            return 1.0
         h_obj, i_pct = self._objetivos_doble_descuento()
         factor_h = min((100.0 - self.humedad) / (100.0 - h_obj), 1.0) if h_obj < 100 else 1.0
         factor_i = 1.0
@@ -46,7 +45,12 @@ class PosicionArroz(models.Model):
             i_obj = self.impurezas * i_pct / 100.0
             if i_obj < 100:
                 factor_i = min((100.0 - self.impurezas) / (100.0 - i_obj), 1.0)
-        return self.peso_kg * factor_h * factor_i
+        return factor_h * factor_i
+
+    def _estimar_peso_seco(self):
+        """Peso seco estimado de la tarjeta (verde × factor de doble descuento)."""
+        self.ensure_one()
+        return self.peso_kg * self._factor_seco()
 
     @api.depends('peso_kg', 'humedad', 'impurezas')
     def _compute_peso_estimado_seco(self):

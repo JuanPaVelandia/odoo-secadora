@@ -91,7 +91,9 @@ class EmbolsadoViaje(models.Model):
         domain=[('es_contenedor', '=', True)],
         tracking=True,
         help='Contenedor del tablero de donde sale el arroz. El descuento agota '
-             'primero la tarjeta más antigua (FIFO).',
+             'primero la tarjeta más antigua (FIFO). Si el contenedor está marcado '
+             'como de arroz seco, el neto del viaje se descuenta sobre el seco '
+             'estimado de cada tarjeta.',
     )
     state = fields.Selection([
         ('borrador', 'Borrador'),
@@ -175,11 +177,19 @@ class EmbolsadoViaje(models.Model):
             self._lock_posiciones(posiciones)
             posiciones = posiciones.filtered(lambda p: p.state == 'activo')
 
-            disponible = sum(posiciones.mapped('peso_kg'))
+            # En contenedores de arroz seco el viaje pesa kilos SECOS: se compara
+            # y descuenta sobre el seco estimado de cada tarjeta, convirtiendo a
+            # su equivalente verde (la tarjeta contabiliza en verde de báscula).
+            en_seco = rec.sitio_id.mostrar_estimacion_seco
+            factores = {p.id: (p._factor_seco() if en_seco else 1.0) for p in posiciones}
+
+            disponible = sum(p.peso_kg * factores[p.id] for p in posiciones)
             if rec.peso_neto_kg > disponible + 0.01:
                 raise UserError(
                     'El peso neto del viaje (%.2f kg) supera el arroz disponible en '
-                    '%s (%.2f kg).' % (rec.peso_neto_kg, rec.sitio_id.name, disponible)
+                    '%s (%.2f kg%s).' % (
+                        rec.peso_neto_kg, rec.sitio_id.name, disponible,
+                        ' secos estimados' if en_seco else '')
                 )
 
             # Descuento FIFO: agotar la tarjeta más vieja y seguir con la siguiente
@@ -189,20 +199,28 @@ class EmbolsadoViaje(models.Model):
             for pos in posiciones:
                 if restante <= 0.01:
                     break
-                descuento = min(pos.peso_kg, restante)
-                nuevo_peso = pos.peso_kg - descuento
-                if nuevo_peso <= 0.01:
+                factor = factores[pos.id]
+                disponible_pos = pos.peso_kg * factor
+                descuento = min(disponible_pos, restante)
+                if disponible_pos - descuento <= 0.01:
+                    descuento_verde = pos.peso_kg
                     pos.write({'peso_kg': 0, 'state': 'retirado'})
                 else:
-                    pos.write({'peso_kg': nuevo_peso})
+                    descuento_verde = descuento / factor if factor else descuento
+                    pos.write({'peso_kg': pos.peso_kg - descuento_verde})
+                if en_seco:
+                    detalle = 'Embolsado: %.2f kg secos (%.2f kg verdes) → %s (viaje %s)' % (
+                        descuento, descuento_verde, rec.silobolsa_id.name, rec.name)
+                else:
+                    detalle = 'Embolsado: %.2f kg → %s (viaje %s)' % (
+                        descuento, rec.silobolsa_id.name, rec.name)
                 Movimiento.create({
                     'posicion_id': pos.id,
                     'sitio_origen_id': rec.sitio_id.id,
-                    'peso_kg': descuento,
+                    'peso_kg': descuento_verde,
                     'tipo': 'embolsado',
                     'embolsado_viaje_id': rec.id,
-                    'notas': 'Embolsado: %.2f kg → %s (viaje %s)' % (
-                        descuento, rec.silobolsa_id.name, rec.name),
+                    'notas': detalle,
                 })
                 restante -= descuento
 
