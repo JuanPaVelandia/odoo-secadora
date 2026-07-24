@@ -8,9 +8,11 @@
             <field name="value">13.0</field>
         </record>
 
-        <record id="param_impureza_objetivo" model="ir.config_parameter">
-            <field name="key">secadora_embolsado.impureza_objetivo</field>
-            <field name="value">0.0</field>
+        <!-- % de la impureza inicial que conserva el arroz seco (60 = se
+             descuenta solo el 40% de la impureza medida) -->
+        <record id="param_impureza_objetivo_pct" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.impureza_objetivo_pct_inicial</field>
+            <field name="value">60.0</field>
         </record>
 
         <!-- Días de vigencia de una tara antes de alertar que está vieja -->

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Embolsado en Silobolsas',
-    'version': '19.0.3.0.0',
+    'version': '19.0.3.1.0',
     'category': 'Operations',
     'summary': 'Registro de llenado de silobolsas con arroz en proceso',
     'description': """
