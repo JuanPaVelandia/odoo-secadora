@@ -34,8 +34,7 @@
                                 <field name="company_id" groups="base.group_multi_company"/>
                             </group>
                             <group>
-                                <field name="tractor_id" readonly="state != 'borrador'"/>
-                                <field name="tolvo_id" readonly="state != 'borrador'"/>
+                                <field name="combo_id" readonly="state != 'borrador'"/>
                                 <field name="tara_id"/>
                                 <field name="peso_lleno_kg" readonly="state != 'borrador'"/>
                                 <field name="peso_tara_kg"/>
@@ -73,8 +72,7 @@
                     <field name="name"/>
                     <field name="fecha"/>
                     <field name="silobolsa_id"/>
-                    <field name="tractor_id" optional="show"/>
-                    <field name="tolvo_id" optional="show"/>
+                    <field name="combo_id" optional="show"/>
                     <field name="sitio_id"/>
                     <field name="peso_lleno_kg" optional="show"/>
                     <field name="peso_tara_kg" optional="show"/>
@@ -94,8 +92,7 @@
                 <search string="Viajes de Embolsado">
                     <field name="name"/>
                     <field name="silobolsa_id"/>
-                    <field name="tractor_id"/>
-                    <field name="tolvo_id"/>
+                    <field name="combo_id"/>
                     <filter string="Confirmados" name="filter_confirmados" domain="[('state', '=', 'confirmado')]"/>
                     <filter string="Hoy" name="filter_hoy"
                             domain="[('fecha', '&gt;=', (context_today()).strftime('%Y-%m-%d')),

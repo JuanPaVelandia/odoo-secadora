@@ -13,9 +13,9 @@
                            nolabel="1"
                            colspan="2"/>
 
-                    <div class="alert alert-danger" role="alert" invisible="tara_id or not tractor_id or not tolvo_id">
+                    <div class="alert alert-danger" role="alert" invisible="tara_id or not combo_id">
                         <i class="fa fa-exclamation-circle me-1"/>
-                        Esta pareja tractor+tolvo no tiene tara registrada.
+                        Este combo no tiene tara registrada.
                         Regístrela en Embolsado → Taras antes de confirmar el viaje.
                     </div>
                     <div class="alert alert-warning" role="alert" invisible="not tara_vencida">
@@ -31,8 +31,7 @@
                             <field name="peso_disponible_kg"/>
                         </group>
                         <group string="Vehículo">
-                            <field name="tractor_id" options="{'no_create': True}"/>
-                            <field name="tolvo_id" options="{'no_create': True}"/>
+                            <field name="combo_id" options="{'no_create': True}"/>
                             <field name="tara_id" options="{'no_open': True}"/>
                             <field name="tara_fecha"/>
                             <field name="tara_vencida" invisible="1"/>

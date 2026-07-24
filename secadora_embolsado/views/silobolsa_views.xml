@@ -64,8 +64,7 @@
                                     <list>
                                         <field name="name"/>
                                         <field name="fecha"/>
-                                        <field name="tractor_id"/>
-                                        <field name="tolvo_id"/>
+                                        <field name="combo_id"/>
                                         <field name="sitio_id"/>
                                         <field name="peso_lleno_kg"/>
                                         <field name="peso_tara_kg"/>

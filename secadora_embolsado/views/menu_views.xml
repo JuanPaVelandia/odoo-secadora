@@ -26,6 +26,12 @@
                   action="action_embolsado_viaje"
                   sequence="20"/>
 
+        <menuitem id="menu_embolsado_combos"
+                  name="Combos"
+                  parent="menu_embolsado"
+                  action="action_embolsado_combo"
+                  sequence="25"/>
+
         <menuitem id="menu_embolsado_taras"
                   name="Taras"
                   parent="menu_embolsado"

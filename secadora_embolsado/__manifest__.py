@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Embolsado en Silobolsas',
-    'version': '19.0.2.0.0',
+    'version': '19.0.3.0.0',
     'category': 'Operations',
     'summary': 'Registro de llenado de silobolsas con arroz en proceso',
     'description': """
@@ -18,7 +18,7 @@
         - Estimación de peso seco (doble descuento) en contenedores configurados
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
-    'depends': ['bascula', 'secadora_bascula', 'secadora_tablero', 'secadora_calidad', 'stock', 'mail'],
+    'depends': ['bascula', 'secadora_bascula', 'secadora_tablero', 'secadora_calidad', 'stock', 'mail', 'maintenance'],
     'data': [
         'security/security.xml',
         'security/ir.model.access.csv',
@@ -26,6 +26,7 @@
         'data/config_parameter_data.xml',
         'views/silobolsa_views.xml',
         'views/embolsado_viaje_views.xml',
+        'views/embolsado_combo_views.xml',
         'views/embolsado_tara_views.xml',
         'views/sitio_muestra_views.xml',
         'views/posicion_arroz_views.xml',

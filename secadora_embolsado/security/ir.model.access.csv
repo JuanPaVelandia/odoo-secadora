@@ -1,4 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_embolsado_combo_basculero,embolsado.combo.basculero,model_secadora_embolsado_combo,bascula.group_basculero,1,0,0,0
+access_embolsado_combo_operador,embolsado.combo.operador,model_secadora_embolsado_combo,group_embolsado_operador,1,1,1,0
+access_embolsado_combo_admin,embolsado.combo.admin,model_secadora_embolsado_combo,group_embolsado_admin,1,1,1,1
 access_embolsado_tara_basculero,embolsado.tara.basculero,model_secadora_embolsado_tara,bascula.group_basculero,1,0,1,0
 access_embolsado_tara_operador,embolsado.tara.operador,model_secadora_embolsado_tara,group_embolsado_operador,1,1,1,0
 access_embolsado_tara_admin,embolsado.tara.admin,model_secadora_embolsado_tara,group_embolsado_admin,1,1,1,1

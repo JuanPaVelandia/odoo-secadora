@@ -14,14 +14,9 @@ class RegistrarViajeWizard(models.TransientModel):
         required=True,
         domain=[('state', '=', 'abierto')],
     )
-    tractor_id = fields.Many2one(
-        'secadora.vehiculo',
-        string='Tractor',
-        required=True,
-    )
-    tolvo_id = fields.Many2one(
-        'secadora.vehiculo',
-        string='Tolvo',
+    combo_id = fields.Many2one(
+        'secadora.embolsado.combo',
+        string='Combo Tractor+Tolvo',
         required=True,
     )
     sitio_id = fields.Many2one(
@@ -81,8 +76,7 @@ class RegistrarViajeWizard(models.TransientModel):
             ('company_id', '=', self.env.company.id),
         ], order='id desc', limit=1)
         if ultimo:
-            res.setdefault('tractor_id', ultimo.tractor_id.id)
-            res.setdefault('tolvo_id', ultimo.tolvo_id.id)
+            res.setdefault('combo_id', ultimo.combo_id.id)
             if 'silobolsa_id' not in res and ultimo.silobolsa_id.state == 'abierto':
                 res['silobolsa_id'] = ultimo.silobolsa_id.id
             res.setdefault('sitio_id', ultimo.sitio_id.id)
@@ -98,12 +92,11 @@ class RegistrarViajeWizard(models.TransientModel):
             else:
                 rec.peso_disponible_kg = 0.0
 
-    @api.depends('tractor_id', 'tolvo_id')
+    @api.depends('combo_id')
     def _compute_tara(self):
         Tara = self.env['secadora.embolsado.tara']
         for rec in self:
-            tara = Tara._tara_vigente(
-                rec.tractor_id.id or False, rec.tolvo_id.id or False)
+            tara = Tara._tara_vigente(rec.combo_id.id or False)
             rec.tara_id = tara
             rec.peso_tara_kg = tara.peso_tara_kg if tara else 0.0
             rec.tara_fecha = tara.fecha if tara else False
@@ -115,15 +108,15 @@ class RegistrarViajeWizard(models.TransientModel):
             rec.peso_neto_kg = rec.peso_lleno_kg - rec.peso_tara_kg
             rec.peso_restante_kg = rec.peso_disponible_kg - rec.peso_neto_kg
 
-    @api.onchange('tractor_id', 'tolvo_id')
-    def _onchange_pareja(self):
-        if self.tractor_id and self.tolvo_id and not self.tara_id:
+    @api.onchange('combo_id')
+    def _onchange_combo(self):
+        if self.combo_id and not self.tara_id:
             return {
                 'warning': {
                     'title': 'Sin tara registrada',
-                    'message': 'La pareja %s + %s no tiene tara registrada. '
-                               'Regístrela en Embolsado → Taras antes de confirmar el viaje.' % (
-                                   self.tractor_id.placa, self.tolvo_id.placa),
+                    'message': 'El combo %s no tiene tara registrada. '
+                               'Regístrela en Embolsado → Taras antes de confirmar el viaje.'
+                               % self.combo_id.display_name,
                 }
             }
 
@@ -157,17 +150,16 @@ class RegistrarViajeWizard(models.TransientModel):
             raise UserError('Seleccione el contenedor del tablero de donde sale el arroz.')
         if not self.tara_id:
             raise UserError(
-                'La pareja %s + %s no tiene tara registrada. '
-                'Regístrela primero en Embolsado → Taras.' % (
-                    self.tractor_id.placa or '?', self.tolvo_id.placa or '?')
+                'El combo %s no tiene tara registrada. '
+                'Regístrela primero en Embolsado → Taras.'
+                % (self.combo_id.display_name or '?')
             )
         if self.peso_lleno_kg <= 0:
             raise UserError('Capture o digite el peso lleno del viaje.')
 
         viaje = self.env['secadora.embolsado.viaje'].create({
             'silobolsa_id': self.silobolsa_id.id,
-            'tractor_id': self.tractor_id.id,
-            'tolvo_id': self.tolvo_id.id,
+            'combo_id': self.combo_id.id,
             'tara_id': self.tara_id.id,
             'peso_tara_kg': self.tara_id.peso_tara_kg,
             'peso_lleno_kg': self.peso_lleno_kg,
@@ -194,8 +186,7 @@ class RegistrarViajeWizard(models.TransientModel):
         viaje = self._crear_viaje()
         nuevo = self.create({
             'silobolsa_id': viaje.silobolsa_id.id,
-            'tractor_id': viaje.tractor_id.id,
-            'tolvo_id': viaje.tolvo_id.id,
+            'combo_id': viaje.combo_id.id,
             'sitio_id': viaje.sitio_id.id,
         })
         return self._notificar(viaje, nuevo._reabrir())

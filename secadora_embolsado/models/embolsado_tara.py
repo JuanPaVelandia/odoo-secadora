@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
 
 class EmbolsadoTara(models.Model):
     _name = 'secadora.embolsado.tara'
-    _description = 'Tara de Pareja Tractor+Tolvo'
+    _description = 'Tara de Combo Tractor+Tolvo'
     _inherit = ['mail.thread']
     _order = 'fecha desc, id desc'
     _peso_tara_positivo = models.Constraint(
@@ -21,17 +21,11 @@ class EmbolsadoTara(models.Model):
         default=lambda self: self.env.company,
         index=True,
     )
-    tractor_id = fields.Many2one(
-        'secadora.vehiculo',
-        string='Tractor',
+    combo_id = fields.Many2one(
+        'secadora.embolsado.combo',
+        string='Combo Tractor+Tolvo',
         required=True,
-        index=True,
-        tracking=True,
-    )
-    tolvo_id = fields.Many2one(
-        'secadora.vehiculo',
-        string='Tolvo',
-        required=True,
+        ondelete='restrict',
         index=True,
         tracking=True,
     )
@@ -40,7 +34,7 @@ class EmbolsadoTara(models.Model):
         digits=(12, 2),
         required=True,
         tracking=True,
-        help='Peso de la pareja tractor+tolvo vacía, pesada en la báscula.',
+        help='Peso del combo tractor+tolvo vacío, pesado en la báscula.',
     )
     fecha = fields.Datetime(
         string='Fecha de Tara',
@@ -70,19 +64,12 @@ class EmbolsadoTara(models.Model):
     notas = fields.Text(string='Notas')
     active = fields.Boolean(string='Activo', default=True)
 
-    @api.constrains('tractor_id', 'tolvo_id')
-    def _check_tractor_distinto_tolvo(self):
-        for rec in self:
-            if rec.tractor_id == rec.tolvo_id:
-                raise ValidationError('El tractor y el tolvo deben ser vehículos distintos.')
-
-    @api.depends('tractor_id', 'tolvo_id', 'peso_tara_kg', 'fecha')
+    @api.depends('combo_id', 'peso_tara_kg', 'fecha')
     def _compute_display_name(self):
         for rec in self:
             fecha_local = fields.Datetime.context_timestamp(rec, rec.fecha) if rec.fecha else False
-            rec.display_name = '%s + %s — %.2f kg (%s)' % (
-                rec.tractor_id.placa or '?',
-                rec.tolvo_id.placa or '?',
+            rec.display_name = '%s — %.2f kg (%s)' % (
+                rec.combo_id.display_name or '?',
                 rec.peso_tara_kg,
                 fecha_local.strftime('%d/%m/%Y') if fecha_local else 'sin fecha',
             )
@@ -97,13 +84,12 @@ class EmbolsadoTara(models.Model):
             )
 
     @api.model
-    def _tara_vigente(self, tractor_id, tolvo_id):
-        """Tara más reciente registrada para la pareja tractor+tolvo."""
-        if not tractor_id or not tolvo_id:
+    def _tara_vigente(self, combo_id):
+        """Tara más reciente registrada para el combo."""
+        if not combo_id:
             return self.browse()
         return self.search([
-            ('tractor_id', '=', tractor_id),
-            ('tolvo_id', '=', tolvo_id),
+            ('combo_id', '=', combo_id),
             ('company_id', 'in', [self.env.company.id, False]),
         ], order='fecha desc, id desc', limit=1)
 

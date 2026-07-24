@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import UserError
 
 
 class EmbolsadoViaje(models.Model):
@@ -50,22 +50,20 @@ class EmbolsadoViaje(models.Model):
         domain=[('state', '=', 'abierto')],
         tracking=True,
     )
-    tractor_id = fields.Many2one(
-        'secadora.vehiculo',
-        string='Tractor',
+    combo_id = fields.Many2one(
+        'secadora.embolsado.combo',
+        string='Combo Tractor+Tolvo',
         required=True,
-    )
-    tolvo_id = fields.Many2one(
-        'secadora.vehiculo',
-        string='Tolvo',
-        required=True,
+        ondelete='restrict',
+        index=True,
+        tracking=True,
     )
     tara_id = fields.Many2one(
         'secadora.embolsado.tara',
         string='Tara Usada',
         readonly=True,
         ondelete='restrict',
-        help='Tara vigente de la pareja tractor+tolvo al momento del viaje.',
+        help='Tara vigente del combo al momento del viaje.',
     )
     peso_tara_kg = fields.Float(
         string='Peso Vacío (Kg)',
@@ -113,12 +111,6 @@ class EmbolsadoViaje(models.Model):
         for rec in self:
             rec.peso_neto_kg = rec.peso_lleno_kg - rec.peso_tara_kg
 
-    @api.constrains('tractor_id', 'tolvo_id')
-    def _check_tractor_distinto_tolvo(self):
-        for rec in self:
-            if rec.tractor_id == rec.tolvo_id:
-                raise ValidationError('El tractor y el tolvo deben ser vehículos distintos.')
-
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -159,15 +151,13 @@ class EmbolsadoViaje(models.Model):
                 raise UserError('Solo se pueden confirmar viajes en borrador.')
             # Viajes creados a mano (sin el wizard): tomar la tara vigente aquí
             if not rec.tara_id:
-                tara = self.env['secadora.embolsado.tara']._tara_vigente(
-                    rec.tractor_id.id, rec.tolvo_id.id)
+                tara = self.env['secadora.embolsado.tara']._tara_vigente(rec.combo_id.id)
                 if tara:
                     rec.write({'tara_id': tara.id, 'peso_tara_kg': tara.peso_tara_kg})
             if not rec.tara_id or rec.peso_tara_kg <= 0:
                 raise UserError(
-                    'El viaje no tiene tara asignada. Registre la tara de la pareja '
-                    '%s + %s antes de confirmar.' % (
-                        rec.tractor_id.placa or '?', rec.tolvo_id.placa or '?')
+                    'El viaje no tiene tara asignada. Registre la tara del combo '
+                    '%s antes de confirmar.' % (rec.combo_id.display_name or '?')
                 )
             if rec.peso_neto_kg <= 0:
                 raise UserError(

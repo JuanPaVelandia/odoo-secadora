@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import embolsado_combo
 from . import embolsado_tara
 from . import silobolsa
 from . import embolsado_viaje
