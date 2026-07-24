@@ -27,8 +27,8 @@
                     <group>
                         <group string="Viaje">
                             <field name="silobolsa_id" options="{'no_create': True}"/>
-                            <field name="posicion_id" required="1" options="{'no_create': True}"/>
-                            <field name="peso_posicion_kg"/>
+                            <field name="sitio_id" options="{'no_create': True}"/>
+                            <field name="peso_disponible_kg"/>
                         </group>
                         <group string="Vehículo">
                             <field name="tractor_id" options="{'no_create': True}"/>

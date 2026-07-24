@@ -84,30 +84,27 @@ class EmbolsadoViaje(models.Model):
         compute='_compute_peso_neto',
         store=True,
     )
-    posicion_id = fields.Many2one(
-        'secadora.posicion.arroz',
-        string='Posición Origen',
+    sitio_id = fields.Many2one(
+        'secadora.sitio.muestra',
+        string='Contenedor Origen',
         required=True,
         ondelete='restrict',
         index=True,
-        domain=[('state', '=', 'activo'), ('sitio_id.es_contenedor', '=', True)],
+        domain=[('es_contenedor', '=', True)],
         tracking=True,
-    )
-    sitio_id = fields.Many2one(
-        related='posicion_id.sitio_id',
-        store=True,
-        string='Contenedor Origen',
+        help='Contenedor del tablero de donde sale el arroz. El descuento agota '
+             'primero la tarjeta más antigua (FIFO).',
     )
     state = fields.Selection([
         ('borrador', 'Borrador'),
         ('confirmado', 'Confirmado'),
         ('cancelado', 'Cancelado'),
     ], string='Estado', default='borrador', required=True, tracking=True, index=True)
-    movimiento_arroz_id = fields.Many2one(
+    movimiento_ids = fields.One2many(
         'secadora.movimiento.arroz',
-        string='Movimiento de Arroz',
-        readonly=True,
-        copy=False,
+        'embolsado_viaje_id',
+        string='Movimientos de Arroz',
+        help='Tarjetas del tablero afectadas por este viaje (descuentos y reversas).',
     )
     notas = fields.Text(string='Notas')
 
@@ -122,14 +119,6 @@ class EmbolsadoViaje(models.Model):
             if rec.tractor_id == rec.tolvo_id:
                 raise ValidationError('El tractor y el tolvo deben ser vehículos distintos.')
 
-    @api.constrains('posicion_id', 'company_id')
-    def _check_posicion_company(self):
-        for rec in self:
-            if rec.posicion_id.company_id and rec.posicion_id.company_id != rec.company_id:
-                raise ValidationError(
-                    'La posición %s pertenece a otra empresa.' % rec.posicion_id.name
-                )
-
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -142,9 +131,29 @@ class EmbolsadoViaje(models.Model):
             raise UserError('No se puede eliminar un viaje confirmado. Cancélelo primero.')
         return super().unlink()
 
+    @api.model
+    def _posiciones_fifo(self, sitio, company):
+        """Tarjetas activas del contenedor, de la más vieja a la más nueva."""
+        return self.env['secadora.posicion.arroz'].search([
+            ('sitio_id', '=', sitio.id),
+            ('state', '=', 'activo'),
+            ('company_id', 'in', [company.id, False]),
+        ], order='fecha_ingreso asc, id asc')
+
+    def _lock_posiciones(self, posiciones):
+        """Lock de tarjetas para evitar descuentos concurrentes
+        (mismo protocolo que dividir/despachar del tablero)."""
+        if not posiciones:
+            return
+        self.env.cr.execute(
+            'SELECT id FROM secadora_posicion_arroz WHERE id IN %s FOR UPDATE NOWAIT',
+            [tuple(posiciones.ids)]
+        )
+        posiciones.invalidate_recordset(['peso_kg', 'state'])
+
     def action_confirmar(self):
-        """Confirmar el viaje: descuenta el peso neto de la posición del tablero
-        y consume la silobolsa del inventario si es el primer viaje."""
+        """Confirmar el viaje: descuenta el neto del contenedor (FIFO sobre sus
+        tarjetas) y consume la silobolsa del inventario si es el primer viaje."""
         for rec in self:
             if rec.state != 'borrador':
                 raise UserError('Solo se pueden confirmar viajes en borrador.')
@@ -168,54 +177,56 @@ class EmbolsadoViaje(models.Model):
             if rec.silobolsa_id.state != 'abierto':
                 raise UserError('La silobolsa %s está cerrada.' % rec.silobolsa_id.name)
 
-            posicion = rec.posicion_id
-
-            # Lock de la posición para evitar descuentos concurrentes
-            # (mismo protocolo que dividir/despachar del tablero)
-            self.env.cr.execute(
-                'SELECT id FROM secadora_posicion_arroz WHERE id = %s FOR UPDATE NOWAIT',
-                [posicion.id]
-            )
-            posicion.invalidate_recordset(['peso_kg', 'state'])
-
-            if posicion.state != 'activo':
+            posiciones = self._posiciones_fifo(rec.sitio_id, rec.company_id)
+            if not posiciones:
                 raise UserError(
-                    'La posición %s ya no está activa. Actualice el tablero e intente de nuevo.'
-                    % posicion.name
+                    'El contenedor %s no tiene arroz activo en el tablero.' % rec.sitio_id.name
                 )
-            if rec.peso_neto_kg > posicion.peso_kg + 0.01:
+            self._lock_posiciones(posiciones)
+            posiciones = posiciones.filtered(lambda p: p.state == 'activo')
+
+            disponible = sum(posiciones.mapped('peso_kg'))
+            if rec.peso_neto_kg > disponible + 0.01:
                 raise UserError(
-                    'El peso neto del viaje (%.2f kg) supera el peso disponible en '
-                    '%s (%.2f kg).' % (rec.peso_neto_kg, posicion.name, posicion.peso_kg)
+                    'El peso neto del viaje (%.2f kg) supera el arroz disponible en '
+                    '%s (%.2f kg).' % (rec.peso_neto_kg, rec.sitio_id.name, disponible)
                 )
 
-            nuevo_peso = posicion.peso_kg - rec.peso_neto_kg
-            if nuevo_peso <= 0.01:
-                posicion.write({'peso_kg': 0, 'state': 'retirado'})
-            else:
-                posicion.write({'peso_kg': nuevo_peso})
+            # Descuento FIFO: agotar la tarjeta más vieja y seguir con la siguiente
+            Movimiento = self.env['secadora.movimiento.arroz']
+            restante = rec.peso_neto_kg
+            primera_pos = posiciones[:1]
+            for pos in posiciones:
+                if restante <= 0.01:
+                    break
+                descuento = min(pos.peso_kg, restante)
+                nuevo_peso = pos.peso_kg - descuento
+                if nuevo_peso <= 0.01:
+                    pos.write({'peso_kg': 0, 'state': 'retirado'})
+                else:
+                    pos.write({'peso_kg': nuevo_peso})
+                Movimiento.create({
+                    'posicion_id': pos.id,
+                    'sitio_origen_id': rec.sitio_id.id,
+                    'peso_kg': descuento,
+                    'tipo': 'embolsado',
+                    'embolsado_viaje_id': rec.id,
+                    'notas': 'Embolsado: %.2f kg → %s (viaje %s)' % (
+                        descuento, rec.silobolsa_id.name, rec.name),
+                })
+                restante -= descuento
 
-            movimiento = self.env['secadora.movimiento.arroz'].create({
-                'posicion_id': posicion.id,
-                'sitio_origen_id': posicion.sitio_id.id if posicion.sitio_id else False,
-                'peso_kg': rec.peso_neto_kg,
-                'tipo': 'embolsado',
-                'embolsado_viaje_id': rec.id,
-                'notas': 'Embolsado: %.2f kg → %s (viaje %s)' % (
-                    rec.peso_neto_kg, rec.silobolsa_id.name, rec.name),
-            })
-
-            rec.write({'state': 'confirmado', 'movimiento_arroz_id': movimiento.id})
+            rec.state = 'confirmado'
 
             # Al primer viaje confirmado se consume la silobolsa (idempotente)
             rec.silobolsa_id._crear_consumo_silobolsa()
 
             # Heredar variedad del primer arroz embolsado si no está definida
-            if not rec.silobolsa_id.variedad_id and posicion.variedad_id:
-                rec.silobolsa_id.variedad_id = posicion.variedad_id
+            if not rec.silobolsa_id.variedad_id and primera_pos.variedad_id:
+                rec.silobolsa_id.variedad_id = primera_pos.variedad_id
 
     def action_cancelar(self):
-        """Cancelar un viaje confirmado devolviendo el peso a la posición."""
+        """Cancelar un viaje confirmado devolviendo el peso a sus tarjetas."""
         for rec in self:
             if rec.state == 'borrador':
                 rec.state = 'cancelado'
@@ -225,31 +236,32 @@ class EmbolsadoViaje(models.Model):
             if not self.env.user.has_group('secadora_embolsado.group_embolsado_admin'):
                 raise UserError('Solo un administrador de embolsado puede cancelar viajes confirmados.')
 
-            posicion = rec.posicion_id
-            self.env.cr.execute(
-                'SELECT id FROM secadora_posicion_arroz WHERE id = %s FOR UPDATE NOWAIT',
-                [posicion.id]
-            )
-            posicion.invalidate_recordset(['peso_kg', 'state'])
+            # Los descuentos originales tienen sitio_origen_id; las reversas, sitio_destino_id
+            descuentos = rec.movimiento_ids.filtered(
+                lambda m: m.tipo == 'embolsado' and m.sitio_origen_id)
+            posiciones = descuentos.mapped('posicion_id')
+            self._lock_posiciones(posiciones)
 
-            vals = {'peso_kg': posicion.peso_kg + rec.peso_neto_kg}
-            # Si el embolsado dejó la posición en cero y retirada, reactivarla
-            if posicion.state == 'retirado' and posicion.peso_kg <= 0.01:
-                vals['state'] = 'activo'
-            elif posicion.state != 'activo':
-                raise UserError(
-                    'La posición %s no está activa (%s); no se puede devolver el peso. '
-                    'Reactívela primero.' % (posicion.name, posicion.state)
-                )
-            posicion.write(vals)
-
-            self.env['secadora.movimiento.arroz'].create({
-                'posicion_id': posicion.id,
-                'sitio_destino_id': posicion.sitio_id.id if posicion.sitio_id else False,
-                'peso_kg': rec.peso_neto_kg,
-                'tipo': 'embolsado',
-                'embolsado_viaje_id': rec.id,
-                'notas': 'Cancelación de embolsado: +%.2f kg devueltos desde %s (viaje %s)' % (
-                    rec.peso_neto_kg, rec.silobolsa_id.name, rec.name),
-            })
+            Movimiento = self.env['secadora.movimiento.arroz']
+            for mov in descuentos:
+                pos = mov.posicion_id
+                vals = {'peso_kg': pos.peso_kg + mov.peso_kg}
+                # Si el embolsado dejó la tarjeta en cero y retirada, reactivarla
+                if pos.state == 'retirado' and pos.peso_kg <= 0.01:
+                    vals['state'] = 'activo'
+                elif pos.state != 'activo':
+                    raise UserError(
+                        'La tarjeta %s no está activa (%s); no se puede devolver el peso. '
+                        'Reactívela primero.' % (pos.name, pos.state)
+                    )
+                pos.write(vals)
+                Movimiento.create({
+                    'posicion_id': pos.id,
+                    'sitio_destino_id': mov.sitio_origen_id.id,
+                    'peso_kg': mov.peso_kg,
+                    'tipo': 'embolsado',
+                    'embolsado_viaje_id': rec.id,
+                    'notas': 'Cancelación de embolsado: +%.2f kg devueltos desde %s (viaje %s)' % (
+                        mov.peso_kg, rec.silobolsa_id.name, rec.name),
+                })
             rec.state = 'cancelado'

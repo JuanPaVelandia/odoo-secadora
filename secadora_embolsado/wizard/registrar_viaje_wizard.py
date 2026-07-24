@@ -24,16 +24,16 @@ class RegistrarViajeWizard(models.TransientModel):
         string='Tolvo',
         required=True,
     )
-    # Requerido solo en la vista: el modelo lo deja opcional para poder abrir
-    # el siguiente wizard aunque la posición anterior haya quedado vacía.
-    posicion_id = fields.Many2one(
-        'secadora.posicion.arroz',
-        string='Posición Origen',
-        domain=[('state', '=', 'activo'), ('sitio_id.es_contenedor', '=', True)],
+    sitio_id = fields.Many2one(
+        'secadora.sitio.muestra',
+        string='Contenedor Origen',
+        required=True,
+        domain=[('es_contenedor', '=', True)],
     )
-    peso_posicion_kg = fields.Float(
-        related='posicion_id.peso_kg',
-        string='Disponible en Posición (Kg)',
+    peso_disponible_kg = fields.Float(
+        string='Disponible en Contenedor (Kg)',
+        digits=(12, 2),
+        compute='_compute_disponible',
     )
     # La tara vigente se computa siempre en el servidor a partir de la pareja:
     # así el valor no depende de lo que el cliente envíe en el guardado.
@@ -67,7 +67,7 @@ class RegistrarViajeWizard(models.TransientModel):
         compute='_compute_pesos',
     )
     peso_restante_kg = fields.Float(
-        string='Quedaría en Posición (Kg)',
+        string='Quedaría en Contenedor (Kg)',
         digits=(12, 2),
         compute='_compute_pesos',
     )
@@ -85,9 +85,18 @@ class RegistrarViajeWizard(models.TransientModel):
             res.setdefault('tolvo_id', ultimo.tolvo_id.id)
             if 'silobolsa_id' not in res and ultimo.silobolsa_id.state == 'abierto':
                 res['silobolsa_id'] = ultimo.silobolsa_id.id
-            if ultimo.posicion_id.state == 'activo':
-                res.setdefault('posicion_id', ultimo.posicion_id.id)
+            res.setdefault('sitio_id', ultimo.sitio_id.id)
         return res
+
+    @api.depends('sitio_id')
+    def _compute_disponible(self):
+        Viaje = self.env['secadora.embolsado.viaje']
+        for rec in self:
+            if rec.sitio_id:
+                posiciones = Viaje._posiciones_fifo(rec.sitio_id, self.env.company)
+                rec.peso_disponible_kg = sum(posiciones.mapped('peso_kg'))
+            else:
+                rec.peso_disponible_kg = 0.0
 
     @api.depends('tractor_id', 'tolvo_id')
     def _compute_tara(self):
@@ -100,11 +109,11 @@ class RegistrarViajeWizard(models.TransientModel):
             rec.tara_fecha = tara.fecha if tara else False
             rec.tara_vencida = tara.esta_vencida if tara else False
 
-    @api.depends('peso_lleno_kg', 'peso_tara_kg', 'posicion_id.peso_kg')
+    @api.depends('peso_lleno_kg', 'peso_tara_kg', 'peso_disponible_kg')
     def _compute_pesos(self):
         for rec in self:
             rec.peso_neto_kg = rec.peso_lleno_kg - rec.peso_tara_kg
-            rec.peso_restante_kg = rec.posicion_id.peso_kg - rec.peso_neto_kg
+            rec.peso_restante_kg = rec.peso_disponible_kg - rec.peso_neto_kg
 
     @api.onchange('tractor_id', 'tolvo_id')
     def _onchange_pareja(self):
@@ -143,8 +152,8 @@ class RegistrarViajeWizard(models.TransientModel):
 
     def _crear_viaje(self):
         self.ensure_one()
-        if not self.posicion_id:
-            raise UserError('Seleccione la posición del tablero de donde sale el arroz.')
+        if not self.sitio_id:
+            raise UserError('Seleccione el contenedor del tablero de donde sale el arroz.')
         if not self.tara_id:
             raise UserError(
                 'La pareja %s + %s no tiene tara registrada. '
@@ -161,7 +170,7 @@ class RegistrarViajeWizard(models.TransientModel):
             'tara_id': self.tara_id.id,
             'peso_tara_kg': self.tara_id.peso_tara_kg,
             'peso_lleno_kg': self.peso_lleno_kg,
-            'posicion_id': self.posicion_id.id,
+            'sitio_id': self.sitio_id.id,
         })
         viaje.action_confirmar()
         return viaje
@@ -186,7 +195,7 @@ class RegistrarViajeWizard(models.TransientModel):
             'silobolsa_id': viaje.silobolsa_id.id,
             'tractor_id': viaje.tractor_id.id,
             'tolvo_id': viaje.tolvo_id.id,
-            'posicion_id': viaje.posicion_id.id if viaje.posicion_id.state == 'activo' else False,
+            'sitio_id': viaje.sitio_id.id,
         })
         return self._notificar(viaje, nuevo._reabrir())
 

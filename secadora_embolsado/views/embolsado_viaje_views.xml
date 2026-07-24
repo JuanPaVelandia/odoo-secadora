@@ -28,8 +28,7 @@
                         <group>
                             <group>
                                 <field name="silobolsa_id" readonly="state != 'borrador'"/>
-                                <field name="posicion_id" readonly="state != 'borrador'"/>
-                                <field name="sitio_id"/>
+                                <field name="sitio_id" readonly="state != 'borrador'"/>
                                 <field name="fecha" readonly="state != 'borrador'"/>
                                 <field name="usuario_id"/>
                                 <field name="company_id" groups="base.group_multi_company"/>
@@ -46,6 +45,20 @@
                         <group>
                             <field name="notas"/>
                         </group>
+                        <notebook>
+                            <page string="Tarjetas del Tablero">
+                                <field name="movimiento_ids" readonly="1">
+                                    <list>
+                                        <field name="fecha"/>
+                                        <field name="posicion_id"/>
+                                        <field name="sitio_origen_id"/>
+                                        <field name="sitio_destino_id"/>
+                                        <field name="peso_kg"/>
+                                        <field name="notas"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
                     </sheet>
                     <chatter/>
                 </form>
