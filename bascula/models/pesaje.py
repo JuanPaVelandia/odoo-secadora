@@ -875,7 +875,7 @@ class SecadoraPesaje(models.Model):
         self.ensure_one()
         return {
             'type': 'ir.actions.act_url',
-            'url': f'/report/pdf/bascula.report_pesaje_tiquete_document/{self.id}',
+            'url': f'/bascula/tiquete/{self.id}',
             'target': 'new',
         }
 
