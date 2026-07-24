@@ -178,7 +178,7 @@
                     <field name="variedad_id"/>
                     <filter string="Abiertas" name="filter_abiertas" domain="[('state', '=', 'abierto')]"/>
                     <filter string="Cerradas" name="filter_cerradas" domain="[('state', '=', 'cerrado')]"/>
-                    <group expand="0" string="Agrupar por">
+                    <group>
                         <filter string="Estado" name="group_state" context="{'group_by': 'state'}"/>
                         <filter string="Variedad" name="group_variedad" context="{'group_by': 'variedad_id'}"/>
                     </group>

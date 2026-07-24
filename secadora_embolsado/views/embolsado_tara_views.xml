@@ -69,7 +69,7 @@
                 <search string="Taras">
                     <field name="tractor_id"/>
                     <field name="tolvo_id"/>
-                    <group expand="0" string="Agrupar por">
+                    <group>
                         <filter string="Tractor" name="group_tractor" context="{'group_by': 'tractor_id'}"/>
                         <filter string="Tolvo" name="group_tolvo" context="{'group_by': 'tolvo_id'}"/>
                     </group>

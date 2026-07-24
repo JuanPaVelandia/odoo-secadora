@@ -85,8 +85,9 @@
                     <field name="tolvo_id"/>
                     <filter string="Confirmados" name="filter_confirmados" domain="[('state', '=', 'confirmado')]"/>
                     <filter string="Hoy" name="filter_hoy"
-                            domain="[('fecha', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0, 0, 0))), ('fecha', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23, 59, 59)))]"/>
-                    <group expand="0" string="Agrupar por">
+                            domain="[('fecha', '&gt;=', (context_today()).strftime('%Y-%m-%d')),
+                                     ('fecha', '&lt;', (context_today() + datetime.timedelta(days=1)).strftime('%Y-%m-%d'))]"/>
+                    <group>
                         <filter string="Silobolsa" name="group_silobolsa" context="{'group_by': 'silobolsa_id'}"/>
                         <filter string="Contenedor Origen" name="group_sitio" context="{'group_by': 'sitio_id'}"/>
                         <filter string="Fecha" name="group_fecha" context="{'group_by': 'fecha:day'}"/>
