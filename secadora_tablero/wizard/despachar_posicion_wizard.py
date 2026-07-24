@@ -151,6 +151,18 @@ class DespacharPosicionWizard(models.TransientModel):
        required=True,
        default='total',
     )
+    tipo_despacho = fields.Selection([
+        ('total', 'Total (las tarjetas desaparecen)'),
+        ('parcial', 'Parcial (se descuenta un peso)'),
+    ], string='Tipo de Despacho',
+       default='total',
+       help='Parcial: se despacha solo el peso indicado, descontando primero '
+            'la tarjeta más antigua (FIFO); la que quede con saldo sigue activa.',
+    )
+    peso_despacho_kg = fields.Float(
+        string='Peso a Despachar (Kg)',
+        digits=(12, 2),
+    )
 
     # Líneas de despacho
     linea_ids = fields.One2many(
@@ -264,22 +276,73 @@ class DespacharPosicionWizard(models.TransientModel):
             if not lineas_con_cantidad:
                 raise UserError('Debe registrar al menos una línea con cantidad mayor a 0.')
             self._crear_registro_bultos(lineas_con_cantidad)
-
-        # Marcar posiciones como despachadas si es granel/silobolsa, sin OS (compra), o empaque total
-        if modalidad in ('granel', 'silobolsa') or not modalidad or self.tipo_empaque == 'total':
-            MovimientoArroz = self.env['secadora.movimiento.arroz']
-            etiqueta = modalidad or 'directo'
-            for pos in self.posicion_ids:
-                pos.write({'state': 'despachado'})
-                MovimientoArroz.create({
-                    'posicion_id': pos.id,
-                    'sitio_origen_id': pos.sitio_id.id if pos.sitio_id else False,
-                    'peso_kg': pos.peso_kg,
-                    'tipo': 'despacho',
-                    'notas': 'Despacho %s desde %s' % (etiqueta, self.sitio_id.name),
-                })
+            # Empaque total: las tarjetas desaparecen; parcial: siguen activas
+            if self.tipo_empaque == 'total':
+                self._despachar_total(modalidad)
+        elif self.tipo_despacho == 'parcial':
+            # Granel/silobolsa/directo parcial: descontar solo el peso indicado
+            self._despachar_parcial(modalidad or 'directo')
+        else:
+            self._despachar_total(modalidad or 'directo')
 
         return {'type': 'ir.actions.act_window_close'}
+
+    def _despachar_total(self, etiqueta):
+        MovimientoArroz = self.env['secadora.movimiento.arroz']
+        for pos in self.posicion_ids:
+            pos.write({'state': 'despachado'})
+            MovimientoArroz.create({
+                'posicion_id': pos.id,
+                'sitio_origen_id': pos.sitio_id.id if pos.sitio_id else False,
+                'peso_kg': pos.peso_kg,
+                'tipo': 'despacho',
+                'notas': 'Despacho %s desde %s' % (etiqueta, self.sitio_id.name),
+            })
+
+    def _despachar_parcial(self, etiqueta):
+        """Despachar solo peso_despacho_kg, agotando primero la tarjeta más
+        antigua (FIFO). La tarjeta que llegue a cero queda despachada; la que
+        quede con saldo sigue activa."""
+        if self.peso_despacho_kg <= 0:
+            raise UserError('Indique el peso a despachar (mayor a cero).')
+
+        # Lock de las posiciones para evitar descuentos concurrentes
+        self.env.cr.execute(
+            'SELECT id FROM secadora_posicion_arroz WHERE id IN %s FOR UPDATE NOWAIT',
+            [tuple(self.posicion_ids.ids)]
+        )
+        self.posicion_ids.invalidate_recordset(['peso_kg', 'state'])
+        posiciones = self.posicion_ids.filtered(
+            lambda p: p.state == 'activo'
+        ).sorted(key=lambda p: (p.fecha_ingreso or fields.Datetime.now(), p.id))
+
+        disponible = sum(posiciones.mapped('peso_kg'))
+        if self.peso_despacho_kg > disponible + 0.01:
+            raise UserError(
+                'El peso a despachar (%.2f kg) supera el disponible en las '
+                'tarjetas seleccionadas (%.2f kg).' % (self.peso_despacho_kg, disponible)
+            )
+
+        MovimientoArroz = self.env['secadora.movimiento.arroz']
+        restante = self.peso_despacho_kg
+        for pos in posiciones:
+            if restante <= 0.01:
+                break
+            descuento = min(pos.peso_kg, restante)
+            nuevo_peso = pos.peso_kg - descuento
+            if nuevo_peso <= 0.01:
+                pos.write({'peso_kg': 0, 'state': 'despachado'})
+            else:
+                pos.write({'peso_kg': nuevo_peso})
+            MovimientoArroz.create({
+                'posicion_id': pos.id,
+                'sitio_origen_id': pos.sitio_id.id if pos.sitio_id else False,
+                'peso_kg': descuento,
+                'tipo': 'despacho',
+                'notas': 'Despacho %s parcial: %.2f kg desde %s' % (
+                    etiqueta, descuento, self.sitio_id.name),
+            })
+            restante -= descuento
 
     def _crear_registro_bultos(self, lineas):
         """Crear registros de bultos en las órdenes de servicio.

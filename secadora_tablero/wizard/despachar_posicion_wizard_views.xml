@@ -20,6 +20,11 @@
                                    invisible="modalidad_salida != 'mixta'"/>
                             <field name="tipo_empaque" widget="radio"
                                    invisible="not es_despacho_bultos"/>
+                            <field name="tipo_despacho" widget="radio"
+                                   invisible="es_despacho_bultos"/>
+                            <field name="peso_despacho_kg"
+                                   invisible="es_despacho_bultos or tipo_despacho != 'parcial'"
+                                   required="not es_despacho_bultos and tipo_despacho == 'parcial'"/>
                         </group>
                     </group>
                     <separator string="Posiciones"/>
