@@ -194,6 +194,7 @@ class Silobolsa(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'secadora.registrar.viaje.wizard',
             'view_mode': 'form',
+            'views': [(False, 'form')],
             'target': 'new',
             'context': {'default_silobolsa_id': self.id},
         }
@@ -205,6 +206,7 @@ class Silobolsa(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'secadora.analisis.lab',
             'view_mode': 'list,form',
+            'views': [(False, 'list'), (False, 'form')],
             'domain': [('silobolsa_id', '=', self.id)],
             'context': {'default_silobolsa_id': self.id},
         }
@@ -216,6 +218,7 @@ class Silobolsa(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'secadora.analisis.lab',
             'view_mode': 'form',
+            'views': [(False, 'form')],
             'target': 'current',
             'context': {
                 'default_silobolsa_id': self.id,
