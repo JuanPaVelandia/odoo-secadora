@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <!-- En sitios con "Mostrar Estimación de Seco", la tarjeta muestra el peso
+         seco estimado (doble descuento) en lugar del peso verde de báscula. -->
+    <t t-inherit="secadora_tablero.TableroGrid" t-inherit-mode="extension">
+        <xpath expr="//div[@t-att-class=&quot;'tablero-card-peso' + (pos.es_preasignado ? ' tablero-peso-transito' : '')&quot;]" position="replace">
+            <div t-att-class="'tablero-card-peso' + (pos.es_preasignado ? ' tablero-peso-transito' : '')">
+                <t t-if="sitio.mostrar_estimacion_seco and !pos.es_preasignado and pos.peso_estimado_seco">
+                    ≈ <t t-esc="formatPeso(pos.peso_estimado_seco)"/> kg seco
+                </t>
+                <t t-else="">
+                    <t t-if="pos.es_preasignado">~</t><t t-esc="formatPeso(pos.peso_kg)"/> kg<t t-if="pos.es_preasignado"> (bruto)</t>
+                </t>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

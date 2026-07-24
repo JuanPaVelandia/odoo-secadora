@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Form de Análisis — vínculo a silobolsa y sección -->
+        <record id="view_analisis_lab_form_inherit_embolsado" model="ir.ui.view">
+            <field name="name">secadora.analisis.lab.form.inherit.embolsado</field>
+            <field name="model">secadora.analisis.lab</field>
+            <field name="inherit_id" ref="secadora_calidad.view_analisis_lab_form"/>
+            <field name="arch" type="xml">
+                <field name="sitio_muestra_id" position="after">
+                    <field name="silobolsa_id"/>
+                    <field name="seccion_silobolsa" invisible="not silobolsa_id"/>
+                </field>
+            </field>
+        </record>
+
+        <!-- Herencia: List de Análisis — columnas de silobolsa -->
+        <record id="view_analisis_lab_list_inherit_embolsado" model="ir.ui.view">
+            <field name="name">secadora.analisis.lab.list.inherit.embolsado</field>
+            <field name="model">secadora.analisis.lab</field>
+            <field name="inherit_id" ref="secadora_calidad.view_analisis_lab_list"/>
+            <field name="arch" type="xml">
+                <field name="grano_partido" position="after">
+                    <field name="silobolsa_id" optional="hide"/>
+                    <field name="seccion_silobolsa" optional="hide"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

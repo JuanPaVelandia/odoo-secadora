@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Objetivos de la fórmula de doble descuento para estimar peso seco -->
+        <record id="param_humedad_objetivo" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.humedad_objetivo</field>
+            <field name="value">13.0</field>
+        </record>
+
+        <record id="param_impureza_objetivo" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.impureza_objetivo</field>
+            <field name="value">0.0</field>
+        </record>
+
+        <!-- Días de vigencia de una tara antes de alertar que está vieja -->
+        <record id="param_tara_max_dias" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.tara_max_dias</field>
+            <field name="value">7</field>
+        </record>
+
+    </data>
+</odoo>

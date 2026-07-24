@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Menú padre: Embolsado (bajo Báscula) -->
+        <menuitem id="menu_embolsado"
+                  name="Embolsado"
+                  parent="bascula.menu_bascula_root"
+                  sequence="17"/>
+
+        <menuitem id="menu_embolsado_silobolsas"
+                  name="Silobolsas"
+                  parent="menu_embolsado"
+                  action="action_silobolsa"
+                  sequence="10"/>
+
+        <menuitem id="menu_embolsado_registrar_viaje"
+                  name="Registrar Viaje"
+                  parent="menu_embolsado"
+                  action="action_registrar_viaje_wizard"
+                  sequence="15"/>
+
+        <menuitem id="menu_embolsado_viajes"
+                  name="Viajes"
+                  parent="menu_embolsado"
+                  action="action_embolsado_viaje"
+                  sequence="20"/>
+
+        <menuitem id="menu_embolsado_taras"
+                  name="Taras"
+                  parent="menu_embolsado"
+                  action="action_embolsado_tara"
+                  sequence="30"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_embolsado_viaje_form" model="ir.ui.view">
+            <field name="name">secadora.embolsado.viaje.form</field>
+            <field name="model">secadora.embolsado.viaje</field>
+            <field name="arch" type="xml">
+                <form string="Viaje de Embolsado">
+                    <header>
+                        <button name="action_confirmar"
+                                string="Confirmar"
+                                type="object"
+                                class="btn-primary"
+                                invisible="state != 'borrador'"/>
+                        <button name="action_cancelar"
+                                string="Cancelar Viaje"
+                                type="object"
+                                groups="secadora_embolsado.group_embolsado_admin"
+                                confirm="¿Cancelar este viaje? El peso se devolverá a la posición del tablero."
+                                invisible="state == 'cancelado'"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="silobolsa_id" readonly="state != 'borrador'"/>
+                                <field name="posicion_id" readonly="state != 'borrador'"/>
+                                <field name="sitio_id"/>
+                                <field name="fecha" readonly="state != 'borrador'"/>
+                                <field name="usuario_id"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                            <group>
+                                <field name="tractor_id" readonly="state != 'borrador'"/>
+                                <field name="tolvo_id" readonly="state != 'borrador'"/>
+                                <field name="tara_id"/>
+                                <field name="peso_lleno_kg" readonly="state != 'borrador'"/>
+                                <field name="peso_tara_kg"/>
+                                <field name="peso_neto_kg" style="font-size: 18px; font-weight: bold;"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="notas"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_embolsado_viaje_list" model="ir.ui.view">
+            <field name="name">secadora.embolsado.viaje.list</field>
+            <field name="model">secadora.embolsado.viaje</field>
+            <field name="arch" type="xml">
+                <list string="Viajes de Embolsado">
+                    <field name="name"/>
+                    <field name="fecha"/>
+                    <field name="silobolsa_id"/>
+                    <field name="tractor_id" optional="show"/>
+                    <field name="tolvo_id" optional="show"/>
+                    <field name="sitio_id"/>
+                    <field name="peso_lleno_kg" optional="show"/>
+                    <field name="peso_tara_kg" optional="show"/>
+                    <field name="peso_neto_kg" sum="Total Neto"/>
+                    <field name="usuario_id" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'confirmado'"
+                           decoration-danger="state == 'cancelado'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_embolsado_viaje_search" model="ir.ui.view">
+            <field name="name">secadora.embolsado.viaje.search</field>
+            <field name="model">secadora.embolsado.viaje</field>
+            <field name="arch" type="xml">
+                <search string="Viajes de Embolsado">
+                    <field name="name"/>
+                    <field name="silobolsa_id"/>
+                    <field name="tractor_id"/>
+                    <field name="tolvo_id"/>
+                    <filter string="Confirmados" name="filter_confirmados" domain="[('state', '=', 'confirmado')]"/>
+                    <filter string="Hoy" name="filter_hoy"
+                            domain="[('fecha', '&gt;=', datetime.datetime.combine(context_today(), datetime.time(0, 0, 0))), ('fecha', '&lt;=', datetime.datetime.combine(context_today(), datetime.time(23, 59, 59)))]"/>
+                    <group expand="0" string="Agrupar por">
+                        <filter string="Silobolsa" name="group_silobolsa" context="{'group_by': 'silobolsa_id'}"/>
+                        <filter string="Contenedor Origen" name="group_sitio" context="{'group_by': 'sitio_id'}"/>
+                        <filter string="Fecha" name="group_fecha" context="{'group_by': 'fecha:day'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_embolsado_viaje" model="ir.actions.act_window">
+            <field name="name">Viajes de Embolsado</field>
+            <field name="res_model">secadora.embolsado.viaje</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,12 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_embolsado_tara_basculero,embolsado.tara.basculero,model_secadora_embolsado_tara,bascula.group_basculero,1,0,1,0
+access_embolsado_tara_operador,embolsado.tara.operador,model_secadora_embolsado_tara,group_embolsado_operador,1,1,1,0
+access_embolsado_tara_admin,embolsado.tara.admin,model_secadora_embolsado_tara,group_embolsado_admin,1,1,1,1
+access_silobolsa_basculero,silobolsa.basculero,model_secadora_silobolsa,bascula.group_basculero,1,0,0,0
+access_silobolsa_operador,silobolsa.operador,model_secadora_silobolsa,group_embolsado_operador,1,1,1,0
+access_silobolsa_admin,silobolsa.admin,model_secadora_silobolsa,group_embolsado_admin,1,1,1,1
+access_embolsado_viaje_basculero,embolsado.viaje.basculero,model_secadora_embolsado_viaje,bascula.group_basculero,1,0,0,0
+access_embolsado_viaje_operador,embolsado.viaje.operador,model_secadora_embolsado_viaje,group_embolsado_operador,1,1,1,0
+access_embolsado_viaje_admin,embolsado.viaje.admin,model_secadora_embolsado_viaje,group_embolsado_admin,1,1,1,1
+access_registrar_viaje_wizard_operador,registrar.viaje.wizard.operador,model_secadora_registrar_viaje_wizard,group_embolsado_operador,1,1,1,1
+access_registrar_viaje_wizard_admin,registrar.viaje.wizard.admin,model_secadora_registrar_viaje_wizard,group_embolsado_admin,1,1,1,1

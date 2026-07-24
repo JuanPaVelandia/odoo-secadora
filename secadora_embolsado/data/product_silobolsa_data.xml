@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Insumo: silobolsa (se consume 1 unidad por cada silobolsa que se llena) -->
+        <record id="product_silobolsa" model="product.product">
+            <field name="name">Silobolsa</field>
+            <field name="type">consu</field>
+            <field name="categ_id" ref="bascula.product_category_empaques"/>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="description">Silobolsa para almacenamiento de arroz paddy</field>
+        </record>
+
+    </data>
+</odoo>

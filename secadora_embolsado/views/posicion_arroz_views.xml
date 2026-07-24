@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Form de Posición — peso estimado seco -->
+        <record id="view_posicion_arroz_form_inherit_embolsado" model="ir.ui.view">
+            <field name="name">secadora.posicion.arroz.form.inherit.embolsado</field>
+            <field name="model">secadora.posicion.arroz</field>
+            <field name="inherit_id" ref="secadora_tablero.view_posicion_arroz_form"/>
+            <field name="arch" type="xml">
+                <field name="peso_kg" position="after">
+                    <field name="peso_estimado_seco_kg"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

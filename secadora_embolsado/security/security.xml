@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Grupo: Operador de Embolsado -->
+        <record id="group_embolsado_operador" model="res.groups">
+            <field name="name">Operador Embolsado</field>
+            <field name="privilege_id" ref="bascula.res_groups_privilege_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Grupo: Administrador de Embolsado -->
+        <record id="group_embolsado_admin" model="res.groups">
+            <field name="name">Administrador Embolsado</field>
+            <field name="privilege_id" ref="bascula.res_groups_privilege_bascula"/>
+            <field name="implied_ids" eval="[(4, ref('group_embolsado_operador'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+
+        <!-- ====== Reglas Multi-Empresa ====== -->
+
+        <record id="silobolsa_company_rule" model="ir.rule">
+            <field name="name">Silobolsa: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_silobolsa"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="embolsado_viaje_company_rule" model="ir.rule">
+            <field name="name">Viaje Embolsado: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_embolsado_viaje"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+        <record id="embolsado_tara_company_rule" model="ir.rule">
+            <field name="name">Tara Embolsado: Multi-Company</field>
+            <field name="model_id" ref="model_secadora_embolsado_tara"/>
+            <field name="domain_force">
+                ['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]
+            </field>
+        </record>
+
+    </data>
+</odoo>

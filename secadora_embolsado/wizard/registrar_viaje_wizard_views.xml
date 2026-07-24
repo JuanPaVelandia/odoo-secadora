@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_registrar_viaje_wizard_form" model="ir.ui.view">
+            <field name="name">secadora.registrar.viaje.wizard.form</field>
+            <field name="model">secadora.registrar.viaje.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Registrar Viaje de Embolsado">
+                    <!-- Peso en vivo desde báscula (lectura Web Serial) -->
+                    <field name="peso_vivo"
+                           widget="peso_embolsado_field"
+                           nolabel="1"
+                           colspan="2"/>
+
+                    <div class="alert alert-danger" role="alert" invisible="tara_id or not tractor_id or not tolvo_id">
+                        <i class="fa fa-exclamation-circle me-1"/>
+                        Esta pareja tractor+tolvo no tiene tara registrada.
+                        Regístrela en Embolsado → Taras antes de confirmar el viaje.
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not tara_vencida">
+                        <i class="fa fa-exclamation-triangle me-1"/>
+                        La tara de esta pareja está vencida. Puede registrar el viaje,
+                        pero conviene volver a pesar la pareja vacía.
+                    </div>
+
+                    <group>
+                        <group string="Viaje">
+                            <field name="silobolsa_id" options="{'no_create': True}"/>
+                            <field name="posicion_id" required="1" options="{'no_create': True}"/>
+                            <field name="peso_posicion_kg"/>
+                        </group>
+                        <group string="Vehículo">
+                            <field name="tractor_id" options="{'no_create': True}"/>
+                            <field name="tolvo_id" options="{'no_create': True}"/>
+                            <field name="tara_id" options="{'no_open': True}"/>
+                            <field name="tara_fecha"/>
+                            <field name="tara_vencida" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Pesos">
+                            <field name="peso_lleno_kg"/>
+                            <field name="peso_tara_kg"/>
+                            <field name="peso_neto_kg" style="font-size: 20px; font-weight: bold;"/>
+                            <field name="peso_restante_kg"/>
+                        </group>
+                        <group>
+                            <button name="action_capturar_peso"
+                                    string="Capturar peso de báscula"
+                                    type="object"
+                                    class="btn-primary btn-lg"
+                                    icon="fa-balance-scale"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_registrar"
+                                string="Registrar y Siguiente"
+                                type="object"
+                                class="btn-primary"/>
+                        <button name="action_registrar_cerrar"
+                                string="Registrar y Cerrar"
+                                type="object"/>
+                        <button string="Descartar" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_registrar_viaje_wizard" model="ir.actions.act_window">
+            <field name="name">Registrar Viaje de Embolsado</field>
+            <field name="res_model">secadora.registrar.viaje.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>

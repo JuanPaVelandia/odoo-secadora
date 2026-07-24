@@ -13,7 +13,7 @@ import { useService } from "@web/core/utils/hooks";
  * El puerto se autoriza UNA vez por PC (botón "Conectar báscula"); Chrome lo
  * recuerda y reconecta solo en las siguientes visitas.
  */
-class PesoActualField extends Component {
+export class PesoActualField extends Component {
     setup() {
         this.orm = useService("orm");
         this.notification = useService("notification");

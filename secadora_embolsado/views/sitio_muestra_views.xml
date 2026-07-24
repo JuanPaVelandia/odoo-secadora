@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Herencia: Form de Sitio de Muestra — flag de estimación de seco -->
+        <record id="view_sitio_muestra_form_inherit_embolsado" model="ir.ui.view">
+            <field name="name">secadora.sitio.muestra.form.inherit.embolsado</field>
+            <field name="model">secadora.sitio.muestra</field>
+            <field name="inherit_id" ref="secadora_tablero.view_sitio_muestra_form_inherit_tablero"/>
+            <field name="arch" type="xml">
+                <field name="ocultar_calidad" position="after">
+                    <field name="mostrar_estimacion_seco"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

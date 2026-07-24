@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_silobolsa" model="ir.sequence">
+            <field name="name">Silobolsa</field>
+            <field name="code">secadora.silobolsa</field>
+            <field name="prefix">SB-</field>
+            <field name="padding">4</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_embolsado_viaje" model="ir.sequence">
+            <field name="name">Viaje de Embolsado</field>
+            <field name="code">secadora.embolsado.viaje</field>
+            <field name="prefix">EMB-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>
