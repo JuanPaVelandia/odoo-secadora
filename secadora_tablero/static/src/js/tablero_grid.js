@@ -6,7 +6,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { MoverDialog } from "./mover_dialog";
 
-class TableroGrid extends Component {
+export class TableroGrid extends Component {
     static template = "secadora_tablero.TableroGrid";
     static props = ["*"];
 

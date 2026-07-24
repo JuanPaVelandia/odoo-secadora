@@ -37,6 +37,7 @@
     'assets': {
         'web.assets_backend': [
             'secadora_embolsado/static/src/js/peso_embolsado_field.js',
+            'secadora_embolsado/static/src/js/tablero_grid_embolsado.js',
             'secadora_embolsado/static/src/xml/tablero_grid_embolsado.xml',
         ],
     },
