@@ -144,7 +144,7 @@ class Silobolsa(models.Model):
         if self.stock_move_id:
             return
 
-        producto = self.env.ref('secadora_embolsado.product_silobolsa', raise_if_not_found=False)
+        producto = self.env['product.product'].search([('name', '=', 'Silobolsa')], limit=1)
         if not producto:
             raise UserError('No se encontró el producto "Silobolsa". Reinstale el módulo de embolsado.')
 

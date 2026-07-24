@@ -23,7 +23,6 @@
         'security/security.xml',
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
-        'data/product_silobolsa_data.xml',
         'data/config_parameter_data.xml',
         'views/silobolsa_views.xml',
         'views/embolsado_viaje_views.xml',
@@ -44,4 +43,5 @@
     'application': False,
     'auto_install': False,
     'license': 'LGPL-3',
+    'post_init_hook': '_crear_producto_silobolsa',
 }
