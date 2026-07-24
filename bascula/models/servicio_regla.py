@@ -137,7 +137,18 @@ class ServicioRegla(models.Model):
 
         # Verificar modalidad de salida
         if self.modalidad_salida != 'todas':
-            if not orden.modalidad_salida or orden.modalidad_salida != self.modalidad_salida:
+            if not orden.modalidad_salida:
+                return False
+            if orden.modalidad_salida == 'mixta':
+                # En una OS mixta aplican las reglas de bultos y de granel,
+                # cada una sobre su porción (si esa porción existe)
+                if self.modalidad_salida == 'bultos' and orden.total_bultos <= 0:
+                    return False
+                if self.modalidad_salida == 'granel' and orden._peso_salida_granel() <= 0:
+                    return False
+                if self.modalidad_salida == 'silobolsa':
+                    return False
+            elif orden.modalidad_salida != self.modalidad_salida:
                 return False
 
         # Verificar tipo de operación
@@ -179,7 +190,14 @@ class ServicioRegla(models.Model):
         elif self.base_calculo == 'peso_entrada':
             return orden.peso_entrada * self.factor_multiplicador
         elif self.base_calculo == 'peso_salida':
-            return orden.peso_salida_real * self.factor_multiplicador
+            peso = orden.peso_salida_real
+            if orden.modalidad_salida == 'mixta':
+                # Regla específica por modalidad: cobrar solo sobre su porción
+                if self.modalidad_salida == 'bultos':
+                    peso = orden.peso_total_bultos
+                elif self.modalidad_salida == 'granel':
+                    peso = orden._peso_salida_granel()
+            return peso * self.factor_multiplicador
         elif self.base_calculo == 'bultos':
             return orden.total_bultos * self.factor_multiplicador
 

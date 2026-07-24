@@ -105,6 +105,44 @@ class DespacharPosicionWizard(models.TransientModel):
         string='Modalidad',
         readonly=True,
     )
+    # En OS mixta cada salida define su forma
+    modalidad_despacho = fields.Selection([
+        ('granel', 'Granel'),
+        ('bultos', 'Bultos'),
+    ], string='Esta salida va en',
+       default='granel',
+       help='Solo para órdenes con modalidad Mixta: cómo sale esta entrega.')
+    es_despacho_bultos = fields.Boolean(
+        compute='_compute_es_despacho_bultos',
+    )
+
+    @api.depends('modalidad_salida', 'modalidad_despacho')
+    def _compute_es_despacho_bultos(self):
+        for rec in self:
+            rec.es_despacho_bultos = (
+                rec.modalidad_salida == 'bultos'
+                or (rec.modalidad_salida == 'mixta' and rec.modalidad_despacho == 'bultos')
+            )
+
+    @api.onchange('modalidad_despacho')
+    def _onchange_modalidad_despacho(self):
+        """Al elegir bultos en una OS mixta, precargar una línea de empaque."""
+        if (self.modalidad_salida == 'mixta' and self.modalidad_despacho == 'bultos'
+                and not self.linea_ids):
+            producto_seco = self.env['product.template'].search(
+                [('name', '=', 'Arroz Paddy Seco')], limit=1
+            )
+            empaque_default = self.env.ref(
+                'bascula.product_bulto_50kg', raise_if_not_found=False
+            )
+            if producto_seco and empaque_default:
+                self.linea_ids = [(0, 0, {
+                    'producto_id': producto_seco.product_variant_id.id,
+                    'producto_empaque_id': empaque_default.id,
+                    'cantidad_bultos': 0,
+                    'peso_promedio': 50.0,
+                    'proveedor_empaque': 'secadora',
+                })]
 
     tipo_empaque = fields.Selection([
         ('total', 'Empaque Total (la tarjeta desaparece)'),
@@ -217,6 +255,9 @@ class DespacharPosicionWizard(models.TransientModel):
 
         ordenes = self.posicion_ids.mapped('orden_servicio_id')
         modalidad = self.modalidad_salida
+        if modalidad == 'mixta':
+            # En OS mixta la forma la define esta salida concreta
+            modalidad = self.modalidad_despacho
 
         if modalidad == 'bultos':
             lineas_con_cantidad = self.linea_ids.filtered(lambda l: l.cantidad_bultos > 0)

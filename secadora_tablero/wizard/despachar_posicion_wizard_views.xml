@@ -15,15 +15,18 @@
                         <group>
                             <field name="orden_servicio_id" readonly="1"/>
                             <field name="modalidad_salida" readonly="1"/>
+                            <field name="es_despacho_bultos" invisible="1"/>
+                            <field name="modalidad_despacho" widget="radio"
+                                   invisible="modalidad_salida != 'mixta'"/>
                             <field name="tipo_empaque" widget="radio"
-                                   invisible="modalidad_salida != 'bultos'"/>
+                                   invisible="not es_despacho_bultos"/>
                         </group>
                     </group>
                     <separator string="Posiciones"/>
                     <field name="posicion_ids" widget="many2many_checkboxes"/>
                     <separator string="Bultos Empacados"
-                               invisible="modalidad_salida != 'bultos'"/>
-                    <field name="linea_ids" invisible="modalidad_salida != 'bultos'">
+                               invisible="not es_despacho_bultos"/>
+                    <field name="linea_ids" invisible="not es_despacho_bultos">
                         <list editable="bottom">
                             <field name="producto_id"/>
                             <field name="producto_empaque_id"/>
@@ -37,10 +40,10 @@
                         <group>
                             <field name="peso_total" readonly="1" string="Peso Posiciones (kg)"/>
                         </group>
-                        <group invisible="modalidad_salida != 'bultos'">
+                        <group invisible="not es_despacho_bultos">
                             <field name="peso_total_lineas" readonly="1"/>
                         </group>
-                        <group invisible="modalidad_salida != 'bultos'">
+                        <group invisible="not es_despacho_bultos">
                             <field name="diferencia_peso" readonly="1"
                                    decoration-danger="diferencia_peso &lt; 0"
                                    decoration-warning="diferencia_peso &gt; 0"/>

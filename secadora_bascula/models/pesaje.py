@@ -207,7 +207,11 @@ class SecadoraPesajeStock(models.Model):
             return
 
         if self.direccion == 'salida':
-            if self.orden_servicio_id and self.orden_servicio_id.modalidad_salida == 'bultos':
+            orden = self.orden_servicio_id
+            if orden and (
+                orden.modalidad_salida == 'bultos'
+                or (orden.modalidad_salida == 'mixta' and self.despacho_bultos_ids)
+            ):
                 return self._crear_picking_salida_bultos()
             return self._crear_picking_salida_servicio()
 

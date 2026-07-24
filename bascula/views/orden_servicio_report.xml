@@ -127,7 +127,7 @@
                             <!-- Pesajes de Salida -->
                             <div style="margin-bottom: 20px;">
                                 <h4 style="background-color: #444444; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Pesajes de Salida</h4>
-                                <div t-if="o.modalidad_salida == 'bultos'" style="margin-bottom: 10px; padding: 8px; background-color: #fff3cd; border: 1px solid #ffc107; font-size: 11px;">
+                                <div t-if="o.modalidad_salida in ('bultos', 'mixta')" style="margin-bottom: 10px; padding: 8px; background-color: #fff3cd; border: 1px solid #ffc107; font-size: 11px;">
                                     <strong>Nota:</strong> La modalidad de salida es <strong>Empaque en Bultos</strong>.
                                     El peso de salida para la liquidación se toma del registro de bultos, no de estos pesajes.
                                 </div>
@@ -160,7 +160,7 @@
                             </div>
 
                             <!-- Detalle de Bultos Empacados -->
-                            <div t-if="o.modalidad_salida == 'bultos' and o.registro_bultos_ids" style="margin-bottom: 20px;">
+                            <div t-if="o.modalidad_salida in ('bultos', 'mixta') and o.registro_bultos_ids" style="margin-bottom: 20px;">
                                 <h4 style="background-color: #444444; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Registro de Bultos Empacados</h4>
                                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                                     <thead>
@@ -229,7 +229,7 @@
                                             <strong><span t-field="o.peso_salida_real" t-options='{"widget": "float", "precision": 2}'/> kg</strong>
                                         </td>
                                     </tr>
-                                    <tr t-if="o.modalidad_salida == 'bultos' and o.total_bultos > 0">
+                                    <tr t-if="o.modalidad_salida in ('bultos', 'mixta') and o.total_bultos > 0">
                                         <td style="padding: 8px; font-size: 14px;"><strong>Total Bultos:</strong></td>
                                         <td style="padding: 8px; text-align: right; font-size: 14px;">
                                             <strong>
@@ -238,7 +238,7 @@
                                             </strong>
                                         </td>
                                     </tr>
-                                    <tr t-if="o.modalidad_salida == 'bultos' and o.subtotal_empaques > 0">
+                                    <tr t-if="o.modalidad_salida in ('bultos', 'mixta') and o.subtotal_empaques > 0">
                                         <td style="padding: 8px; font-size: 14px;"><strong>Costo Empaques:</strong></td>
                                         <td style="padding: 8px; text-align: right; font-size: 14px;">
                                             <strong>$<span t-field="o.subtotal_empaques" t-options='{"widget": "float", "precision": 0}'/></strong>

@@ -130,13 +130,13 @@
                                     <field name="peso_salida_bascula" string="Total Salida" class="oe_subtotal_footer_separator"/>
                                 </group>
                                 <div class="alert alert-warning p-2" role="alert"
-                                     invisible="modalidad_salida != 'bultos'">
+                                     invisible="modalidad_salida not in ('bultos', 'mixta')">
                                     <strong>Nota:</strong> La modalidad de salida es <strong>Empaque en Bultos</strong>.
                                     El peso de salida para la liquidación se toma del registro de bultos, no de estos pesajes.
                                 </div>
                             </group>
                         </page>
-                        <page string="Bultos" invisible="modalidad_salida != 'bultos'">
+                        <page string="Bultos" invisible="modalidad_salida not in ('bultos', 'mixta')">
                             <field name="registro_bultos_ids" readonly="state == 'facturado'">
                                 <list editable="bottom"
                                       decoration-success="despachado"
@@ -194,7 +194,7 @@
                         </page>
                         <page string="Liquidación">
                             <div class="alert alert-warning p-2 mb-3" role="alert"
-                                 invisible="modalidad_salida != 'bultos'">
+                                 invisible="modalidad_salida not in ('bultos', 'mixta')">
                                 <strong>Nota:</strong> La modalidad de salida es <strong>Empaque en Bultos</strong>.
                                 El peso de salida real se toma del registro de bultos, no de los pesajes de salida en báscula.
                             </div>

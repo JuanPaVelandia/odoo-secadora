@@ -124,9 +124,12 @@ class OrdenServicio(models.Model):
         ('bultos', 'Empaque en Bultos'),
         ('granel', 'Granel (Pesaje Báscula)'),
         ('silobolsa', 'Almacenamiento en Silobolsa'),
+        ('mixta', 'Mixta (Bultos + Granel)'),
     ], string='Modalidad de Salida',
        tracking=True,
-       help='Cómo se entregará el arroz al cliente')
+       help='Cómo se entregará el arroz al cliente. En "Mixta" cada viaje de '
+            'salida define su forma: si el pesaje tiene bultos a despachar sale '
+            'en bultos; si no, a granel.')
 
     # ==================== REGISTRO DE BULTOS ====================
 
@@ -415,11 +418,21 @@ class OrdenServicio(models.Model):
                 record.pesaje_salida_ids.mapped('peso_neto')
             )
 
-    @api.depends('modalidad_salida', 'peso_total_bultos', 'peso_salida_bascula')
+    def _peso_salida_granel(self):
+        """Kg de báscula de los viajes de salida que salieron a granel
+        (sin bultos a despachar). En modalidad mixta cada viaje define su forma."""
+        self.ensure_one()
+        pesajes_granel = self.pesaje_salida_ids.filtered(lambda p: not p.despacho_bultos_ids)
+        return sum(pesajes_granel.mapped('peso_neto'))
+
+    @api.depends('modalidad_salida', 'peso_total_bultos', 'peso_salida_bascula',
+                 'pesaje_salida_ids.despacho_bultos_ids', 'pesaje_salida_ids.peso_neto')
     def _compute_peso_salida_real(self):
         for record in self:
             if record.modalidad_salida == 'bultos':
                 record.peso_salida_real = record.peso_total_bultos
+            elif record.modalidad_salida == 'mixta':
+                record.peso_salida_real = record.peso_total_bultos + record._peso_salida_granel()
             else:
                 record.peso_salida_real = record.peso_salida_bascula
 
@@ -559,14 +572,16 @@ class OrdenServicio(models.Model):
                     ('company_id', 'in', [False, orden.company_id.id]),
                 ], order='company_id desc', limit=1)
 
-                factor = regla.factor_multiplicador if regla else 1.0
-
-                if linea.base_calculo == 'peso_entrada':
-                    nueva_cantidad = orden.peso_entrada * factor
+                if regla:
+                    # La regla sabe calcular su cantidad (incluye el alcance
+                    # por modalidad cuando la OS es mixta)
+                    nueva_cantidad = regla.calcular_cantidad(orden)
+                elif linea.base_calculo == 'peso_entrada':
+                    nueva_cantidad = orden.peso_entrada
                 elif linea.base_calculo == 'peso_salida':
-                    nueva_cantidad = orden.peso_salida_real * factor
+                    nueva_cantidad = orden.peso_salida_real
                 else:  # bultos
-                    nueva_cantidad = orden.total_bultos * factor
+                    nueva_cantidad = orden.total_bultos
 
                 # cantidad está definido con digits=(12, 2)
                 if float_compare(nueva_cantidad, linea.cantidad, precision_digits=2) != 0:
