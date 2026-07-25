@@ -71,6 +71,14 @@ def main():
     refs = {r['external_ref'] for r in reqs}
     check('Órdenes migradas', len(ots), len(refs & ots))
     check('Órdenes duplicadas', len(refs), len(set(refs)))
+
+    # El número de Fracttal debe haber quedado como número oficial de la OT.
+    numeradas = o.buscar_leer('maintenance.request',
+                              [('ot_number', '!=', False)], ['ot_number'])
+    numeros = {r['ot_number'] for r in numeradas}
+    check('OT con número OT-<n>', len(ots), len(numeros & ots))
+    check('OT sin numerar', 0,
+          o.contar('maintenance.request', [('ot_number', '=', False)]))
     if ots - refs:
         for r in sorted(ots - refs)[:10]:
             print(f'          falta OT: {r}')

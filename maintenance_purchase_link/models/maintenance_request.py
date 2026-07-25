@@ -29,17 +29,51 @@ class MaintenanceRequest(models.Model):
         'res.currency',
         default=lambda self: self.env.company.currency_id,
     )
+    ot_number = fields.Char(
+        string='Nro. de OT',
+        index=True,
+        copy=False,
+        readonly=True,
+        default=lambda self: self._siguiente_ot_number(),
+        help='Número consecutivo de la orden (OT-1241, OT-1242, …). '
+             'Continúa la serie que traía Fracttal.',
+    )
     external_ref = fields.Char(
         string='Referencia externa',
         index=True,
         copy=False,
-        help='Id de la OT en el sistema de origen (ej. OT-999). '
-             'Se usa para no duplicar en re-importaciones.',
+        help='Id de la OT en el sistema de origen. Se usa para no duplicar '
+             'en re-importaciones.',
     )
     task_name = fields.Char(
         string='Tarea',
         help='Tarea tal como estaba registrada en el sistema de origen.',
     )
+
+    _unique_ot_number = models.Constraint(
+        'UNIQUE(ot_number)',
+        'Ya existe una orden de trabajo con ese número.',
+    )
+
+    @api.model
+    def _siguiente_ot_number(self):
+        return self.env['ir.sequence'].next_by_code('maintenance.request.ot')
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            # Las OT importadas traen su número de origen; el resto lo toma
+            # de la secuencia, que continúa esa misma serie.
+            if not vals.get('ot_number'):
+                vals['ot_number'] = self._siguiente_ot_number()
+        return super().create(vals_list)
+
+    def _compute_display_name(self):
+        for request in self:
+            if request.ot_number:
+                request.display_name = f'[{request.ot_number}] {request.name}'
+            else:
+                request.display_name = request.name
 
     @api.depends('cost_line_ids.amount')
     def _compute_cost_total(self):

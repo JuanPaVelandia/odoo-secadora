@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Numeración de órdenes de trabajo: continúa la serie que traía
+             Fracttal (OT-2 … OT-1240), sin ceros de relleno para que las
+             nuevas se vean igual que las históricas.
+             El número inicial lo ajusta la migración 19.0.6.0.0 según la OT
+             más alta que exista en la base. -->
+        <record id="seq_maintenance_request" model="ir.sequence">
+            <field name="name">Órdenes de trabajo de mantenimiento</field>
+            <field name="code">maintenance.request.ot</field>
+            <field name="prefix">OT-</field>
+            <field name="padding">0</field>
+            <field name="number_next">1241</field>
+            <field name="number_increment">1</field>
+            <field name="implementation">no_gap</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

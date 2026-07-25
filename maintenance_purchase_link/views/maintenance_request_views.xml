@@ -34,11 +34,45 @@
                 </div>
             </xpath>
 
+            <!-- Número de OT encima del título, como identificador del documento.
+                 Se ancla en el <label> del título: el <h1> ya está ocupado por
+                 el nombre de la solicitud. -->
+            <xpath expr="//div[hasclass('oe_title')]/label[@for='name']" position="before">
+                <h2 class="mb-0" invisible="not ot_number">
+                    <field name="ot_number" readonly="1" nolabel="1"
+                           class="text-primary fw-bold"/>
+                </h2>
+            </xpath>
+
             <!-- Datos de origen para las OT importadas de Fracttal -->
             <xpath expr="//field[@name='maintenance_type']" position="after">
                 <field name="task_name" readonly="1" invisible="not task_name"/>
                 <field name="external_ref" readonly="1" invisible="not external_ref"/>
             </xpath>
+        </field>
+    </record>
+
+    <!-- Número de OT en la lista -->
+    <record id="view_request_list_inherit_ot" model="ir.ui.view">
+        <field name="name">maintenance.request.list.inherit.ot</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="name" position="before">
+                <field name="ot_number" string="Nro. OT"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Buscar por número de OT -->
+    <record id="view_request_search_inherit_ot" model="ir.ui.view">
+        <field name="name">maintenance.request.search.inherit.ot</field>
+        <field name="model">maintenance.request</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_request_view_search"/>
+        <field name="arch" type="xml">
+            <field name="name" position="before">
+                <field name="ot_number" string="Nro. OT"/>
+            </field>
         </field>
     </record>
 

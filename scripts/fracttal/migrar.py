@@ -482,7 +482,11 @@ class Migracion:
                 f'<p><b>Costo total:</b> ${total:,.0f}</p>')
 
             vals = {
-                'name': f'[{id_ot}] {tarea}',
+                # El número de Fracttal se conserva como número oficial de la
+                # OT en Odoo, para que las referencias que la gente ya usa
+                # sigan siendo válidas. La secuencia continúa desde ahí.
+                'name': tarea,
+                'ot_number': id_ot,
                 'external_ref': id_ot,
                 'task_name': tarea,
                 'equipment_id': id_equipo,
