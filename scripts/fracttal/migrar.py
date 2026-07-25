@@ -357,8 +357,8 @@ class Migracion:
             return self.equipos[norm]
         destino = mapeo.LUGAR_EXISTENTE.get(finca, finca)
         id_lugar = self.lugares.get(mapeo.normalizar(destino))
-        if not id_lugar:
-            return None
+        # En simulacro los lugares del paso 1 aún no existen; el equipo se
+        # crea igual (sin lugar) para no perder la OT ni su costo.
         id_cia = self.cia(mapeo.COMPANIA_POR_DEFECTO)
         vals = {
             'name': nombre,
@@ -366,7 +366,7 @@ class Migracion:
             'company_id': id_cia,
             'category_id': self.categorias.get('Servicios generales'),
             'equipment_assign_to': 'other',
-            'lugar_id': id_lugar,
+            'lugar_id': id_lugar or False,
             'note': '<p>Equipo genérico creado en la migración de Fracttal '
                     'para agrupar las órdenes de trabajo registradas contra la '
                     'ubicación completa y no contra una máquina.</p>',
