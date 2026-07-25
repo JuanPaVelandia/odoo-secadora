@@ -18,8 +18,8 @@ class DespacharPosicionLinea(models.TransientModel):
         'product.product',
         string='Producto',
         required=True,
-        domain=[('categ_id.name', '=', 'Arroz')],
-        help='Producto de arroz a despachar (ej: Arroz Paddy Seco)',
+        domain=[('type', '=', 'consu'), ('categ_id.name', '!=', 'Empaques')],
+        help='Producto a despachar (ej: Arroz Paddy Seco, Maíz)',
     )
     producto_empaque_id = fields.Many2one(
         'product.product',
@@ -124,20 +124,30 @@ class DespacharPosicionWizard(models.TransientModel):
                 or (rec.modalidad_salida == 'mixta' and rec.modalidad_despacho == 'bultos')
             )
 
+    @api.model
+    def _producto_default_linea(self, posiciones):
+        """Producto a precargar en la línea de bultos: el de las tarjetas
+        seleccionadas (ej. Maíz) o, en su defecto, Arroz Paddy Seco."""
+        productos = posiciones.mapped('producto_id') if posiciones else self.env['product.product']
+        if len(productos) == 1:
+            return productos
+        producto_seco = self.env['product.template'].search(
+            [('name', '=', 'Arroz Paddy Seco')], limit=1
+        )
+        return producto_seco.product_variant_id if producto_seco else False
+
     @api.onchange('modalidad_despacho')
     def _onchange_modalidad_despacho(self):
         """Al elegir bultos en una OS mixta, precargar una línea de empaque."""
         if (self.modalidad_salida == 'mixta' and self.modalidad_despacho == 'bultos'
                 and not self.linea_ids):
-            producto_seco = self.env['product.template'].search(
-                [('name', '=', 'Arroz Paddy Seco')], limit=1
-            )
+            producto = self._producto_default_linea(self.posicion_ids)
             empaque_default = self.env.ref(
                 'bascula.product_bulto_50kg', raise_if_not_found=False
             )
-            if producto_seco and empaque_default:
+            if producto and empaque_default:
                 self.linea_ids = [(0, 0, {
-                    'producto_id': producto_seco.product_variant_id.id,
+                    'producto_id': producto.id,
                     'producto_empaque_id': empaque_default.id,
                     'cantidad_bultos': 0,
                     'peso_promedio': 50.0,
@@ -211,15 +221,13 @@ class DespacharPosicionWizard(models.TransientModel):
             # Precargar línea de bultos solo si la modalidad es bultos
             orden = ordenes[0] if ordenes else False
             if orden and orden.modalidad_salida == 'bultos':
-                producto_seco = self.env['product.template'].search(
-                    [('name', '=', 'Arroz Paddy Seco')], limit=1
-                )
+                producto = self._producto_default_linea(posiciones)
                 empaque_default = self.env.ref(
                     'bascula.product_bulto_50kg', raise_if_not_found=False
                 )
-                if producto_seco and empaque_default:
+                if producto and empaque_default:
                     res['linea_ids'] = [(0, 0, {
-                        'producto_id': producto_seco.product_variant_id.id,
+                        'producto_id': producto.id,
                         'producto_empaque_id': empaque_default.id,
                         'cantidad_bultos': 0,
                         'peso_promedio': 50.0,
