@@ -18,7 +18,8 @@ class DespacharPosicionLinea(models.TransientModel):
         'product.product',
         string='Producto',
         required=True,
-        domain=[('type', '=', 'consu'), ('categ_id.name', '!=', 'Empaques')],
+        domain=['&', ('type', '=', 'consu'),
+                '|', ('categ_id', '=', False), ('categ_id.name', 'not ilike', 'empaque')],
         help='Producto a despachar (ej: Arroz Paddy Seco, Maíz)',
     )
     producto_empaque_id = fields.Many2one(

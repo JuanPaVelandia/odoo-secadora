@@ -15,7 +15,8 @@ def _crear_producto_silobolsa(env):
     if env['product.template'].search([('name', '=', 'Silobolsa')], limit=1):
         return
 
-    categoria = env['product.category'].search([('name', '=', 'Empaques')], limit=1)
+    # ilike: en algunas bases la categoría se llama "EMPAQUES" (mayúsculas)
+    categoria = env['product.category'].search([('name', '=ilike', 'empaques')], limit=1)
     uom_unidad = env.ref('uom.product_uom_unit', raise_if_not_found=False)
 
     env['product.template'].create({
