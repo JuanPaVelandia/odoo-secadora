@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===== Costos históricos (sin factura) ===== -->
+    <record id="view_historic_cost_list" model="ir.ui.view">
+        <field name="name">maintenance.historic.cost.list</field>
+        <field name="model">maintenance.historic.cost</field>
+        <field name="arch" type="xml">
+            <list string="Costos históricos" create="0">
+                <field name="date"/>
+                <field name="external_ref" string="OT origen"/>
+                <field name="equipment_id"/>
+                <field name="request_id" optional="show"/>
+                <field name="name"/>
+                <field name="code" optional="hide"/>
+                <field name="resource_type" optional="show"/>
+                <field name="source_name" optional="hide"/>
+                <field name="partner_id" optional="hide"/>
+                <field name="quantity" sum="Cantidad"/>
+                <field name="uom_name" optional="hide"/>
+                <field name="unit_cost" optional="hide"/>
+                <field name="amount" sum="Total"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_historic_cost_form" model="ir.ui.view">
+        <field name="name">maintenance.historic.cost.form</field>
+        <field name="model">maintenance.historic.cost</field>
+        <field name="arch" type="xml">
+            <form string="Costo histórico">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="equipment_id"/>
+                            <field name="request_id"/>
+                            <field name="date"/>
+                            <field name="name"/>
+                            <field name="code"/>
+                            <field name="resource_type"/>
+                        </group>
+                        <group>
+                            <field name="quantity"/>
+                            <field name="uom_name"/>
+                            <field name="unit_cost"/>
+                            <field name="amount"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group string="Origen">
+                        <field name="source_name"/>
+                        <field name="partner_id"/>
+                        <field name="origin"/>
+                        <field name="external_ref"/>
+                    </group>
+                    <group string="Notas">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_historic_cost_search" model="ir.ui.view">
+        <field name="name">maintenance.historic.cost.search</field>
+        <field name="model">maintenance.historic.cost</field>
+        <field name="arch" type="xml">
+            <search string="Costos históricos">
+                <field name="equipment_id"/>
+                <field name="name"/>
+                <field name="external_ref"/>
+                <field name="source_name"/>
+                <filter name="filter_inventory" string="Inventario"
+                        domain="[('resource_type','=','inventory')]"/>
+                <filter name="filter_service" string="Servicios"
+                        domain="[('resource_type','=','service')]"/>
+                <separator/>
+                <filter name="filter_date" string="Fecha" date="date"/>
+                <group expand="0" string="Agrupar por">
+                    <filter name="group_equipment" string="Equipo"
+                            context="{'group_by':'equipment_id'}"/>
+                    <filter name="group_request" string="Orden de trabajo"
+                            context="{'group_by':'request_id'}"/>
+                    <filter name="group_type" string="Tipo de recurso"
+                            context="{'group_by':'resource_type'}"/>
+                    <filter name="group_source" string="Fuente"
+                            context="{'group_by':'source_name'}"/>
+                    <filter name="group_date" string="Mes"
+                            context="{'group_by':'date:month'}"/>
+                    <filter name="group_company" string="Compañía"
+                            context="{'group_by':'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_historic_costs" model="ir.actions.act_window">
+        <field name="name">Costos históricos</field>
+        <field name="res_model">maintenance.historic.cost</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+        <field name="search_view_id" ref="view_historic_cost_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay costos históricos registrados
+            </p>
+            <p>
+                Aquí se ven los costos de mantenimiento importados de sistemas
+                externos (Fracttal), que no tienen factura asociada en Odoo.
+            </p>
+        </field>
+    </record>
+
+    <!-- ===== Historial de ubicación ===== -->
+    <record id="view_equipment_location_history_list" model="ir.ui.view">
+        <field name="name">maintenance.equipment.location.history.list</field>
+        <field name="model">maintenance.equipment.location.history</field>
+        <field name="arch" type="xml">
+            <list string="Historial de ubicación">
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="equipment_id"/>
+                <field name="lugar_id"/>
+                <field name="origen_muestra_id" optional="show"/>
+                <field name="parent_equipment_id" optional="hide"/>
+                <field name="is_current" widget="boolean_toggle" readonly="1"/>
+                <field name="origin" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equipment_location_history_form" model="ir.ui.view">
+        <field name="name">maintenance.equipment.location.history.form</field>
+        <field name="model">maintenance.equipment.location.history</field>
+        <field name="arch" type="xml">
+            <form string="Ubicación del equipo">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="equipment_id"/>
+                            <field name="lugar_id"/>
+                            <field name="origen_muestra_id"/>
+                            <field name="parent_equipment_id"/>
+                        </group>
+                        <group>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="is_current" readonly="1"/>
+                            <field name="origin"/>
+                        </group>
+                    </group>
+                    <group string="Notas">
+                        <field name="notes" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_equipment_location_history" model="ir.actions.act_window">
+        <field name="name">Historial de ubicación</field>
+        <field name="res_model">maintenance.equipment.location.history</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+</odoo>

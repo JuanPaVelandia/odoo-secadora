@@ -21,6 +21,48 @@
                         <span class="o_stat_text">Costos</span>
                     </div>
                 </button>
+                <!-- Smart button: Costos históricos (sin factura) -->
+                <button name="action_view_historic_costs"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-history"
+                        invisible="historic_cost_total == 0"
+                        groups="maintenance.group_equipment_manager">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="historic_cost_total" widget="monetary"/>
+                        </span>
+                        <span class="o_stat_text">Histórico</span>
+                    </div>
+                </button>
+                <!-- Smart button: Componentes -->
+                <button name="action_view_components"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-sitemap"
+                        invisible="component_count == 0"
+                        groups="maintenance.group_equipment_manager">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="component_count"/>
+                        </span>
+                        <span class="o_stat_text">Componentes</span>
+                    </div>
+                </button>
+                <!-- Smart button: Historial de ubicación -->
+                <button name="action_view_location_history"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-map-marker"
+                        invisible="location_history_count == 0"
+                        groups="maintenance.group_equipment_manager">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="location_history_count"/>
+                        </span>
+                        <span class="o_stat_text">Ubicaciones</span>
+                    </div>
+                </button>
                 <!-- Smart button: Horómetro -->
                 <button name="action_view_horometro_readings"
                         type="object"
@@ -43,6 +85,8 @@
                  employee_id en el formulario cuando hr está instalado. -->
             <xpath expr="//field[@name='category_id']" position="after">
                 <field name="lugar_id"/>
+                <field name="origen_muestra_id"/>
+                <field name="parent_equipment_id"/>
             </xpath>
 
             <!-- Grupo de horómetro después del bloque principal de información -->
@@ -51,6 +95,12 @@
                     <field name="horometro_interval"/>
                     <field name="horometro_last_maintenance"/>
                     <field name="horometro_current" readonly="1"/>
+                </group>
+                <group string="Costos" name="costos_group">
+                    <field name="maintenance_cost_total" readonly="1"/>
+                    <field name="historic_cost_total" readonly="1"/>
+                    <field name="maintenance_cost_grand_total" readonly="1"/>
+                    <field name="external_ref" readonly="1"/>
                 </group>
             </xpath>
         </field>

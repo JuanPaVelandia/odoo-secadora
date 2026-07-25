@@ -20,6 +20,16 @@
         groups="maintenance.group_equipment_manager"
     />
 
+    <!-- Submenú: Costos históricos (importados, sin factura) -->
+    <menuitem
+        id="menu_historic_costs"
+        name="Costos históricos"
+        parent="menu_maintenance_costs_root"
+        action="action_historic_costs"
+        sequence="7"
+        groups="maintenance.group_equipment_manager"
+    />
+
     <!-- Submenú: Asignar factura -->
     <menuitem
         id="menu_assign_invoice"
@@ -30,6 +40,16 @@
         groups="maintenance.group_equipment_manager"
     />
 
+
+    <!-- Menú: Historial de ubicación de equipos -->
+    <menuitem
+        id="menu_equipment_location_history"
+        name="Historial de ubicaciones"
+        parent="maintenance.menu_maintenance_title"
+        action="action_equipment_location_history"
+        sequence="46"
+        groups="maintenance.group_equipment_manager"
+    />
 
     <!-- Submenú: Lecturas de horómetro -->
     <menuitem

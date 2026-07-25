@@ -47,7 +47,10 @@ class MaintenanceHorometroReading(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
-        records._check_maintenance_trigger()
+        # Al importar historial (Fracttal) las lecturas son del pasado: no deben
+        # generar solicitudes de mantenimiento como si vencieran hoy.
+        if not self.env.context.get('importando_historico'):
+            records._check_maintenance_trigger()
         return records
 
     def _check_maintenance_trigger(self):

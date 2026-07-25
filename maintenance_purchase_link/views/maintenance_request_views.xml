@@ -24,6 +24,19 @@
                             <span class="o_stat_text">Costos</span>
                         </div>
                     </button>
+                    <button name="action_view_historic_costs"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-history"
+                            invisible="historic_cost_total == 0"
+                            groups="maintenance.group_equipment_manager">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="historic_cost_total" widget="monetary"/>
+                            </span>
+                            <span class="o_stat_text">Histórico</span>
+                        </div>
+                    </button>
                     <button name="action_assign_invoice"
                             type="object"
                             class="oe_stat_button"
@@ -32,6 +45,12 @@
                         <span class="o_stat_text">Asignar factura</span>
                     </button>
                 </div>
+            </xpath>
+
+            <!-- Datos de origen para las OT importadas de Fracttal -->
+            <xpath expr="//field[@name='maintenance_type']" position="after">
+                <field name="task_name" readonly="1" invisible="not task_name"/>
+                <field name="external_ref" readonly="1" invisible="not external_ref"/>
             </xpath>
         </field>
     </record>
