@@ -16,6 +16,10 @@
         'purchase',
         'analytic',
         'bascula',
+        # Aporta `secadora.origen.muestra`: el catálogo de áreas de proceso que
+        # se reusa para ubicar equipos dentro de la planta, en vez de duplicar
+        # ese listado aquí.
+        'secadora_calidad',
         'custom_webviewlink',
     ],
     'data': [
