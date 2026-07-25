@@ -346,6 +346,41 @@ class Migracion:
     # ------------------------------------------------------------------
     # 4. Órdenes de trabajo + costos históricos
     # ------------------------------------------------------------------
+    def _equipo_infraestructura(self, finca):
+        """Equipo genérico que recibe el mantenimiento de una finca completa.
+
+        Se crea bajo demanda y solo si la finca existe como `secadora.lugar`.
+        """
+        nombre = mapeo.equipo_generico_de(finca)
+        norm = mapeo.normalizar(nombre)
+        if norm in self.equipos:
+            return self.equipos[norm]
+        destino = mapeo.LUGAR_EXISTENTE.get(finca, finca)
+        id_lugar = self.lugares.get(mapeo.normalizar(destino))
+        if not id_lugar:
+            return None
+        id_cia = self.cia(mapeo.COMPANIA_POR_DEFECTO)
+        vals = {
+            'name': nombre,
+            'external_ref': f'INFRA-{mapeo.normalizar(finca)}',
+            'company_id': id_cia,
+            'category_id': self.categorias.get('Servicios generales'),
+            'equipment_assign_to': 'other',
+            'lugar_id': id_lugar,
+            'note': '<p>Equipo genérico creado en la migración de Fracttal '
+                    'para agrupar las órdenes de trabajo registradas contra la '
+                    'ubicación completa y no contra una máquina.</p>',
+        }
+        if APLICAR:
+            nuevo = self.o.crear('maintenance.equipment', vals)
+        else:
+            nuevo = -1
+        self.equipos[norm] = nuevo
+        self.equipo_cia[norm] = id_cia
+        self.stats['equipos_infraestructura'] += 1
+        log(f'CREAR equipo de infraestructura: {nombre}')
+        return nuevo
+
     def paso_ordenes(self):
         titulo('4. ÓRDENES DE TRABAJO → maintenance.request + costos históricos')
         o = self.o
@@ -377,6 +412,13 @@ class Migracion:
             nombre_activo = (cab.get('Activo') or '').strip()
             nombre_activo = mapeo.ALIAS_ACTIVO.get(nombre_activo, nombre_activo)
             id_equipo = self.equipos.get(mapeo.normalizar(nombre_activo))
+            # OT registrada contra la finca entera, no contra una máquina:
+            # se imputa al equipo genérico de infraestructura de esa finca.
+            if not id_equipo and mapeo.es_ot_de_ubicacion(nombre_activo):
+                finca = mapeo.finca_de_ot_ubicacion(nombre_activo)
+                id_equipo = self._equipo_infraestructura(finca)
+                if id_equipo:
+                    self.stats['ot_de_ubicacion'] += 1
             if not id_equipo:
                 sin_activo.add(nombre_activo or '(vacío)')
                 self.stats['ot_sin_activo'] += 1
@@ -490,6 +532,8 @@ class Migracion:
             ('activos_raiz', '  · de los cuales raíz'),
             ('componentes', '  · de los cuales componentes'),
             ('activos_existentes', 'Equipos que ya existían (omitidos)'),
+            ('equipos_infraestructura', 'Equipos de infraestructura creados'),
+            ('ot_de_ubicacion', 'Órdenes imputadas a infraestructura'),
             ('historial_ubicacion', 'Registros de historial de ubicación'),
             ('equipos_con_horometro', 'Equipos con horómetro'),
             ('lecturas_horometro', 'Lecturas de horómetro'),

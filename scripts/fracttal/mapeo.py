@@ -67,7 +67,8 @@ LUGAR_EXISTENTE = {
     'FINCA MATA DE COROZO': 'HATO COROZAL',       # Mata de Corozo está en Hato Corozal
 }
 
-# Fincas de Fracttal que no existen en Odoo y hay que crear como `secadora.lugar`.
+# Fincas de Fracttal que pueden no existir en Odoo. Solo se crean si faltan:
+# en `secadora_2` La Milagrosa ya está, en `odoo_prueba_4` no.
 LUGAR_A_CREAR = {
     'FINCA LA MILAGROSA': {'tipo': 'finca', 'municipio': 'YOPAL',
                            'departamento': 'CASANARE', 'codigo': 'F-MIL'},
@@ -177,4 +178,33 @@ TIPO_RECURSO = {
 ALIAS_ACTIVO = {
     'COMB JHON DEERE 1175 HYDRO JV 1': 'COMB JOHN DEERE 1175 HYDRO JV 1',
     'TRACT JHON DEERE 6603 JV 1': 'TRACT JOHN DEERE 6603 JV 1',
+    # El export de OT nombra el motor sin la cilindrada, y hay dos (100cc y
+    # 80cc). Se imputa a la máquina que los contiene, que sí es inequívoca.
+    'MOTOR HIDRAULICO ORB "SAUER DANF" (DESEMB-ALM-1)':
+        'DESEMBOLSADORA AKRON ALM 1',
+    'BANDA TRANSP INVEIN RECIBE PULMONES VERDE PREL 1':
+        'ELEVADOR IMSAFE LLENA PULMONES VERDE PREL 4',
 }
+
+# Algunas OT se registraron contra la ubicación completa y no contra una
+# máquina ("FINCA CAMELIAS  SAN LUIS DE PALENQUE ... { F-CAM }"). Son
+# mantenimientos de la finca (adecuación de vías, cercas, etc.). Para no
+# perder el costo se crea un equipo genérico por finca que los recibe.
+_RE_OT_UBICACION = re.compile(r'\{\s*([A-Z-]+)\s*\}\s*$')
+
+
+def es_ot_de_ubicacion(nombre_activo):
+    """True si la OT apunta a una ubicación y no a una máquina."""
+    return bool(_RE_OT_UBICACION.search((nombre_activo or '').strip()))
+
+
+def finca_de_ot_ubicacion(nombre_activo):
+    """'FINCA CAMELIAS  SAN LUIS...  { F-CAM }' → 'FINCA CAMELIAS'."""
+    txt = _RE_OT_UBICACION.sub('', (nombre_activo or '').strip()).strip()
+    # El texto es "NOMBRE  MUNICIPIO  DEPTO PAIS" separado por doble espacio.
+    return re.split(r'\s{2,}', txt)[0].strip()
+
+
+# Nombre del equipo genérico que agrupa el mantenimiento de una ubicación.
+def equipo_generico_de(finca):
+    return f'{finca} - INFRAESTRUCTURA'
