@@ -377,6 +377,7 @@ class DespacharPosicionWizard(models.TransientModel):
                 if existente:
                     existente.write({
                         'cantidad': existente.cantidad + linea.cantidad_bultos,
+                        'origen': 'tablero',
                     })
                 else:
                     RegistroBultos.create({
@@ -388,4 +389,5 @@ class DespacharPosicionWizard(models.TransientModel):
                         'proveedor_empaque': linea.proveedor_empaque,
                         'precio_unitario_empaque': linea.producto_empaque_id.list_price,
                         'observaciones': observaciones,
+                        'origen': 'tablero',
                     })

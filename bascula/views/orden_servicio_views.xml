@@ -152,6 +152,7 @@
                                     <field name="subtotal_empaque" sum="Total Empaques"/>
                                     <field name="cantidad_despachada" sum="Despachados"/>
                                     <field name="cantidad_pendiente" sum="Pendientes"/>
+                                    <field name="origen" optional="show"/>
                                     <field name="observaciones" optional="show"/>
                                 </list>
                             </field>

@@ -174,6 +174,16 @@ class RegistroBultos(models.Model):
         ('facturado', 'Facturado'),
     ], string='Estado', default='borrador')
 
+    origen = fields.Selection([
+        ('manual', 'Manual'),
+        ('tablero', 'Despacho de Tablero'),
+    ], string='Origen',
+       default='manual',
+       readonly=True,
+       help='Los registros creados por un despacho del tablero representan '
+            'arroz que ya salió de un contenedor: solo un administrador de '
+            'báscula puede eliminarlos.')
+
     # ==================== COMPUTED FIELDS ====================
 
     @api.depends('despacho_ids.cantidad', 'despacho_ids.confirmado', 'cantidad')
@@ -236,6 +246,42 @@ class RegistroBultos(models.Model):
         return res
 
     def unlink(self):
+        es_admin = self.env.user.has_group('bascula.group_bascula_admin')
+        for record in self:
+            if record.state != 'borrador':
+                raise UserError(
+                    'No se puede eliminar el registro de bultos %s: está %s. '
+                    'Los registros confirmados o facturados no se eliminan.' % (
+                        record.name, dict(record._fields['state'].selection).get(record.state))
+                )
+            if record.despacho_ids:
+                raise UserError(
+                    'No se puede eliminar el registro %s: tiene despachos '
+                    'vinculados a pesajes de salida.' % record.name
+                )
+            if record.origen == 'tablero' and not es_admin:
+                raise UserError(
+                    'El registro %s nació de un despacho del tablero (arroz que ya '
+                    'salió de un contenedor). Solo un administrador de báscula '
+                    'puede eliminarlo.' % record.name
+                )
+        # Dejar rastro en el chatter de la OS con los datos, para poder
+        # reconstruirlo si el borrado fue un error
+        for record in self:
+            if record.orden_id:
+                record.orden_id.message_post(body=(
+                    'Registro de bultos eliminado por %s: %s — %s × %s '
+                    '(peso promedio %.2f kg, total %.2f kg, empaque %s, origen %s)' % (
+                        self.env.user.name,
+                        record.producto_id.display_name or '',
+                        record.cantidad,
+                        record.producto_empaque_id.display_name or '',
+                        record.peso_promedio,
+                        record.peso_total,
+                        dict(record._fields['proveedor_empaque'].selection).get(record.proveedor_empaque, ''),
+                        dict(record._fields['origen'].selection).get(record.origen, ''),
+                    )
+                ))
         ordenes = self.mapped('orden_id')
         res = super().unlink()
         ordenes.recalcular_servicios()
