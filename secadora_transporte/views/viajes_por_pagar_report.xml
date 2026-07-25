@@ -90,8 +90,8 @@
                                     </div>
                                     <div class="col-6">
                                         <strong>Girar a:</strong> <span t-field="o.partner_id.name"/><br/>
-                                        <t t-if="o.partner_id.vat">
-                                            <strong>NIT:</strong> <span t-field="o.partner_id.vat"/><br/>
+                                        <t t-if="o.partner_id.vat_co or o.partner_id.vat">
+                                            <strong>NIT:</strong> <span t-esc="o.partner_id.vat_co or o.partner_id.vat"/><br/>
                                         </t>
                                         <t t-set="transportadora_flete" t-value="fletes_factura[:1].transportadora_id"/>
                                         <t t-if="transportadora_flete and transportadora_flete.partner_id != o.partner_id">
@@ -147,7 +147,7 @@
                                             </tr>
                                             <tr>
                                                 <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">NIT / CC</td>
-                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="o.partner_id.vat or '—'"/></td>
+                                                <td style="padding: 7px 12px; border-bottom: 1px solid #ddd; vertical-align: middle;"><span t-esc="o.partner_id.vat_co or o.partner_id.vat or '—'"/></td>
                                             </tr>
                                             <tr>
                                                 <td style="padding: 7px 12px; background-color: #f4f4f4; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; font-size: 9px; letter-spacing: 0.5px; color: #555; vertical-align: middle;">BANCO</td>
