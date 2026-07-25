@@ -79,7 +79,7 @@
                         domain="[('resource_type','=','service')]"/>
                 <separator/>
                 <filter name="filter_date" string="Fecha" date="date"/>
-                <group expand="0" string="Agrupar por">
+                <group>
                     <filter name="group_equipment" string="Equipo"
                             context="{'group_by':'equipment_id'}"/>
                     <filter name="group_request" string="Orden de trabajo"
