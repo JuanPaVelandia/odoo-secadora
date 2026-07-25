@@ -378,6 +378,19 @@ class SecadoraPesaje(models.Model):
                 vals = dict(vals, permite_edicion=False)
 
         res = super().write(vals)
+        # Confirmar líneas de despacho agregadas a un pesaje ya completado
+        # (edición reabierta): la confirmación normal solo ocurre en la 2ª
+        # pesada, así que sin esto quedarían pendientes para siempre y la OS
+        # no descontaría los bultos. Se espera a que la edición esté cerrada
+        # (permite_edicion=False) para no confirmar a medio editar.
+        por_confirmar = self.filtered(
+            lambda p: p.state == 'completado' and not p.permite_edicion
+            and p.despacho_bultos_ids.filtered(lambda d: not d.confirmado)
+        )
+        for record in por_confirmar:
+            record.despacho_bultos_ids.filtered(
+                lambda d: not d.confirmado).write({'confirmado': True})
+            record._aplicar_resumen_despacho()
         # Si cambió algo que afecta el peso de la orden, recalcular sus
         # servicios automáticos (fuera de cualquier campo calculado).
         if {'peso_bruto', 'peso_tara', 'state', 'orden_servicio_id'} & set(vals):
