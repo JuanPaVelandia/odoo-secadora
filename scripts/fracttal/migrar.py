@@ -120,48 +120,23 @@ class Migracion:
             self.stats['areas_creadas'] += 1
 
         # --- Talleres y proveedores de servicio ---
-        # Se toman del catálogo de ubicaciones Y de las fuentes que realmente
-        # aparecen en las OT (hay talleres que no están en UBICACIONES.xlsx).
-        apariciones = defaultdict(int)
-        for f in leer_export('OT-RECURSOS.xlsx'):
-            proveedor = mapeo.proveedor_de_fuente(f.get('Fuente del Recurso'))
-            if proveedor:
-                apariciones[proveedor] += 1
-        nombres = set(mapeo.TALLERES) | {
-            n for n, veces in apariciones.items()
-            if veces >= mapeo.MIN_APARICIONES_PROVEEDOR
-        }
-        descartados = [n for n, veces in apariciones.items()
-                       if veces < mapeo.MIN_APARICIONES_PROVEEDOR
-                       and n not in mapeo.TALLERES]
-        if descartados:
-            log(f'{len(descartados)} fuentes de una sola aparición no se crean '
-                f'como contacto (texto libre); el dato queda en el costo.')
-
-        for taller in sorted(nombres):
-            norm = mapeo.normalizar(taller)
-            if norm in self.partners:
-                continue
-            # Se busca sin distinguir mayúsculas para no duplicar un contacto
-            # que ya exista con otra grafía.
-            existente = o.buscar('res.partner', [('name', '=ilike', taller)],
+        # NO se crean contactos: el catálogo de contactos se comparte con
+        # contabilidad y "Fuente del Recurso" es texto libre de Fracttal
+        # (mezcla talleres reales con descripciones del trabajo). El nombre de
+        # la fuente se conserva en `source_name` de cada costo, y si un taller
+        # YA existe como contacto en Odoo se enlaza, pero nunca se da de alta.
+        fuentes = {mapeo.proveedor_de_fuente(f.get('Fuente del Recurso'))
+                   for f in leer_export('OT-RECURSOS.xlsx')}
+        fuentes = {f for f in fuentes if f} | set(mapeo.TALLERES)
+        for nombre in sorted(fuentes):
+            existente = o.buscar('res.partner', [('name', '=ilike', nombre)],
                                  limit=1)
             if existente:
-                self.partners[norm] = existente[0]
-                continue
-            if APLICAR:
-                nuevo = o.crear('res.partner', {
-                    'name': taller,
-                    'company_type': 'company',
-                    'supplier_rank': 1,
-                    'comment': 'Proveedor de mantenimiento importado de Fracttal.',
-                })
-                self.partners[norm] = nuevo
-            else:
-                self.partners[norm] = -1
-            self.stats['talleres_creados'] += 1
-        log(f'Proveedores de mantenimiento: {self.stats["talleres_creados"]} '
-            f'creados, {len(nombres) - self.stats["talleres_creados"]} ya existían')
+                self.partners[mapeo.normalizar(nombre)] = existente[0]
+                self.stats['proveedores_enlazados'] += 1
+        log(f'Fuentes de recurso: {len(fuentes)} | ya existen como contacto y '
+            f'se enlazan: {self.stats["proveedores_enlazados"]} '
+            f'(no se crea ninguno)')
 
         # --- Un equipo de mantenimiento por compañía (campo requerido en la OT) ---
         for nombre_cia, id_cia in self.companias.items():
@@ -581,7 +556,7 @@ class Migracion:
         etiquetas = [
             ('lugares_creados', 'Lugares creados'),
             ('areas_creadas', 'Áreas de proceso creadas'),
-            ('talleres_creados', 'Talleres creados como proveedor'),
+            ('proveedores_enlazados', 'Proveedores enlazados (ya existían)'),
             ('equipos_mant_creados', 'Equipos de mantenimiento creados'),
             ('activos_creados', 'Equipos creados'),
             ('activos_raiz', '  · de los cuales raíz'),

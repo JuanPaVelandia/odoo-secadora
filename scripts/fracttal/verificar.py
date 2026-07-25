@@ -79,11 +79,17 @@ def main():
     print('\nCOSTOS HISTÓRICOS')
     total_origen = sum(a_float(f.get('coste Total')) for f in filas)
     lineas_origen = len([f for f in filas if f.get('Id OT')])
-    costos = o.buscar_leer('maintenance.historic.cost',
-                           [('origin', '=', 'Fracttal')], ['amount'])
-    check('Líneas de costo', lineas_origen, len(costos))
-    check('Importe total', round(total_origen, 2),
-          round(sum(c['amount'] for c in costos), 2), tolerancia=1.0)
+    # Paginado: leer miles de registros de una vez trunca la respuesta XML-RPC.
+    dominio = [('origin', '=', 'Fracttal')]
+    n_costos = o.contar('maintenance.historic.cost', dominio)
+    suma = 0.0
+    for desplazamiento in range(0, n_costos, 1000):
+        suma += sum(c['amount'] for c in o.buscar_leer(
+            'maintenance.historic.cost', dominio, ['amount'],
+            offset=desplazamiento, limit=1000, order='id'))
+    check('Líneas de costo', lineas_origen, n_costos)
+    check('Importe total', round(total_origen, 2), round(suma, 2),
+          tolerancia=1.0)
 
     # ---------------- Horómetros ----------------
     print('\nHORÓMETROS')

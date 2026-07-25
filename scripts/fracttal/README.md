@@ -9,6 +9,7 @@ antes) en el módulo de mantenimiento de Odoo v19.
 |---|---|---|
 | `ACTIVOS.xlsx` | `maintenance.equipment` | 265 (195 raíz + 70 componentes) |
 | `UBICACIONES.xlsx` | `secadora.lugar` / `secadora.origen.muestra` | 24 → se reusan las existentes |
+| Fuentes de recurso | (solo texto en el costo) | no se crean contactos |
 | `OT-RECURSOS.xlsx` | `maintenance.request` + `maintenance.historic.cost` | 1.171 OT / 5.861 líneas |
 | `Horómetros/*.xlsx` | `maintenance.horometro.reading` | 833 lecturas en 21 tractores |
 | `MEDIDORES_HOY.xlsx` | `horometro_last_maintenance` del equipo | 21 medidores |
@@ -28,8 +29,12 @@ crean como lugar: se reusa el catálogo `secadora.origen.muestra` de
 lugares que realmente falten (La Milagrosa, Don Ruperto) y las dos áreas que
 no estaban (Laboratorio, Subestación).
 
-**Talleres.** No son ubicación de maquinaria sino quien presta el servicio:
-se crean como `res.partner` proveedor y quedan enlazados en el costo.
+**Talleres.** No son ubicación de maquinaria sino quien presta el servicio. La
+migración **no da de alta contactos**: el catálogo se comparte con contabilidad
+y el campo "Fuente del Recurso" de Fracttal es texto libre (mezcla talleres
+reales con descripciones del trabajo: "MOTOR NUEVO", "TAPIZADO", "-"). El
+nombre del taller queda siempre en el costo (`source_name`); si además existe
+ya como contacto en Odoo, se enlaza.
 
 **Compañías**, por el sufijo del nombre del activo:
 `FT` → Felipe Tibocha · `JPV` → Juan Pablo Velandia · `JV`, `LC` y sin

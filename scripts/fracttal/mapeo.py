@@ -118,14 +118,11 @@ FUENTE_NO_PROVEEDOR = {
 }
 
 
-# El campo "Fuente del Recurso" es texto libre: junto a proveedores reales hay
-# descripciones del trabajo ("MOTOR NUEVO", "TAPIZADO", "ZARANDA DE REPASO").
-# Solo se crea contacto para las fuentes que se repiten en el histórico; las de
-# una sola aparición conservan el texto en `source_name` y no ensucian el
-# catálogo de contactos, que se comparte con contabilidad.
-MIN_APARICIONES_PROVEEDOR = 2
-
-
+# La migración NO da de alta contactos: el catálogo se comparte con
+# contabilidad y "Fuente del Recurso" es texto libre (mezcla proveedores reales
+# con descripciones del trabajo: "MOTOR NUEVO", "TAPIZADO", "-"). El nombre se
+# conserva siempre en `source_name` del costo; esta función solo sirve para
+# enlazar con un contacto que YA exista en Odoo.
 def proveedor_de_fuente(fuente):
     """Nombre de proveedor a crear/buscar para una fuente de recurso.
 
