@@ -392,25 +392,41 @@ class FacturaEmail(models.Model):
         if not nit:
             raise UserError('El XML no contiene NIT del emisor.')
 
-        # Limpiar NIT (quitar DV, guiones, puntos)
-        nit_limpio = nit.replace('-', '').replace('.', '').strip()
-        # Si tiene dígito de verificación (últimos dígitos después de guión), separar
-        # El NIT en Colombia puede venir como 900123456-1
-        nit_buscar = nit_limpio.split('-')[0] if '-' in nit else nit_limpio
+        # Número base sin dígito de verificación: el NIT puede venir como
+        # 900123456, 900123456-1 o 900.123.456-1
+        nit_base = nit.split('-')[0].replace('.', '').replace(' ', '').strip()
 
-        partner = self.env['res.partner'].search([
-            '|',
-            ('vat', '=', nit_buscar),
+        # El vat puede estar guardado limpio (900123456) o con el DV pegado
+        # (900123456-1, formato de lavish_erp); vat_co (lavish) guarda el
+        # número limpio.
+        Partner = self.env['res.partner']
+        criterios = [
+            ('vat', '=', nit_base),
             ('vat', '=', nit),
-        ], limit=1)
+            ('vat', '=like', f'{nit_base}-%'),
+        ]
+        if 'vat_co' in Partner._fields:
+            criterios.append(('vat_co', '=', nit_base))
+        partner = Partner.search(['|'] * (len(criterios) - 1) + criterios, limit=1)
 
         if not partner:
             vals = {
                 'name': datos.get('emisor_razon_social') or nit,
-                'vat': nit_buscar,
+                'vat': nit_base,
                 'supplier_rank': 1,
                 'company_type': 'company',
             }
+            # Con lavish_erp instalado, dejar el contacto como lo dejaría su
+            # formulario: número limpio en vat_co, tipo NIT y vat con el DV
+            # (los onchange de lavish no corren en creaciones por código).
+            if 'vat_co' in Partner._fields:
+                vals['vat_co'] = nit_base
+                tipo_nit = self.env['l10n_latam.identification.type'].search(
+                    [('name', '=', 'NIT')], limit=1)
+                if tipo_nit:
+                    vals['l10n_latam_identification_type_id'] = tipo_nit.id
+                if nit_base.isdigit():
+                    vals['vat'] = f'{nit_base}-{self._calcular_dv_nit(nit_base)}'
             if datos.get('emisor_email'):
                 vals['email'] = datos['emisor_email']
             if datos.get('emisor_telefono'):
@@ -420,10 +436,17 @@ class FacturaEmail(models.Model):
             if datos.get('emisor_ciudad'):
                 vals['city'] = datos['emisor_ciudad']
 
-            partner = self.env['res.partner'].create(vals)
-            _logger.info("Proveedor creado: %s (NIT: %s)", partner.name, nit_buscar)
+            partner = Partner.create(vals)
+            _logger.info("Proveedor creado: %s (NIT: %s)", partner.name, nit_base)
 
         return partner
+
+    @staticmethod
+    def _calcular_dv_nit(nit):
+        """Dígito de verificación DIAN de un NIT (número sin DV)."""
+        pesos = (71, 67, 59, 53, 47, 43, 41, 37, 29, 23, 19, 17, 13, 7, 3)
+        residuo = sum(int(d) * p for d, p in zip(nit.zfill(15), pesos)) % 11
+        return residuo if residuo < 2 else 11 - residuo
 
     # -------------------------------------------------------------------------
     # Creación de factura
