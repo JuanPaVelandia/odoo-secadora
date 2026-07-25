@@ -101,6 +101,50 @@ TALLERES = {
     'REPUESTOS',
 }
 
+# El nombre del taller en las OT no siempre coincide con el del catálogo de
+# ubicaciones ("TALLER HELI" vs "TALLER DON HELI"), así que se empareja por
+# estas equivalencias además de por nombre normalizado.
+ALIAS_FUENTE = {
+    'TALLER HELI': 'TALLER DON HELI',
+    'TALLER DON HELI': 'TALLER DON HELI',
+    'EXTERNA: YULEVINSON': 'TALLER YULEVINSON',
+}
+
+# Fuentes que no son un proveedor real: son el almacén propio o marcadores
+# genéricos del sistema de origen. No se crean como partner.
+FUENTE_NO_PROVEEDOR = {
+    'ALMACEN JV OFICINA YOPAL',
+    'EXTERNA: 1', 'EXTERNA', 'EXTERNA: 2', 'EXTERNA: 3',
+}
+
+
+# El campo "Fuente del Recurso" es texto libre: junto a proveedores reales hay
+# descripciones del trabajo ("MOTOR NUEVO", "TAPIZADO", "ZARANDA DE REPASO").
+# Solo se crea contacto para las fuentes que se repiten en el histórico; las de
+# una sola aparición conservan el texto en `source_name` y no ensucian el
+# catálogo de contactos, que se comparte con contabilidad.
+MIN_APARICIONES_PROVEEDOR = 2
+
+
+def proveedor_de_fuente(fuente):
+    """Nombre de proveedor a crear/buscar para una fuente de recurso.
+
+    Devuelve None si la fuente no representa un tercero (almacén propio,
+    marcadores vacíos).
+    """
+    norm = normalizar(fuente)
+    if not norm or norm in FUENTE_NO_PROVEEDOR:
+        return None
+    if norm in ALIAS_FUENTE:
+        return ALIAS_FUENTE[norm]
+    # "Externa: NOMBRE" → NOMBRE
+    if norm.startswith('EXTERNA:'):
+        resto = norm.split(':', 1)[1].strip()
+        if not resto or resto.isdigit():
+            return None
+        return ALIAS_FUENTE.get(resto, resto)
+    return norm
+
 # Nodos raíz de la jerarquía de Fracttal: no representan un lugar real.
 UBICACION_IGNORAR = {'FINCAS', 'TALLERES', ''}
 

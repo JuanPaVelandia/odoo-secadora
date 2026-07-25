@@ -119,22 +119,49 @@ class Migracion:
             log(f'CREAR área de proceso: {nombre}')
             self.stats['areas_creadas'] += 1
 
-        # --- Talleres como proveedores ---
-        for taller in sorted(mapeo.TALLERES):
-            existente = o.buscar('res.partner', [('name', '=', taller)], limit=1)
+        # --- Talleres y proveedores de servicio ---
+        # Se toman del catálogo de ubicaciones Y de las fuentes que realmente
+        # aparecen en las OT (hay talleres que no están en UBICACIONES.xlsx).
+        apariciones = defaultdict(int)
+        for f in leer_export('OT-RECURSOS.xlsx'):
+            proveedor = mapeo.proveedor_de_fuente(f.get('Fuente del Recurso'))
+            if proveedor:
+                apariciones[proveedor] += 1
+        nombres = set(mapeo.TALLERES) | {
+            n for n, veces in apariciones.items()
+            if veces >= mapeo.MIN_APARICIONES_PROVEEDOR
+        }
+        descartados = [n for n, veces in apariciones.items()
+                       if veces < mapeo.MIN_APARICIONES_PROVEEDOR
+                       and n not in mapeo.TALLERES]
+        if descartados:
+            log(f'{len(descartados)} fuentes de una sola aparición no se crean '
+                f'como contacto (texto libre); el dato queda en el costo.')
+
+        for taller in sorted(nombres):
+            norm = mapeo.normalizar(taller)
+            if norm in self.partners:
+                continue
+            # Se busca sin distinguir mayúsculas para no duplicar un contacto
+            # que ya exista con otra grafía.
+            existente = o.buscar('res.partner', [('name', '=ilike', taller)],
+                                 limit=1)
             if existente:
-                self.partners[mapeo.normalizar(taller)] = existente[0]
+                self.partners[norm] = existente[0]
                 continue
             if APLICAR:
                 nuevo = o.crear('res.partner', {
                     'name': taller,
                     'company_type': 'company',
                     'supplier_rank': 1,
-                    'comment': 'Taller importado de Fracttal.',
+                    'comment': 'Proveedor de mantenimiento importado de Fracttal.',
                 })
-                self.partners[mapeo.normalizar(taller)] = nuevo
-            log(f'CREAR proveedor (taller): {taller}')
+                self.partners[norm] = nuevo
+            else:
+                self.partners[norm] = -1
             self.stats['talleres_creados'] += 1
+        log(f'Proveedores de mantenimiento: {self.stats["talleres_creados"]} '
+            f'creados, {len(nombres) - self.stats["talleres_creados"]} ya existían')
 
         # --- Un equipo de mantenimiento por compañía (campo requerido en la OT) ---
         for nombre_cia, id_cia in self.companias.items():
@@ -187,6 +214,19 @@ class Migracion:
 
         filas.sort(key=es_componente)
 
+        # Odoo exige serial único, pero Fracttal repite el número de parte del
+        # fabricante en piezas iguales montadas en máquinas distintas (dos
+        # alternadores KUBOTA 3C081-7401-0). Eso no es un serial: los que estén
+        # repetidos se guardan como referencia de proveedor, no como serial.
+        vistos = defaultdict(int)
+        for f in filas:
+            if f.get('Número de Serial'):
+                vistos[str(f['Número de Serial']).strip()] += 1
+        seriales_repetidos = {s for s, n in vistos.items() if n > 1}
+        if seriales_repetidos:
+            log(f'Seriales repetidos en el origen (van a "referencia de '
+                f'proveedor"): {", ".join(sorted(seriales_repetidos))}')
+
         historial = []
         for i, f in enumerate(filas, 1):
             nombre = (f.get('Nombre') or '').strip()
@@ -224,10 +264,17 @@ class Migracion:
             }
             if f.get('Modelo'):
                 vals['model'] = str(f['Modelo']).strip()
-            if f.get('Número de Serial'):
-                vals['serial_no'] = str(f['Número de Serial']).strip()
+            referencias = []
             if f.get('Fabricante'):
-                vals['partner_ref'] = str(f['Fabricante']).strip()
+                referencias.append(str(f['Fabricante']).strip())
+            serial = (str(f['Número de Serial']).strip()
+                      if f.get('Número de Serial') else '')
+            if serial and serial not in seriales_repetidos:
+                vals['serial_no'] = serial
+            elif serial:
+                referencias.append(f'Nro. parte {serial}')
+            if referencias:
+                vals['partner_ref'] = ' · '.join(referencias)
             fecha_compra = a_fecha(f.get('Fecha de Compra'))
             if fecha_compra:
                 vals['effective_date'] = fecha_compra
@@ -346,6 +393,14 @@ class Migracion:
     # ------------------------------------------------------------------
     # 4. Órdenes de trabajo + costos históricos
     # ------------------------------------------------------------------
+    def _partner_de(self, fuente):
+        """Proveedor correspondiente a una fuente de recurso, o False."""
+        nombre = mapeo.proveedor_de_fuente(fuente)
+        if not nombre:
+            return False
+        id_partner = self.partners.get(mapeo.normalizar(nombre))
+        return id_partner if id_partner and id_partner > 0 else False
+
     def _equipo_infraestructura(self, finca):
         """Equipo genérico que recibe el mantenimiento de una finca completa.
 
@@ -500,7 +555,7 @@ class Migracion:
                     'unit_cost': a_float(ln.get('coste unitario')),
                     'amount': importe,
                     'source_name': fuente or False,
-                    'partner_id': self.partners.get(mapeo.normalizar(fuente), False),
+                    'partner_id': self._partner_de(fuente),
                     'company_id': id_cia,
                     'origin': ORIGEN,
                     'external_ref': id_ot,
