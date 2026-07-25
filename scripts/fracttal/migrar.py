@@ -531,8 +531,9 @@ class Migracion:
                     'amount': importe,
                     'source_name': fuente or False,
                     'partner_id': self._partner_de(fuente),
+                    'notes': f'Importado de {ORIGEN} (orden {id_ot}).',
                     'company_id': id_cia,
-                    'origin': ORIGEN,
+                    'origin': 'historic',
                     'external_ref': id_ot,
                 })
                 self.stats['costo_total'] += importe
@@ -541,7 +542,7 @@ class Migracion:
         if APLICAR and costos:
             creados = 0
             for j in range(0, len(costos), 200):
-                o.crear_lote('maintenance.historic.cost', costos[j:j + 200])
+                o.crear_lote('maintenance.equipment.cost.line', costos[j:j + 200])
                 creados += len(costos[j:j + 200])
                 barra(creados, len(costos), 'costos')
         self.stats['costos_creados'] = len(costos)

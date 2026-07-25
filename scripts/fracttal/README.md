@@ -10,7 +10,7 @@ antes) en el módulo de mantenimiento de Odoo v19.
 | `ACTIVOS.xlsx` | `maintenance.equipment` | 265 (195 raíz + 70 componentes) |
 | `UBICACIONES.xlsx` | `secadora.lugar` / `secadora.origen.muestra` | 24 → se reusan las existentes |
 | Fuentes de recurso | (solo texto en el costo) | no se crean contactos |
-| `OT-RECURSOS.xlsx` | `maintenance.request` + `maintenance.historic.cost` | 1.171 OT / 5.861 líneas |
+| `OT-RECURSOS.xlsx` | `maintenance.request` + `maintenance.equipment.cost.line` | 1.171 OT / 5.861 líneas |
 | `Horómetros/*.xlsx` | `maintenance.horometro.reading` | 833 lecturas en 21 tractores |
 | `MEDIDORES_HOY.xlsx` | `horometro_last_maintenance` del equipo | 21 medidores |
 
@@ -40,10 +40,12 @@ ya como contacto en Odoo, se enlaza.
 `FT` → Felipe Tibocha · `JPV` → Juan Pablo Velandia · `JV`, `LC` y sin
 sufijo → José Velandia. Los combinados (`FT/JPV`) van al primero.
 
-**Costos.** `maintenance.equipment.cost.line` exige una línea de factura y el
-histórico no la tiene, así que va a `maintenance.historic.cost`: suma en el
-total del equipo y de la OT, sin tocar contabilidad. Desde el corte del
-1-ago-2026 los costos nuevos siguen entrando por factura como hasta ahora.
+**Costos: un solo modelo.** Todo va a `maintenance.equipment.cost.line`, donde
+la factura (`move_line_id`) es opcional. Una sola lista, un solo total y un
+solo pivot; el campo **Origen** distingue `Factura` / `Histórico importado` /
+`Registro manual`. Las líneas con factura siguen calculando su importe desde
+ella; las importadas llevan el suyo capturado. Desde el corte del 1-ago-2026
+los costos nuevos entran por factura como hasta ahora.
 
 **Historial de ubicación.** `lugar_id` guarda dónde está el equipo hoy;
 `maintenance.equipment.location.history` conserva de dónde viene.

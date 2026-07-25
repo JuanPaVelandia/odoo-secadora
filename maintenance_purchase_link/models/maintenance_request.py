@@ -16,16 +16,6 @@ class MaintenanceRequest(models.Model):
         'request_id',
         string='Costos asignados',
     )
-    historic_cost_ids = fields.One2many(
-        'maintenance.historic.cost',
-        'request_id',
-        string='Costos históricos',
-    )
-    historic_cost_total = fields.Monetary(
-        string='Costo histórico (sin factura)',
-        compute='_compute_cost_total',
-        currency_field='cost_currency_id',
-    )
     cost_total = fields.Monetary(
         string='Costo total',
         compute='_compute_cost_total',
@@ -51,27 +41,11 @@ class MaintenanceRequest(models.Model):
         help='Tarea tal como estaba registrada en el sistema de origen.',
     )
 
-    @api.depends('cost_line_ids.amount', 'historic_cost_ids.amount')
+    @api.depends('cost_line_ids.amount')
     def _compute_cost_total(self):
         for request in self:
-            invoiced = sum(request.cost_line_ids.mapped('amount'))
-            historic = sum(request.historic_cost_ids.mapped('amount'))
-            request.historic_cost_total = historic
-            request.cost_total = invoiced + historic
-            request.cost_count = (
-                len(request.cost_line_ids) + len(request.historic_cost_ids)
-            )
-
-    def action_view_historic_costs(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Costos históricos de la OT',
-            'res_model': 'maintenance.historic.cost',
-            'view_mode': 'list,form',
-            'domain': [('request_id', '=', self.id)],
-            'context': dict(self.env.context, default_request_id=self.id),
-        }
+            request.cost_total = sum(request.cost_line_ids.mapped('amount'))
+            request.cost_count = len(request.cost_line_ids)
 
     def action_view_costs(self):
         self.ensure_one()

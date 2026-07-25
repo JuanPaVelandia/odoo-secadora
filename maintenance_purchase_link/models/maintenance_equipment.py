@@ -47,32 +47,16 @@ class MaintenanceEquipment(models.Model):
         'equipment_id',
         string='Líneas de costo',
     )
-    historic_cost_ids = fields.One2many(
-        'maintenance.historic.cost',
-        'equipment_id',
-        string='Costos históricos',
-    )
-    historic_cost_total = fields.Monetary(
-        string='Costo histórico (sin factura)',
-        compute='_compute_maintenance_cost_total',
-        store=True,
-        currency_field='cost_currency_id',
-    )
     maintenance_cost_total = fields.Monetary(
-        string='Costo de mantenimiento (facturas)',
-        compute='_compute_maintenance_cost_total',
-        store=True,
-        currency_field='cost_currency_id',
-    )
-    maintenance_cost_grand_total = fields.Monetary(
         string='Costo total de mantenimiento',
         compute='_compute_maintenance_cost_total',
         store=True,
         currency_field='cost_currency_id',
-        help='Suma del costo facturado y del costo histórico importado.',
+        help='Todos los costos imputados al equipo: facturados, importados '
+             'del histórico y registrados a mano.',
     )
     maintenance_invoice_count = fields.Integer(
-        string='Nro. líneas de factura',
+        string='Nro. líneas de costo',
         compute='_compute_maintenance_cost_total',
         store=True,
     )
@@ -111,18 +95,11 @@ class MaintenanceEquipment(models.Model):
         compute='_compute_horometro_current',
     )
 
-    @api.depends(
-        'equipment_cost_line_ids.amount',
-        'historic_cost_ids.amount',
-    )
+    @api.depends('equipment_cost_line_ids.amount')
     def _compute_maintenance_cost_total(self):
         for equipment in self:
             lines = equipment.equipment_cost_line_ids
-            invoiced = sum(lines.mapped('amount'))
-            historic = sum(equipment.historic_cost_ids.mapped('amount'))
-            equipment.maintenance_cost_total = invoiced
-            equipment.historic_cost_total = historic
-            equipment.maintenance_cost_grand_total = invoiced + historic
+            equipment.maintenance_cost_total = sum(lines.mapped('amount'))
             equipment.maintenance_invoice_count = len(lines)
 
     @api.depends('component_ids', 'location_history_ids')
@@ -149,17 +126,6 @@ class MaintenanceEquipment(models.Model):
         action['domain'] = [('equipment_id', '=', self.id)]
         action['context'] = dict(self.env.context, default_equipment_id=self.id)
         return action
-
-    def action_view_historic_costs(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Costos históricos',
-            'res_model': 'maintenance.historic.cost',
-            'view_mode': 'list,form',
-            'domain': [('equipment_id', '=', self.id)],
-            'context': dict(self.env.context, default_equipment_id=self.id),
-        }
 
     def action_view_location_history(self):
         self.ensure_one()

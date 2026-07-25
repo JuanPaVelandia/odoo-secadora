@@ -236,3 +236,73 @@ class TestMaintenanceCost(TransactionCase):
         })
         self.equipment.invalidate_recordset()
         self.assertEqual(self.equipment.maintenance_invoice_count, 1)
+
+    # ------------------------------------------------------------------
+    # Costos sin factura (histórico importado / registro manual)
+    # ------------------------------------------------------------------
+    def test_cost_line_without_invoice(self):
+        """Un costo sin factura conserva el importe que se le captura."""
+        cost = self.env['maintenance.equipment.cost.line'].create({
+            'equipment_id': self.equipment.id,
+            'origin': 'historic',
+            'date': '2025-06-15',
+            'name': 'Filtro de aceite (histórico Fracttal)',
+            'quantity': 2.0,
+            'unit_cost': 50000.0,
+            'amount': 100000.0,
+            'source_name': 'TALLER LORENZO',
+            'external_ref': 'OT-123',
+        })
+        self.assertFalse(cost.move_line_id)
+        self.assertFalse(cost.move_id)
+        self.assertAlmostEqual(cost.amount, 100000.0)
+
+    def test_equipment_total_mixes_origins(self):
+        """El total del equipo suma facturado e histórico en un solo campo."""
+        CostLine = self.env['maintenance.equipment.cost.line']
+        CostLine.create({
+            'move_line_id': self.invoice_line.id,
+            'equipment_id': self.equipment.id,
+            'percentage': 100.0,
+        })
+        facturado = self.equipment.maintenance_cost_total
+        self.assertGreater(facturado, 0.0)
+
+        CostLine.create({
+            'equipment_id': self.equipment.id,
+            'origin': 'historic',
+            'date': '2025-06-15',
+            'name': 'Repuesto histórico',
+            'amount': 250000.0,
+        })
+        self.equipment.invalidate_recordset()
+        self.assertAlmostEqual(
+            self.equipment.maintenance_cost_total, facturado + 250000.0)
+        self.assertEqual(self.equipment.maintenance_invoice_count, 2)
+
+    def test_invoice_cost_line_copies_invoice_data(self):
+        """Al crear desde una factura se copian sus datos descriptivos."""
+        cost = self.env['maintenance.equipment.cost.line'].create({
+            'move_line_id': self.invoice_line.id,
+            'equipment_id': self.equipment.id,
+            'percentage': 100.0,
+        })
+        self.assertEqual(cost.origin, 'invoice')
+        self.assertEqual(cost.date, self.invoice_line.date)
+        self.assertEqual(cost.partner_id, self.invoice_line.partner_id)
+        self.assertAlmostEqual(
+            cost.amount, self.invoice_line.price_total)
+
+    def test_percentage_check_ignores_lines_without_invoice(self):
+        """La validación de 100% aplica a facturas, no a costos sueltos."""
+        CostLine = self.env['maintenance.equipment.cost.line']
+        for _ in range(3):
+            CostLine.create({
+                'equipment_id': self.equipment.id,
+                'origin': 'historic',
+                'date': '2025-06-15',
+                'name': 'Costo suelto',
+                'percentage': 100.0,
+                'amount': 1000.0,
+            })
+        self.assertEqual(self.equipment.maintenance_invoice_count, 3)

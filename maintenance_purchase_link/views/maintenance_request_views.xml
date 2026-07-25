@@ -24,19 +24,6 @@
                             <span class="o_stat_text">Costos</span>
                         </div>
                     </button>
-                    <button name="action_view_historic_costs"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-history"
-                            invisible="historic_cost_total == 0"
-                            groups="maintenance.group_equipment_manager">
-                        <div class="o_field_widget o_stat_info">
-                            <span class="o_stat_value">
-                                <field name="historic_cost_total" widget="monetary"/>
-                            </span>
-                            <span class="o_stat_text">Histórico</span>
-                        </div>
-                    </button>
                     <button name="action_assign_invoice"
                             type="object"
                             class="oe_stat_button"

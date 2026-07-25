@@ -20,16 +20,6 @@
         groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Costos históricos (importados, sin factura) -->
-    <menuitem
-        id="menu_historic_costs"
-        name="Costos históricos"
-        parent="menu_maintenance_costs_root"
-        action="action_historic_costs"
-        sequence="7"
-        groups="maintenance.group_equipment_manager"
-    />
-
     <!-- Submenú: Asignar factura -->
     <menuitem
         id="menu_assign_invoice"

@@ -80,12 +80,12 @@ def main():
     total_origen = sum(a_float(f.get('coste Total')) for f in filas)
     lineas_origen = len([f for f in filas if f.get('Id OT')])
     # Paginado: leer miles de registros de una vez trunca la respuesta XML-RPC.
-    dominio = [('origin', '=', 'Fracttal')]
-    n_costos = o.contar('maintenance.historic.cost', dominio)
+    dominio = [('origin', '=', 'historic')]
+    n_costos = o.contar('maintenance.equipment.cost.line', dominio)
     suma = 0.0
     for desplazamiento in range(0, n_costos, 1000):
         suma += sum(c['amount'] for c in o.buscar_leer(
-            'maintenance.historic.cost', dominio, ['amount'],
+            'maintenance.equipment.cost.line', dominio, ['amount'],
             offset=desplazamiento, limit=1000, order='id'))
     check('Líneas de costo', lineas_origen, n_costos)
     check('Importe total', round(total_origen, 2), round(suma, 2),

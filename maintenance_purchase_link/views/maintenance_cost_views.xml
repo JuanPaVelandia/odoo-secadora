@@ -10,19 +10,24 @@
         <field name="name">maintenance.equipment.cost.line.list</field>
         <field name="model">maintenance.equipment.cost.line</field>
         <field name="arch" type="xml">
-            <list string="Costos de mantenimiento" create="0" delete="0">
-                <field name="date" readonly="1"/>
+            <list string="Costos de mantenimiento">
+                <field name="date"/>
+                <field name="origin" optional="show"/>
                 <field name="equipment_id"/>
                 <field name="request_id"/>
-                <field name="product_description" string="Recurso" readonly="1"/>
-                <field name="quantity" readonly="1"/>
-                <field name="product_id" readonly="1" optional="hide"/>
-                <field name="partner_id" readonly="1" optional="show"/>
-                <field name="move_id" readonly="1" optional="hide"/>
-                <field name="percentage"/>
+                <field name="name" string="Recurso"/>
+                <field name="quantity"/>
+                <field name="uom_name" optional="hide"/>
+                <field name="unit_cost" optional="hide"/>
+                <field name="product_id" optional="hide"/>
+                <field name="partner_id" optional="show"/>
+                <field name="source_name" string="Fuente" optional="hide"/>
+                <field name="external_ref" string="Ref. externa" optional="hide"/>
+                <field name="move_id" optional="hide"/>
+                <field name="percentage" optional="hide"/>
                 <field name="amount" sum="Total"/>
-                <field name="x_webviewlink" widget="url" string="Enlace Drive" optional="show"/>
-                <field name="attachment_count" string="Adjuntos" readonly="1"/>
+                <field name="x_webviewlink" widget="url" string="Enlace Drive" optional="hide"/>
+                <field name="attachment_count" string="Adjuntos" optional="hide"/>
                 <field name="currency_id" column_invisible="1"/>
             </list>
         </field>
@@ -33,36 +38,52 @@
         <field name="name">maintenance.equipment.cost.line.form</field>
         <field name="model">maintenance.equipment.cost.line</field>
         <field name="arch" type="xml">
-            <form string="Línea de costo por equipo" create="0" delete="0">
+            <form string="Costo de mantenimiento">
                 <sheet>
                     <div class="oe_button_box" name="button_box">
                         <button name="action_view_attachments"
                                 type="object"
                                 class="oe_stat_button"
-                                icon="fa-paperclip">
+                                icon="fa-paperclip"
+                                invisible="not move_id">
                             <field name="attachment_count" string="Adjuntos" widget="statinfo"/>
                         </button>
                     </div>
                     <group>
-                        <group string="Datos de factura">
-                            <field name="date" readonly="1"/>
-                            <field name="partner_id" readonly="1"/>
-                            <field name="move_id" readonly="1"/>
-                            <field name="move_line_id" readonly="1"/>
-                            <field name="product_id" readonly="1"/>
-                            <field name="product_description" readonly="1"/>
-                            <field name="quantity" readonly="1"/>
-                            <field name="x_webviewlink" widget="url"/>
-                            <field name="x_whatsapp_comprobante_link" widget="url"/>
-                            <field name="x_whatsapp_mensaje"/>
-                            <field name="currency_id" invisible="1"/>
+                        <group string="Costo">
+                            <field name="origin"/>
+                            <field name="date"/>
+                            <field name="name"/>
+                            <field name="product_id"/>
+                            <field name="quantity"/>
+                            <field name="uom_name"/>
+                            <field name="unit_cost"/>
+                            <field name="amount" readonly="origin == 'invoice'"/>
+                            <field name="currency_id" groups="base.group_multi_currency"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group string="Asignación">
                             <field name="equipment_id"/>
                             <field name="request_id"/>
-                            <field name="percentage"/>
-                            <field name="amount" readonly="1"/>
+                            <field name="partner_id"/>
                         </group>
+                    </group>
+                    <group string="Factura" invisible="origin != 'invoice'">
+                        <field name="move_id" readonly="1"/>
+                        <field name="move_line_id" readonly="1"/>
+                        <field name="percentage"/>
+                        <field name="x_webviewlink" widget="url"/>
+                        <field name="x_whatsapp_comprobante_link" widget="url"/>
+                        <field name="x_whatsapp_mensaje"/>
+                    </group>
+                    <group string="Origen externo" invisible="origin == 'invoice'">
+                        <field name="source_name"/>
+                        <field name="code"/>
+                        <field name="resource_type"/>
+                        <field name="external_ref"/>
+                    </group>
+                    <group string="Notas">
+                        <field name="notes" nolabel="1"/>
                     </group>
                 </sheet>
             </form>
@@ -76,22 +97,40 @@
         <field name="arch" type="xml">
             <search string="Buscar costos de equipo">
                 <field name="equipment_id"/>
+                <field name="name" string="Recurso"/>
                 <field name="product_id"/>
                 <field name="request_id"/>
                 <field name="partner_id"/>
+                <field name="source_name" string="Fuente"/>
+                <field name="external_ref"/>
                 <field name="move_id"/>
+                <filter name="filter_invoice" string="Con factura"
+                        domain="[('origin', '=', 'invoice')]"/>
+                <filter name="filter_historic" string="Histórico importado"
+                        domain="[('origin', '=', 'historic')]"/>
+                <filter name="filter_manual" string="Registro manual"
+                        domain="[('origin', '=', 'manual')]"/>
+                <separator/>
+                <filter name="filter_date" string="Fecha" date="date"/>
                 <separator/>
                 <group>
                     <filter name="group_equipment" string="Equipo"
                             context="{'group_by': 'equipment_id'}"/>
                     <filter name="group_request" string="Orden de trabajo"
                             context="{'group_by': 'request_id'}"/>
+                    <filter name="group_origin" string="Origen"
+                            context="{'group_by': 'origin'}"/>
                     <filter name="group_product" string="Recurso"
                             context="{'group_by': 'product_id'}"/>
                     <filter name="group_partner" string="Proveedor"
                             context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_source" string="Fuente"
+                            context="{'group_by': 'source_name'}"/>
                     <filter name="group_month" string="Mes"
                             context="{'group_by': 'date:month'}"/>
+                    <filter name="group_company" string="Compañía"
+                            context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
                 </group>
             </search>
         </field>
