@@ -91,6 +91,18 @@ def main():
     check('Importe total', round(total_origen, 2), round(suma, 2),
           tolerancia=1.0)
 
+    # El total por equipo es un campo calculado con store: si se cargó por SQL
+    # sin recompute, quedaría en cero aunque las líneas estén bien.
+    equipos_con_costo = {c['equipment_id'][0]
+                         for c in o.buscar_leer(
+                             'maintenance.equipment.cost.line',
+                             [('equipment_id', '!=', False)], ['equipment_id'],
+                             limit=2000) if c['equipment_id']}
+    check('Equipos con total calculado', len(equipos_con_costo),
+          o.contar('maintenance.equipment',
+                   [('id', 'in', list(equipos_con_costo)),
+                    ('maintenance_cost_total', '>', 0)]))
+
     # ---------------- Horómetros ----------------
     print('\nHORÓMETROS')
     carpeta = os.path.join(comun.RUTA_EXPORT, 'Horómetros')

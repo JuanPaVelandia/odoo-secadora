@@ -18,6 +18,7 @@ _logger = logging.getLogger(__name__)
 def migrate(cr, version):
     _rellenar_desde_factura(cr)
     _absorber_historicos(cr)
+    _recalcular_totales(cr)
 
 
 def _rellenar_desde_factura(cr):
@@ -96,3 +97,31 @@ def _absorber_historicos(cr):
     filas, total = cr.fetchone()
     _logger.info('Tabla maintenance_historic_cost conservada para auditoría: '
                  '%s filas, total %s', filas, total)
+
+
+def _recalcular_totales(cr):
+    """Recalcula los totales por equipo.
+
+    `maintenance_cost_total` y `maintenance_invoice_count` son campos
+    calculados con `store=True`, y las filas se insertaron por SQL directo:
+    el ORM no se entera y los totales quedarían en cero. Se recalculan aquí
+    con la misma fórmula del compute.
+    """
+    cr.execute("""
+        UPDATE maintenance_equipment eq
+        SET maintenance_cost_total = COALESCE(t.total, 0),
+            maintenance_invoice_count = COALESCE(t.n, 0)
+        FROM (
+            SELECT e.id,
+                   SUM(cl.amount) AS total,
+                   COUNT(cl.id) AS n
+            FROM maintenance_equipment e
+            LEFT JOIN maintenance_equipment_cost_line cl
+                   ON cl.equipment_id = e.id
+            GROUP BY e.id
+        ) t
+        WHERE eq.id = t.id
+          AND (eq.maintenance_cost_total IS DISTINCT FROM COALESCE(t.total, 0)
+               OR eq.maintenance_invoice_count IS DISTINCT FROM COALESCE(t.n, 0))
+    """)
+    _logger.info('Totales de equipo recalculados: %s', cr.rowcount)
