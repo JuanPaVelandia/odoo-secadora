@@ -21,7 +21,9 @@ from pg_client import PgError, PgReadOnlyClient
 
 log = logging.getLogger(__name__)
 
-MODELO = os.environ.get("CLAUDE_MODELO", "claude-opus-5")
+# Sonnet 5 escribe SQL igual de bien que Opus para estas consultas y cuesta
+# ~40% menos ($3/$15 por millón frente a $5/$25). Cambiable por variable.
+MODELO = os.environ.get("CLAUDE_MODELO", "claude-sonnet-5")
 
 # Tope de vueltas del bucle. Cada vuelta es una llamada a la API: sin tope,
 # una pregunta mal planteada podría encadenar consultas indefinidamente.
@@ -34,10 +36,32 @@ Tienes acceso de SOLO LECTURA a la base PostgreSQL de Odoo. Para responder,
 usa la herramienta `consultar_sql` cuantas veces necesites.
 
 ## Cómo trabajar
-1. Si no conoces la estructura, usa `listar_tablas` y `describir_tabla` primero.
-2. Escribe el SQL, ejecútalo, y responde con los datos reales.
+1. **Escribe el SQL directamente**: abajo tienes las tablas principales. Cada
+   llamada a `listar_tablas` o `describir_tabla` cuesta dinero y tiempo, así
+   que úsalas solo si de verdad no sabes dónde buscar.
+2. Ejecuta y responde con los datos reales.
 3. Si una consulta falla, lee el error y corrígela. No inventes datos jamás.
 4. Si no encuentras la información, dilo claramente en vez de aproximar.
+5. Resuelve en la MENOR cantidad de consultas posible. Si necesitas datos de
+   varias tablas, usa JOIN en una sola consulta en vez de encadenar varias.
+
+## Tablas principales (usa estas antes de explorar)
+- `res_partner` — contactos: clientes, proveedores, fincas
+- `secadora_pesaje` — pesajes de báscula
+- `secadora_analisis_lab` — análisis de calidad del arroz
+- `secadora_orden_secado` — órdenes de secado
+- `secadora_embolsado` — embolsado
+- `account_move` / `account_move_line` — facturas (de venta y compra)
+- `sale_order` / `sale_order_line` — ventas
+- `stock_picking` / `stock_move` — inventario
+- `maintenance_equipment` — máquinas y componentes (árbol con parent_equipment_id)
+- `maintenance_request` — órdenes de trabajo
+- `maintenance_equipment_cost_line` — **histórico de costes de repuestos**
+- `ir_attachment` — metadatos de archivos adjuntos
+- `v_usuarios_basico` — usuarios (res_users está vetada)
+
+Si necesitas una tabla que no está en la lista, entonces sí usa
+`listar_tablas` con un filtro.
 
 ## Esquema de Odoo (importante)
 - Los modelos usan punto, las tablas guión bajo: `sale.order` -> `sale_order`.
@@ -235,8 +259,23 @@ class Agente:
                 return json.dumps(filas, ensure_ascii=False, default=str), False
 
             if nombre == "listar_tablas":
-                tablas = self.pg.listar_tablas(entrada.get("filtro") or None)
-                nombres = [t["tabla"] for t in tablas][:200]
+                filtro = (entrada.get("filtro") or "").strip()
+                if not filtro:
+                    return (
+                        "Necesitas un filtro: la base tiene ~960 tablas y "
+                        "listarlas todas malgasta contexto. Prueba con una "
+                        "palabra clave ('pesaje', 'secado', 'invoice', "
+                        "'maintenance'), o mira el esquema del prompt.",
+                        True,
+                    )
+                tablas = self.pg.listar_tablas(filtro)
+                nombres = [t["tabla"] for t in tablas]
+                if len(nombres) > 40:
+                    return (
+                        json.dumps(nombres[:40], ensure_ascii=False)
+                        + f"\n(y {len(nombres) - 40} mas; afina el filtro)",
+                        False,
+                    )
                 return json.dumps(nombres, ensure_ascii=False), False
 
             if nombre == "describir_tabla":
@@ -311,6 +350,9 @@ class Agente:
         mensajes.append(
             {"role": "user", "content": _contenido(pregunta, documento)}
         )
+        # Acumulamos para saber qué cuesta cada consulta: sin esto el gasto
+        # solo se ve agregado en la consola de Anthropic, cuando ya es tarde.
+        gasto = {"entrada": 0, "salida": 0, "cache_lectura": 0, "cache_escritura": 0}
 
         for vuelta in range(MAX_VUELTAS):
             respuesta = self.claude.messages.create(
@@ -326,6 +368,14 @@ class Agente:
                 ],
                 tools=HERRAMIENTAS,
                 messages=mensajes,
+            )
+
+            u = respuesta.usage
+            gasto["entrada"] += u.input_tokens
+            gasto["salida"] += u.output_tokens
+            gasto["cache_lectura"] += getattr(u, "cache_read_input_tokens", 0) or 0
+            gasto["cache_escritura"] += (
+                getattr(u, "cache_creation_input_tokens", 0) or 0
             )
 
             if respuesta.stop_reason == "refusal":
@@ -347,6 +397,7 @@ class Agente:
                 # SQL intermedios pueden ser enormes y no aportan al seguimiento.
                 # El adjunto NO se guarda: reenviar el PDF en cada turno
                 # posterior multiplicaría el coste sin aportar nada.
+                _log_gasto(gasto, vuelta + 1)
                 marca = (
                     f"[adjuntó un documento] {pregunta}" if documento else pregunta
                 )
@@ -386,3 +437,28 @@ class Agente:
             "respuesta. Intenta preguntarlo de forma más concreta.",
             list(historial or []),
         )
+
+
+# Precios por millón de tokens, según el modelo configurado.
+# La lectura de caché cuesta ~10% de la entrada; la escritura ~125%.
+PRECIO_ENTRADA = 3.0 if "sonnet" in MODELO else 5.0
+PRECIO_SALIDA = 15.0 if "sonnet" in MODELO else 25.0
+
+
+def _log_gasto(gasto: dict, vueltas: int) -> None:
+    """Registra el coste estimado de la consulta, para poder diagnosticarlo."""
+    usd = (
+        gasto["entrada"] * PRECIO_ENTRADA
+        + gasto["cache_escritura"] * PRECIO_ENTRADA * 1.25
+        + gasto["cache_lectura"] * PRECIO_ENTRADA * 0.1
+        + gasto["salida"] * PRECIO_SALIDA
+    ) / 1_000_000
+    log.info(
+        "COSTE ~$%.4f | %d vueltas | entrada %d, cache_r %d, cache_w %d, salida %d",
+        usd,
+        vueltas,
+        gasto["entrada"],
+        gasto["cache_lectura"],
+        gasto["cache_escritura"],
+        gasto["salida"],
+    )
