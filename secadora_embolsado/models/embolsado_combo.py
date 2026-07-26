@@ -21,12 +21,16 @@ class EmbolsadoCombo(models.Model):
         help='Nombre corto del combo (ej: "Combo 1"). Si se deja vacío se '
              'muestran los nombres de los equipos.',
     )
+    # El catálogo de equipos tiene 270 registros (motores, silos, elevadores…);
+    # aquí solo interesa la maquinaria de acarreo, que se distingue por el
+    # nombre. Los componentes se excluyen: un motor de tractor no es un tractor.
     tractor_equipo_id = fields.Many2one(
         'maintenance.equipment',
         string='Tractor (Equipo)',
         required=True,
         ondelete='restrict',
         index=True,
+        domain="[('name', 'ilike', 'tract'), ('parent_equipment_id', '=', False)]",
     )
     tolvo_equipo_id = fields.Many2one(
         'maintenance.equipment',
@@ -34,6 +38,7 @@ class EmbolsadoCombo(models.Model):
         required=True,
         ondelete='restrict',
         index=True,
+        domain="[('name', 'ilike', 'tolvo'), ('parent_equipment_id', '=', False)]",
     )
     tara_ids = fields.One2many(
         'secadora.embolsado.tara',
