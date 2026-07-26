@@ -156,9 +156,16 @@ class Agente:
             log.exception("fallo inesperado en la herramienta %s", nombre)
             return f"ERROR inesperado: {exc}", True
 
-    def responder(self, pregunta: str) -> str:
-        """Bucle de herramientas: consulta hasta tener la respuesta."""
-        mensajes: list[dict] = [{"role": "user", "content": pregunta}]
+    def responder(
+        self, pregunta: str, historial: list[dict] | None = None
+    ) -> tuple[str, list[dict]]:
+        """Responde una pregunta y devuelve (respuesta, historial_actualizado).
+
+        El historial permite preguntas de seguimiento ("¿y el mes pasado?").
+        Quien llama decide cuánto conservar; aquí solo lo encadenamos.
+        """
+        mensajes: list[dict] = list(historial or [])
+        mensajes.append({"role": "user", "content": pregunta})
 
         for vuelta in range(MAX_VUELTAS):
             respuesta = self.claude.messages.create(
@@ -177,16 +184,27 @@ class Agente:
             )
 
             if respuesta.stop_reason == "refusal":
+                # No guardamos el rechazo: dejarlo envenenaría el hilo.
                 return (
                     "No puedo responder eso. Si es una consulta legítima de la "
-                    "operación, reformúlala de otra manera."
+                    "operación, reformúlala de otra manera.",
+                    list(historial or []),
                 )
 
             if respuesta.stop_reason != "tool_use":
-                texto = "".join(
-                    b.text for b in respuesta.content if b.type == "text"
-                ).strip()
-                return texto or "No pude generar una respuesta."
+                texto = (
+                    "".join(
+                        b.text for b in respuesta.content if b.type == "text"
+                    ).strip()
+                    or "No pude generar una respuesta."
+                )
+                # Guardamos solo pregunta y respuesta final: los resultados de
+                # SQL intermedios pueden ser enormes y no aportan al seguimiento.
+                nuevo_historial = list(historial or []) + [
+                    {"role": "user", "content": pregunta},
+                    {"role": "assistant", "content": texto},
+                ]
+                return texto, nuevo_historial
 
             mensajes.append({"role": "assistant", "content": respuesta.content})
 
@@ -215,5 +233,6 @@ class Agente:
 
         return (
             "La consulta resultó más compleja de lo esperado y no llegué a una "
-            "respuesta. Intenta preguntarlo de forma más concreta."
+            "respuesta. Intenta preguntarlo de forma más concreta.",
+            list(historial or []),
         )

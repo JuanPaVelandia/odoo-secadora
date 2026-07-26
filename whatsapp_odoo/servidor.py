@@ -53,8 +53,23 @@ AYUDA = (
     "- ¿Cuántas órdenes de secado hay abiertas?\n"
     "- Peso total secado este mes por finca\n"
     "- Facturas de compra sin pagar\n"
-    "- Los 10 clientes con más volumen este año"
+    "- Los 10 clientes con más volumen este año\n\n"
+    "Recuerdo el hilo de la conversación, así que puedes preguntar "
+    '"¿y el mes pasado?" sin repetirlo todo.\n'
+    'Escribe *nuevo* para empezar de cero.'
 )
+
+# Historial por número, para las preguntas de seguimiento. En memoria: se
+# pierde al reiniciar el contenedor, y no vale la pena persistirlo.
+_historial: dict[str, list[dict]] = {}
+_ultimo_uso: dict[str, float] = {}
+_historial_lock = threading.Lock()
+
+# Cuántos pares pregunta/respuesta conservar. Más historial = más tokens
+# reenviados en cada consulta.
+MAX_TURNOS = 10
+# Pasado este tiempo sin escribir, el hilo se considera terminado.
+EXPIRA_HISTORIAL = 30 * 60
 
 
 @app.get("/salud")
@@ -119,8 +134,17 @@ def _atender(numero: str, texto: str) -> None:
     """Consulta y responde. Corre fuera del ciclo de la petición."""
     pregunta = texto.strip()
 
-    if pregunta.lower() in ("ayuda", "hola", "/ayuda", "?", "menu", "menú"):
+    orden = pregunta.lower().strip(" .!¡")
+
+    if orden in ("ayuda", "hola", "/ayuda", "?", "menu", "menú"):
         _responder(numero, AYUDA)
+        return
+
+    if orden in ("nuevo", "/nuevo", "limpiar", "reiniciar", "olvida"):
+        with _historial_lock:
+            _historial.pop(numero, None)
+            _ultimo_uso.pop(numero, None)
+        _responder(numero, "Listo, empezamos de cero. ¿Qué necesitas?")
         return
 
     with _ocupados_lock:
@@ -135,11 +159,15 @@ def _atender(numero: str, texto: str) -> None:
     # "Escribiendo…" mientras trabajamos, para que se note que hay alguien.
     parar_presencia = _mantener_escribiendo(numero)
     try:
-        respuesta = agente.responder(pregunta)
+        respuesta, nuevo_historial = agente.responder(
+            pregunta, _leer_historial(numero)
+        )
+        _guardar_historial(numero, nuevo_historial)
         log.info(
-            "consulta de %s resuelta en %.1fs: %r",
+            "consulta de %s resuelta en %.1fs (%d turnos): %r",
             numero,
             time.monotonic() - inicio,
+            len(nuevo_historial) // 2,
             pregunta[:80],
         )
     except Exception as exc:
@@ -154,6 +182,30 @@ def _atender(numero: str, texto: str) -> None:
             _ocupados.discard(numero)
 
     _responder(numero, respuesta)
+
+
+def _leer_historial(numero: str) -> list[dict]:
+    """Historial reciente del número, o vacío si expiró."""
+    ahora = time.time()
+    with _historial_lock:
+        # Purga la conversación de cualquiera que lleve rato sin escribir.
+        for n, visto in list(_ultimo_uso.items()):
+            if ahora - visto > EXPIRA_HISTORIAL:
+                _historial.pop(n, None)
+                _ultimo_uso.pop(n, None)
+        return list(_historial.get(numero, []))
+
+
+def _guardar_historial(numero: str, historial: list[dict]) -> None:
+    """Guarda recortando a los últimos MAX_TURNOS pares pregunta/respuesta."""
+    recortado = historial[-(MAX_TURNOS * 2) :]
+    # El historial debe empezar por 'user': si el recorte dejó una respuesta
+    # del asistente al inicio, la API rechaza la siguiente petición.
+    while recortado and recortado[0].get("role") != "user":
+        recortado.pop(0)
+    with _historial_lock:
+        _historial[numero] = recortado
+        _ultimo_uso[numero] = time.time()
 
 
 def _mantener_escribiendo(numero: str) -> threading.Event:
