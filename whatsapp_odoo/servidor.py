@@ -48,6 +48,10 @@ VENTANA_VISTOS = 600  # segundos
 _ocupados: set[str] = set()
 _ocupados_lock = threading.Lock()
 
+# Última pregunta de cada número, para descartar reentregas de Evolution que
+# llegan con un id distinto (y por tanto burlan _marcar_visto).
+_ultima_pregunta: dict[str, tuple[str, float]] = {}
+
 AYUDA = (
     "Consulto los datos de Odoo. Pregúntame en español, por ejemplo:\n\n"
     "- ¿Cuántas órdenes de secado hay abiertas?\n"
@@ -148,6 +152,16 @@ def _atender(numero: str, texto: str) -> None:
         return
 
     with _ocupados_lock:
+        # Segunda barrera contra duplicados: Evolution puede reentregar el
+        # mismo texto con otro id de mensaje, y entonces _marcar_visto no lo
+        # detecta. Procesarlo dos veces duplica el gasto de API.
+        ahora = time.monotonic()
+        anterior = _ultima_pregunta.get(numero)
+        if anterior and anterior[0] == pregunta and ahora - anterior[1] < 60:
+            log.info("descarto repeticion de %s: %r", numero, pregunta[:60])
+            return
+        _ultima_pregunta[numero] = (pregunta, ahora)
+
         if numero in _ocupados:
             _responder(
                 numero, "Sigo con tu consulta anterior, dame un momento."

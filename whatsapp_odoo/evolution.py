@@ -81,7 +81,9 @@ class EvolutionClient:
             httpx.post(
                 f"{self.url}/chat/sendPresence/{self.instancia}",
                 headers=self._headers(),
-                json={"number": destino, "presence": estado, "delay": 0},
+                # delay = cuánto mantener el indicador. Con 0 se apaga al
+                # instante y el usuario no llega a verlo.
+                json={"number": destino, "presence": estado, "delay": 20000},
                 timeout=10,
             )
         except httpx.HTTPError as exc:
