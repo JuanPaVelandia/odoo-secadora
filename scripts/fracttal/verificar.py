@@ -23,6 +23,16 @@ DB = next((a.split('=', 1)[1] for a in sys.argv if a.startswith('--db=')),
 fallos = []
 
 
+def leer_todo(o, modelo, dominio, campos, tam=500):
+    """search_read paginado: de una sola vez XML-RPC trunca la respuesta."""
+    total = o.contar(modelo, dominio)
+    registros = []
+    for desplazamiento in range(0, total, tam):
+        registros += o.buscar_leer(modelo, dominio, campos,
+                                   offset=desplazamiento, limit=tam, order='id')
+    return registros
+
+
 def check(etiqueta, esperado, obtenido, tolerancia=0):
     ok = abs(esperado - obtenido) <= tolerancia
     marca = 'OK  ' if ok else 'FALLA'
@@ -44,7 +54,7 @@ def main():
     print('EQUIPOS')
     activos = leer_export('ACTIVOS.xlsx')
     nombres = {mapeo.normalizar(r['Nombre']) for r in activos if r.get('Nombre')}
-    en_odoo = o.buscar_leer('maintenance.equipment', [], ['name', 'external_ref'])
+    en_odoo = leer_todo(o, 'maintenance.equipment', [], ['name', 'external_ref'])
     en_odoo_norm = {mapeo.normalizar(e['name']) for e in en_odoo}
     faltan = nombres - en_odoo_norm
     check('Activos del export presentes en Odoo', len(nombres),
@@ -66,16 +76,15 @@ def main():
     print('\nÓRDENES DE TRABAJO')
     filas = leer_export('OT-RECURSOS.xlsx')
     ots = {str(f['Id OT']).strip() for f in filas if f.get('Id OT')}
-    reqs = o.buscar_leer('maintenance.request',
-                         [('external_ref', '!=', False)], ['external_ref'])
+    reqs = leer_todo(o, 'maintenance.request',
+                     [('external_ref', '!=', False)], ['external_ref'])
     refs = {r['external_ref'] for r in reqs}
     check('Órdenes migradas', len(ots), len(refs & ots))
     check('Órdenes duplicadas', len(refs), len(set(refs)))
 
     # El número de Fracttal debe haber quedado como número oficial de la OT.
-    numeradas = o.buscar_leer('maintenance.request',
-                              [('ot_number', '!=', False)], ['ot_number'])
-    numeros = {r['ot_number'] for r in numeradas}
+    numeros = {r['ot_number'] for r in leer_todo(
+        o, 'maintenance.request', [('ot_number', '!=', False)], ['ot_number'])}
     check('OT con número OT-<n>', len(ots), len(numeros & ots))
     check('OT sin numerar', 0,
           o.contar('maintenance.request', [('ot_number', '=', False)]))
@@ -87,29 +96,31 @@ def main():
     print('\nCOSTOS HISTÓRICOS')
     total_origen = sum(a_float(f.get('coste Total')) for f in filas)
     lineas_origen = len([f for f in filas if f.get('Id OT')])
-    # Paginado: leer miles de registros de una vez trunca la respuesta XML-RPC.
     dominio = [('origin', '=', 'historic')]
     n_costos = o.contar('maintenance.equipment.cost.line', dominio)
-    suma = 0.0
-    for desplazamiento in range(0, n_costos, 1000):
-        suma += sum(c['amount'] for c in o.buscar_leer(
-            'maintenance.equipment.cost.line', dominio, ['amount'],
-            offset=desplazamiento, limit=1000, order='id'))
+    # El total lo suma el servidor: traer 5.861 filas por XML-RPC es frágil.
+    agregado = o.x('maintenance.equipment.cost.line', 'read_group',
+                   dominio, ['amount:sum'], [], lazy=False)
+    suma = agregado[0]['amount'] if agregado else 0.0
     check('Líneas de costo', lineas_origen, n_costos)
     check('Importe total', round(total_origen, 2), round(suma, 2),
           tolerancia=1.0)
 
-    # El total por equipo es un campo calculado con store: si se cargó por SQL
-    # sin recompute, quedaría en cero aunque las líneas estén bien.
-    equipos_con_costo = {c['equipment_id'][0]
-                         for c in o.buscar_leer(
-                             'maintenance.equipment.cost.line',
-                             [('equipment_id', '!=', False)], ['equipment_id'],
-                             limit=2000) if c['equipment_id']}
-    check('Equipos con total calculado', len(equipos_con_costo),
+    # Los totales por equipo son campos calculados con store: si las filas se
+    # insertaron por SQL sin recompute, quedarían en cero aunque las líneas
+    # estén bien. Se comprueba contra el contador de líneas y no contra el
+    # importe, porque hay costos legítimos de $0 en el origen.
+    # Se agrupa en el servidor en vez de traer las 5.861 filas: algunos
+    # nombres de equipo traen caracteres que rompen la respuesta XML-RPC.
+    grupos = o.x('maintenance.equipment.cost.line', 'read_group',
+                 [('equipment_id', '!=', False)], ['equipment_id'],
+                 ['equipment_id'], lazy=False)
+    equipos_con_costo = {g['equipment_id'][0] for g in grupos
+                         if g.get('equipment_id')}
+    check('Equipos con total recalculado', len(equipos_con_costo),
           o.contar('maintenance.equipment',
                    [('id', 'in', list(equipos_con_costo)),
-                    ('maintenance_cost_total', '>', 0)]))
+                    ('maintenance_invoice_count', '>', 0)]))
 
     # ---------------- Horómetros ----------------
     print('\nHORÓMETROS')
