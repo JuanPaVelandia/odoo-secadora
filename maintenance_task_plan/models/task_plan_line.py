@@ -147,7 +147,11 @@ class MaintenanceTaskPlanLine(models.Model):
             else:
                 description = note
 
-            request = Request.create({
+            # La OT nace en la compañía del EQUIPO, no en la del plan: un
+            # mismo plan cubre maquinaria de varios dueños (FT, JPV, JV) y
+            # Odoo rechaza el cruce entre compañías.
+            company = line.equipment_id.company_id or line.plan_id.company_id
+            vals = {
                 'name': line.plan_id.name,
                 'equipment_id': line.equipment_id.id,
                 'task_plan_id': line.plan_id.id,
@@ -155,7 +159,13 @@ class MaintenanceTaskPlanLine(models.Model):
                 'user_id': line.plan_id.responsible_user_id.id or False,
                 'category_id': line.plan_id.category_id.id or False,
                 'description': description,
-            })
+                'company_id': company.id,
+            }
+            equipo_mant = self.env['maintenance.team'].search(
+                [('company_id', '=', company.id)], limit=1)
+            if equipo_mant:
+                vals['maintenance_team_id'] = equipo_mant.id
+            request = Request.with_company(company).create(vals)
             line.last_request_id = request.id
             created |= request
 
