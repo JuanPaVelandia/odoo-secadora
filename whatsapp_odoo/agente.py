@@ -25,9 +25,11 @@ log = logging.getLogger(__name__)
 # ~40% menos ($3/$15 por millón frente a $5/$25). Cambiable por variable.
 MODELO = os.environ.get("CLAUDE_MODELO", "claude-sonnet-5")
 
-# Tope de vueltas del bucle. Cada vuelta es una llamada a la API: sin tope,
-# una pregunta mal planteada podría encadenar consultas indefinidamente.
-MAX_VUELTAS = 12
+# Tope de vueltas del bucle. Cada vuelta reenvía todo el contexto acumulado,
+# así que el coste crece rápido: en producción se midieron 8 vueltas por
+# $0,24. Con 4, una consulta normal cabe de sobra y una que se atasca se
+# rinde barato. Configurable por si alguna consulta legítima necesita más.
+MAX_VUELTAS = int(os.environ.get("MAX_VUELTAS", "4"))
 
 SISTEMA = """Eres el asistente de consultas de una secadora de arroz colombiana.
 Respondes por WhatsApp a preguntas sobre los datos de su Odoo 19.
@@ -239,6 +241,40 @@ HERRAMIENTAS = [
 ]
 
 
+def _con_cache(mensajes: list[dict]) -> list[dict]:
+    """Marca el último mensaje como cacheable.
+
+    Sin esto solo se cachea el prompt del sistema, y todo lo que crece —los
+    resultados de las consultas— se reenvía a precio completo en cada vuelta.
+    Con la marca, las vueltas siguientes leen ese contexto al 10%.
+    """
+    if not mensajes:
+        return mensajes
+
+    salida = list(mensajes)
+    ultimo = dict(salida[-1])
+    contenido = ultimo.get("content")
+
+    if isinstance(contenido, str):
+        ultimo["content"] = [
+            {
+                "type": "text",
+                "text": contenido,
+                "cache_control": {"type": "ephemeral"},
+            }
+        ]
+    elif isinstance(contenido, list) and contenido:
+        bloques = [dict(b) if isinstance(b, dict) else b for b in contenido]
+        if isinstance(bloques[-1], dict):
+            bloques[-1]["cache_control"] = {"type": "ephemeral"}
+        ultimo["content"] = bloques
+    else:
+        return salida
+
+    salida[-1] = ultimo
+    return salida
+
+
 def _contenido(pregunta: str, documento: tuple[str, str] | None):
     """Arma el contenido del mensaje, con el adjunto delante si lo hay.
 
@@ -397,7 +433,7 @@ class Agente:
                     }
                 ],
                 tools=HERRAMIENTAS,
-                messages=mensajes,
+                messages=_con_cache(mensajes),
             )
 
             u = respuesta.usage
@@ -414,6 +450,18 @@ class Agente:
                     "No puedo responder eso. Si es una consulta legítima de la "
                     "operación, reformúlala de otra manera.",
                     list(historial or []),
+                )
+
+            if vuelta == MAX_VUELTAS - 2:
+                mensajes.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            "[Aviso del sistema: te queda una consulta. "
+                            "Responde con lo que tengas; si no encontraste "
+                            "los datos, dilo claramente.]"
+                        ),
+                    }
                 )
 
             if respuesta.stop_reason != "tool_use":
@@ -462,9 +510,11 @@ class Agente:
                 )
             mensajes.append({"role": "user", "content": resultados})
 
+        _log_gasto(gasto, MAX_VUELTAS)
         return (
-            "La consulta resultó más compleja de lo esperado y no llegué a una "
-            "respuesta. Intenta preguntarlo de forma más concreta.",
+            "No di con esos datos. Puede que no estén cargados todavía en el "
+            "sistema, o que la pregunta necesite más contexto: prueba con un "
+            "nombre, una fecha o un número de documento concreto.",
             list(historial or []),
         )
 
