@@ -132,6 +132,8 @@ def _atender(numero: str, texto: str) -> None:
         _ocupados.add(numero)
 
     inicio = time.monotonic()
+    # "Escribiendo…" mientras trabajamos, para que se note que hay alguien.
+    parar_presencia = _mantener_escribiendo(numero)
     try:
         respuesta = agente.responder(pregunta)
         log.info(
@@ -147,10 +149,30 @@ def _atender(numero: str, texto: str) -> None:
             f"Detalle: {str(exc)[:200]}"
         )
     finally:
+        parar_presencia.set()
         with _ocupados_lock:
             _ocupados.discard(numero)
 
     _responder(numero, respuesta)
+
+
+def _mantener_escribiendo(numero: str) -> threading.Event:
+    """Refresca el indicador hasta que se marque el Event devuelto.
+
+    WhatsApp lo caduca a los ~25s, así que hay que renovarlo o el usuario
+    lo ve desaparecer justo cuando la consulta se está alargando.
+    """
+    parar = threading.Event()
+
+    def bucle() -> None:
+        while not parar.is_set():
+            evolution.presencia(numero, "composing")
+            # Antes de que WhatsApp lo caduque.
+            if parar.wait(15):
+                break
+
+    threading.Thread(target=bucle, daemon=True).start()
+    return parar
 
 
 def _responder(numero: str, texto: str) -> None:

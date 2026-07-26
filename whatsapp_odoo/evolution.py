@@ -71,6 +71,22 @@ class EvolutionClient:
                 f"Evolution API devolvió {r.status_code}: {r.text[:300]}"
             )
 
+    def presencia(self, destino: str, estado: str = "composing") -> None:
+        """Marca 'escribiendo…' en el chat. Silencioso si falla.
+
+        Es cosmético: si la Evolution API no lo soporta o falla, la consulta
+        debe continuar igualmente.
+        """
+        try:
+            httpx.post(
+                f"{self.url}/chat/sendPresence/{self.instancia}",
+                headers=self._headers(),
+                json={"number": destino, "presence": estado, "delay": 0},
+                timeout=10,
+            )
+        except httpx.HTTPError as exc:
+            log.debug("no se pudo marcar presencia: %s", exc)
+
     def estado(self) -> dict:
         """Comprueba que la instancia sigue conectada a WhatsApp."""
         try:
