@@ -331,6 +331,9 @@ class Agente:
         self._pg: PgReadOnlyClient | None = None
         # Lo fija responder(): depende de a quién estemos atendiendo.
         self._enviar_archivo = None
+        # Datos de la última consulta, para el registro de auditoría.
+        self.ultimo_gasto: dict = {}
+        self.ultimas_vueltas: int = 0
 
     @property
     def pg(self) -> PgReadOnlyClient:
@@ -506,6 +509,8 @@ class Agente:
                 # El adjunto NO se guarda: reenviar el PDF en cada turno
                 # posterior multiplicaría el coste sin aportar nada.
                 _log_gasto(gasto, vuelta + 1)
+                self.ultimo_gasto = dict(gasto)
+                self.ultimas_vueltas = vuelta + 1
                 marca = (
                     f"[adjuntó un documento] {pregunta}" if documento else pregunta
                 )
@@ -550,6 +555,8 @@ class Agente:
             mensajes.append({"role": "user", "content": resultados})
 
         _log_gasto(gasto, MAX_VUELTAS)
+        self.ultimo_gasto = dict(gasto)
+        self.ultimas_vueltas = MAX_VUELTAS
         return (
             "No di con esos datos. Puede que no estén cargados todavía en el "
             "sistema, o que la pregunta necesite más contexto: prueba con un "
@@ -562,6 +569,16 @@ class Agente:
 # La lectura de caché cuesta ~10% de la entrada; la escritura ~125%.
 PRECIO_ENTRADA = 3.0 if "sonnet" in MODELO else 5.0
 PRECIO_SALIDA = 15.0 if "sonnet" in MODELO else 25.0
+
+
+def coste_usd(gasto: dict) -> float:
+    """Coste estimado de una consulta, en dólares."""
+    return (
+        gasto.get("entrada", 0) * PRECIO_ENTRADA
+        + gasto.get("cache_escritura", 0) * PRECIO_ENTRADA * 1.25
+        + gasto.get("cache_lectura", 0) * PRECIO_ENTRADA * 0.1
+        + gasto.get("salida", 0) * PRECIO_SALIDA
+    ) / 1_000_000
 
 
 def _log_gasto(gasto: dict, vueltas: int) -> None:

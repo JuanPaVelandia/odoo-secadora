@@ -16,7 +16,8 @@ import time
 from fastapi import BackgroundTasks, FastAPI, Request
 
 import adjuntos
-from agente import Agente
+from agente import Agente, coste_usd
+from historial import Historial
 
 # Dos canales posibles:
 #   meta      -> WhatsApp Business Cloud API (oficial). Automatizar es su
@@ -44,6 +45,7 @@ app = FastAPI(title="Consultas Odoo por WhatsApp")
 
 agente = Agente()
 evolution = ClienteCanal()
+historial = Historial()
 log.info("canal de mensajería: %s", CANAL)
 
 # Números autorizados. Sin esto, cualquiera que conozca el número del bot
@@ -114,6 +116,7 @@ def salud() -> dict:
     estado["filestore"] = (
         "ok" if adjuntos.filestore_disponible() else "no montado"
     )
+    estado["historial"] = historial.comprobar()
     return estado
 
 
@@ -373,8 +376,10 @@ def _atender(
             len(nuevo_historial) // 2,
             pregunta[:80],
         )
+        fallo = None
     except Exception as exc:
         log.exception("fallo atendiendo a %s", numero)
+        fallo = str(exc)[:500]
         respuesta = (
             "Se me atravesó un error consultando la base. "
             f"Detalle: {str(exc)[:200]}"
@@ -385,6 +390,22 @@ def _atender(
             _ocupados.discard(numero)
 
     _responder(numero, respuesta)
+
+    # Auditoría. Va después de responder para no añadir latencia, y nunca
+    # lanza excepción: perder una línea de registro no debe romper nada.
+    gasto = getattr(agente, "ultimo_gasto", {}) or {}
+    historial.registrar(
+        numero=numero,
+        pregunta=pregunta,
+        respuesta=respuesta,
+        vueltas=getattr(agente, "ultimas_vueltas", None) or None,
+        segundos=time.monotonic() - inicio,
+        coste_usd=coste_usd(gasto) if gasto else None,
+        modelo=os.environ.get("CLAUDE_MODELO", "claude-opus-5"),
+        tokens=gasto,
+        con_adjunto=bool(adjunto or documento_ya_descargado),
+        error=fallo,
+    )
 
 
 def _leer_historial(numero: str) -> list[dict]:

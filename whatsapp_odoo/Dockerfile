@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir \
     "httpx>=0.27" \
     "psycopg[binary]>=3.1"
 
-COPY pg_client.py evolution.py meta_wa.py adjuntos.py agente.py servidor.py ./
+COPY pg_client.py evolution.py meta_wa.py adjuntos.py historial.py agente.py servidor.py ./
 
 # Sin root: si algo se cuela, que no tenga la máquina entera.
 RUN useradd --create-home --shell /usr/sbin/nologin bot
