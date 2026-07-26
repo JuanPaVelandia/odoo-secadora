@@ -62,8 +62,9 @@ class Odoo:
             return []
         return self.x(modelo, 'create', lista_vals, context=CTX)
 
-    def escribir(self, modelo, ids, vals):
-        return self.x(modelo, 'write', ids, vals, context=CTX)
+    def escribir(self, modelo, ids, vals, ctx=None):
+        return self.x(modelo, 'write', ids, vals,
+                      context=dict(CTX, **(ctx or {})))
 
     def id_por_nombre(self, modelo, nombre, campo='name'):
         """Busca un id por clave natural, cacheado. None si no existe."""
