@@ -1,0 +1,9 @@
+[project]
+name = "mcp-odoo-secadora"
+version = "0.1.0"
+description = "Conector MCP de solo lectura para consultar Odoo en lenguaje natural"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "psycopg[binary]>=3.1",
+]

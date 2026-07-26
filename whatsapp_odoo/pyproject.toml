@@ -1,0 +1,12 @@
+[project]
+name = "whatsapp-odoo"
+version = "0.1.0"
+description = "Bot de WhatsApp que consulta Odoo en lenguaje natural"
+requires-python = ">=3.10"
+dependencies = [
+    "anthropic>=0.40",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "httpx>=0.27",
+    "psycopg[binary]>=3.1",
+]
