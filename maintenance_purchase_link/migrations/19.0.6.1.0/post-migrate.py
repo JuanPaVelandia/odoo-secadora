@@ -66,6 +66,16 @@ def _limpiar_nombres(cr):
     """)
     _logger.info('Nombres de OT limpiados: %s', cr.rowcount)
 
+    # Una versión anterior componía el nombre con un `name` vacío y dejaba el
+    # literal "False" pegado ("[OT-1242] False").
+    cr.execute(r"""
+        UPDATE maintenance_request
+        SET name = COALESCE(NULLIF(TRIM(task_name), ''), 'Solicitud de mantenimiento')
+        WHERE name ~ '^\[OT-[0-9]+\]\s*False\s*$' OR name = 'False'
+    """)
+    if cr.rowcount:
+        _logger.info('Nombres corruptos corregidos: %s', cr.rowcount)
+
 
 def _ajustar_secuencia(cr):
     """Deja la secuencia por encima del número más alto en uso."""

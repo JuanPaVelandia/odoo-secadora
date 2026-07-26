@@ -306,3 +306,48 @@ class TestMaintenanceCost(TransactionCase):
                 'amount': 1000.0,
             })
         self.assertEqual(self.equipment.maintenance_invoice_count, 3)
+
+    # ------------------------------------------------------------------
+    # Numeración de órdenes de trabajo (OT-<n>)
+    # ------------------------------------------------------------------
+    def test_ot_number_se_asigna_al_crear(self):
+        """Toda OT nueva recibe un número de la secuencia."""
+        req = self.env['maintenance.request'].create({
+            'name': 'Revisión general',
+            'equipment_id': self.equipment.id,
+        })
+        self.assertTrue(req.ot_number)
+        self.assertRegex(req.ot_number, r'^OT-\d+$')
+        self.assertEqual(req.display_name, f'[{req.ot_number}] Revisión general')
+
+    def test_ot_number_importado_se_respeta(self):
+        """Una OT que trae su número de origen lo conserva."""
+        req = self.env['maintenance.request'].create({
+            'name': 'Histórica',
+            'equipment_id': self.equipment.id,
+            'ot_number': 'OT-777',
+            'external_ref': 'OT-777',
+        })
+        self.assertEqual(req.ot_number, 'OT-777')
+
+    def test_display_name_sin_nombre_no_dice_false(self):
+        """Sin nombre, el display_name no debe mostrar el literal "False"."""
+        req = self.env['maintenance.request'].create({
+            'equipment_id': self.equipment.id,
+        })
+        self.assertNotIn('False', req.display_name)
+        self.assertIn(req.ot_number, req.display_name)
+
+    def test_secuencia_no_se_consume_de_mas(self):
+        """Crear N órdenes consume N números, no más."""
+        Request = self.env['maintenance.request']
+        numeros = []
+        for i in range(3):
+            req = Request.create({
+                'name': f'OT de prueba {i}',
+                'equipment_id': self.equipment.id,
+            })
+            numeros.append(int(req.ot_number.removeprefix('OT-')))
+        self.assertEqual(numeros, sorted(numeros))
+        self.assertEqual(numeros[-1] - numeros[0], 2,
+                         'La secuencia saltó números: se consumió de más.')

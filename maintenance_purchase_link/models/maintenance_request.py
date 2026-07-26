@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class MaintenanceRequest(models.Model):
@@ -34,7 +34,9 @@ class MaintenanceRequest(models.Model):
         index=True,
         copy=False,
         readonly=True,
-        default=lambda self: self._siguiente_ot_number(),
+        # Sin `default`: lo asigna create(). Un default consumiría un número
+        # de la secuencia cada vez que se abre el formulario, aunque no se
+        # llegue a guardar.
         help='Número consecutivo de la orden (OT-1241, OT-1242, …). '
              'Continúa la serie que traía Fracttal.',
     )
@@ -68,12 +70,16 @@ class MaintenanceRequest(models.Model):
                 vals['ot_number'] = self._siguiente_ot_number()
         return super().create(vals_list)
 
+    @api.depends('ot_number', 'name')
     def _compute_display_name(self):
         for request in self:
-            if request.ot_number:
-                request.display_name = f'[{request.ot_number}] {request.name}'
+            nombre = request.name or ''
+            if request.ot_number and nombre:
+                request.display_name = f'[{request.ot_number}] {nombre}'
             else:
-                request.display_name = request.name
+                # Una solicitud recién creada aún no tiene nombre: mostrar
+                # "False" sería peor que mostrar solo el número.
+                request.display_name = request.ot_number or nombre or _('Nueva solicitud')
 
     @api.depends('cost_line_ids.amount')
     def _compute_cost_total(self):
