@@ -89,6 +89,33 @@ class EvolutionClient:
         except httpx.HTTPError as exc:
             log.debug("no se pudo marcar presencia: %s", exc)
 
+    def descargar_media(self, mensaje_id: str) -> str:
+        """Descarga un adjunto de WhatsApp y lo devuelve en base64.
+
+        WhatsApp cifra los medios, así que no basta con la URL del webhook:
+        hay que pedírselo a Evolution, que los descifra.
+        """
+        try:
+            r = httpx.post(
+                f"{self.url}/chat/getBase64FromMediaMessage/{self.instancia}",
+                headers=self._headers(),
+                json={"message": {"key": {"id": mensaje_id}}, "convertToMp4": False},
+                timeout=90,
+            )
+        except httpx.HTTPError as exc:
+            raise EvolutionError(f"No se pudo descargar el adjunto: {exc}") from exc
+
+        if r.status_code >= 400:
+            raise EvolutionError(
+                f"Evolution no entregó el adjunto ({r.status_code}): {r.text[:200]}"
+            )
+
+        datos = r.json()
+        b64 = datos.get("base64") or ""
+        if not b64:
+            raise EvolutionError("El adjunto llegó vacío.")
+        return b64
+
     def estado(self) -> dict:
         """Comprueba que la instancia sigue conectada a WhatsApp."""
         try:

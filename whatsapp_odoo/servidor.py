@@ -52,12 +52,17 @@ _ocupados_lock = threading.Lock()
 # llegan con un id distinto (y por tanto burlan _marcar_visto).
 _ultima_pregunta: dict[str, tuple[str, float]] = {}
 
+# Formatos de imagen que Claude lee directamente.
+MIMES_IMAGEN = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+
 AYUDA = (
     "Consulto los datos de Odoo. Pregúntame en español, por ejemplo:\n\n"
     "- ¿Cuántas órdenes de secado hay abiertas?\n"
     "- Peso total secado este mes por finca\n"
     "- Facturas de compra sin pagar\n"
     "- Los 10 clientes con más volumen este año\n\n"
+    "*Cotizaciones*: mándame el PDF o una foto y te digo si los precios "
+    "cuadran con lo que hemos pagado antes por esos repuestos.\n\n"
     "Recuerdo el hilo de la conversación, así que puedes preguntar "
     '"¿y el mes pasado?" sin repetirlo todo.\n'
     'Escribe *nuevo* para empezar de cero.'
@@ -121,8 +126,11 @@ async def webhook(request: Request, tareas: BackgroundTasks) -> dict:
         return {"status": "duplicado"}
 
     numero = normalizar_numero(jid)
-    texto = _extraer_texto(datos.get("message") or {})
-    if not texto:
+    mensaje = datos.get("message") or {}
+    texto = _extraer_texto(mensaje)
+    adjunto = _detectar_adjunto(mensaje)
+
+    if not texto and not adjunto:
         return {"status": "sin texto"}
 
     if numero not in AUTORIZADOS:
@@ -130,13 +138,26 @@ async def webhook(request: Request, tareas: BackgroundTasks) -> dict:
         # No respondemos: quien no está en la lista no debe saber que esto existe.
         return {"status": "no autorizado"}
 
-    tareas.add_task(_atender, numero, texto)
+    tareas.add_task(_atender, numero, texto, adjunto, mensaje_id)
     return {"status": "encolado"}
 
 
-def _atender(numero: str, texto: str) -> None:
+def _atender(
+    numero: str,
+    texto: str,
+    adjunto: str | None = None,
+    mensaje_id: str = "",
+) -> None:
     """Consulta y responde. Corre fuera del ciclo de la petición."""
     pregunta = texto.strip()
+
+    if adjunto == "no-soportado":
+        _responder(
+            numero,
+            "Solo puedo leer PDF e imágenes. Si es un Excel o un Word, "
+            "mándame una captura o expórtalo a PDF.",
+        )
+        return
 
     orden = pregunta.lower().strip(" .!¡")
 
@@ -157,7 +178,14 @@ def _atender(numero: str, texto: str) -> None:
         # detecta. Procesarlo dos veces duplica el gasto de API.
         ahora = time.monotonic()
         anterior = _ultima_pregunta.get(numero)
-        if anterior and anterior[0] == pregunta and ahora - anterior[1] < 60:
+        # Los adjuntos se exceptúan: dos cotizaciones distintas pueden llegar
+        # con el mismo texto ("revisa precios") y ambas deben atenderse.
+        if (
+            not adjunto
+            and anterior
+            and anterior[0] == pregunta
+            and ahora - anterior[1] < 60
+        ):
             log.info("descarto repeticion de %s: %r", numero, pregunta[:60])
             return
         _ultima_pregunta[numero] = (pregunta, ahora)
@@ -173,8 +201,31 @@ def _atender(numero: str, texto: str) -> None:
     # "Escribiendo…" mientras trabajamos, para que se note que hay alguien.
     parar_presencia = _mantener_escribiendo(numero)
     try:
+        documento = None
+        if adjunto and mensaje_id:
+            try:
+                documento = (adjunto, evolution.descargar_media(mensaje_id))
+                log.info("adjunto %s descargado de %s", adjunto, numero)
+            except EvolutionError as exc:
+                log.error("no se pudo bajar el adjunto de %s: %s", numero, exc)
+                parar_presencia.set()
+                with _ocupados_lock:
+                    _ocupados.discard(numero)
+                _responder(
+                    numero,
+                    "No pude descargar el archivo. Intenta reenviarlo, o "
+                    "mándame una foto si es un documento.",
+                )
+                return
+            if not pregunta:
+                # Adjunto sin texto: asumimos la intención más común.
+                pregunta = (
+                    "Te mando este documento. Analízalo y dime si los precios "
+                    "tienen sentido comparados con lo que hemos pagado antes."
+                )
+
         respuesta, nuevo_historial = agente.responder(
-            pregunta, _leer_historial(numero)
+            pregunta, _leer_historial(numero), documento
         )
         _guardar_historial(numero, nuevo_historial)
         log.info(
@@ -248,6 +299,35 @@ def _responder(numero: str, texto: str) -> None:
         log.error("no se pudo responder a %s: %s", numero, exc)
 
 
+def _detectar_adjunto(mensaje: dict) -> str | None:
+    """Devuelve el tipo MIME si el mensaje trae PDF o imagen, o None.
+
+    Solo esos dos: son los que Claude puede leer directamente.
+    """
+    if "imageMessage" in mensaje:
+        imagen = mensaje.get("imageMessage") or {}
+        mime = (imagen.get("mimetype") or "").split(";")[0].strip()
+        # WhatsApp no siempre declara el tipo; jpeg es el caso abrumador.
+        return mime if mime in MIMES_IMAGEN else "image/jpeg"
+
+    doc = mensaje.get("documentMessage") or {}
+    if not doc:
+        # WhatsApp usa este envoltorio cuando el documento lleva pie de foto.
+        doc = (mensaje.get("documentWithCaptionMessage") or {}).get(
+            "message", {}
+        ).get("documentMessage") or {}
+    if doc:
+        mime = (doc.get("mimetype") or "").split(";")[0].strip()
+        if mime == "application/pdf":
+            return mime
+        if mime in MIMES_IMAGEN:
+            return mime
+        log.info("adjunto de tipo no soportado: %s", mime)
+        return "no-soportado"
+
+    return None
+
+
 def _extraer_texto(mensaje: dict) -> str:
     """Saca el texto de las variantes que manda WhatsApp."""
     if isinstance(mensaje.get("conversation"), str):
@@ -255,11 +335,17 @@ def _extraer_texto(mensaje: dict) -> str:
     extendido = mensaje.get("extendedTextMessage") or {}
     if isinstance(extendido.get("text"), str):
         return extendido["text"]
-    # Pie de foto o de video: puede traer la pregunta.
+    # Pie de foto o de documento: casi siempre trae la pregunta real.
     for clave in ("imageMessage", "videoMessage", "documentMessage"):
         sub = mensaje.get(clave) or {}
-        if isinstance(sub.get("caption"), str):
+        if isinstance(sub.get("caption"), str) and sub["caption"].strip():
             return sub["caption"]
+    # WhatsApp envuelve así los documentos con pie de foto.
+    envuelto = (mensaje.get("documentWithCaptionMessage") or {}).get(
+        "message", {}
+    ).get("documentMessage") or {}
+    if isinstance(envuelto.get("caption"), str):
+        return envuelto["caption"]
     return ""
 
 

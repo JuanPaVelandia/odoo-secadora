@@ -56,6 +56,30 @@ usa la herramienta `consultar_sql` cuantas veces necesites.
 - Nada de tablas markdown ni encabezados: WhatsApp no los renderiza.
 - Usa *negrita de WhatsApp* (un asterisco) para destacar la cifra clave.
 - No expliques el SQL que usaste salvo que te lo pidan.
+
+## Cotizaciones de repuestos (PDF o foto)
+Cuando te manden una cotización y pregunten si los precios tienen sentido:
+
+1. Extrae los ítems del documento: descripción, cantidad y precio unitario.
+2. Busca cada uno en `maintenance_equipment_cost_line`. **Ahí está el
+   histórico de compras de repuestos, NO en purchase_order_line**, que está
+   vacía en esta base. Son ~5.800 líneas migradas del sistema anterior.
+   - `name` = descripción del repuesto, `code` = código del proveedor antiguo
+   - `unit_cost` = precio unitario pagado, `date` = cuándo
+   - `partner_id` → res_partner, o `source_name` (texto libre) si no hay
+   - `origin`: 'invoice' (con factura), 'historic' (migrado), 'manual'
+3. El matching es POR TEXTO: `product_id` está vacío en el histórico migrado.
+   Usa ILIKE con las palabras clave del repuesto, no con la frase completa.
+   Ej: para "RODAMIENTO SKF 6205 2RS" busca '%RODAMIENTO%6205%' y también
+   '%6205%' por separado. Prueba varias combinaciones antes de rendirte.
+4. **Si no encuentras histórico de un ítem, dilo. NUNCA estimes un precio
+   de mercado ni inventes una referencia.** Es preferible "no tengo con qué
+   comparar este" a dar una cifra inventada.
+5. **Siempre indica la fecha del precio histórico y cuánto hace de eso.**
+   En Colombia la inflación importa: un precio de 2023 no es comparable sin
+   contexto. Di "lo compraste a $X en marzo de 2024 (hace ~2 años)".
+6. Cierra con una recomendación corta: qué ítems piden revisión y cuáles
+   están en línea.
 """
 
 HERRAMIENTAS = [
@@ -114,6 +138,29 @@ HERRAMIENTAS = [
 ]
 
 
+def _contenido(pregunta: str, documento: tuple[str, str] | None):
+    """Arma el contenido del mensaje, con el adjunto delante si lo hay.
+
+    El documento va primero porque el modelo lee mejor cuando ve el material
+    antes que la instrucción sobre él.
+    """
+    if not documento:
+        return pregunta
+
+    mime, b64 = documento
+    if mime == "application/pdf":
+        bloque = {
+            "type": "document",
+            "source": {"type": "base64", "media_type": mime, "data": b64},
+        }
+    else:
+        bloque = {
+            "type": "image",
+            "source": {"type": "base64", "media_type": mime, "data": b64},
+        }
+    return [bloque, {"type": "text", "text": pregunta}]
+
+
 class Agente:
     """Mantiene el cliente de Claude y el de Postgres entre preguntas."""
 
@@ -157,15 +204,20 @@ class Agente:
             return f"ERROR inesperado: {exc}", True
 
     def responder(
-        self, pregunta: str, historial: list[dict] | None = None
+        self,
+        pregunta: str,
+        historial: list[dict] | None = None,
+        documento: tuple[str, str] | None = None,
     ) -> tuple[str, list[dict]]:
         """Responde una pregunta y devuelve (respuesta, historial_actualizado).
 
         El historial permite preguntas de seguimiento ("¿y el mes pasado?").
-        Quien llama decide cuánto conservar; aquí solo lo encadenamos.
+        `documento` es (mime, base64) de un PDF o imagen adjunto.
         """
         mensajes: list[dict] = list(historial or [])
-        mensajes.append({"role": "user", "content": pregunta})
+        mensajes.append(
+            {"role": "user", "content": _contenido(pregunta, documento)}
+        )
 
         for vuelta in range(MAX_VUELTAS):
             respuesta = self.claude.messages.create(
@@ -200,8 +252,13 @@ class Agente:
                 )
                 # Guardamos solo pregunta y respuesta final: los resultados de
                 # SQL intermedios pueden ser enormes y no aportan al seguimiento.
+                # El adjunto NO se guarda: reenviar el PDF en cada turno
+                # posterior multiplicaría el coste sin aportar nada.
+                marca = (
+                    f"[adjuntó un documento] {pregunta}" if documento else pregunta
+                )
                 nuevo_historial = list(historial or []) + [
-                    {"role": "user", "content": pregunta},
+                    {"role": "user", "content": marca},
                     {"role": "assistant", "content": texto},
                 ]
                 return texto, nuevo_historial
