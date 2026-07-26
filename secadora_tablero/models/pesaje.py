@@ -32,8 +32,13 @@ class SecadoraPesaje(models.Model):
 
     def _crear_posicion_arroz(self, pesaje):
         """Crear tarjeta de posición de arroz al completar pesaje de entrada."""
-        # Verificar si ya existe una posición pre-asignada desde el tablero
-        preasignada = self.env['secadora.posicion.arroz'].search([
+        # Verificar si ya existe una posición pre-asignada desde el tablero.
+        # sudo(): la preasignada puede haber quedado en otra compañía por un
+        # fallo antiguo (ver commit 6bdb930). Sin esto el search no la
+        # encuentra, se asume que no hay preasignación y se crea una segunda
+        # tarjeta: el pesaje aparece duplicado, una "en tránsito" con el peso
+        # bruto y otra con el neto.
+        preasignada = self.env['secadora.posicion.arroz'].sudo().search([
             ('pesaje_id', '=', pesaje.id),
             ('es_preasignado', '=', True),
             ('state', '=', 'activo'),
