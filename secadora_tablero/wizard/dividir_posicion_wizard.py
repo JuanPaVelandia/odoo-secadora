@@ -98,6 +98,9 @@ class DividirPosicionWizard(models.TransientModel):
         # Crear nueva posición en destino
         nueva_posicion = self.env['secadora.posicion.arroz'].create({
             'pesaje_id': posicion.pesaje_id.id,
+            # Ver nota en combinar_posicion_wizard: la compañía es la del
+            # arroz que se divide, no la del usuario que hace la división.
+            'company_id': posicion.company_id.id,
             'sitio_id': self.sitio_destino_id.id,
             'peso_kg': peso_mover,
             'peso_original': posicion.peso_original,

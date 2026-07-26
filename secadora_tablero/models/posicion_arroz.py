@@ -410,6 +410,10 @@ class PosicionArroz(models.Model):
 
         posicion = self.create({
             'pesaje_id': pesaje_id,
+            # La compañía es la del pesaje, no la del usuario que preasigna:
+            # sin esto el arroz cambia de dueño y deja de verse desde el
+            # embolsado (ver combinar_posicion_wizard).
+            'company_id': pesaje.company_id.id,
             'sitio_id': sitio_id,
             'peso_kg': pesaje.peso_bruto,
             'peso_original': pesaje.peso_bruto,

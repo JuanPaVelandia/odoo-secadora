@@ -171,6 +171,27 @@ class EmbolsadoViaje(models.Model):
 
             posiciones = self._posiciones_fifo(rec.sitio_id, rec.company_id)
             if not posiciones:
+                # Antes de dar por vacío el contenedor, mirar si el arroz
+                # está ahí pero a nombre de otra compañía: es el caso más
+                # frecuente y el mensaje genérico mandaba a buscar el
+                # problema en el inventario, que estaba bien.
+                otras = self.env['secadora.posicion.arroz'].sudo().search([
+                    ('sitio_id', '=', rec.sitio_id.id),
+                    ('state', '=', 'activo'),
+                    ('company_id', '!=', rec.company_id.id),
+                ])
+                if otras:
+                    raise UserError(
+                        'El contenedor %s tiene %.0f kg de arroz, pero a nombre '
+                        'de %s, y este viaje es de %s.\n\n'
+                        'Cambia de compañía en el selector superior, o revisa a '
+                        'qué empresa pertenece ese arroz.' % (
+                            rec.sitio_id.name,
+                            sum(otras.mapped('peso_kg')),
+                            ', '.join(otras.mapped('company_id.name')),
+                            rec.company_id.name,
+                        )
+                    )
                 raise UserError(
                     'El contenedor %s no tiene arroz activo en el tablero.' % rec.sitio_id.name
                 )

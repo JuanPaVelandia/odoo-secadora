@@ -94,6 +94,10 @@ class CombinarPosicionWizard(models.TransientModel):
 
         nueva_posicion = self.env['secadora.posicion.arroz'].create({
             'pesaje_id': posicion_mayor.pesaje_id.id,
+            # La compañía sale del arroz, no del usuario que combina: sin
+            # esto hereda self.env.company y el arroz cambia de dueño al
+            # combinarlo, con lo que deja de verse desde el embolsado.
+            'company_id': posicion_mayor.company_id.id,
             'sitio_id': self.sitio_id.id,
             'peso_kg': peso_total,
             'peso_original': peso_total,
