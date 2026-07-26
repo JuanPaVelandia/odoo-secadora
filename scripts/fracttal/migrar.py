@@ -119,7 +119,32 @@ class Migracion:
             log(f'CREAR área de proceso: {nombre}')
             self.stats['areas_creadas'] += 1
 
-        # --- Talleres y proveedores de servicio ---
+        # --- Talleres como ubicación ---
+        # Un taller SÍ es un sitio donde puede estar una máquina, así que se
+        # crea como `secadora.lugar` para poder registrarlo en el historial
+        # de ubicaciones. No se crean como contacto (ver más abajo).
+        for taller in sorted(mapeo.TALLERES):
+            norm = mapeo.normalizar(taller)
+            if norm in self.lugares:
+                continue
+            datos = mapeo.TALLER_DATOS.get(taller, {})
+            vals = {
+                'name': taller,
+                'tipo': 'otro',
+                'municipio': datos.get('municipio') or False,
+                'departamento': datos.get('departamento') or 'CASANARE',
+                'codigo': datos.get('codigo') or False,
+                'notes': 'Taller importado de Fracttal.',
+            }
+            if APLICAR:
+                self.lugares[norm] = o.crear('secadora.lugar', vals)
+            else:
+                self.lugares[norm] = -1
+            self.stats['talleres_creados'] += 1
+        log(f'Talleres como ubicación: {self.stats["talleres_creados"]} creados, '
+            f'{len(mapeo.TALLERES) - self.stats["talleres_creados"]} ya existían')
+
+        # --- Proveedores de servicio ---
         # NO se crean contactos: el catálogo de contactos se comparte con
         # contabilidad y "Fuente del Recurso" es texto libre de Fracttal
         # (mezcla talleres reales con descripciones del trabajo). El nombre de
@@ -165,10 +190,7 @@ class Migracion:
                                                   mapeo.LUGAR_DE_PLANTA)
                 return (self.lugares.get(mapeo.normalizar(lugar)),
                         self.areas.get(mapeo.normalizar(area_odoo)))
-        # ¿taller? no es ubicación de maquinaria
-        if norm in {mapeo.normalizar(t) for t in mapeo.TALLERES}:
-            return None, None
-        # finca / planta
+        # Taller, finca o planta: todos son `secadora.lugar`.
         destino = mapeo.LUGAR_EXISTENTE.get(nodo, nodo)
         return self.lugares.get(mapeo.normalizar(destino)), None
 
@@ -261,7 +283,10 @@ class Migracion:
                 vals['parent_equipment_id'] = id_padre
 
             if APLICAR:
-                nuevo = o.crear('maintenance.equipment', vals)
+                # El historial se crea aparte, con las fechas reales del
+                # origen: se silencia el registro automático de alta.
+                nuevo = o.crear('maintenance.equipment', vals,
+                                {'importando_historico': True})
                 self.equipos[norm] = nuevo
                 if id_cia:
                     self.equipo_cia[norm] = id_cia

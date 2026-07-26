@@ -1,4 +1,5 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 
 
 class MaintenanceEquipment(models.Model):
@@ -19,6 +20,8 @@ class MaintenanceEquipment(models.Model):
     parent_equipment_id = fields.Many2one(
         'maintenance.equipment',
         string='Parte de',
+        index=True,
+        ondelete='set null',
         help='Equipo padre, cuando este registro es un componente '
              '(motor, alternador, etc.).',
     )
@@ -27,6 +30,85 @@ class MaintenanceEquipment(models.Model):
         'parent_equipment_id',
         string='Componentes',
     )
+    # Nombre completo de la jerarquía, para ubicar un componente de un vistazo:
+    # "SILO KEPLER WEBER 1000 TON ALM 5 / MOTOR 52".
+    complete_name = fields.Char(
+        string='Nombre completo',
+        compute='_compute_complete_name',
+        recursive=True,
+        store=True,
+    )
+
+    @api.depends('name', 'parent_equipment_id.complete_name')
+    def _compute_complete_name(self):
+        for equipment in self:
+            if equipment.parent_equipment_id:
+                equipment.complete_name = (
+                    f'{equipment.parent_equipment_id.complete_name} / '
+                    f'{equipment.name}')
+            else:
+                equipment.complete_name = equipment.name
+
+    @api.constrains('parent_equipment_id')
+    def _check_parent_recursion(self):
+        if not self._check_recursion('parent_equipment_id'):
+            raise ValidationError(_(
+                'Un equipo no puede ser componente de sí mismo.'
+            ))
+
+    # ------------------------------------------------------------------
+    # Historial de ubicación
+    # ------------------------------------------------------------------
+    def write(self, vals):
+        """Al mover un equipo, cierra el tramo anterior y abre uno nuevo."""
+        rastrear = {'lugar_id', 'origen_muestra_id', 'parent_equipment_id'}
+        if (not rastrear & set(vals)
+                or self.env.context.get('importando_historico')):
+            return super().write(vals)
+
+        anterior = {
+            eq.id: (eq.lugar_id.id, eq.origen_muestra_id.id,
+                    eq.parent_equipment_id.id)
+            for eq in self
+        }
+        res = super().write(vals)
+        self._registrar_movimiento(anterior)
+        return res
+
+    def _registrar_movimiento(self, anterior):
+        """Crea el tramo de historial de los equipos que cambiaron de sitio."""
+        Historial = self.env['maintenance.equipment.location.history']
+        hoy = fields.Date.context_today(self)
+        for equipment in self:
+            actual = (equipment.lugar_id.id, equipment.origen_muestra_id.id,
+                      equipment.parent_equipment_id.id)
+            if actual == anterior.get(equipment.id):
+                continue
+            # Cerrar el tramo abierto: hasta ayer estuvo donde estaba.
+            abiertos = Historial.search([
+                ('equipment_id', '=', equipment.id),
+                ('date_to', '=', False),
+            ])
+            abiertos.write({'date_to': hoy})
+            if not any(actual):
+                continue        # se quitó la ubicación, no hay tramo nuevo
+            Historial.create({
+                'equipment_id': equipment.id,
+                'lugar_id': equipment.lugar_id.id or False,
+                'origen_muestra_id': equipment.origen_muestra_id.id or False,
+                'parent_equipment_id': equipment.parent_equipment_id.id or False,
+                'date_from': hoy,
+                'origin': 'Odoo',
+            })
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        equipos = super().create(vals_list)
+        # La importación crea el historial con las fechas reales de origen,
+        # no con la de hoy: ahí no se registra el alta automática.
+        if not self.env.context.get('importando_historico'):
+            equipos._registrar_movimiento({})
+        return equipos
     component_count = fields.Integer(
         string='Nro. componentes',
         compute='_compute_component_count',

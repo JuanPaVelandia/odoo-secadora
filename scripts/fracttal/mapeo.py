@@ -93,12 +93,26 @@ AREA_A_CREAR = {
 # Todo lo que esté en un área de planta vive físicamente en la secadora.
 LUGAR_DE_PLANTA = 'SECADORA LA GRAN COLOMBIA'
 
-# Talleres: no son ubicación de maquinaria sino quien presta el servicio.
-# Se crean como `res.partner` (proveedor) y se usan en el costo histórico.
+# Talleres: son un sitio donde la máquina puede estar (entra y sale del
+# taller), así que se crean como `secadora.lugar` tipo 'otro' para que el
+# historial de ubicaciones lo pueda registrar. NO se crean como contacto.
 TALLERES = {
     'TALLER DAIRO', 'TALLER DON HELI', 'TALLER FREDY', 'TALLER LORENZO',
     'TALLER LUCHO', 'TALLER LUYMA', 'TALLER YULEVINSON', 'SOLUCIONES HIDRAULICAS',
     'REPUESTOS',
+}
+
+# Ciudad y código tal como venían en UBICACIONES.xlsx.
+TALLER_DATOS = {
+    'TALLER DAIRO': {'municipio': 'YOPAL', 'codigo': 'T-DAIRO'},
+    'TALLER DON HELI': {'municipio': 'YOPAL', 'codigo': 'T-HELI'},
+    'TALLER LORENZO': {'municipio': 'YOPAL', 'codigo': 'T-LOR'},
+    'TALLER LUCHO': {'municipio': 'YOPAL', 'codigo': 'T-LUCHO'},
+    'TALLER LUYMA': {'municipio': 'YOPAL', 'codigo': 'T-LUYMA'},
+    'TALLER YULEVINSON': {'municipio': None, 'codigo': 'T-YULEVINSON'},
+    'TALLER FREDY': {'municipio': None, 'codigo': None},
+    'SOLUCIONES HIDRAULICAS': {'municipio': 'YOPAL', 'codigo': None},
+    'REPUESTOS': {'municipio': None, 'codigo': 'REP'},
 }
 
 # El nombre del taller en las OT no siempre coincide con el del catálogo de

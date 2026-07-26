@@ -53,8 +53,8 @@ class Odoo:
     def contar(self, modelo, dominio):
         return self.x(modelo, 'search_count', dominio, context=CTX)
 
-    def crear(self, modelo, vals):
-        return self.x(modelo, 'create', vals, context=CTX)
+    def crear(self, modelo, vals, ctx=None):
+        return self.x(modelo, 'create', vals, context=dict(CTX, **(ctx or {})))
 
     def crear_lote(self, modelo, lista_vals):
         """create() con lista → Odoo devuelve los ids en el mismo orden."""

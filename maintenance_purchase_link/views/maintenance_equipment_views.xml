@@ -90,4 +90,98 @@
         </field>
     </record>
 
+    <!-- ============================================================ -->
+    <!--  Vista de árbol: Ubicación > Equipo > Componentes            -->
+    <!-- ============================================================ -->
+
+    <!-- Lista jerárquica: cada equipo padre se despliega mostrando sus
+         componentes anidados. Se agrupa por ubicación desde la acción. -->
+    <record id="view_equipment_list_tree" model="ir.ui.view">
+        <field name="name">maintenance.equipment.list.tree</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="arch" type="xml">
+            <!-- Odoo 19 no anida filas en las listas, así que la jerarquía se
+                 navega agrupando: Ubicación (desde la acción) y, dentro, el
+                 equipo padre. `complete_name` muestra la ruta completa de un
+                 componente ("SILO … / MOTOR 52") de un vistazo. -->
+            <list string="Equipos" default_order="complete_name">
+                <field name="complete_name" string="Equipo"/>
+                <field name="parent_equipment_id" string="Parte de" optional="show"/>
+                <field name="lugar_id" string="Ubicación" optional="show"/>
+                <field name="origen_muestra_id" string="Área" optional="show"/>
+                <field name="category_id" optional="hide"/>
+                <field name="model" optional="hide"/>
+                <field name="serial_no" optional="hide"/>
+                <field name="horometro_current" string="Horómetro"
+                       digits="[42,0]" optional="show"/>
+                <field name="maintenance_cost_total" string="Costo mant."
+                       sum="Total" optional="show"/>
+                <field name="component_count" string="Componentes" optional="show"/>
+                <field name="company_id" optional="hide"
+                       groups="base.group_multi_company"/>
+                <field name="cost_currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Búsqueda con agrupación por ubicación y equipo padre -->
+    <record id="view_equipment_search_tree" model="ir.ui.view">
+        <field name="name">maintenance.equipment.search.tree</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="arch" type="xml">
+            <search string="Buscar equipos">
+                <field name="name"/>
+                <field name="lugar_id"/>
+                <field name="serial_no"/>
+                <field name="external_ref"/>
+                <filter name="filter_raiz" string="Solo equipos principales"
+                        domain="[('parent_equipment_id', '=', False)]"/>
+                <filter name="filter_componentes" string="Solo componentes"
+                        domain="[('parent_equipment_id', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_con_horometro" string="Con horómetro"
+                        domain="[('horometro_reading_ids', '!=', False)]"/>
+                <group>
+                    <filter name="group_lugar" string="Ubicación"
+                            context="{'group_by': 'lugar_id'}"/>
+                    <filter name="group_area" string="Área de proceso"
+                            context="{'group_by': 'origen_muestra_id'}"/>
+                    <filter name="group_padre" string="Equipo padre"
+                            context="{'group_by': 'parent_equipment_id'}"/>
+                    <filter name="group_categoria" string="Categoría"
+                            context="{'group_by': 'category_id'}"/>
+                    <filter name="group_company" string="Compañía"
+                            context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Acción del árbol: parte agrupado por ubicación y mostrando solo los
+         equipos principales; los componentes se ven al desplegar el padre. -->
+    <record id="action_equipment_tree" model="ir.actions.act_window">
+        <field name="name">Equipos por ubicación</field>
+        <field name="res_model">maintenance.equipment</field>
+        <field name="view_mode">list,form,kanban</field>
+        <field name="search_view_id" ref="view_equipment_search_tree"/>
+        <field name="context">{'search_default_group_lugar': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay equipos registrados
+            </p>
+            <p>
+                Los equipos se agrupan por ubicación. Cada máquina muestra sus
+                componentes (motores, alternadores…) al desplegarla.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_equipment_tree_view_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_equipment_list_tree"/>
+        <field name="act_window_id" ref="action_equipment_tree"/>
+    </record>
+
 </odoo>

@@ -31,6 +31,16 @@
     />
 
 
+    <!-- Menú: Equipos agrupados por ubicación -->
+    <menuitem
+        id="menu_equipment_tree"
+        name="Equipos por ubicación"
+        parent="maintenance.menu_maintenance_title"
+        action="action_equipment_tree"
+        sequence="44"
+        groups="maintenance.group_equipment_manager"
+    />
+
     <!-- Menú: Historial de ubicación de equipos -->
     <menuitem
         id="menu_equipment_location_history"
