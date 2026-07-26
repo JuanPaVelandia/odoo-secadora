@@ -64,7 +64,9 @@ LUGAR_EXISTENTE = {
     'SECADORA GRAN COLOMBIA': 'SECADORA LA GRAN COLOMBIA',
     'FINCA LA MILAGROSA': 'FINCA LA MILAGROSA',
     'FINCA DON RUPERTO': 'FINCA DON RUPERTO',
-    'FINCA MATA DE COROZO': 'HATO COROZAL',       # Mata de Corozo está en Hato Corozal
+    # Mata de Corozo es una finca propia; "HATO COROZAL" es otro lugar
+    # distinto (el municipio), no su equivalente.
+    'FINCA MATA DE COROZO': 'FINCA MATA DE COROZO',
 }
 
 # Fincas de Fracttal que pueden no existir en Odoo. Solo se crean si faltan:
@@ -74,6 +76,8 @@ LUGAR_A_CREAR = {
                            'departamento': 'CASANARE', 'codigo': 'F-MIL'},
     'FINCA DON RUPERTO': {'tipo': 'finca', 'municipio': 'NUNCHIA',
                           'departamento': 'CASANARE', 'codigo': 'F-DR'},
+    'FINCA MATA DE COROZO': {'tipo': 'finca', 'municipio': 'HATO COROZAL',
+                             'departamento': 'CASANARE', 'codigo': 'F-MC'},
 }
 
 # Áreas internas de la planta. NO son `secadora.lugar`: se reusa el catálogo
