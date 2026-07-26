@@ -53,6 +53,7 @@ class Migracion:
         self.categorias = {}
         self.equipos = {}          # nombre normalizado → id
         self.equipo_cia = {}       # nombre normalizado → id de compañía
+        self.equipo_ubicacion = {}  # nombre normalizado → (lugar, área)
         self.etapas = {}
         self.equipos_mant = {}     # id compañía → id maintenance.team
         self.partners = {}
@@ -241,9 +242,13 @@ class Migracion:
             if componente:
                 padre_norm = mapeo.normalizar(ultimo_nodo(ruta))
                 id_padre = self.equipos.get(padre_norm)
-                # el componente hereda ubicación y compañía del padre
+                # El componente está donde está su máquina: hereda del padre
+                # la compañía Y la ubicación (si no, al agrupar por ubicación
+                # los componentes caen todos en "sin ubicación").
                 if id_padre and padre_norm in self.equipo_cia:
                     id_cia = self.equipo_cia[padre_norm]
+                id_lugar, id_area = self.equipo_ubicacion.get(
+                    padre_norm, (None, None))
             else:
                 id_lugar, id_area = self._ubicacion_de(ruta)
 
@@ -290,6 +295,7 @@ class Migracion:
                 self.equipos[norm] = nuevo
                 if id_cia:
                     self.equipo_cia[norm] = id_cia
+                self.equipo_ubicacion[norm] = (id_lugar, id_area)
                 if id_lugar or id_area or id_padre:
                     historial.append({
                         'equipment_id': nuevo,
@@ -305,6 +311,7 @@ class Migracion:
                 self.equipos[norm] = -1          # marcador para el simulacro
                 if id_cia:
                     self.equipo_cia[norm] = id_cia
+                self.equipo_ubicacion[norm] = (id_lugar, id_area)
             self.stats['componentes' if componente else 'activos_raiz'] += 1
             self.stats['activos_creados'] += 1
             barra(i, len(filas), 'activos')

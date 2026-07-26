@@ -39,6 +39,33 @@ class MaintenanceEquipment(models.Model):
         store=True,
     )
 
+    @api.onchange('parent_equipment_id')
+    def _onchange_parent_equipment_id(self):
+        """Un componente está donde esté su máquina: hereda su ubicación."""
+        for equipment in self.filtered('parent_equipment_id'):
+            padre = equipment.parent_equipment_id
+            if padre.lugar_id:
+                equipment.lugar_id = padre.lugar_id
+            if padre.origen_muestra_id:
+                equipment.origen_muestra_id = padre.origen_muestra_id
+
+    def _heredar_ubicacion_a_componentes(self):
+        """Propaga la ubicación del equipo a sus componentes."""
+        for equipment in self:
+            componentes = equipment.component_ids
+            if not componentes:
+                continue
+            vals = {
+                'lugar_id': equipment.lugar_id.id or False,
+                'origen_muestra_id': equipment.origen_muestra_id.id or False,
+            }
+            desactualizados = componentes.filtered(
+                lambda c: (c.lugar_id.id or False) != vals['lugar_id']
+                or (c.origen_muestra_id.id or False) != vals['origen_muestra_id']
+            )
+            if desactualizados:
+                desactualizados.write(vals)
+
     @api.depends('name', 'parent_equipment_id.complete_name')
     def _compute_complete_name(self):
         for equipment in self:
@@ -72,6 +99,9 @@ class MaintenanceEquipment(models.Model):
             for eq in self
         }
         res = super().write(vals)
+        # Los componentes viajan con su máquina.
+        if {'lugar_id', 'origen_muestra_id'} & set(vals):
+            self._heredar_ubicacion_a_componentes()
         self._registrar_movimiento(anterior)
         return res
 
@@ -103,6 +133,14 @@ class MaintenanceEquipment(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # Un componente nace donde está su máquina.
+        for vals in vals_list:
+            if vals.get('parent_equipment_id') and not vals.get('lugar_id'):
+                padre = self.browse(vals['parent_equipment_id'])
+                if padre.lugar_id:
+                    vals['lugar_id'] = padre.lugar_id.id
+                if padre.origen_muestra_id and not vals.get('origen_muestra_id'):
+                    vals['origen_muestra_id'] = padre.origen_muestra_id.id
         equipos = super().create(vals_list)
         # La importación crea el historial con las fechas reales de origen,
         # no con la de hoy: ahí no se registra el alta automática.
