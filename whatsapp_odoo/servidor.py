@@ -15,6 +15,7 @@ import time
 
 from fastapi import BackgroundTasks, FastAPI, Request
 
+import adjuntos
 from agente import Agente
 from evolution import EvolutionClient, EvolutionError, normalizar_numero
 
@@ -63,6 +64,7 @@ AYUDA = (
     "- Los 10 clientes con más volumen este año\n\n"
     "*Cotizaciones*: mándame el PDF o una foto y te digo si los precios "
     "cuadran con lo que hemos pagado antes por esos repuestos.\n\n"
+    "*Fotos*: pídeme la foto de un pesaje o de un análisis y te la mando.\n\n"
     "Recuerdo el hilo de la conversación, así que puedes preguntar "
     '"¿y el mes pasado?" sin repetirlo todo.\n'
     'Escribe *nuevo* para empezar de cero.'
@@ -93,6 +95,9 @@ def salud() -> dict:
         estado["odoo"] = agente.pg.comprobar().get("base")
     except Exception as exc:
         estado["odoo"] = f"error: {exc}"
+    estado["filestore"] = (
+        "ok" if adjuntos.filestore_disponible() else "no montado"
+    )
     return estado
 
 
@@ -224,8 +229,11 @@ def _atender(
                     "tienen sentido comparados con lo que hemos pagado antes."
                 )
 
+        def mandar_archivo(b64, nombre, mime, pie=""):
+            evolution.enviar_archivo(numero, b64, nombre, mime, pie)
+
         respuesta, nuevo_historial = agente.responder(
-            pregunta, _leer_historial(numero), documento
+            pregunta, _leer_historial(numero), documento, mandar_archivo
         )
         _guardar_historial(numero, nuevo_historial)
         log.info(

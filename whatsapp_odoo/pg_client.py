@@ -41,6 +41,10 @@ TABLAS_VETADAS = frozenset({
     "fetchmail_server",
     "auth_totp_device",
 })
+# ir_attachment NO está vetada: el bot necesita consultarla para encontrar
+# fotos y documentos. Lo que se controla es qué puede *enviar*, filtrando
+# por res_model en adjuntos.MODELOS_PERMITIDOS. Los metadatos (nombre, tipo,
+# tamaño) son inocuos; el contenido de los archivos no está en esta tabla.
 
 LIMITE_MAXIMO = 500
 

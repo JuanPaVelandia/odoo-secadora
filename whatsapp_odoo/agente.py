@@ -13,6 +13,9 @@ import os
 
 import anthropic
 
+from adjuntos import AdjuntoError
+from adjuntos import leer as leer_adjunto
+
 # Copia del cliente de mcp_odoo/, para que este servicio se despliegue solo.
 from pg_client import PgError, PgReadOnlyClient
 
@@ -56,6 +59,22 @@ usa la herramienta `consultar_sql` cuantas veces necesites.
 - Nada de tablas markdown ni encabezados: WhatsApp no los renderiza.
 - Usa *negrita de WhatsApp* (un asterisco) para destacar la cifra clave.
 - No expliques el SQL que usaste salvo que te lo pidan.
+
+## Enviar archivos guardados en Odoo
+Si te piden una foto o un documento ("mándame la foto del pesaje de ayer",
+"la foto del arroz del análisis X"):
+1. Búscalo en `ir_attachment`: columnas `res_model`, `res_id`, `name`,
+   `mimetype`, `file_size`. Cruza `res_id` con la tabla del modelo para
+   filtrar por fecha, número de documento o lo que te pidan.
+2. Llama a `enviar_adjunto` con el `id` de la fila.
+3. Si hay varios candidatos, describe brevemente lo que encontraste y
+   pregunta cuál quiere. No mandes cinco archivos de golpe.
+4. Solo puedo enviar adjuntos de modelos de negocio (pesajes, análisis,
+   equipos, facturas, contactos). Los iconos y recursos internos de Odoo
+   están bloqueados: no los ofrezcas.
+5. Las facturas en PDF con la plantilla de Odoo NO están guardadas en la
+   base: se generan al vuelo. Si te piden una, explica que puedes dar los
+   datos de la factura pero no el PDF con formato.
 
 ## Cotizaciones de repuestos (PDF o foto)
 Cuando te manden una cotización y pregunten si los precios tienen sentido:
@@ -135,6 +154,34 @@ HERRAMIENTAS = [
             "required": ["tabla"],
         },
     },
+    {
+        "name": "enviar_adjunto",
+        "description": (
+            "Envía al usuario por WhatsApp un archivo que está guardado en "
+            "Odoo (foto de un pesaje, de un análisis, un documento adjunto). "
+            "Primero busca el adjunto en la tabla ir_attachment con "
+            "consultar_sql para obtener su id, luego llama a esta herramienta. "
+            "Si hay varios candidatos, pregúntale al usuario cuál quiere en "
+            "vez de mandarlos todos."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "attachment_id": {
+                    "type": "integer",
+                    "description": "El id de la fila en ir_attachment.",
+                },
+                "mensaje": {
+                    "type": "string",
+                    "description": (
+                        "Texto breve que acompaña al archivo, ej. 'Foto del "
+                        "pesaje PS-0042 del 23 de julio'."
+                    ),
+                },
+            },
+            "required": ["attachment_id"],
+        },
+    },
 ]
 
 
@@ -167,6 +214,8 @@ class Agente:
     def __init__(self) -> None:
         self.claude = anthropic.Anthropic()
         self._pg: PgReadOnlyClient | None = None
+        # Lo fija responder(): depende de a quién estemos atendiendo.
+        self._enviar_archivo = None
 
     @property
     def pg(self) -> PgReadOnlyClient:
@@ -194,8 +243,13 @@ class Agente:
                 cols = self.pg.describir_tabla(entrada["tabla"])
                 return json.dumps(cols, ensure_ascii=False, default=str), False
 
+            if nombre == "enviar_adjunto":
+                return self._enviar_adjunto(entrada)
+
             return f"Herramienta desconocida: {nombre}", True
 
+        except AdjuntoError as exc:
+            return f"ERROR: {exc}", True
         except PgError as exc:
             # El error vuelve al modelo para que corrija la consulta.
             return f"ERROR: {exc}", True
@@ -203,17 +257,56 @@ class Agente:
             log.exception("fallo inesperado en la herramienta %s", nombre)
             return f"ERROR inesperado: {exc}", True
 
+    def _enviar_adjunto(self, entrada: dict) -> tuple[str, bool]:
+        """Busca el adjunto, lo lee del filestore y lo manda por WhatsApp."""
+        if self._enviar_archivo is None:
+            return "ERROR: no puedo enviar archivos en este contexto.", True
+
+        try:
+            att_id = int(entrada["attachment_id"])
+        except (KeyError, TypeError, ValueError):
+            return "ERROR: attachment_id debe ser un número entero.", True
+
+        filas = self.pg.consultar(
+            "SELECT id, name, res_model, mimetype, file_size, store_fname "
+            f"FROM ir_attachment WHERE id = {att_id}",
+            1,
+        )
+        if not filas:
+            return f"ERROR: no existe el adjunto {att_id}.", True
+
+        a = filas[0]
+        b64 = leer_adjunto(
+            a.get("store_fname") or "",
+            a.get("res_model") or "",
+            int(a.get("file_size") or 0),
+            a.get("mimetype") or "",
+        )
+        nombre = a.get("name") or f"adjunto-{att_id}"
+        self._enviar_archivo(
+            b64, nombre, a["mimetype"], entrada.get("mensaje", "")
+        )
+        # El modelo necesita saber que ya salió, para no volver a mandarlo ni
+        # anunciar en su respuesta que "lo enviará".
+        return (
+            f"Archivo '{nombre}' enviado al usuario correctamente. "
+            "Ya lo tiene; no lo anuncies como pendiente.",
+            False,
+        )
+
     def responder(
         self,
         pregunta: str,
         historial: list[dict] | None = None,
         documento: tuple[str, str] | None = None,
+        enviar_archivo=None,
     ) -> tuple[str, list[dict]]:
         """Responde una pregunta y devuelve (respuesta, historial_actualizado).
 
         El historial permite preguntas de seguimiento ("¿y el mes pasado?").
         `documento` es (mime, base64) de un PDF o imagen adjunto.
         """
+        self._enviar_archivo = enviar_archivo
         mensajes: list[dict] = list(historial or [])
         mensajes.append(
             {"role": "user", "content": _contenido(pregunta, documento)}

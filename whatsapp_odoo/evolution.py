@@ -89,6 +89,39 @@ class EvolutionClient:
         except httpx.HTTPError as exc:
             log.debug("no se pudo marcar presencia: %s", exc)
 
+    def enviar_archivo(
+        self, destino: str, b64: str, nombre: str, mime: str, pie: str = ""
+    ) -> None:
+        """Envía un archivo por WhatsApp desde su contenido en base64."""
+        if mime.startswith("image/"):
+            tipo = "image"
+        elif mime.startswith("video/"):
+            tipo = "video"
+        else:
+            tipo = "document"
+
+        try:
+            r = httpx.post(
+                f"{self.url}/message/sendMedia/{self.instancia}",
+                headers=self._headers(),
+                json={
+                    "number": destino,
+                    "mediatype": tipo,
+                    "mimetype": mime,
+                    "media": b64,
+                    "fileName": nombre,
+                    "caption": pie[:900],
+                },
+                timeout=120,
+            )
+        except httpx.HTTPError as exc:
+            raise EvolutionError(f"No se pudo enviar el archivo: {exc}") from exc
+
+        if r.status_code >= 400:
+            raise EvolutionError(
+                f"Evolution rechazó el archivo ({r.status_code}): {r.text[:200]}"
+            )
+
     def descargar_media(self, mensaje_id: str) -> str:
         """Descarga un adjunto de WhatsApp y lo devuelve en base64.
 
