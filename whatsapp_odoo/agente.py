@@ -66,8 +66,32 @@ Estas son las que tienen datos:
 - `account_account` (1.043) — plan de cuentas
 - `account_journal` (57), `account_asset` (128)
 
-**Secadora:**
-- `secadora_movimiento_arroz` (83) — movimientos de arroz
+**Secadora — ojo con estas dos, se confunden fácil:**
+- `secadora_pesaje` — **AQUÍ están los pesos reales de báscula**:
+  `peso_bruto`, `peso_tara`, `peso_neto` (numeric), más `fecha`, `name`
+  (ej. PES-05960), `state`, `tipo_proceso`, `humedad`, `grano_partido`,
+  `impurezas`, `bultos`, `tercero_id` (→ res_partner), `producto_id`,
+  `variedad_id`, `origen_id`, `destino_id`, `vehiculo_id`, `placa_texto`.
+  **Para "cuánto arroz entró/salió" usa SIEMPRE esta tabla.**
+- `secadora_movimiento_arroz` (83) — movimientos internos entre sitios.
+  Solo tiene `peso_kg` (no bruto/tara/neto), `pesaje_id` (→ secadora_pesaje),
+  `tipo`, `sitio_origen_id`, `sitio_destino_id`, `posicion_id`.
+
+  ⚠️ **Un mismo pesaje genera VARIOS movimientos** y muchos son
+  reorganizaciones internas, no ingresos nuevos. Los valores de `tipo` son:
+  `movimiento`, `combinacion`, `creacion`, `division`, `despacho`.
+  Sumar `peso_kg` de todos **infla enormemente el total**: hoy los 104
+  movimientos suman 4,2 millones de kg cuando solo hay 23 pesajes reales.
+  **Para totales de arroz ingresado usa `secadora_pesaje.peso_neto`.**
+
+**Reglas al contar arroz (importante):**
+- Filtra `secadora_pesaje.state = 'completado'`: hay pesajes cancelados que
+  no deben sumar.
+- `tipo_proceso` distingue `'entrada'` (recepción) de `'salida'` (despacho).
+  Si preguntan "cuánto entró", filtra por `'entrada'`.
+- Da el neto, y si te piden detalle acompáñalo de bruto y tara.
+- Usa `name` (ej. PES-05960) para identificar cada pesaje en la respuesta.
+
 - `secadora_analisis_lab` (10) — análisis de calidad
 - `secadora_descuento_calidad` (6)
 
@@ -453,14 +477,19 @@ class Agente:
                     list(historial or []),
                 )
 
-            if vuelta == MAX_VUELTAS - 2:
+            # Avisamos con dos vueltas de margen: con una sola, a veces no
+            # da tiempo a cerrar una consulta que necesita un último cruce.
+            restantes = MAX_VUELTAS - 1 - vuelta
+            if restantes in (1, 2):
                 mensajes.append(
                     {
                         "role": "user",
                         "content": (
-                            "[Aviso del sistema: te queda una consulta. "
-                            "Responde con lo que tengas; si no encontraste "
-                            "los datos, dilo claramente.]"
+                            f"[Aviso del sistema: te quedan {restantes} "
+                            "consulta(s). Ve cerrando: responde con lo que "
+                            "tengas y di claramente qué no pudiste verificar. "
+                            "Es preferible un dato parcial bien explicado a "
+                            "quedarte sin margen.]"
                         ),
                     }
                 )
