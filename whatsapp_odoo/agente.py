@@ -21,9 +21,10 @@ from pg_client import PgError, PgReadOnlyClient
 
 log = logging.getLogger(__name__)
 
-# Sonnet 5 escribe SQL igual de bien que Opus para estas consultas y cuesta
-# ~40% menos ($3/$15 por millón frente a $5/$25). Cambiable por variable.
-MODELO = os.environ.get("CLAUDE_MODELO", "claude-sonnet-5")
+# Opus 5 por defecto: en producción resolvió en 3 vueltas frente a las 4 de
+# Sonnet, y la calidad de las respuestas es mejor. Con el caché de la
+# conversación cuesta ~$0,08/consulta. Cambiable con CLAUDE_MODELO.
+MODELO = os.environ.get("CLAUDE_MODELO", "claude-opus-5")
 
 # Tope de vueltas del bucle. Cada vuelta reenvía todo el contexto acumulado,
 # así que el coste crece rápido: en producción se midieron 8 vueltas por
