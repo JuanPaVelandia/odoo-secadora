@@ -3,3 +3,8 @@
 __pycache__/
 *.pyc
 uv.lock
+
+# El .gitignore del repo excluye *.sql (dumps de Odoo), pero estos scripts
+# de instalación sí deben versionarse: sin ellos el despliegue no se puede
+# reproducir.
+!crear_tabla_historial.sql

@@ -3,3 +3,7 @@
 __pycache__/
 *.pyc
 uv.lock
+
+# Ver nota en whatsapp_odoo/.gitignore: el repo excluye *.sql, pero este
+# script de instalación debe versionarse.
+!crear_usuario_lectura.sql
