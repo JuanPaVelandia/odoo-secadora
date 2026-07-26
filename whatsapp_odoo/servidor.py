@@ -17,7 +17,22 @@ from fastapi import BackgroundTasks, FastAPI, Request
 
 import adjuntos
 from agente import Agente
-from evolution import EvolutionClient, EvolutionError, normalizar_numero
+
+# Dos canales posibles:
+#   meta      -> WhatsApp Business Cloud API (oficial). Automatizar es su
+#                proposito, no restringen el numero. No da acceso a grupos.
+#   evolution -> Evolution API sobre Baileys. Lee grupos, pero WhatsApp
+#                puede restringir el numero por spam (nos pasó).
+CANAL = os.environ.get("CANAL", "meta").strip().lower()
+
+if CANAL == "meta":
+    from meta_wa import MetaError as ErrorCanal
+    from meta_wa import MetaWhatsApp as ClienteCanal
+    from meta_wa import normalizar_numero
+else:
+    from evolution import EvolutionClient as ClienteCanal
+    from evolution import EvolutionError as ErrorCanal
+    from evolution import normalizar_numero
 
 logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO"),
@@ -28,7 +43,8 @@ log = logging.getLogger("whatsapp-odoo")
 app = FastAPI(title="Consultas Odoo por WhatsApp")
 
 agente = Agente()
-evolution = EvolutionClient()
+evolution = ClienteCanal()
+log.info("canal de mensajería: %s", CANAL)
 
 # Números autorizados. Sin esto, cualquiera que conozca el número del bot
 # podría consultar los datos de la empresa.
@@ -89,7 +105,7 @@ def salud() -> dict:
     estado = {"servicio": "ok", "autorizados": len(AUTORIZADOS)}
     try:
         estado["whatsapp"] = evolution.estado().get("instance", {}).get("state")
-    except EvolutionError as exc:
+    except ErrorCanal as exc:
         estado["whatsapp"] = f"error: {exc}"
     try:
         estado["odoo"] = agente.pg.comprobar().get("base")
@@ -99,6 +115,20 @@ def salud() -> dict:
         "ok" if adjuntos.filestore_disponible() else "no montado"
     )
     return estado
+
+
+@app.get("/webhook")
+async def verificar_webhook(request: Request):
+    """Meta valida la URL con un GET antes de entregar mensajes."""
+    from fastapi.responses import PlainTextResponse
+
+    p = request.query_params
+    esperado = os.environ.get("META_VERIFY_TOKEN", "")
+    if p.get("hub.mode") == "subscribe" and p.get("hub.verify_token") == esperado:
+        log.info("webhook verificado por Meta")
+        return PlainTextResponse(p.get("hub.challenge", ""))
+    log.warning("intento de verificación con token incorrecto")
+    return PlainTextResponse("token incorrecto", status_code=403)
 
 
 @app.post("/webhook")
@@ -112,6 +142,9 @@ async def webhook(request: Request, tareas: BackgroundTasks) -> dict:
         cuerpo = await request.json()
     except Exception:
         return {"status": "cuerpo ilegible"}
+
+    if CANAL == "meta":
+        return _webhook_meta(cuerpo, tareas)
 
     datos = cuerpo.get("data") or {}
     if cuerpo.get("event") not in (None, "messages.upsert"):
@@ -147,14 +180,111 @@ async def webhook(request: Request, tareas: BackgroundTasks) -> dict:
     return {"status": "encolado"}
 
 
+def _webhook_meta(cuerpo: dict, tareas) -> dict:
+    """Procesa el formato de la Cloud API, que anida bastante.
+
+    entry[] -> changes[] -> value -> messages[]
+    """
+    try:
+        valor = cuerpo["entry"][0]["changes"][0]["value"]
+    except (KeyError, IndexError, TypeError):
+        return {"status": "formato desconocido"}
+
+    mensajes = valor.get("messages") or []
+    if not mensajes:
+        # Meta también envía acuses de entrega y lectura; no nos interesan.
+        return {"status": "sin mensajes"}
+
+    m = mensajes[0]
+    mensaje_id = m.get("id") or ""
+    if not _marcar_visto(mensaje_id):
+        return {"status": "duplicado"}
+
+    numero = normalizar_numero(m.get("from") or "")
+    if numero not in AUTORIZADOS:
+        log.warning("mensaje de número no autorizado: %s", numero)
+        return {"status": "no autorizado"}
+
+    tipo = m.get("type")
+    texto = ""
+    media_id = None
+
+    if tipo == "text":
+        texto = (m.get("text") or {}).get("body", "")
+    elif tipo == "image":
+        img = m.get("image") or {}
+        media_id = img.get("id")
+        texto = img.get("caption", "")
+    elif tipo == "document":
+        doc = m.get("document") or {}
+        mime = (doc.get("mime_type") or "").split(";")[0].strip()
+        if mime == "application/pdf" or mime in MIMES_IMAGEN:
+            media_id = doc.get("id")
+            texto = doc.get("caption", "")
+        else:
+            tareas.add_task(
+                _responder,
+                numero,
+                "Solo puedo leer PDF e imágenes. Si es un Excel o un Word, "
+                "mándame una captura o expórtalo a PDF.",
+            )
+            return {"status": "tipo no soportado"}
+    else:
+        # Audio, ubicación, contactos, stickers...
+        tareas.add_task(
+            _responder,
+            numero,
+            "Por ahora solo entiendo texto, fotos y PDF.",
+        )
+        return {"status": f"tipo {tipo} ignorado"}
+
+    if not texto and not media_id:
+        return {"status": "sin contenido"}
+
+    # El doble check azul: señal barata de que el mensaje llegó.
+    try:
+        evolution.marcar_leido(mensaje_id)
+    except Exception:
+        pass
+
+    tareas.add_task(_atender_meta, numero, texto, media_id)
+    return {"status": "encolado"}
+
+
+def _atender_meta(numero: str, texto: str, media_id: str | None) -> None:
+    """Descarga el adjunto (si lo hay) y delega en el flujo normal."""
+    documento = None
+    if media_id:
+        try:
+            mime, b64 = evolution.descargar_media(media_id)
+            documento = (mime, b64)
+        except ErrorCanal as exc:
+            log.error("no se pudo bajar el adjunto de %s: %s", numero, exc)
+            _responder(
+                numero,
+                "No pude descargar el archivo. Intenta reenviarlo, o mándame "
+                "una foto si es un documento.",
+            )
+            return
+    _atender(numero, texto, documento_ya_descargado=documento)
+
+
 def _atender(
     numero: str,
     texto: str,
     adjunto: str | None = None,
     mensaje_id: str = "",
+    documento_ya_descargado: tuple[str, str] | None = None,
 ) -> None:
-    """Consulta y responde. Corre fuera del ciclo de la petición."""
+    """Consulta y responde. Corre fuera del ciclo de la petición.
+
+    Los dos canales entregan los adjuntos de forma distinta: Meta los baja
+    antes de llamar aquí (`documento_ya_descargado`), Evolution los baja
+    dentro a partir de `mensaje_id`.
+    """
     pregunta = texto.strip()
+    if documento_ya_descargado and not adjunto:
+        adjunto = documento_ya_descargado[0]
 
     if adjunto == "no-soportado":
         _responder(
@@ -206,12 +336,12 @@ def _atender(
     # "Escribiendo…" mientras trabajamos, para que se note que hay alguien.
     parar_presencia = _mantener_escribiendo(numero)
     try:
-        documento = None
-        if adjunto and mensaje_id:
+        documento = documento_ya_descargado
+        if adjunto and mensaje_id and not documento:
             try:
                 documento = (adjunto, evolution.descargar_media(mensaje_id))
                 log.info("adjunto %s descargado de %s", adjunto, numero)
-            except EvolutionError as exc:
+            except ErrorCanal as exc:
                 log.error("no se pudo bajar el adjunto de %s: %s", numero, exc)
                 parar_presencia.set()
                 with _ocupados_lock:
@@ -303,7 +433,7 @@ def _mantener_escribiendo(numero: str) -> threading.Event:
 def _responder(numero: str, texto: str) -> None:
     try:
         evolution.enviar(numero, texto)
-    except EvolutionError as exc:
+    except ErrorCanal as exc:
         log.error("no se pudo responder a %s: %s", numero, exc)
 
 
