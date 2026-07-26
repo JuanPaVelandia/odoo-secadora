@@ -63,15 +63,21 @@ def _validar_select(sql: str) -> str:
     sin_comentarios = re.sub(r"--[^\n]*", " ", limpio)
     sin_comentarios = re.sub(r"/\*.*?\*/", " ", sin_comentarios, flags=re.DOTALL)
 
-    if ";" in sin_comentarios:
+    # Y fuera también los literales de texto: lo que va entre comillas es un
+    # DATO, no SQL ejecutable. Sin esto, buscar '%comment%' o '%CALL%' -algo
+    # perfectamente legítimo- se rechaza como si fuera un intento de
+    # escritura. Se reemplazan por '' para no alterar la estructura.
+    sin_literales = re.sub(r"'(?:[^']|'')*'", "''", sin_comentarios)
+
+    if ";" in sin_literales:
         raise PgError(
             "Solo se admite una consulta por llamada (se encontró ';' intermedio)."
         )
 
-    if not re.match(r"^\s*(select|with)\b", sin_comentarios, re.IGNORECASE):
+    if not re.match(r"^\s*(select|with)\b", sin_literales, re.IGNORECASE):
         raise PgError("Solo se permiten consultas SELECT: este conector es de solo lectura.")
 
-    prohibida = PROHIBIDO.search(sin_comentarios)
+    prohibida = PROHIBIDO.search(sin_literales)
     if prohibida:
         raise PgError(
             f"La palabra {prohibida.group(0).upper()!r} no está permitida: "
@@ -79,7 +85,7 @@ def _validar_select(sql: str) -> str:
         )
 
     for tabla in TABLAS_VETADAS:
-        if re.search(rf"\b{tabla}\b", sin_comentarios, re.IGNORECASE):
+        if re.search(rf"\b{tabla}\b", sin_literales, re.IGNORECASE):
             raise PgError(
                 f"La tabla {tabla!r} no está disponible por seguridad. "
                 "Para datos de usuarios usa la vista 'v_usuarios_basico'."

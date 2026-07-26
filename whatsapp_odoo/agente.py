@@ -495,12 +495,21 @@ class Agente:
                 salida, hubo_error = self._ejecutar_herramienta(
                     bloque.name, bloque.input
                 )
-                log.info(
-                    "vuelta %d: %s -> %s",
-                    vuelta + 1,
-                    bloque.name,
-                    "error" if hubo_error else f"{len(salida)} chars",
-                )
+                if hubo_error:
+                    log.warning(
+                        "vuelta %d: %s FALLÓ -> %s | entrada: %s",
+                        vuelta + 1,
+                        bloque.name,
+                        salida[:300],
+                        json.dumps(bloque.input, ensure_ascii=False)[:400],
+                    )
+                else:
+                    log.info(
+                        "vuelta %d: %s -> %s chars",
+                        vuelta + 1,
+                        bloque.name,
+                        len(salida),
+                    )
                 resultados.append(
                     {
                         "type": "tool_result",
