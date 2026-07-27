@@ -32,6 +32,7 @@ export class PesoActualField extends Component {
         this._port = null;
         this._reader = null;
         this._keepReading = false;
+        this._leyendo = false;
         this._ultimoEnviado = null;
         this._ultimoEnvioTs = 0;
 
@@ -116,10 +117,30 @@ export class PesoActualField extends Component {
     }
 
     async _leerLoop() {
+        // Un solo bucle por instancia: si el widget se remonta (cambiar de
+        // pestaña, reabrir el wizard) sin haber cerrado el anterior, dos
+        // bucles pelearian por el mismo puerto.
+        if (this._leyendo) {
+            return;
+        }
+        this._leyendo = true;
         this._keepReading = true;
         const decoder = new TextDecoder();
         let buffer = "";
+        try {
         while (this._keepReading && this._port && this._port.readable) {
+            // getReader() falla si otra instancia ya tiene el flujo tomado
+            // ("locked to a reader"). Pasa cuando port.open() devolvio
+            // InvalidStateError porque el puerto ya estaba abierto en otra
+            // pestaña: ahi hay que ceder, no reventar.
+            if (this._port.readable.locked) {
+                this.notification.add(
+                    "La bascula ya se esta leyendo en otra pestana. Cierrala " +
+                        "y vuelve a conectar aqui.",
+                    { type: "warning" }
+                );
+                break;
+            }
             this._reader = this._port.readable.getReader();
             try {
                 while (this._keepReading) {
@@ -145,7 +166,11 @@ export class PesoActualField extends Component {
                 } catch (e) {
                     /* noop */
                 }
+                this._reader = null;
             }
+        }
+        } finally {
+            this._leyendo = false;
         }
     }
 
@@ -193,10 +218,21 @@ export class PesoActualField extends Component {
     }
 
     async _cerrarPuerto() {
+        // Cortar el bucle ANTES de cancelar: si no, read() puede resolver
+        // una vez mas y volver a pedir el lector.
         this._keepReading = false;
         try {
             if (this._reader) {
                 await this._reader.cancel();
+                // cancel() no siempre libera el lock si la lectura estaba en
+                // curso; sin esto el flujo queda 'locked' y el siguiente
+                // widget falla con "already locked to a reader".
+                try {
+                    this._reader.releaseLock();
+                } catch (e) {
+                    /* ya liberado por el finally del bucle */
+                }
+                this._reader = null;
             }
         } catch (e) {
             /* noop */
