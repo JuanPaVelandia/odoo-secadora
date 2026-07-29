@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Extensiones (mode="extension", el de por defecto) sobre las vistas form
+        de pago de custom_account_treasury. Se ancla en //sheet position="inside"
+        en vez de un campo concreto: es la referencia mas estable frente a
+        cambios internos de ese modulo.
+
+        Los campos van readonly porque los escribe una integracion externa por
+        XML-RPC; nadie debe editarlos a mano.
+    -->
+
+    <!-- Vista por defecto de los menus de Pagos (primary, sin inherit_id). -->
+    <record id="view_account_payment_form_enhanced_webviewlink" model="ir.ui.view">
+        <field name="name">account.payment.form.enhanced.webviewlink</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="custom_account_treasury.view_account_payment_form_enhanced"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Comprobante WhatsApp" name="whatsapp_webviewlink">
+                    <field name="x_whatsapp_comprobante_link" widget="url" readonly="1"/>
+                    <field name="x_whatsapp_mensaje" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!--
+        Hereda de account.view_account_payment_form pero en mode="primary", asi
+        que tampoco recibe la extension del webviewlink: necesita la suya.
+    -->
+    <record id="view_account_payment_treasury_form_webviewlink" model="ir.ui.view">
+        <field name="name">account.payment.treasury.form.webviewlink</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="custom_account_treasury.view_account_payment_treasury_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Comprobante WhatsApp" name="whatsapp_webviewlink">
+                    <field name="x_whatsapp_comprobante_link" widget="url" readonly="1"/>
+                    <field name="x_whatsapp_mensaje" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Vista de analisis (primary, sin inherit_id). -->
+    <record id="view_account_payment_analysis_form_webviewlink" model="ir.ui.view">
+        <field name="name">account.payment.analysis.form.webviewlink</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="custom_account_treasury.view_account_payment_analysis_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Comprobante WhatsApp" name="whatsapp_webviewlink">
+                    <field name="x_whatsapp_comprobante_link" widget="url" readonly="1"/>
+                    <field name="x_whatsapp_mensaje" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
