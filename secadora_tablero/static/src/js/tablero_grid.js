@@ -1,10 +1,11 @@
 /** @odoo-module **/
 
-import { Component, useState, onWillStart, onWillUnmount } from "@odoo/owl";
+import { Component, useState, onWillStart, onWillUnmount, onMounted, useRef } from "@odoo/owl";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { MoverDialog } from "./mover_dialog";
+import { habilitarArrastreTactil } from "./touch_drag";
 
 export class TableroGrid extends Component {
     static template = "secadora_tablero.TableroGrid";
@@ -28,8 +29,29 @@ export class TableroGrid extends Component {
         // el componente ya se destruyó (p. ej. loadData disparado desde el
         // onClose de un wizard cuando el tablero ya no está montado).
         this._destruido = false;
+
+        // Arrastre táctil (tablets): el drag-and-drop HTML5 del que dependen
+        // los handlers de abajo solo responde al ratón. Ver touch_drag.js.
+        this.rootRef = useRef("root");
+        this._desactivarTactil = null;
+        onMounted(() => {
+            if (this.rootRef.el) {
+                this._desactivarTactil = habilitarArrastreTactil(this.rootRef.el, {
+                    isBloqueado: () => this.state.bloqueado,
+                    onDropCard: (posicionId, sitioId) => this.moverPosicion(posicionId, sitioId),
+                    onDropTransito: (pesajeId, sitioId) => this.preasignarTransito(pesajeId, sitioId),
+                    onDropCardEnTransito: (posicionId) => this.devolverATransito(posicionId),
+                    onDropCell: (arrastradoId, destinoId, fila, col) =>
+                        this.reubicarSitio(arrastradoId, destinoId, fila, col),
+                });
+            }
+        });
+
         onWillUnmount(() => {
             this._destruido = true;
+            if (this._desactivarTactil) {
+                this._desactivarTactil();
+            }
         });
 
         onWillStart(async () => {
@@ -147,6 +169,71 @@ export class TableroGrid extends Component {
         localStorage.setItem('tablero_bloqueado', this.state.bloqueado);
     }
 
+    // --- Acciones de soltar (compartidas por el arrastre de ratón y el táctil) ---
+
+    /** Mueve una tarjeta a una ubicación. */
+    async moverPosicion(posicionId, sitioId) {
+        if (this.state.bloqueado) return;
+        if (!posicionId || !sitioId) return;
+        const pos = this.state.posiciones.find((p) => p.id === posicionId);
+        if (pos && pos.sitio_id === sitioId) return;
+        await this.orm.write("secadora.posicion.arroz", [posicionId], {
+            sitio_id: sitioId,
+        });
+        await this.loadData();
+    }
+
+    /** Pre-asigna una ubicación a un vehículo en tránsito. */
+    async preasignarTransito(pesajeId, sitioId) {
+        if (this.state.bloqueado) return;
+        if (!pesajeId || !sitioId) return;
+        await this.orm.call(
+            "secadora.posicion.arroz",
+            "preasignar_transito",
+            [pesajeId, sitioId],
+        );
+        await this.loadData();
+    }
+
+    /** Devuelve a tránsito una tarjeta pre-asignada. */
+    async devolverATransito(posicionId) {
+        if (this.state.bloqueado) return;
+        const pos = this.state.posiciones.find((p) => p.id === posicionId);
+        if (!pos || !pos.es_preasignado) return;
+        await this.orm.call(
+            "secadora.posicion.arroz",
+            "deshacer_preasignacion",
+            [posicionId],
+        );
+        await this.loadData();
+    }
+
+    /** Intercambia dos ubicaciones en la grilla, o mueve una a celda vacía. */
+    async reubicarSitio(arrastradoId, destinoId, fila, col) {
+        if (this.state.bloqueado) return;
+        if (!arrastradoId || arrastradoId === destinoId) return;
+        const arrastrado = this.state.sitios.find((s) => s.id === arrastradoId);
+        if (!arrastrado) return;
+
+        if (destinoId) {
+            const destino = this.state.sitios.find((s) => s.id === destinoId);
+            await this.orm.write("secadora.sitio.muestra", [arrastradoId], {
+                fila: destino.fila,
+                columna: destino.columna,
+            });
+            await this.orm.write("secadora.sitio.muestra", [destinoId], {
+                fila: arrastrado.fila,
+                columna: arrastrado.columna,
+            });
+        } else {
+            await this.orm.write("secadora.sitio.muestra", [arrastradoId], {
+                fila: fila,
+                columna: col,
+            });
+        }
+        await this.loadData();
+    }
+
     // --- Drag tarjetas (posiciones) ---
     onDragStartCard(ev, posicionId) {
         if (this.state.bloqueado) {
@@ -249,15 +336,7 @@ export class TableroGrid extends Component {
         const posicionId = parseInt(cardId, 10);
         if (!posicionId) return;
 
-        const pos = this.state.posiciones.find((p) => p.id === posicionId);
-        if (!pos || !pos.es_preasignado) return;
-
-        await this.orm.call(
-            "secadora.posicion.arroz",
-            "deshacer_preasignacion",
-            [posicionId],
-        );
-        await this.loadData();
+        await this.devolverATransito(posicionId);
     }
 
     // --- Drag celdas (sitios) ---
@@ -293,60 +372,22 @@ export class TableroGrid extends Component {
         // Caso 1: Se soltó una tarjeta
         const cardId = ev.dataTransfer.getData("application/x-card");
         if (cardId) {
-            const posicionId = parseInt(cardId, 10);
-            if (!posicionId || !targetSitioId) return;
-            const pos = this.state.posiciones.find((p) => p.id === posicionId);
-            if (pos && pos.sitio_id === targetSitioId) return;
-
-            await this.orm.write("secadora.posicion.arroz", [posicionId], {
-                sitio_id: targetSitioId,
-            });
-            await this.loadData();
+            await this.moverPosicion(parseInt(cardId, 10), targetSitioId);
             return;
         }
 
         // Caso 2: Se soltó una tarjeta de tránsito — pre-asignar ubicación
         const transitoId = ev.dataTransfer.getData("application/x-transito");
         if (transitoId) {
-            const pesajeId = parseInt(transitoId, 10);
-            if (!pesajeId || !targetSitioId) return;
-            await this.orm.call(
-                "secadora.posicion.arroz",
-                "preasignar_transito",
-                [pesajeId, targetSitioId],
-            );
-            await this.loadData();
+            await this.preasignarTransito(parseInt(transitoId, 10), targetSitioId);
             return;
         }
 
         // Caso 3: Se soltó una celda (sitio) — intercambiar posiciones en la grilla
         const cellId = ev.dataTransfer.getData("application/x-cell");
         if (cellId) {
-            const draggedSitioId = parseInt(cellId, 10);
-            if (!draggedSitioId || draggedSitioId === targetSitioId) return;
-
-            const draggedSitio = this.state.sitios.find((s) => s.id === draggedSitioId);
-            if (!draggedSitio) return;
-
-            if (targetSitioId) {
-                // Hay un sitio en la celda destino: intercambiar
-                const targetSitio = this.state.sitios.find((s) => s.id === targetSitioId);
-                await this.orm.write("secadora.sitio.muestra", [draggedSitioId], {
-                    fila: targetSitio.fila,
-                    columna: targetSitio.columna,
-                });
-                await this.orm.write("secadora.sitio.muestra", [targetSitioId], {
-                    fila: draggedSitio.fila,
-                    columna: draggedSitio.columna,
-                });
-            } else {
-                // Celda vacía: mover ahí
-                await this.orm.write("secadora.sitio.muestra", [draggedSitioId], {
-                    fila: targetFila,
-                    columna: targetCol,
-                });
-            }
-            await this.loadData();
+            await this.reubicarSitio(
+                parseInt(cellId, 10), targetSitioId, targetFila, targetCol);
         }
     }
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Tablero de Arroz en Planta',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Operations',
     'summary': 'Tablero Kanban para rastrear arroz en ubicaciones físicas de la planta',
     'description': """
@@ -36,6 +36,7 @@
             'secadora_tablero/static/src/css/tablero_grid.css',
             'secadora_tablero/static/src/xml/tablero_grid.xml',
             'secadora_tablero/static/src/js/mover_dialog.js',
+            'secadora_tablero/static/src/js/touch_drag.js',
             'secadora_tablero/static/src/js/tablero_grid.js',
         ],
     },

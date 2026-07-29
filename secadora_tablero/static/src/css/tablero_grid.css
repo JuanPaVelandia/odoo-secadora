@@ -287,6 +287,41 @@
     touch-action: manipulation;
 }
 
+/* ===== Arrastre táctil (tablets) — ver touch_drag.js ===== */
+
+/* Copia de la tarjeta que sigue al dedo. Va en <body>, fuera del tablero, para
+   que no la recorte el overflow de la celda ni la tape ningún hermano. */
+.tablero-fantasma {
+    position: fixed;
+    z-index: 1080;
+    opacity: 0.9;
+    pointer-events: none;
+    transform: rotate(1.5deg);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    margin: 0;
+}
+
+/* Mientras se arrastra con el dedo: sin selección de texto accidental ni menú
+   contextual de "copiar/pegar" por la pulsación larga. */
+body.tablero-arrastrando {
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* La tarjeta original se atenúa mientras su copia viaja con el dedo. */
+.tablero-card.tablero-dragging {
+    opacity: 0.3;
+}
+
+/* Las tarjetas se agarran con pulsación larga: sin esto el navegador móvil se
+   queda el gesto para hacer scroll y el arrastre nunca empieza. El contenedor
+   conserva el scroll vertical, que es el que se necesita en el tablero. */
+.tablero-card,
+.tablero-cell-header {
+    touch-action: pan-y;
+}
+
 /* Sección de Vehículos en Tránsito */
 .tablero-transito-section {
     background: #fff8f0;
