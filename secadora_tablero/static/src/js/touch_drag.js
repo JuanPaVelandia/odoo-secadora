@@ -53,6 +53,12 @@ export function habilitarArrastreTactil(root, handlers) {
     let rafScroll = null;
     let ultimoX = 0;
     let ultimoY = 0;
+    // El dedo está apoyado sobre algo arrastrable (aún sin decidir si el gesto
+    // será scroll o arrastre).
+    let gestoActivo = false;
+    // El gesto se resolvió como scroll: lo emulamos nosotros porque las
+    // tarjetas llevan touch-action:none.
+    let desplazando = false;
 
     function limpiarResaltado() {
         root.querySelectorAll(
@@ -80,6 +86,8 @@ export function habilitarArrastreTactil(root, handlers) {
         // El <html> recupera la selección de texto y el menú contextual.
         document.body.classList.remove("tablero-arrastrando");
         arrastrando = false;
+        gestoActivo = false;
+        desplazando = false;
         origen = null;
         ultimoDestino = null;
     }
@@ -173,6 +181,34 @@ export function habilitarArrastreTactil(root, handlers) {
         }
     }
 
+    /**
+     * Contenedor que realmente hace scroll. En Odoo el backend suele
+     * desplazarse en un div interno (.o_content), no en la ventana, asi que
+     * window.scrollBy no moveria nada.
+     */
+    function contenedorScroll() {
+        let el = root;
+        while (el && el !== document.body) {
+            const estilo = getComputedStyle(el);
+            const desbordaY = /(auto|scroll)/.test(estilo.overflowY);
+            if (desbordaY && el.scrollHeight > el.clientHeight) {
+                return el;
+            }
+            el = el.parentElement;
+        }
+        return null;
+    }
+
+    /** Desplaza el contenedor del tablero, o la ventana si no lo hay. */
+    function desplazar(dx, dy) {
+        const cont = contenedorScroll();
+        if (cont) {
+            cont.scrollBy(dx, dy);
+        } else {
+            window.scrollBy(dx, dy);
+        }
+    }
+
     /** Desplaza la ventana cuando el dedo se acerca a un borde. */
     function autoScroll() {
         if (!arrastrando) {
@@ -180,9 +216,9 @@ export function habilitarArrastreTactil(root, handlers) {
             return;
         }
         if (ultimoY < EDGE_SCROLL_PX) {
-            window.scrollBy(0, -EDGE_SCROLL_SPEED);
+            desplazar(0, -EDGE_SCROLL_SPEED);
         } else if (ultimoY > window.innerHeight - EDGE_SCROLL_PX) {
-            window.scrollBy(0, EDGE_SCROLL_SPEED);
+            desplazar(0, EDGE_SCROLL_SPEED);
         }
         rafScroll = requestAnimationFrame(autoScroll);
     }
@@ -201,6 +237,8 @@ export function habilitarArrastreTactil(root, handlers) {
         inicioY = ev.clientY;
         ultimoX = ev.clientX;
         ultimoY = ev.clientY;
+        gestoActivo = true;
+        desplazando = false;
 
         timerPulsacion = setTimeout(() => {
             arrastrando = true;
@@ -218,19 +256,27 @@ export function habilitarArrastreTactil(root, handlers) {
 
     function onPointerMove(ev) {
         if (ev.pointerType === "mouse") return;
+        const prevX = ultimoX;
+        const prevY = ultimoY;
         ultimoX = ev.clientX;
         ultimoY = ev.clientY;
 
         if (!arrastrando) {
+            if (!gestoActivo) return;
+            const dx = Math.abs(ev.clientX - inicioX);
+            const dy = Math.abs(ev.clientY - inicioY);
             // Todavía en la ventana de pulsación larga: si el dedo se mueve, el
             // gesto era scroll.
-            if (timerPulsacion) {
-                const dx = Math.abs(ev.clientX - inicioX);
-                const dy = Math.abs(ev.clientY - inicioY);
-                if (dx > MOVE_TOLERANCE_PX || dy > MOVE_TOLERANCE_PX) {
-                    clearTimeout(timerPulsacion);
-                    timerPulsacion = null;
-                }
+            if (timerPulsacion && (dx > MOVE_TOLERANCE_PX || dy > MOVE_TOLERANCE_PX)) {
+                clearTimeout(timerPulsacion);
+                timerPulsacion = null;
+                desplazando = true;
+            }
+            // Las tarjetas llevan touch-action:none (ver CSS: con pan-y el
+            // navegador se queda el gesto vertical y deja de emitir eventos),
+            // así que el scroll que el navegador ya no hace lo hacemos aquí.
+            if (desplazando) {
+                desplazar(prevX - ev.clientX, prevY - ev.clientY);
             }
             return;
         }
@@ -243,8 +289,8 @@ export function habilitarArrastreTactil(root, handlers) {
     async function onPointerUp(ev) {
         if (ev.pointerType === "mouse") return;
         if (!arrastrando) {
-            clearTimeout(timerPulsacion);
-            timerPulsacion = null;
+            // Fue un toque o un scroll: cancelar limpia los flags del gesto.
+            cancelar();
             return;
         }
         const destino = ultimoDestino;

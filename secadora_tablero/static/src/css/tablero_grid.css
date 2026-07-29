@@ -314,12 +314,14 @@ body.tablero-arrastrando {
     opacity: 0.3;
 }
 
-/* Las tarjetas se agarran con pulsación larga: sin esto el navegador móvil se
-   queda el gesto para hacer scroll y el arrastre nunca empieza. El contenedor
-   conserva el scroll vertical, que es el que se necesita en el tablero. */
+/* touch-action: none, NO pan-y. Con pan-y el navegador se adueña del gesto
+   vertical en cuanto el dedo baja y deja de emitir pointermove: la tarjeta se
+   agarraba pero no se podia bajar. Con none los eventos llegan siempre y el
+   gesto lo decide touch_drag.js, que reenvia el scroll a la pagina mientras no
+   haya arrastre (asi el tablero sigue desplazandose con el dedo). */
 .tablero-card,
 .tablero-cell-header {
-    touch-action: pan-y;
+    touch-action: none;
 }
 
 /* Sección de Vehículos en Tránsito */
