@@ -59,6 +59,9 @@ export function habilitarArrastreTactil(root, handlers) {
     // El gesto se resolvió como scroll: lo emulamos nosotros porque las
     // tarjetas llevan touch-action:none.
     let desplazando = false;
+    // Elemento donde empezó el gesto: desde ahí se busca qué contenedor
+    // desplazar (la celda con scroll propio, si la hay).
+    let elementoInicial = null;
 
     function limpiarResaltado() {
         root.querySelectorAll(
@@ -88,6 +91,7 @@ export function habilitarArrastreTactil(root, handlers) {
         arrastrando = false;
         gestoActivo = false;
         desplazando = false;
+        elementoInicial = null;
         origen = null;
         ultimoDestino = null;
     }
@@ -182,26 +186,45 @@ export function habilitarArrastreTactil(root, handlers) {
     }
 
     /**
-     * Contenedor que realmente hace scroll. En Odoo el backend suele
-     * desplazarse en un div interno (.o_content), no en la ventana, asi que
-     * window.scrollBy no moveria nada.
+     * Contenedor con scroll a partir de `desde`, subiendo por sus ancestros.
+     *
+     * Se empieza en el elemento tocado y no en `root` para que el scroll
+     * interno de una celda con muchas tarjetas
+     * (.tablero-cell-cards-wrapper, max-height + overflow-y:auto) funcione:
+     * ese contenedor esta POR DEBAJO de root y buscando hacia arriba desde el
+     * tablero nunca se encontraria.
+     *
+     * @param {HTMLElement} desde
+     * @param {boolean} haciaAbajo direccion del gesto, para no quedarse en un
+     *   contenedor que ya toco su tope y dejar que siga el de fuera.
      */
-    function contenedorScroll() {
-        let el = root;
+    function contenedorScroll(desde, haciaAbajo) {
+        let el = desde;
         while (el && el !== document.body) {
             const estilo = getComputedStyle(el);
             const desbordaY = /(auto|scroll)/.test(estilo.overflowY);
             if (desbordaY && el.scrollHeight > el.clientHeight) {
-                return el;
+                // Margen de 1px: los navegadores dan scrollTop fraccionario con
+                // zoom o densidad de pantalla y el tope exacto no se alcanza.
+                const puede = haciaAbajo
+                    ? el.scrollTop + el.clientHeight < el.scrollHeight - 1
+                    : el.scrollTop > 1;
+                if (puede) {
+                    return el;
+                }
             }
             el = el.parentElement;
         }
         return null;
     }
 
-    /** Desplaza el contenedor del tablero, o la ventana si no lo hay. */
-    function desplazar(dx, dy) {
-        const cont = contenedorScroll();
+    /**
+     * Desplaza el contenedor bajo el dedo; si ya llego a su tope, el de fuera.
+     * Asi una celda con varias tarjetas se desplaza sola y, al terminarse,
+     * el gesto continua moviendo el tablero.
+     */
+    function desplazar(dx, dy, desde) {
+        const cont = contenedorScroll(desde || root, dy > 0);
         if (cont) {
             cont.scrollBy(dx, dy);
         } else {
@@ -239,6 +262,7 @@ export function habilitarArrastreTactil(root, handlers) {
         ultimoY = ev.clientY;
         gestoActivo = true;
         desplazando = false;
+        elementoInicial = ev.target;
 
         timerPulsacion = setTimeout(() => {
             arrastrando = true;
@@ -276,7 +300,7 @@ export function habilitarArrastreTactil(root, handlers) {
             // navegador se queda el gesto vertical y deja de emitir eventos),
             // así que el scroll que el navegador ya no hace lo hacemos aquí.
             if (desplazando) {
-                desplazar(prevX - ev.clientX, prevY - ev.clientY);
+                desplazar(prevX - ev.clientX, prevY - ev.clientY, elementoInicial);
             }
             return;
         }

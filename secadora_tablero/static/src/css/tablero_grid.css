@@ -84,6 +84,26 @@
     position: relative;
     max-height: 200px;
     overflow-y: auto;
+    /* El scroll de la celda lo mueve touch_drag.js (las tarjetas llevan
+       touch-action:none y el navegador ya no lo hace solo). */
+    scrollbar-width: thin;
+}
+
+/* En tablet la barra nativa se oculta hasta que algo se desplaza, y sin ella
+   no hay pista de que la celda tiene mas tarjetas. Se deja siempre visible. */
+.tablero-cell-cards-wrapper::-webkit-scrollbar {
+    width: 8px;
+    -webkit-appearance: none;
+}
+
+.tablero-cell-cards-wrapper::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 4px;
+}
+
+.tablero-cell-cards-wrapper::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.28);
+    border-radius: 4px;
 }
 
 /* Degradado inferior que indica "hay más tarjetas" */
