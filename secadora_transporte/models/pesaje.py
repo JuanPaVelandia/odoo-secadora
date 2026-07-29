@@ -27,12 +27,18 @@ class SecadoraPesajeTransporte(models.Model):
     )
 
     def _compute_flete_count(self):
+        # sudo: el flete puede estar en la empresa del arroz, distinta de la
+        # compañía activa; sin él el contador marca 0 y el botón "Fletes"
+        # desaparece aunque el flete exista.
         for rec in self:
-            rec.flete_count = len(rec.flete_ids)
+            rec.flete_count = len(rec.sudo().flete_ids)
 
     def _motivos_bloqueo_reapertura(self):
         motivos = super()._motivos_bloqueo_reapertura()
-        comprometidos = self.flete_ids.filtered(
+        # sudo por el mismo motivo que en write(): sin él, un flete de otra
+        # compañía es invisible y el pesaje se dejaría reabrir aunque su flete
+        # ya estuviera liquidado o facturado.
+        comprometidos = self.sudo().flete_ids.filtered(
             lambda f: f.state in ('liquidado', 'facturado')
         )
         for flete in comprometidos:
@@ -70,7 +76,7 @@ class SecadoraPesajeTransporte(models.Model):
         # el caso de activarlo más tarde. _crear_flete_automatico no duplica.
         if vals.get('generar_flete'):
             for record in self:
-                if record.state == 'completado' and not record.flete_ids:
+                if record.state == 'completado' and not record.sudo().flete_ids:
                     try:
                         record._crear_flete_automatico()
                     except Exception as e:
@@ -105,7 +111,11 @@ class SecadoraPesajeTransporte(models.Model):
             # liquidar/facturar (valores contables) o cancelar.
             estados_sync = ('borrador', 'confirmado', 'en_ruta', 'entregado')
             for record in self:
-                for flete in record.flete_ids.filtered(lambda f: f.state in estados_sync):
+                # sudo: el flete se crea con sudo en la empresa del arroz, que
+                # puede no ser la compañía activa del usuario. Sin sudo la regla
+                # multi-compañía devuelve flete_ids VACÍO y la sincronización se
+                # salta en silencio (así quedó FLE-00023 sin transportadora).
+                for flete in record.sudo().flete_ids.filtered(lambda f: f.state in estados_sync):
                     sync_vals = {}
                     for campo_pesaje in campos_changed:
                         campo_flete = campos_sync[campo_pesaje]
@@ -129,6 +139,20 @@ class SecadoraPesajeTransporte(models.Model):
                     # Sincronizar modalidad de pago si cambia el tercero
                     if 'tercero_id' in campos_changed and record.tercero_id:
                         sync_vals['pago_flete'] = record.tercero_id.flete_pago or 'agricultor'
+                    # Si cambió la ruta o el producto, re-aplicar la tarifa: el
+                    # precio depende de origen/destino/producto y _aplicar_tarifa
+                    # solo corre en los onchange del formulario del flete, así que
+                    # sin esto el flete se queda con la tarifa de la ruta anterior.
+                    if {'origen_id', 'destino_id', 'producto_id'} & campos_changed:
+                        tarifa = flete._buscar_tarifa(
+                            sync_vals.get('origen_id', flete.origen_id.id),
+                            sync_vals.get('destino_id', flete.destino_id.id),
+                            sync_vals.get('producto_id', flete.producto_id.id),
+                        )
+                        if tarifa:
+                            sync_vals['tarifa_id'] = tarifa.id
+                            sync_vals['tarifa_tipo'] = tarifa.tarifa_tipo
+                            sync_vals['tarifa_unitaria'] = tarifa.tarifa_unitaria
                     if sync_vals:
                         flete.write(sync_vals)
         return res
@@ -136,7 +160,9 @@ class SecadoraPesajeTransporte(models.Model):
     def _crear_flete_automatico(self):
         """Crea un flete automáticamente con datos del pesaje. Evita duplicados."""
         self.ensure_one()
-        if self.flete_ids:
+        # sudo: el flete puede vivir en otra compañía y no verse desde la activa;
+        # sin él este guard no lo detecta y se intenta crear un duplicado.
+        if self.sudo().flete_ids:
             return
         if not self.vehiculo_id:
             return
@@ -175,7 +201,7 @@ class SecadoraPesajeTransporte(models.Model):
         """Crear un flete pre-llenado con datos de este pesaje"""
         self.ensure_one()
         from odoo.exceptions import UserError
-        if self.flete_ids:
+        if self.sudo().flete_ids:
             raise UserError('Este pesaje ya tiene un flete asociado.')
         if not self.vehiculo_id:
             raise UserError('Debe asignar un vehículo al pesaje antes de crear el flete.')
