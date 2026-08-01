@@ -34,16 +34,10 @@ class TestMaintenanceCost(TransactionCase):
         }
         # Con la localización colombiana instalada el régimen fiscal es NOT NULL
         # y no tiene default, así que sin esto el test ni siquiera arranca. Se
-        # consulta el campo en vez de darlo por hecho: el módulo no depende de
-        # l10n_co_edi y debe poder probarse sin él.
-        campo_regimen = cls.env['res.partner']._fields.get(
-            'l10n_co_edi_fiscal_regimen')
-        if campo_regimen:
-            partner_vals['l10n_co_edi_fiscal_regimen'] = (
-                campo_regimen.selection[0][0]
-                if isinstance(campo_regimen.selection, list)
-                else '48'
-            )
+        # pregunta si el campo existe porque el módulo no depende de
+        # l10n_co_edi y debe poder probarse sin él. '48' = No responsable de IVA.
+        if 'l10n_co_edi_fiscal_regimen' in cls.env['res.partner']._fields:
+            partner_vals['l10n_co_edi_fiscal_regimen'] = '48'
         cls.partner = cls.env['res.partner'].create(partner_vals)
 
         # Equipo de mantenimiento
