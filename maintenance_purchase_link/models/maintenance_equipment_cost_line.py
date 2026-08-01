@@ -191,8 +191,11 @@ class MaintenanceEquipmentCostLine(models.Model):
         for rec in self:
             if not rec.move_line_id:
                 continue
+            # sudo: los costos de una misma línea pueden quedar en compañías
+            # distintas; sin él la suma ignoraba las que el usuario no tiene
+            # activas y el reparto podía pasar del 100% sin avisar.
             total = sum(
-                self.search([
+                self.sudo().search([
                     ('move_line_id', '=', rec.move_line_id.id),
                 ]).mapped('percentage')
             )
@@ -226,6 +229,20 @@ class MaintenanceEquipmentCostLine(models.Model):
             else:
                 rec.amount = rec.amount or 0.0
 
+    @api.onchange('amount')
+    def _onchange_amount_ajusta_porcentaje(self):
+        """Repartir por monto: al escribir el importe se recalcula el %.
+
+        El reparto entre equipos se guarda como porcentaje, pero en la práctica
+        la factura se divide por montos ("a este equipo le tocan $300.000").
+        Escribir el monto y que el sistema saque el porcentaje evita esa regla
+        de tres a mano, que es de donde salían los repartos descuadrados.
+        """
+        for rec in self.filtered('move_line_id'):
+            total = rec.move_line_id.price_total
+            if total:
+                rec.percentage = min(100.0, max(0.0, rec.amount * 100.0 / total))
+
     @api.onchange('move_line_id')
     def _onchange_move_line_id(self):
         """Al enlazar una factura, traer sus datos descriptivos."""
@@ -253,8 +270,18 @@ class MaintenanceEquipmentCostLine(models.Model):
         # Las líneas creadas desde una factura heredan sus datos, para no
         # obligar a cada llamador a repetirlos.
         for vals in vals_list:
-            if vals.get('move_line_id') and not vals.get('date'):
-                ml = self.env['account.move.line'].browse(vals['move_line_id'])
+            if not vals.get('move_line_id'):
+                continue
+            ml = self.env['account.move.line'].sudo().browse(vals['move_line_id'])
+            # La compañía y la moneda SIEMPRE mandan desde la factura, no desde
+            # la compañía activa de quien guarda: con `setdefault` el default
+            # del campo (env.company) ya venía puesto y el costo se registraba
+            # en la compañía equivocada.
+            if ml.move_id.company_id:
+                vals['company_id'] = ml.move_id.company_id.id
+            if ml.currency_id:
+                vals['currency_id'] = ml.currency_id.id
+            if not vals.get('date'):
                 vals.setdefault('origin', 'invoice')
                 vals.setdefault('date', ml.date)
                 vals.setdefault(
@@ -267,8 +294,4 @@ class MaintenanceEquipmentCostLine(models.Model):
                 vals.setdefault('unit_cost', ml.price_unit)
                 if ml.product_uom_id:
                     vals.setdefault('uom_name', ml.product_uom_id.name)
-                if ml.currency_id:
-                    vals.setdefault('currency_id', ml.currency_id.id)
-                if ml.move_id.company_id:
-                    vals.setdefault('company_id', ml.move_id.company_id.id)
         return super().create(vals_list)

@@ -215,12 +215,27 @@ class MaintenanceEquipment(models.Model):
         compute='_compute_horometro_current',
     )
 
-    @api.depends('equipment_cost_line_ids.amount')
+    @api.depends('equipment_cost_line_ids', 'equipment_cost_line_ids.amount')
     def _compute_maintenance_cost_total(self):
+        """Costo total del equipo, sin importar la compañía de cada costo.
+
+        Las líneas se releen con sudo a propósito: un mismo equipo recibe costos
+        facturados por varias compañías del grupo, y leyendo solo el One2many el
+        total subía o bajaba según las compañías activas del usuario.
+        """
+        CostLine = self.env['maintenance.equipment.cost.line'].sudo()
+        agrupado = {}
+        if self.ids:
+            for equipo, total, cantidad in CostLine._read_group(
+                [('equipment_id', 'in', self.ids)],
+                groupby=['equipment_id'],
+                aggregates=['amount:sum', '__count'],
+            ):
+                agrupado[equipo.id] = (total, cantidad)
         for equipment in self:
-            lines = equipment.equipment_cost_line_ids
-            equipment.maintenance_cost_total = sum(lines.mapped('amount'))
-            equipment.maintenance_invoice_count = len(lines)
+            total, cantidad = agrupado.get(equipment.id, (0.0, 0))
+            equipment.maintenance_cost_total = total
+            equipment.maintenance_invoice_count = cantidad
 
     @api.depends('component_ids', 'location_history_ids')
     def _compute_component_count(self):

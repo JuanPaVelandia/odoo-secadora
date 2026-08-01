@@ -248,10 +248,13 @@
                     <group string="Equipos asignados">
                         <field name="equipment_cost_line_ids" nolabel="1"
                                groups="maintenance.group_equipment_manager">
+                            <!-- El monto es editable a propósito: el reparto
+                                 entre equipos se piensa en pesos, no en
+                                 porcentajes. Al escribirlo se recalcula el %. -->
                             <list editable="bottom">
                                 <field name="equipment_id"/>
                                 <field name="percentage"/>
-                                <field name="amount" readonly="1"/>
+                                <field name="amount"/>
                                 <field name="currency_id" column_invisible="1"/>
                             </list>
                         </field>

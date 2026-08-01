@@ -351,3 +351,168 @@ class TestMaintenanceCost(TransactionCase):
         self.assertEqual(numeros, sorted(numeros))
         self.assertEqual(numeros[-1] - numeros[0], 2,
                          'La secuencia saltó números: se consumió de más.')
+
+    # --- Equipo asignado después de publicar ---
+
+    def _factura_maquinaria(self, fecha, precio=300000.0):
+        """Factura de compra publicable, con la línea marcada como Maquinaria."""
+        return self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'partner_id': self.partner.id,
+            'invoice_date': fecha,
+            'invoice_line_ids': [(0, 0, {
+                'name': 'Repuesto',
+                'quantity': 1,
+                'price_unit': precio,
+                'analytic_distribution': {str(self.maint_account.id): 100},
+            })],
+        })
+
+    def test_equipo_asignado_despues_de_publicar_no_duplica(self):
+        """Publicar y luego asignar el equipo rellena el costo, no crea otro."""
+        factura = self._factura_maquinaria('2026-08-01')
+        factura.action_post()
+
+        linea = factura.invoice_line_ids
+        costos = linea.equipment_cost_line_ids
+        self.assertEqual(len(costos), 1, 'Al publicar debe nacer un costo.')
+        self.assertFalse(costos.equipment_id, 'Nace sin equipo, por diseño.')
+
+        factura.write({
+            'maintenance_equipment_line_ids': [(0, 0, {
+                'equipment_id': self.equipment.id,
+                'percentage': 100.0,
+            })],
+        })
+
+        linea.invalidate_recordset()
+        costos = linea.equipment_cost_line_ids
+        self.assertEqual(len(costos), 1,
+                         'El costo huérfano debía rellenarse, no duplicarse.')
+        self.assertEqual(costos.equipment_id, self.equipment)
+
+    def test_equipo_asignado_en_borrador_baja_al_publicar(self):
+        """Equipos puestos en borrador deben bajar a los costos al publicar."""
+        factura = self._factura_maquinaria('2026-08-02')
+        factura.write({
+            'maintenance_equipment_line_ids': [(0, 0, {
+                'equipment_id': self.equipment.id,
+                'percentage': 100.0,
+            })],
+        })
+        factura.action_post()
+
+        linea = factura.invoice_line_ids
+        linea.invalidate_recordset()
+        costos = linea.equipment_cost_line_ids
+        self.assertEqual(len(costos), 1)
+        self.assertEqual(costos.equipment_id, self.equipment,
+                         'El equipo asignado en borrador se perdió al publicar.')
+
+    # --- Compañía y fecha pivote ---
+
+    def test_costo_toma_la_compania_de_la_factura(self):
+        """La compañía sale de la factura, no de la compañía activa."""
+        otra = self.env['res.company'].create({'name': 'Otra Compañía Test'})
+        factura = self._factura_maquinaria('2026-08-03')
+        factura.company_id = otra
+
+        costo = self.env['maintenance.equipment.cost.line'].create({
+            'move_line_id': factura.invoice_line_ids[0].id,
+            'equipment_id': self.equipment.id,
+        })
+        self.assertEqual(costo.company_id, otra,
+                         'El costo quedó en la compañía equivocada.')
+
+    def test_factura_anterior_al_pivote_no_crea_costos(self):
+        """Antes del corte manda el histórico importado: no duplicar."""
+        factura = self._factura_maquinaria('2026-01-15')
+        factura.action_post()
+        self.assertFalse(
+            factura.invoice_line_ids.equipment_cost_line_ids,
+            'Una factura anterior al pivote no debe generar costos.')
+
+    def test_factura_posterior_al_pivote_si_crea_costos(self):
+        """Desde el corte en adelante el costo sí sale de la factura."""
+        factura = self._factura_maquinaria('2026-07-21')
+        factura.action_post()
+        self.assertTrue(
+            factura.invoice_line_ids.equipment_cost_line_ids,
+            'Una factura posterior al pivote debe generar su costo.')
+
+    def test_pivote_usa_la_fecha_contable_si_no_hay_fecha_de_factura(self):
+        """Sin invoice_date manda la fecha del asiento, no se cuela la factura."""
+        factura = self._factura_maquinaria(False)
+        factura.date = '2026-01-15'
+        factura.action_post()
+        self.assertFalse(
+            factura.invoice_line_ids.equipment_cost_line_ids,
+            'Sin fecha de factura se coló una anterior al pivote.')
+
+    # --- La OT asignada a mano no se debe perder ---
+
+    def test_propagar_equipo_no_borra_la_ot_puesta_a_mano(self):
+        """La factura no trae OT; la que se puso en el costo debe sobrevivir."""
+        factura = self._factura_maquinaria('2026-08-04')
+        factura.action_post()
+
+        costo = factura.invoice_line_ids.equipment_cost_line_ids
+        costo.request_id = self.request
+
+        # Asignar el equipo desde la factura (sin OT en esa pestaña).
+        factura.write({
+            'maintenance_equipment_line_ids': [(0, 0, {
+                'equipment_id': self.equipment.id,
+                'percentage': 100.0,
+            })],
+        })
+
+        costo.invalidate_recordset()
+        self.assertEqual(costo.equipment_id, self.equipment)
+        self.assertEqual(costo.request_id, self.request,
+                         'La orden de trabajo asignada a mano se borró.')
+
+    # --- Reparto por montos ---
+
+    def test_escribir_el_monto_recalcula_el_porcentaje(self):
+        """Repartir en pesos: el % sale del monto, no al revés."""
+        factura = self._factura_maquinaria('2026-08-05', precio=500000.0)
+        factura.action_post()
+
+        costo = factura.invoice_line_ids.equipment_cost_line_ids
+        total = costo.move_line_id.price_total
+
+        costo.equipment_id = self.equipment
+        costo.amount = total * 0.30
+        costo._onchange_amount_ajusta_porcentaje()
+
+        self.assertAlmostEqual(
+            costo.percentage, 30.0, places=2,
+            msg='El monto escrito no se tradujo al porcentaje correcto.')
+
+    # --- Total del equipo con varias compañías ---
+
+    def test_total_del_equipo_suma_todas_las_companias(self):
+        """El total no debe depender de las compañías activas del usuario."""
+        otra = self.env['res.company'].create({'name': 'Compañía Costo Test'})
+        CostLine = self.env['maintenance.equipment.cost.line']
+
+        CostLine.create({
+            'equipment_id': self.equipment.id,
+            'name': 'Costo compañía propia',
+            'date': '2026-08-06',
+            'amount': 100000.0,
+            'company_id': self.env.company.id,
+        })
+        CostLine.create({
+            'equipment_id': self.equipment.id,
+            'name': 'Costo de la otra compañía',
+            'date': '2026-08-06',
+            'amount': 250000.0,
+            'company_id': otra.id,
+        })
+
+        self.equipment.invalidate_recordset()
+        self.assertEqual(
+            self.equipment.maintenance_cost_total, 350000.0,
+            'El total ignoró los costos de otra compañía del grupo.')
