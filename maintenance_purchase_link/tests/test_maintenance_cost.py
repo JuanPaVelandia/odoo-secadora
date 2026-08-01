@@ -28,10 +28,23 @@ class TestMaintenanceCost(TransactionCase):
             })
 
         # Partner proveedor
-        cls.partner = cls.env['res.partner'].create({
+        partner_vals = {
             'name': 'Proveedor Test Mantenimiento',
             'supplier_rank': 1,
-        })
+        }
+        # Con la localización colombiana instalada el régimen fiscal es NOT NULL
+        # y no tiene default, así que sin esto el test ni siquiera arranca. Se
+        # consulta el campo en vez de darlo por hecho: el módulo no depende de
+        # l10n_co_edi y debe poder probarse sin él.
+        campo_regimen = cls.env['res.partner']._fields.get(
+            'l10n_co_edi_fiscal_regimen')
+        if campo_regimen:
+            partner_vals['l10n_co_edi_fiscal_regimen'] = (
+                campo_regimen.selection[0][0]
+                if isinstance(campo_regimen.selection, list)
+                else '48'
+            )
+        cls.partner = cls.env['res.partner'].create(partner_vals)
 
         # Equipo de mantenimiento
         cls.category = cls.env.ref(
@@ -411,9 +424,22 @@ class TestMaintenanceCost(TransactionCase):
 
     # --- Compañía y fecha pivote ---
 
+    def _otra_compania(self):
+        """Una compañía distinta de la activa.
+
+        Se prefiere una que ya exista (la secadora tiene varias) antes que
+        crearla: `res.company.create` crea por dentro su propio partner, y con
+        la localización colombiana ese partner exige campos que aquí no se
+        pueden pasar.
+        """
+        otra = self.env['res.company'].search(
+            [('id', '!=', self.env.company.id)], limit=1)
+        return otra or self.env['res.company'].create(
+            {'name': 'Otra Compañía Test'})
+
     def test_costo_toma_la_compania_de_la_factura(self):
         """La compañía sale de la factura, no de la compañía activa."""
-        otra = self.env['res.company'].create({'name': 'Otra Compañía Test'})
+        otra = self._otra_compania()
         factura = self._factura_maquinaria('2026-08-03')
         factura.company_id = otra
 
@@ -494,8 +520,9 @@ class TestMaintenanceCost(TransactionCase):
 
     def test_total_del_equipo_suma_todas_las_companias(self):
         """El total no debe depender de las compañías activas del usuario."""
-        otra = self.env['res.company'].create({'name': 'Compañía Costo Test'})
+        otra = self._otra_compania()
         CostLine = self.env['maintenance.equipment.cost.line']
+        total_previo = self.equipment.maintenance_cost_total
 
         CostLine.create({
             'equipment_id': self.equipment.id,
@@ -514,5 +541,5 @@ class TestMaintenanceCost(TransactionCase):
 
         self.equipment.invalidate_recordset()
         self.assertEqual(
-            self.equipment.maintenance_cost_total, 350000.0,
+            self.equipment.maintenance_cost_total - total_previo, 350000.0,
             'El total ignoró los costos de otra compañía del grupo.')
