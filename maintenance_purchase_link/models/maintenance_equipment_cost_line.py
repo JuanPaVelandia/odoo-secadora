@@ -294,4 +294,31 @@ class MaintenanceEquipmentCostLine(models.Model):
                 vals.setdefault('unit_cost', ml.price_unit)
                 if ml.product_uom_id:
                     vals.setdefault('uom_name', ml.product_uom_id.name)
-        return super().create(vals_list)
+        lineas = super().create(vals_list)
+        lineas._propagar_equipo_a_la_ot()
+        return lineas
+
+    def write(self, vals):
+        res = super().write(vals)
+        if vals.get('equipment_id') or vals.get('request_id'):
+            self._propagar_equipo_a_la_ot()
+        return res
+
+    def _propagar_equipo_a_la_ot(self):
+        """Darle a la orden de trabajo el equipo del costo, si no tiene.
+
+        Una OT creada desde el flujo de costos nace sin equipo: se elige el
+        equipo en el costo, no en la orden. Sin esto la OT queda huérfana —
+        no aparece en el historial del equipo y hereda la compañía activa de
+        quien la crea en vez de la del equipo.
+
+        Solo rellena las vacías: si la OT ya tiene equipo, manda ese.
+        """
+        for rec in self:
+            ot = rec.request_id.sudo()
+            if ot and rec.equipment_id and not ot.equipment_id:
+                ot.equipment_id = rec.equipment_id
+                # La compañía sigue al equipo: la OT es trabajo sobre ese
+                # activo, no de quien la registró.
+                if rec.equipment_id.company_id:
+                    ot.company_id = rec.equipment_id.company_id
