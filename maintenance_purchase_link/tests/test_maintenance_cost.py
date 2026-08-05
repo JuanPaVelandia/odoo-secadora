@@ -537,3 +537,166 @@ class TestMaintenanceCost(TransactionCase):
         self.assertEqual(
             self.equipment.maintenance_cost_total - total_previo, 350000.0,
             'El total ignoró los costos de otra compañía del grupo.')
+
+    # --- Asignación a nivel de factura (vista "Facturas por asignar") ---
+
+    def _factura_maquinaria_multilinea(self, fecha, lineas=3, precio=100000.0):
+        """Factura publicable con varias líneas marcadas como Maquinaria."""
+        return self.env['account.move'].create({
+            'move_type': 'in_invoice',
+            'partner_id': self.partner.id,
+            'invoice_date': fecha,
+            'invoice_line_ids': [
+                (0, 0, {
+                    'name': f'Repuesto {n + 1}',
+                    'quantity': 1,
+                    'price_unit': precio,
+                    'analytic_distribution': {str(self.maint_account.id): 100},
+                })
+                for n in range(lineas)
+            ],
+        })
+
+    def test_asignar_equipo_en_la_factura_llega_a_todas_las_lineas(self):
+        """Un solo equipo escrito en la factura basta para todas sus líneas."""
+        factura = self._factura_maquinaria_multilinea('2026-08-07')
+        factura.action_post()
+        self.assertEqual(factura.maintenance_pending_count, 3,
+                         'Deben quedar 3 costos sin equipo tras publicar.')
+
+        factura.maintenance_equipment_id = self.equipment
+
+        costos = factura.invoice_line_ids.equipment_cost_line_ids
+        self.assertEqual(len(costos), 3,
+                         'Debe haber un costo por línea, sin duplicados.')
+        self.assertEqual(costos.equipment_id, self.equipment)
+        factura.invalidate_recordset()
+        self.assertEqual(factura.maintenance_pending_count, 0,
+                         'Ya no debería quedar nada pendiente.')
+
+    def test_asignar_ot_despues_del_equipo_baja_a_los_costos(self):
+        """La OT puesta después del equipo debe llegar a los costos existentes."""
+        factura = self._factura_maquinaria_multilinea('2026-08-08', lineas=2)
+        factura.action_post()
+        factura.maintenance_equipment_id = self.equipment
+
+        factura.maintenance_request_id = self.request
+
+        costos = factura.invoice_line_ids.equipment_cost_line_ids
+        self.assertEqual(len(costos), 2, 'La OT no debía crear costos nuevos.')
+        self.assertEqual(costos.request_id, self.request,
+                         'La orden de trabajo no bajó a los costos ya creados.')
+
+    def test_asignar_ot_antes_del_equipo_baja_a_los_costos(self):
+        """La OT sola (aún sin equipo) también debe llegar a los costos."""
+        factura = self._factura_maquinaria_multilinea('2026-08-09', lineas=2)
+        factura.action_post()
+
+        factura.maintenance_request_id = self.request
+
+        costos = factura.invoice_line_ids.equipment_cost_line_ids
+        self.assertEqual(len(costos), 2)
+        self.assertEqual(costos.request_id, self.request,
+                         'La OT sin equipo no bajó a los costos.')
+
+    def test_ot_primero_y_equipo_despues(self):
+        """Indicar la OT antes que el equipo no debe bloquear la asignación."""
+        factura = self._factura_maquinaria_multilinea('2026-08-14', lineas=2)
+        factura.action_post()
+
+        factura.maintenance_request_id = self.request
+        factura.maintenance_equipment_id = self.equipment
+
+        costos = factura.invoice_line_ids.equipment_cost_line_ids
+        self.assertEqual(len(costos), 2,
+                         'Debe quedar un costo por línea, sin duplicados.')
+        self.assertEqual(costos.equipment_id, self.equipment)
+        self.assertEqual(costos.request_id, self.request)
+        self.assertEqual(sum(costos.mapped('percentage')), 200.0,
+                         'Cada línea se imputa al 100% a su único equipo.')
+
+    def test_la_ot_puesta_a_mano_sobrevive_a_la_asignacion_por_factura(self):
+        """Asignar el equipo desde la factura no pisa una OT puesta a mano."""
+        factura = self._factura_maquinaria_multilinea('2026-08-10', lineas=1)
+        factura.action_post()
+        costo = factura.invoice_line_ids.equipment_cost_line_ids
+        otra_ot = self.env['maintenance.request'].create({
+            'name': 'OT puesta a mano',
+            'equipment_id': self.equipment.id,
+        })
+        costo.request_id = otra_ot
+
+        factura.maintenance_equipment_id = self.equipment
+
+        costo.invalidate_recordset()
+        self.assertEqual(costo.request_id, otra_ot,
+                         'Se perdió la OT asignada a mano en el costo.')
+
+    def test_el_equipo_de_la_factura_queda_vacio_si_hay_reparto(self):
+        """Con reparto entre equipos no hay un único equipo que mostrar."""
+        equipo2 = self.env['maintenance.equipment'].create({
+            'name': 'Horno de Secado #2',
+            'category_id': self.category.id,
+        })
+        factura = self._factura_maquinaria_multilinea('2026-08-11', lineas=1)
+        factura.action_post()
+        factura.write({
+            'maintenance_equipment_line_ids': [
+                (0, 0, {'equipment_id': self.equipment.id, 'percentage': 60.0}),
+                (0, 0, {'equipment_id': equipo2.id, 'percentage': 40.0}),
+            ],
+        })
+
+        factura.invalidate_recordset()
+        self.assertFalse(
+            factura.maintenance_equipment_id,
+            'Con dos equipos no debe mostrarse uno solo como si fuera todo.')
+        costos = factura.invoice_line_ids.equipment_cost_line_ids
+        self.assertEqual(len(costos), 2, 'El reparto debe dejar dos costos.')
+        self.assertEqual(sum(costos.mapped('percentage')), 100.0)
+
+    def test_la_ot_no_rompe_el_reparto_entre_equipos(self):
+        """Escribir la OT sobre un reparto lo conserva."""
+        equipo2 = self.env['maintenance.equipment'].create({
+            'name': 'Horno de Secado #3',
+            'category_id': self.category.id,
+        })
+        factura = self._factura_maquinaria_multilinea('2026-08-12', lineas=1)
+        factura.action_post()
+        factura.write({
+            'maintenance_equipment_line_ids': [
+                (0, 0, {'equipment_id': self.equipment.id, 'percentage': 60.0}),
+                (0, 0, {'equipment_id': equipo2.id, 'percentage': 40.0}),
+            ],
+        })
+
+        factura.maintenance_request_id = self.request
+
+        costos = factura.invoice_line_ids.equipment_cost_line_ids
+        self.assertEqual(len(costos), 2, 'La OT no debía alterar el reparto.')
+        self.assertEqual(sorted(costos.mapped('percentage')), [40.0, 60.0])
+        self.assertEqual(costos.request_id, self.request)
+
+    def test_buscar_facturas_pendientes(self):
+        """El filtro 'Pendientes por asignar' debe encontrar la factura."""
+        factura = self._factura_maquinaria_multilinea('2026-08-13', lineas=2)
+        factura.action_post()
+
+        pendientes = self.env['account.move'].search([
+            ('maintenance_pending_count', '>', 0),
+        ])
+        self.assertIn(factura, pendientes,
+                      'La factura sin asignar no salió en el filtro.')
+
+        factura.maintenance_equipment_id = self.equipment
+
+        pendientes = self.env['account.move'].search([
+            ('maintenance_pending_count', '>', 0),
+        ])
+        self.assertNotIn(factura, pendientes,
+                         'La factura ya asignada sigue apareciendo pendiente.')
+        asignadas = self.env['account.move'].search([
+            ('maintenance_pending_count', '=', 0),
+        ])
+        self.assertIn(factura, asignadas,
+                      'La factura asignada no salió en "Ya asignadas".')

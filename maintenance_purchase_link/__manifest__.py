@@ -1,6 +1,6 @@
 {
     'name': 'Mantenimiento - Enlace con Facturas de Compra',
-    'version': '19.0.7.3.0',
+    'version': '19.0.7.4.0',
     'category': 'Maintenance',
     'summary': 'Asocia líneas de factura de compra a equipos y órdenes de mantenimiento',
     'description': """
@@ -35,7 +35,6 @@
         'views/maintenance_cost_views.xml',
         'views/maintenance_location_history_views.xml',
         'views/maintenance_horometro_views.xml',
-        'wizards/assign_invoice_wizard_views.xml',
         'views/maintenance_menus.xml',
         'report/maintenance_cost_report.xml',
     ],

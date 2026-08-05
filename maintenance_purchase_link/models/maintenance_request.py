@@ -98,15 +98,17 @@ class MaintenanceRequest(models.Model):
         }
 
     def action_assign_invoice(self):
+        """Abrir las facturas pendientes, listas para imputarlas a esta OT.
+
+        La OT y el equipo van como valor por defecto: al asignar una factura
+        desde aquí, lo normal es que sea trabajo de esta misma orden.
+        """
         self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Asignar factura',
-            'res_model': 'maintenance.assign.invoice.wizard',
-            'view_mode': 'form',
-            'target': 'new',
-            'context': {
-                'default_request_id': self.id,
-                'default_equipment_id': self.equipment_id.id if self.equipment_id else False,
-            },
+        accion = self.env['ir.actions.act_window']._for_xml_id(
+            'maintenance_purchase_link.action_maintenance_invoices_to_assign')
+        accion['context'] = {
+            'search_default_filter_pending': 1,
+            'default_maintenance_request_id': self.id,
+            'default_maintenance_equipment_id': self.equipment_id.id,
         }
+        return accion

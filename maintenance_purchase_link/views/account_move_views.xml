@@ -33,17 +33,28 @@
                       name="maintenance_tab"
                       invisible="move_type != 'in_invoice'"
                       groups="maintenance.group_equipment_manager">
+                    <group string="Mensaje con el que llegó la factura">
+                        <field name="x_whatsapp_mensaje" readonly="1"
+                               invisible="not x_whatsapp_mensaje"/>
+                        <field name="x_whatsapp_comprobante_link" widget="url"
+                               readonly="1"
+                               invisible="not x_whatsapp_comprobante_link"/>
+                        <field name="x_webviewlink" widget="url" readonly="1"
+                               invisible="not x_webviewlink"/>
+                    </group>
                     <group string="Equipos asignados (aplica a todas las líneas)">
                         <field name="maintenance_equipment_line_ids" nolabel="1">
                             <list editable="bottom">
                                 <field name="equipment_id"/>
+                                <field name="request_id"/>
                                 <field name="percentage"/>
                             </list>
                         </field>
                     </group>
                     <div class="text-muted mb-3">
                         Al guardar, se propaga a todas las líneas de producto.
-                        Para asociar OT y ver el detalle use el botón.
+                        Use varias filas solo para repartir el costo entre
+                        equipos; el porcentaje debe sumar 100%.
                     </div>
                     <button name="action_view_cost_lines"
                             type="object"
@@ -54,6 +65,113 @@
                 </page>
             </xpath>
         </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--  Facturas por asignar: equipo y OT de una vez para toda la   -->
+    <!--  factura, sin entrar línea por línea.                        -->
+    <!-- ============================================================ -->
+
+    <record id="view_move_list_maintenance_assign" model="ir.ui.view">
+        <field name="name">account.move.list.maintenance.assign</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <!-- `multi_edit` permite asignar el mismo equipo u OT a varias
+                 facturas seleccionadas de una sola vez. -->
+            <list string="Facturas por asignar"
+                  editable="bottom"
+                  multi_edit="1"
+                  create="0"
+                  delete="0">
+                <field name="invoice_date" string="Fecha" readonly="1"/>
+                <field name="partner_id" string="Proveedor" readonly="1"/>
+                <field name="name" string="Factura" readonly="1"/>
+                <!-- El mensaje es lo que dice de qué equipo se trata: por eso
+                     va antes que los campos a diligenciar. -->
+                <field name="x_whatsapp_mensaje" string="Mensaje WhatsApp"
+                       readonly="1"/>
+                <field name="maintenance_pending_count" string="Pend."
+                       readonly="1"/>
+                <field name="maintenance_equipment_id" string="Equipo"/>
+                <field name="maintenance_request_id" string="Orden de trabajo"/>
+                <field name="amount_total" string="Total" readonly="1" sum="Total"/>
+                <field name="x_whatsapp_comprobante_link" widget="url"
+                       string="Comprobante" optional="hide" readonly="1"/>
+                <field name="x_webviewlink" widget="url"
+                       string="Enlace Drive" optional="hide" readonly="1"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_move_search_maintenance_assign" model="ir.ui.view">
+        <field name="name">account.move.search.maintenance.assign</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <search string="Buscar facturas de mantenimiento">
+                <field name="partner_id" string="Proveedor"/>
+                <field name="name" string="Factura"/>
+                <field name="x_whatsapp_mensaje" string="Mensaje de WhatsApp"/>
+                <field name="maintenance_equipment_id" string="Equipo"/>
+                <field name="maintenance_request_id" string="Orden de trabajo"/>
+                <filter name="filter_pending" string="Pendientes por asignar"
+                        domain="[('maintenance_pending_count', '>', 0)]"/>
+                <filter name="filter_assigned" string="Ya asignadas"
+                        domain="[('maintenance_pending_count', '=', 0)]"/>
+                <separator/>
+                <filter name="filter_date" string="Fecha" date="invoice_date"/>
+                <group>
+                    <filter name="group_partner" string="Proveedor"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_equipment" string="Equipo"
+                            context="{'group_by': 'maintenance_equipment_id'}"/>
+                    <filter name="group_month" string="Mes"
+                            context="{'group_by': 'invoice_date:month'}"/>
+                    <filter name="group_company" string="Compañía"
+                            context="{'group_by': 'company_id'}"
+                            groups="base.group_multi_company"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_maintenance_invoices_to_assign" model="ir.actions.act_window">
+        <field name="name">Facturas por asignar</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[
+            ('move_type', '=', 'in_invoice'),
+            ('state', '=', 'posted'),
+        ]</field>
+        <field name="context">{'search_default_filter_pending': 1}</field>
+        <field name="search_view_id" ref="view_move_search_maintenance_assign"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay facturas de mantenimiento por asignar
+            </p>
+            <p>
+                Aquí aparecen las facturas de proveedor publicadas cuyas líneas
+                tienen Unidad de negocio = Maquinaria. Asigne el equipo y la
+                orden de trabajo en la misma fila y se aplicará a todas las
+                líneas de la factura.
+            </p>
+        </field>
+    </record>
+
+    <!-- Vincular la lista propia a la acción, dejando el formulario estándar
+         de factura para cuando haya que repartir entre varios equipos. -->
+    <record id="action_maintenance_invoices_to_assign_list" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_move_list_maintenance_assign"/>
+        <field name="act_window_id" ref="action_maintenance_invoices_to_assign"/>
+    </record>
+
+    <record id="action_maintenance_invoices_to_assign_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="account.view_move_form"/>
+        <field name="act_window_id" ref="action_maintenance_invoices_to_assign"/>
     </record>
 
 </odoo>

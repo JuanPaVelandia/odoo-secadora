@@ -29,7 +29,7 @@
                             class="oe_stat_button"
                             icon="fa-file-text-o"
                             groups="maintenance.group_equipment_manager">
-                        <span class="o_stat_text">Asignar factura</span>
+                        <span class="o_stat_text">Facturas por asignar</span>
                     </button>
                 </div>
             </xpath>

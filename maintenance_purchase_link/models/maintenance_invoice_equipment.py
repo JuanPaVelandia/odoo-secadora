@@ -15,7 +15,10 @@ class MaintenanceInvoiceEquipment(models.Model):
     equipment_id = fields.Many2one(
         'maintenance.equipment',
         string='Equipo',
-        required=True,
+        # No es obligatorio: la orden de trabajo puede indicarse antes de
+        # saber a qué equipo se imputa el costo. Una fila sin equipo solo
+        # transporta la OT hasta que se elija uno.
+        ondelete='cascade',
     )
     percentage = fields.Float(
         string='Porcentaje (%)',
@@ -31,6 +34,25 @@ class MaintenanceInvoiceEquipment(models.Model):
         'Un equipo solo puede asignarse una vez por factura.',
     )
 
+    @api.constrains('equipment_id', 'move_id')
+    def _check_una_sola_fila_sin_equipo(self):
+        """Sin equipo solo tiene sentido una fila: la que lleva la OT.
+
+        El UNIQUE de Postgres no lo cubre porque los NULL no colisionan entre
+        sí, y varias filas vacías dejarían la factura con una asignación
+        ambigua.
+        """
+        for rec in self.filtered(lambda r: not r.equipment_id):
+            otras = self.sudo().search_count([
+                ('move_id', '=', rec.move_id.id),
+                ('equipment_id', '=', False),
+                ('id', '!=', rec.id),
+            ])
+            if otras:
+                raise ValidationError(_(
+                    'Solo puede haber una fila sin equipo por factura.'
+                ))
+
     @api.constrains('percentage')
     def _check_percentage_range(self):
         for rec in self:
@@ -42,9 +64,15 @@ class MaintenanceInvoiceEquipment(models.Model):
     @api.constrains('percentage', 'move_id')
     def _check_total_percentage(self):
         for rec in self:
+            # sudo: las filas pueden referirse a equipos de otra compañía que
+            # el usuario no tiene activa; sin él la suma los ignoraba y el
+            # reparto podía pasar del 100% sin avisar.
+            # La fila que solo lleva la OT no reparte nada: contar su 100%
+            # haría imposible añadir después el equipo.
             total = sum(
-                self.search([
+                self.sudo().search([
                     ('move_id', '=', rec.move_id.id),
+                    ('equipment_id', '!=', False),
                 ]).mapped('percentage')
             )
             if total > 100.0:
