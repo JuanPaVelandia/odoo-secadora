@@ -481,8 +481,28 @@ class TestMaintenanceCost(TransactionCase):
     def test_costo_toma_la_compania_de_la_factura(self):
         """La compañía sale de la factura, no de la compañía activa."""
         otra = self._otra_compania()
-        factura = self._factura_maquinaria('2026-08-03')
-        factura.company_id = otra
+        # En v19 `company_id` de la factura se deriva del diario y no admite
+        # asignación directa: hay que crearla ya en la otra compañía.
+        diario = self.env['account.journal'].search([
+            ('type', '=', 'purchase'),
+            ('company_id', '=', otra.id),
+        ], limit=1)
+        if not diario:
+            self.skipTest('La otra compañía no tiene diario de compras.')
+        factura = self.env['account.move'].with_company(otra).create({
+            'move_type': 'in_invoice',
+            'partner_id': self.partner.id,
+            'invoice_date': '2026-08-03',
+            'journal_id': diario.id,
+            'invoice_line_ids': [(0, 0, {
+                'name': 'Repuesto',
+                'quantity': 1,
+                'price_unit': 300000.0,
+                'analytic_distribution': {str(self.maint_account.id): 100},
+            })],
+        })
+        self.assertEqual(factura.company_id, otra,
+                         'La factura no quedó en la otra compañía.')
 
         costo = self.env['maintenance.equipment.cost.line'].create({
             'move_line_id': factura.invoice_line_ids[0].id,
