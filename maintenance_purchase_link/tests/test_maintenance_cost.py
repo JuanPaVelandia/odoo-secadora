@@ -4,6 +4,59 @@ from odoo.exceptions import ValidationError
 
 class TestMaintenanceCost(TransactionCase):
 
+    # Columnas de res_partner que alguna localización dejó NOT NULL sin default,
+    # con el valor a usar. La localización colombiana pone el régimen fiscal;
+    # '48' = No responsable de IVA.
+    COLUMNAS_OBLIGATORIAS_PARTNER = {
+        'l10n_co_edi_fiscal_regimen': '48',
+    }
+
+    @classmethod
+    def _crear_partner_de_prueba(cls, vals):
+        """Crear el proveedor sorteando las columnas NOT NULL de localizaciones.
+
+        No basta con mirar `_fields`: una localización desinstalada puede dejar
+        la columna NOT NULL en Postgres aunque el ORM ya no conozca el campo,
+        y entonces el INSERT sale sin ella y el test ni siquiera arranca. Se
+        consulta la tabla real y lo que el ORM no sepa escribir se rellena por
+        SQL después de crear.
+        """
+        partner_model = cls.env['res.partner']
+        cls.env.cr.execute("""
+            SELECT column_name
+              FROM information_schema.columns
+             WHERE table_name = 'res_partner'
+               AND is_nullable = 'NO'
+               AND column_default IS NULL
+        """)
+        no_nulas = {fila[0] for fila in cls.env.cr.fetchall()}
+
+        pendientes_sql = {}
+        for columna, valor in cls.COLUMNAS_OBLIGATORIAS_PARTNER.items():
+            if columna not in no_nulas:
+                continue
+            if columna in partner_model._fields:
+                vals[columna] = valor
+            else:
+                # El ORM no conoce el campo: hay que ponerlo a mano.
+                pendientes_sql[columna] = valor
+
+        if not pendientes_sql:
+            return partner_model.create(vals)
+
+        # Sin el campo en el ORM, `create` genera un INSERT que viola el NOT
+        # NULL. Se pone un valor por defecto en la columna solo durante la
+        # transacción del test, que se revierte al terminar.
+        for columna, valor in pendientes_sql.items():
+            cls.env.cr.execute(
+                'ALTER TABLE res_partner ALTER COLUMN "%s" SET DEFAULT %%s'
+                % columna, (valor,))
+        partner = partner_model.create(vals)
+        for columna in pendientes_sql:
+            cls.env.cr.execute(
+                'ALTER TABLE res_partner ALTER COLUMN "%s" DROP DEFAULT' % columna)
+        return partner
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -32,13 +85,7 @@ class TestMaintenanceCost(TransactionCase):
             'name': 'Proveedor Test Mantenimiento',
             'supplier_rank': 1,
         }
-        # Con la localización colombiana instalada el régimen fiscal es NOT NULL
-        # y no tiene default, así que sin esto el test ni siquiera arranca. Se
-        # pregunta si el campo existe porque el módulo no depende de
-        # l10n_co_edi y debe poder probarse sin él. '48' = No responsable de IVA.
-        if 'l10n_co_edi_fiscal_regimen' in cls.env['res.partner']._fields:
-            partner_vals['l10n_co_edi_fiscal_regimen'] = '48'
-        cls.partner = cls.env['res.partner'].create(partner_vals)
+        cls.partner = cls._crear_partner_de_prueba(partner_vals)
 
         # Equipo de mantenimiento
         cls.category = cls.env.ref(
