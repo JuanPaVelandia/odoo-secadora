@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <menuitem id="menu_l10n_co_exogenous_information_reporting_root"
+            name="Información exógena"
+            web_icon="l10n_co_exogenous_information_reporting,static/description/icon.png"
+            groups="account.group_account_manager"
+            sequence="70">
+
+        <menuitem id="menu_l10n_co_exogenous_format_generate"
+            name="Generar reportes"
+            sequence="1"
+            groups="account.group_account_manager">
+
+            <menuitem id="submenu_l10n_co_exogenous_format_generate"
+                name="Generar y descargar"
+                action="l10n_co_exogenous_format_generate_action"
+                sequence="1"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_concept_accounts_report"
+                name="Conceptos y cuentas asociadas"
+                action="action_l10n_co_exogenous_concept_accounts_report_wizard"
+                sequence="2"/>
+
+        </menuitem>
+
+        <menuitem id="menu_l10n_co_exogenous_certificates"
+            name="Certificados de retención"
+            sequence="5"
+            groups="account.group_account_manager">
+
+            <menuitem id="submenu_l10n_co_exogenous_certificate_send"
+                name="Envío masivo de certificados"
+                action="l10n_co_exogenous_certificate_send_wizard_action"
+                sequence="1"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_certificate_history"
+                name="Informe envío masivo"
+                action="l10n_co_exogenous_certificate_history_action"
+                sequence="2"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_certificate_config"
+                name="Configuración de certificados"
+                action="l10n_co_exogenous_certificate_config_action"
+                sequence="3"/>
+
+        </menuitem>
+
+        <menuitem id="menu_l10n_co_exogenous_validation"
+            name="Validación de datos"
+            sequence="10"
+            groups="account.group_account_manager">
+
+            <menuitem id="submenu_l10n_co_exogenous_partner_dashboard"
+                name="Dashboard de terceros"
+                action="action_exogenous_partner_dashboard"
+                sequence="1"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_partner_summary"
+                name="Auxiliar resumido"
+                action="action_exogenous_partner_summary"
+                sequence="2"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_concept_plan"
+                name="Plan de conceptos"
+                action="action_exogenous_concept_plan"
+                sequence="3"/>
+
+        </menuitem>
+
+        <!-- =============================================== -->
+        <!--  Certificados Exógena (HR / Ingresos / 2276)   -->
+        <!-- =============================================== -->
+        <menuitem id="menu_l10n_co_exogenous_hr_certificates"
+            name="Certificados Exógena"
+            sequence="7"
+            groups="account.group_account_manager,hr.group_hr_user">
+
+            <menuitem id="submenu_l10n_co_exogenous_income_cert_request"
+                name="Solicitudes de Certificado"
+                action="l10n_co_exogenous_income_cert_request_action"
+                sequence="1"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_income_cert_batch"
+                name="Generar Certificados en Lote"
+                action="action_l10n_co_exogenous_income_cert_batch_wizard"
+                sequence="1"
+                groups="account.group_account_manager,hr.group_hr_manager"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_2276_wizard"
+                name="Generar Reporte 2276"
+                action="l10n_co_exogenous_2276_wizard_action"
+                sequence="2"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_2276_report"
+                name="Resultado Reporte 2276"
+                action="l10n_co_exogenous_2276_report_action"
+                sequence="3"/>
+
+            <menuitem id="submenu_l10n_co_exogenous_hr_certificates_config_section"
+                name="Configuración"
+                sequence="100"
+                groups="account.group_account_manager">
+
+                <menuitem id="submenu_l10n_co_exogenous_income_cert_config"
+                    name="Configuración Certificado de Ingresos"
+                    action="l10n_co_exogenous_income_cert_config_action"
+                    sequence="1"/>
+
+                <menuitem id="submenu_l10n_co_exogenous_2276_rule"
+                    name="Configuración Reporte 2276"
+                    action="l10n_co_exogenous_2276_rule_action"
+                    sequence="2"/>
+
+            </menuitem>
+
+        </menuitem>
+
+        <menuitem id="menu_l10n_co_exogenous_information_reporting_settings"
+            name="Configuración"
+            sequence="100"
+            groups="account.group_account_manager">
+
+            <menuitem id="submenu_l10n_co_exogenous_information_reporting_format_settings"
+                name="Formato"
+                sequence="2"
+                groups="account.group_account_manager">
+
+                <menuitem id="menu_l10n_co_exogenous_format"
+                    name="Formatos"
+                    action="l10n_co_exogenous_format_action"
+                    sequence="1"/>
+
+                <menuitem id="menu_l10n_co_exogenous_format_setting"
+                    name="Configuración de formato"
+                    action="l10n_co_exogenous_format_setting_action"
+                    sequence="2"/>
+
+            </menuitem>
+
+            <menuitem id="submenu_l10n_co_exogenous_information_reporting_format_genral_settings"
+                name="Generales"
+                sequence="3"
+                groups="account.group_account_manager">
+
+                <menuitem id="menu_l10n_co_exogenous_account_config_wizard"
+                    name="Configurar cuentas por concepto"
+                    action="action_l10n_co_exogenous_account_config_wizard"
+                    sequence="0"/>
+
+                <menuitem id="menu_l10n_co_exogenous_document_type_table"
+                    name="Tablas de tipos de documento"
+                    action="l10n_co_exogenous_document_type_table_action"
+                    sequence="1"/>
+
+                <menuitem id="menu_l10n_co_exogenous_document_type"
+                    name="Tipos de documento"
+                    action="l10n_co_exogenous_document_type_action"
+                    sequence="2"/>
+
+                <menuitem id="menu_l10n_co_exogenous_concept"
+                    name="Conceptos"
+                    action="l10n_co_exogenous_concept_action"
+                    sequence="3"/>
+
+                <menuitem id="menu_l10n_co_exogenous_concept_template_wizard"
+                    name="Plantilla de conceptos (export/import)"
+                    action="action_l10n_co_exogenous_concept_template_wizard"
+                    sequence="35"/>
+
+                <menuitem id="menu_l10n_co_exogenous_format_field"
+                    name="Campos de formato de información exógena"
+                    action="l10n_co_exogenous_format_field_action"
+                    sequence="4"/>
+
+                <menuitem id="menu_l10n_co_exogenous_district"
+                    name="Distritos / Municipios (ICA)"
+                    action="l10n_co_exogenous_district_action"
+                    sequence="5"/>
+
+                <menuitem id="menu_l10n_co_exogenous_replicate_wizard"
+                    name="Replicar conceptos/retenciones a otras compañías"
+                    action="action_l10n_co_exogenous_replicate_wizard"
+                    sequence="6"/>
+
+                <menuitem id="menu_l10n_co_exogenous_colaboracion_contract"
+                    name="Contratos de colaboración"
+                    action="action_l10n_co_exogenous_colaboracion_contract"
+                    sequence="20"/>
+
+                <menuitem id="menu_l10n_co_exogenous_colaboracion_contract_type"
+                    name="Tipos de contrato (catálogo)"
+                    action="action_l10n_co_exogenous_colaboracion_contract_type"
+                    sequence="21"/>
+            </menuitem>
+
+
+        </menuitem>
+
+    </menuitem>
+</odoo>
+

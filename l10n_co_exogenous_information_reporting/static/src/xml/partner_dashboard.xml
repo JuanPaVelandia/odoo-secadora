@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="l10n_co_exogenous.PartnerDashboard" owl="1">
+    <div class="o_action o_exogenous_partner_dashboard p-3">
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-4">
+            <div class="flex-grow-1">
+                <h2 class="mb-1 text-primary fw-bold">
+                    <i class="fa fa-users me-2"/>Dashboard de Terceros — Exógena
+                </h2>
+                <p class="text-muted mb-0">Validación de datos y solicitudes masivas</p>
+            </div>
+        </div>
+
+        <!-- Controls Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Configuración de formato</label>
+                <select class="form-select" t-on-change="onSettingChange">
+                    <option value="">— Seleccionar formato —</option>
+                    <t t-foreach="state.formatSettings" t-as="fs" t-key="fs.id">
+                        <option t-att-value="fs.id" t-att-selected="state.selectedSettingId === fs.id">
+                            <t t-esc="fs.format_id[1]"/> (<t t-esc="fs.report_type"/>)
+                        </option>
+                    </t>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Plantilla de correo</label>
+                <select class="form-select" t-on-change="onTemplateChange">
+                    <option value="">— Sin plantilla —</option>
+                    <t t-foreach="state.mailTemplates" t-as="mt" t-key="mt.id">
+                        <option t-att-value="mt.id" t-att-selected="state.selectedTemplateId === mt.id">
+                            <t t-esc="mt.name"/>
+                        </option>
+                    </t>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Buscar</label>
+                <input type="text" class="form-control"
+                       placeholder="NIT, nombre, email..."
+                       t-att-value="state.searchQuery"
+                       t-on-input="onSearchChange"/>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Filtrar</label>
+                <select class="form-select" t-on-change="onFilterChange">
+                    <option value="all" t-att-selected="state.filterStatus === 'all'">Todos</option>
+                    <option value="incomplete" t-att-selected="state.filterStatus === 'incomplete'">Incompletos</option>
+                    <option value="complete" t-att-selected="state.filterStatus === 'complete'">Completos</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 mb-4 flex-wrap">
+            <button class="btn btn-primary"
+                    t-on-click="onAnalyzePartners"
+                    t-att-disabled="!state.selectedSettingId or state.loading">
+                <i class="fa fa-search me-1"/>
+                <t t-if="state.loading">Analizando...</t>
+                <t t-else="">Analizar terceros</t>
+            </button>
+            <button class="btn btn-outline-warning" t-on-click="onSelectIncomplete">
+                <i class="fa fa-exclamation-triangle me-1"/>Sel. incompletos
+            </button>
+            <button class="btn btn-outline-secondary" t-on-click="onSelectAll">
+                <i class="fa fa-check-square-o me-1"/>Sel. todos
+            </button>
+            <button class="btn btn-outline-secondary" t-on-click="onDeselectAll">
+                <i class="fa fa-square-o me-1"/>Quitar selección
+            </button>
+            <div class="ms-auto d-flex gap-2">
+                <button class="btn btn-success"
+                        t-on-click="onSendMassRequest"
+                        t-att-disabled="selectedCount === 0 or !state.selectedTemplateId">
+                    <i class="fa fa-envelope me-1"/>Enviar solicitud (<t t-esc="selectedCount"/>)
+                </button>
+                <button class="btn btn-outline-dark"
+                        t-on-click="onExportExcel"
+                        t-att-disabled="state.partners.length === 0">
+                    <i class="fa fa-file-excel-o me-1"/>Exportar
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <t t-if="state.partners.length > 0">
+            <div class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-primary">
+                        <div class="card-body text-white text-center py-3">
+                            <div class="h2 mb-0 fw-bold"><t t-esc="state.kpis.total"/></div>
+                            <small class="fw-semibold">Total terceros</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-success">
+                        <div class="card-body text-white text-center py-3">
+                            <div class="h2 mb-0 fw-bold"><t t-esc="state.kpis.complete"/></div>
+                            <small class="fw-semibold">
+                                Datos completos (<t t-esc="state.kpis.pct_complete"/>%)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-warning">
+                        <div class="card-body text-white text-center py-3">
+                            <div class="h2 mb-0 fw-bold"><t t-esc="state.kpis.incomplete"/></div>
+                            <small class="fw-semibold">
+                                Datos incompletos (<t t-esc="state.kpis.pct_incomplete"/>%)
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm bg-info">
+                        <div class="card-body text-white text-center py-3">
+                            <div class="h2 mb-0 fw-bold"><t t-esc="selectedCount"/></div>
+                            <small>Seleccionados</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+
+        <!-- Partners Table -->
+        <t t-if="state.loading">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2 text-muted">Analizando datos de terceros...</p>
+            </div>
+        </t>
+
+        <t t-elif="state.partners.length === 0 and state.selectedSettingId">
+            <div class="text-center py-5">
+                <i class="fa fa-search fa-3x text-muted mb-3 d-block"/>
+                <p class="text-muted">Haga clic en "Analizar terceros" para comenzar</p>
+            </div>
+        </t>
+
+        <t t-elif="state.partners.length === 0">
+            <div class="text-center py-5">
+                <i class="fa fa-arrow-up fa-3x text-muted mb-3 d-block"/>
+                <p class="text-muted">Seleccione una configuración de formato arriba</p>
+            </div>
+        </t>
+
+        <t t-else="">
+            <div class="table-responsive">
+                <table class="table table-hover table-sm align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 40px;"><i class="fa fa-check-square-o"/></th>
+                            <th>Estado</th>
+                            <th>NIT/CC</th>
+                            <th>Tipo doc.</th>
+                            <th>Tercero</th>
+                            <th>Tipo</th>
+                            <th>Ciudad</th>
+                            <th>Depto</th>
+                            <th>País</th>
+                            <th>Email</th>
+                            <th class="text-center"># Faltantes</th>
+                            <th>Campos faltantes</th>
+                            <th style="width: 40px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="filteredPartners" t-as="partner" t-key="partner.id">
+                            <tr t-att-class="partner.status === 'incomplete' ? 'table-warning' : ''">
+                                <td>
+                                    <input type="checkbox" class="form-check-input"
+                                           t-att-checked="partner.selected"
+                                           t-on-change="() => this.onTogglePartner(partner.id)"/>
+                                </td>
+                                <td>
+                                    <t t-if="partner.status === 'complete'">
+                                        <span class="badge bg-success">
+                                            <i class="fa fa-check me-1"/>Completo
+                                        </span>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fa fa-exclamation-triangle me-1"/>Incompleto
+                                        </span>
+                                    </t>
+                                </td>
+                                <td class="fw-semibold"><t t-esc="partner.vat || '-'"/></td>
+                                <td><t t-esc="partner.id_type || '-'"/></td>
+                                <td><t t-esc="partner.name"/></td>
+                                <td>
+                                    <t t-if="partner.is_company">
+                                        <span class="badge bg-primary-subtle text-primary">
+                                            <i class="fa fa-building me-1"/>Empresa
+                                        </span>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="badge bg-secondary-subtle text-secondary">
+                                            <i class="fa fa-user me-1"/>Persona
+                                        </span>
+                                    </t>
+                                </td>
+                                <td class="text-muted small"><t t-esc="partner.city || '-'"/></td>
+                                <td class="text-muted small"><t t-esc="partner.state || '-'"/></td>
+                                <td class="text-muted small"><t t-esc="partner.country || '-'"/></td>
+                                <td class="text-muted small"><t t-esc="partner.email || '-'"/></td>
+                                <td class="text-center">
+                                    <span t-if="partner.missing_count > 0"
+                                          class="badge bg-danger"><t t-esc="partner.missing_count"/></span>
+                                    <span t-else="" class="badge bg-success">0</span>
+                                </td>
+                                <td>
+                                    <small class="text-danger" t-if="partner.missing_fields">
+                                        <t t-esc="partner.missing_fields"/>
+                                    </small>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-link p-0"
+                                            title="Abrir tercero"
+                                            t-on-click="() => this.onOpenPartner(partner.id)">
+                                        <i class="fa fa-external-link"/>
+                                    </button>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-muted small mt-2">
+                Mostrando <t t-esc="filteredPartners.length"/> de <t t-esc="state.partners.length"/> terceros
+            </div>
+        </t>
+    </div>
+</t>
+
+</templates>

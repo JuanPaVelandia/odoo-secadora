@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ===================== 6 Ciudades principales ===================== -->
+
+        <!-- Bogotá D.C. -->
+        <record id="l10n_co_exogenous_district_bogota" model="l10n_co.exogenous_district">
+            <field name="name">Bogotá D.C.</field>
+            <field name="code">11001</field>
+            <field name="department">Bogotá</field>
+            <field name="department_code">11</field>
+            <field name="delimiter">pipe</field>
+            <field name="file_extension">txt</field>
+            <field name="include_header" eval="True"/>
+            <field name="text_encoding">windows-1252</field>
+            <field name="sanitize_text" eval="True"/>
+            <field name="max_field_length">200</field>
+            <field name="document_type_table_id" ref="l10n_co_exogenous_district_doc_type_table_bogota"/>
+            <field name="notes">Exógena distrital ICA Bogotá - Secretaría de Hacienda Distrital. Formato con delimitador pipe (|). Resolución SHD aplicable vigencia fiscal.</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Medellín -->
+        <record id="l10n_co_exogenous_district_medellin" model="l10n_co.exogenous_district">
+            <field name="name">Medellín</field>
+            <field name="code">05001</field>
+            <field name="department">Antioquia</field>
+            <field name="department_code">05</field>
+            <field name="delimiter">comma</field>
+            <field name="file_extension">csv</field>
+            <field name="include_header" eval="True"/>
+            <field name="text_encoding">utf-8</field>
+            <field name="sanitize_text" eval="True"/>
+            <field name="max_field_length">0</field>
+            <field name="document_type_table_id" ref="l10n_co_exogenous_district_doc_type_table_medellin"/>
+            <field name="notes">Exógena municipal ICA Medellín - Secretaría de Hacienda Municipal. Formato CSV con delimitador coma. Conceptos por actividad CIIU.</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Cali -->
+        <record id="l10n_co_exogenous_district_cali" model="l10n_co.exogenous_district">
+            <field name="name">Cali</field>
+            <field name="code">76001</field>
+            <field name="department">Valle del Cauca</field>
+            <field name="department_code">76</field>
+            <field name="delimiter">semicolon</field>
+            <field name="file_extension">txt</field>
+            <field name="include_header" eval="True"/>
+            <field name="text_encoding">iso-8859-1</field>
+            <field name="sanitize_text" eval="True"/>
+            <field name="max_field_length">0</field>
+            <field name="document_type_table_id" ref="l10n_co_exogenous_district_doc_type_table_cali"/>
+            <field name="notes">Exógena municipal ICA Cali - Departamento Administrativo de Hacienda Municipal. Formato 5002, delimitador punto y coma.</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Barranquilla -->
+        <record id="l10n_co_exogenous_district_barranquilla" model="l10n_co.exogenous_district">
+            <field name="name">Barranquilla</field>
+            <field name="code">08001</field>
+            <field name="department">Atlántico</field>
+            <field name="department_code">08</field>
+            <field name="delimiter">pipe</field>
+            <field name="file_extension">txt</field>
+            <field name="include_header" eval="True"/>
+            <field name="text_encoding">windows-1252</field>
+            <field name="sanitize_text" eval="True"/>
+            <field name="max_field_length">0</field>
+            <field name="document_type_table_id" ref="l10n_co_exogenous_district_doc_type_table_barranquilla"/>
+            <field name="notes">Exógena distrital ICA Barranquilla - Secretaría de Hacienda Distrital. Formato con pipe, conceptos por actividad CIIU.</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Cartagena -->
+        <record id="l10n_co_exogenous_district_cartagena" model="l10n_co.exogenous_district">
+            <field name="name">Cartagena</field>
+            <field name="code">13001</field>
+            <field name="department">Bolívar</field>
+            <field name="department_code">13</field>
+            <field name="delimiter">pipe</field>
+            <field name="file_extension">txt</field>
+            <field name="include_header" eval="True"/>
+            <field name="text_encoding">windows-1252</field>
+            <field name="sanitize_text" eval="True"/>
+            <field name="max_field_length">0</field>
+            <field name="document_type_table_id" ref="l10n_co_exogenous_district_doc_type_table_cartagena"/>
+            <field name="notes">Exógena distrital ICA Cartagena - Secretaría de Hacienda Distrital. Formato con pipe, conceptos por actividad económica.</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Pereira -->
+        <record id="l10n_co_exogenous_district_pereira" model="l10n_co.exogenous_district">
+            <field name="name">Pereira</field>
+            <field name="code">66001</field>
+            <field name="department">Risaralda</field>
+            <field name="department_code">66</field>
+            <field name="delimiter">pipe</field>
+            <field name="file_extension">txt</field>
+            <field name="include_header" eval="True"/>
+            <field name="text_encoding">utf-8</field>
+            <field name="sanitize_text" eval="True"/>
+            <field name="max_field_length">0</field>
+            <field name="document_type_table_id" ref="l10n_co_exogenous_district_doc_type_table_pereira"/>
+            <field name="notes">Exógena municipal ICA Pereira - Secretaría de Hacienda Municipal. Formato con pipe, campos específicos del municipio.</field>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+    </data>
+</odoo>

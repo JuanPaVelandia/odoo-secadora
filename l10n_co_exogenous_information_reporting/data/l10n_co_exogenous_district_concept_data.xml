@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ===================== BOGOTÁ - Conceptos ICA ===================== -->
+        <!-- Formato 2001 - Compras y retenciones -->
+        <record id="l10n_co_district_concept_bog_2001_compras" model="l10n_co.exogenous_concept">
+            <field name="name">Compras de bienes y servicios gravados con ICA</field>
+            <field name="code">2001</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_bog_2001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_bog_2002_rete_ica" model="l10n_co.exogenous_concept">
+            <field name="name">Retenciones de ICA practicadas a terceros</field>
+            <field name="code">2002</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_bog_2001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_bog_2003_auto_rete" model="l10n_co.exogenous_concept">
+            <field name="name">Autorretenciones de ICA</field>
+            <field name="code">2003</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_bog_2001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Formato 2002 - Ventas e ingresos -->
+        <record id="l10n_co_district_concept_bog_2010_ingresos" model="l10n_co.exogenous_concept">
+            <field name="name">Ingresos brutos por actividades gravadas con ICA</field>
+            <field name="code">2010</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_bog_2002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_bog_2011_devoluciones" model="l10n_co.exogenous_concept">
+            <field name="name">Devoluciones, rebajas y descuentos en ventas</field>
+            <field name="code">2011</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_bog_2002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_bog_2012_exportaciones" model="l10n_co.exogenous_concept">
+            <field name="name">Ingresos por exportaciones</field>
+            <field name="code">2012</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_bog_2002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- Formato 2003 - Retenciones que le practicaron -->
+        <record id="l10n_co_district_concept_bog_2020_rete_recibida" model="l10n_co.exogenous_concept">
+            <field name="name">Retenciones de ICA que le practicaron</field>
+            <field name="code">2020</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_bog_2003"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- ===================== MEDELLÍN - Conceptos ICA ===================== -->
+        <record id="l10n_co_district_concept_med_3001_compras_ciiu" model="l10n_co.exogenous_concept">
+            <field name="name">Compras por actividad CIIU</field>
+            <field name="code">3001</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_med_3001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_med_3002_rete_ciiu" model="l10n_co.exogenous_concept">
+            <field name="name">Retenciones de ICA practicadas por CIIU</field>
+            <field name="code">3002</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_med_3001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_med_3010_ingresos_ciiu" model="l10n_co.exogenous_concept">
+            <field name="name">Ingresos por actividad CIIU</field>
+            <field name="code">3010</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_med_3002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- ===================== CALI - Conceptos ICA ===================== -->
+        <record id="l10n_co_district_concept_cali_5001_compras" model="l10n_co.exogenous_concept">
+            <field name="name">Compras gravadas ICA Cali</field>
+            <field name="code">5001</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_cali_5001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_cali_5002_rete" model="l10n_co.exogenous_concept">
+            <field name="name">Retenciones ICA practicadas Cali</field>
+            <field name="code">5002</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_cali_5001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_cali_5010_ingresos" model="l10n_co.exogenous_concept">
+            <field name="name">Ingresos gravados ICA Cali</field>
+            <field name="code">5010</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_cali_5002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- ===================== BARRANQUILLA - Conceptos ICA ===================== -->
+        <record id="l10n_co_district_concept_baq_4001_compras" model="l10n_co.exogenous_concept">
+            <field name="name">Compras por CIIU Barranquilla</field>
+            <field name="code">4001</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_baq_4001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_baq_4002_rete" model="l10n_co.exogenous_concept">
+            <field name="name">Retenciones ICA practicadas Barranquilla</field>
+            <field name="code">4002</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_baq_4001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_baq_4010_ingresos" model="l10n_co.exogenous_concept">
+            <field name="name">Ingresos por CIIU Barranquilla</field>
+            <field name="code">4010</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_baq_4002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- ===================== CARTAGENA - Conceptos ICA ===================== -->
+        <record id="l10n_co_district_concept_ctg_6001_compras" model="l10n_co.exogenous_concept">
+            <field name="name">Compras por actividad económica Cartagena</field>
+            <field name="code">6001</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_ctg_6001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_ctg_6002_rete" model="l10n_co.exogenous_concept">
+            <field name="name">Retenciones ICA practicadas Cartagena</field>
+            <field name="code">6002</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_ctg_6001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_ctg_6010_ingresos" model="l10n_co.exogenous_concept">
+            <field name="name">Ingresos por actividad económica Cartagena</field>
+            <field name="code">6010</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_ctg_6002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+
+        <!-- ===================== PEREIRA - Conceptos ICA ===================== -->
+        <record id="l10n_co_district_concept_per_7001_compras" model="l10n_co.exogenous_concept">
+            <field name="name">Compras gravadas ICA Pereira</field>
+            <field name="code">7001</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_per_7001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_per_7002_rete" model="l10n_co.exogenous_concept">
+            <field name="name">Retenciones ICA practicadas Pereira</field>
+            <field name="code">7002</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_per_7001"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+        <record id="l10n_co_district_concept_per_7010_ingresos" model="l10n_co.exogenous_concept">
+            <field name="name">Ingresos gravados ICA Pereira</field>
+            <field name="code">7010</field>
+            <field name="format_id" ref="l10n_co_exogenous_district_format_per_7002"/>
+            <field name="active" eval="True"/>
+            <field name="company_id" ref="base.main_company"/>
+        </record>
+    </data>
+</odoo>

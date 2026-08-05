@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Vista del wizard de solicitud de datos de terceros -->
+    <record id="l10n_co_exogenous_partner_data_request_form" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous.partner.data.request.form</field>
+        <field name="model">l10n_co.exogenous_partner_data_request</field>
+        <field name="arch" type="xml">
+            <form string="Validación de datos de terceros">
+                <!-- KPI Cards -->
+                <div class="row mb-3 mx-0">
+                    <div class="col-3">
+                        <div class="card bg-primary text-white text-center p-2">
+                            <div class="h3 mb-0"><field name="total_partners" readonly="1" nolabel="1"/></div>
+                            <small>Total terceros</small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card bg-success text-white text-center p-2">
+                            <div class="h3 mb-0"><field name="total_complete" readonly="1" nolabel="1"/></div>
+                            <small>
+                                Completos (<field name="pct_complete" readonly="1" nolabel="1" widget="float" options="{'digits': [5, 1]}"/>%)
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card bg-warning text-dark text-center p-2">
+                            <div class="h3 mb-0"><field name="total_incomplete" readonly="1" nolabel="1"/></div>
+                            <small>
+                                Incompletos (<field name="pct_incomplete" readonly="1" nolabel="1" widget="float" options="{'digits': [5, 1]}"/>%)
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="card bg-info text-white text-center p-2">
+                            <div class="h3 mb-0"><field name="total_selected" readonly="1" nolabel="1"/></div>
+                            <small>Seleccionados</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <group col="6">
+                    <field name="format_id" readonly="1" colspan="2"/>
+                    <field name="mail_template_id" colspan="2"
+                           placeholder="Seleccione plantilla de correo..."
+                           options="{'no_create': False}"/>
+                    <field name="format_setting_id" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                </group>
+
+                <div class="d-flex gap-2 mb-3 ms-2">
+                    <button name="action_select_all_incomplete" type="object"
+                            string="Seleccionar incompletos" class="btn-warning btn-sm"
+                            icon="fa-exclamation-triangle"/>
+                    <button name="action_select_all" type="object"
+                            string="Seleccionar todos" class="btn-secondary btn-sm"
+                            icon="fa-check-square-o"/>
+                    <button name="action_deselect_all" type="object"
+                            string="Quitar selección" class="btn-secondary btn-sm"
+                            icon="fa-square-o"/>
+                    <button name="action_open_partner" type="object"
+                            string="Abrir tercero" class="btn-info btn-sm"
+                            icon="fa-external-link"/>
+                    <button name="action_send_mass_request" type="object"
+                            string="Enviar solicitud masiva" class="btn-primary btn-sm"
+                            icon="fa-envelope"
+                            confirm="¿Enviar solicitud de datos a los terceros seleccionados?" invisible="mail_template_id == False"/>
+                </div>
+
+                <!-- Tabla de terceros con paginación de 80 -->
+                <field name="line_ids" nolabel="1">
+                    <list decoration-danger="status == 'incomplete'"
+                          decoration-success="status == 'complete'"
+                          editable="bottom"
+                          default_order="status desc, partner_name"
+                          limit="80">
+                        <field name="selected" widget="boolean_toggle" string="Sel."/>
+                        <field name="status" string="Estado" widget="badge"
+                               decoration-success="status == 'complete'"
+                               decoration-warning="status == 'incomplete'"/>
+                        <field name="partner_vat" string="NIT/CC"/>
+                        <field name="id_type_display" string="Tipo doc."/>
+                        <field name="partner_name" string="Tercero"/>
+                        <field name="is_company" string="Tipo" widget="boolean"
+                               decoration-info="is_company"/>
+                        <field name="city_display" string="Ciudad" optional="show"/>
+                        <field name="state_display" string="Depto" optional="show"/>
+                        <field name="country_display" string="País" optional="show"/>
+                        <field name="partner_email" string="Email" widget="email"/>
+                        <field name="missing_count" string="# Falt."/>
+                        <field name="missing_fields" string="Campos faltantes" optional="show"/>
+                        <field name="partner_id" invisible="1"/>
+                        <field name="wizard_id" invisible="1"/>
+                    </list>
+                </field>
+
+                <footer>
+                    <button name="action_analyze_partners" type="object"
+                            string="Re-analizar" class="btn-secondary"
+                            icon="fa-refresh"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_co_exogenous_partner_data_request" model="ir.actions.act_window">
+        <field name="name">Validación de datos de terceros</field>
+        <field name="res_model">l10n_co.exogenous_partner_data_request</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

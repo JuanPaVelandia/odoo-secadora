@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="l10n_co_exogenous_certificate_send_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_certificate_send_wizard.form</field>
+        <field name="model">l10n_co.exogenous_certificate_send_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Envío masivo de certificados">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="config,preview,done"/>
+                </header>
+                <sheet>
+                    <div class="oe_title" invisible="state != 'done'">
+                        <h2>
+                            <span class="badge rounded-pill text-bg-success" invisible="generated_count == 0">
+                                <field name="generated_count" nolabel="1"/> generados
+                            </span>
+                            <span class="ms-2 badge rounded-pill text-bg-info" invisible="sent_count == 0">
+                                <field name="sent_count" nolabel="1"/> enviados
+                            </span>
+                            <span class="ms-2 badge rounded-pill text-bg-danger" invisible="error_count == 0">
+                                <field name="error_count" nolabel="1"/> con error
+                            </span>
+                        </h2>
+                    </div>
+
+                    <group invisible="state != 'config'">
+                        <group string="Configuración">
+                            <field name="config_id"/>
+                            <field name="certificate_type"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Período">
+                            <field name="period_type"/>
+                            <field name="year"/>
+                            <field name="period_number" invisible="period_type == 'annual'"/>
+                            <field name="date_from" readonly="1"/>
+                            <field name="date_to" readonly="1"/>
+                            <field name="expedition_date"/>
+                        </group>
+                    </group>
+                    <group invisible="state != 'config'">
+                        <group string="Filtros">
+                            <field name="partner_ids" widget="many2many_tags"/>
+                            <field name="city_id" invisible="certificate_type != 'ica'"/>
+                        </group>
+                        <group string="Opciones">
+                            <field name="journal_ids" widget="many2many_tags"/>
+                            <field name="send_email"/>
+                        </group>
+                    </group>
+
+                    <group  string="Auxiliar agrupado por tercero y cuenta" invisible="state != 'preview'">
+                        <group>
+                            <field name="date_from" readonly="1"/>
+                            <field name="date_to" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="certificate_type" readonly="1"/>
+                            <field name="city_id" readonly="1" invisible="certificate_type != 'ica'"/>
+                        </group>
+                    </group>
+                    <div  class="mt-3 mb-2" invisible="state != 'preview'">
+                        <button name="action_generate" type="object"
+                                string="Generar certificados PDF"
+                                class="btn-primary me-2"
+                                icon="fa-file-pdf-o"
+                                confirm="Se generarán los certificados para todos los terceros listados. Continuar?"/>
+                        <button name="action_back_to_config" type="object"
+                                string="Volver a configuración"
+                                class="btn-secondary me-2"
+                                icon="fa-arrow-left"/>
+                    </div>
+
+                    <field name="preview_line_ids" invisible="state != 'preview'">
+                        <list decoration-muted="retained_amount == 0">
+                            <field name="partner_id"/>
+                            <field name="partner_vat"/>
+                            <field name="concept_name"/>
+                            <field name="account_id" optional="hide"/>
+                            <field name="city_id" invisible="parent.certificate_type != 'ica'"/>
+                            <field name="base_amount" sum="Total base"/>
+                            <field name="retained_amount" sum="Total retenido"/>
+                            <field name="partner_email"/>
+                            <field name="detail_count" string="Docs"/>
+                            <button name="action_view_detail" type="object"
+                                    string="Ver detalle" icon="fa-list-alt"
+                                    class="btn-link"/>
+                        </list>
+                    </field>
+                </sheet>
+
+                <footer>
+                    <button name="action_consult" type="object"
+                            string="Consultar"
+                            class="btn-primary"
+                            
+                            icon="fa-search" invisible="state != 'config'"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel" invisible="state != 'config'"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_certificate_send_wizard_detail_tree" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_certificate_send_wizard_detail.list</field>
+        <field name="model">l10n_co.exogenous_certificate_send_wizard_detail</field>
+        <field name="arch" type="xml">
+            <list string="Detalle de movimientos" create="false" edit="false">
+                <field name="date"/>
+                <field name="move_name"/>
+                <field name="ref"/>
+                <field name="account_id"/>
+                <field name="partner_id"/>
+                <field name="debit" sum="Total débito"/>
+                <field name="credit" sum="Total crédito"/>
+                <field name="tax_base_amount" sum="Total base"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_certificate_send_wizard_action" model="ir.actions.act_window">
+        <field name="name">Envío masivo de certificados</field>
+        <field name="res_model">l10n_co.exogenous_certificate_send_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'dialog_size': 'extra-large'}</field>
+    </record>
+
+    <record id="l10n_co_exogenous_certificate_send_wizard_action_full" model="ir.actions.act_window">
+        <field name="name">Envío masivo de certificados</field>
+        <field name="res_model">l10n_co.exogenous_certificate_send_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+    </record>
+
+</odoo>

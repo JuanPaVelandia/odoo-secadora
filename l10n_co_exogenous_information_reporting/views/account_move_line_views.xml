@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Search view para auxiliar por tercero -->
+    <record id="view_account_move_line_exogenous_partner_search" model="ir.ui.view">
+        <field name="name">account.move.line.exogenous.partner.search</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <search string="Auxiliar por tercero">
+                <field name="partner_id"/>
+                <field name="account_id"/>
+                <field name="move_id" string="Asiento"/>
+                <field name="name" string="Etiqueta"/>
+                <field name="date"/>
+                <field name="journal_id"/>
+                <field name="l10n_co_exogenous_format_field_id" string="Columna exógena"/>
+                <field name="l10n_co_exogenous_concept_id" string="Concepto exógeno"/>
+                <separator/>
+                <filter name="posted" string="Publicados" domain="[('parent_state', '=', 'posted')]"/>
+                <filter name="has_partner" string="Con tercero" domain="[('partner_id', '!=', False)]"/>
+                <separator/>
+                <filter name="debit_gt_zero" string="Con debito" domain="[('debit', '>', 0)]"/>
+                <filter name="credit_gt_zero" string="Con credito" domain="[('credit', '>', 0)]"/>
+                <separator/>
+                <filter name="invoices" string="Facturas" domain="[('move_id.move_type', 'in', ['out_invoice', 'in_invoice'])]"/>
+                <filter name="refunds" string="Notas credito" domain="[('move_id.move_type', 'in', ['out_refund', 'in_refund'])]"/>
+                <filter name="entries" string="Asientos" domain="[('move_id.move_type', '=', 'entry')]"/>
+                <separator/>
+                <filter name="exo_assigned" string="Con columna 1001 asignada"
+                        domain="[('l10n_co_exogenous_format_field_id', '!=', False)]"/>
+                <filter name="exo_unassigned" string="Sin columna 1001"
+                        domain="[('l10n_co_exogenous_format_field_id', '=', False)]"/>
+                <separator/>
+                <group>
+                    <filter name="group_partner" string="Tercero" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_account" string="Cuenta" context="{'group_by': 'account_id'}"/>
+                    <filter name="group_journal" string="Diario" context="{'group_by': 'journal_id'}"/>
+                    <filter name="group_date" string="Fecha" context="{'group_by': 'date:month'}"/>
+                    <filter name="group_exo_field" string="Columna 1001"
+                            context="{'group_by': 'l10n_co_exogenous_format_field_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+</odoo>

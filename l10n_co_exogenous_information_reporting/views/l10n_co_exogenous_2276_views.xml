@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ========================================================== -->
+    <!--  Reglas Reporte 2276                                       -->
+    <!-- ========================================================== -->
+
+    <record id="l10n_co_exogenous_2276_rule_tree" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_2276_rule.tree</field>
+        <field name="model">l10n_co.exogenous_2276_rule</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="header_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_2276_rule_form" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_2276_rule.form</field>
+        <field name="model">l10n_co.exogenous_2276_rule</field>
+        <field name="arch" type="xml">
+            <form string="Configuración 2276">
+                <header>
+                    <button name="action_load_from_certificate_config" type="object"
+                            string="Cargar desde Certificado"
+                            class="oe_highlight"
+                            icon="fa-download" invisible="header_id == False"
+                            confirm="Esto reemplazará las líneas existentes con las del certificado seleccionado. ¿Desea continuar?"/>
+                    <button name="action_create_default_lines" type="object"
+                            string="Crear estructura por defecto"
+                            icon="fa-magic"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1><field name="name" placeholder="Ej: Reporte 2276 - 2024"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="code"/>
+                        </group>
+                        <group>
+                            <field name="header_id"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Líneas de Configuración" name="lines">
+                            <field name="config_rule_line_ids">
+                                <list editable="bottom">
+                                    <field name="column_selection"/>
+                                    <field name="calculation"/>
+                                    <field name="salary_rule_id" widget="many2many_tags"
+                                           invisible="calculation not in ('sum_rule', 'average_rule')"/>
+                                    <field name="origin_severance_pay" optional="show"
+                                           invisible="calculation not in ('sum_rule', 'average_rule')"/>
+                                    <field name="accumulated_previous_year" optional="show"/>
+                                    <field name="account_ids" widget="many2many_tags" optional="hide"
+                                           invisible="calculation != 'sum_accounting'"/>
+                                    <field name="account_move_type" optional="hide"
+                                           invisible="calculation != 'sum_accounting'"/>
+                                    <field name="move_state_filter" optional="hide"
+                                           invisible="calculation != 'sum_accounting'"/>
+                                    <field name="excluded_journal_ids" widget="many2many_tags" optional="hide"
+                                           invisible="calculation != 'sum_accounting'"/>
+                                    <field name="exclude_payroll_entries" optional="hide"
+                                           invisible="calculation != 'sum_accounting'"/>
+                                    <field name="limit_uvt_factor" optional="show"/>
+                                    <field name="limit_fixed_value" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_2276_rule_action" model="ir.actions.act_window">
+        <field name="name">Configuración Reporte 2276</field>
+        <field name="res_model">l10n_co.exogenous_2276_rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Cree una configuración del reporte 2276
+            </p>
+            <p>
+                Configure las reglas y columnas que serán utilizadas para generar
+                el archivo Excel del Formato 2276 — Información de pagos a personas
+                naturales y por rentas de trabajo y pensiones.
+            </p>
+        </field>
+    </record>
+
+    <!-- ========================================================== -->
+    <!--  Wizard de Reporte 2276                                    -->
+    <!-- ========================================================== -->
+
+    <record id="l10n_co_exogenous_2276_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_2276_wizard.form</field>
+        <field name="model">l10n_co.exogenous_2276_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generar Reporte 2276">
+                <sheet>
+                    <group>
+                        <group string="Período">
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </group>
+                        <group string="Configuración">
+                            <field name="confi_id"/>
+                            <field name="uvt_value"/>
+                            <field name="only_with_payslips"/>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="generate_xlsx_report" type="object"
+                            string="Generar Excel"
+                            class="oe_highlight"
+                            icon="fa-file-excel-o"/>
+                    <button special="cancel" string="Cancelar"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_2276_wizard_action" model="ir.actions.act_window">
+        <field name="name">Generar Reporte 2276</field>
+        <field name="res_model">l10n_co.exogenous_2276_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- ========================================================== -->
+    <!--  Reporte 2276 (vista resultado)                            -->
+    <!-- ========================================================== -->
+
+    <record id="l10n_co_exogenous_2276_report_tree" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_2276_report.tree</field>
+        <field name="model">l10n_co.exogenous_2276_report</field>
+        <field name="arch" type="xml">
+            <list create="false" edit="false" delete="false">
+                <field name="col_1"/>
+                <field name="col_2"/>
+                <field name="col_3"/>
+                <field name="col_4"/>
+                <field name="col_5"/>
+                <field name="col_6"/>
+                <field name="col_7"/>
+                <field name="col_8" optional="hide"/>
+                <field name="col_9" optional="hide"/>
+                <field name="col_10" optional="hide"/>
+                <field name="col_11" optional="hide"/>
+                <field name="col_12"/>
+                <field name="col_13" optional="hide"/>
+                <field name="col_14" optional="hide"/>
+                <field name="col_15" optional="hide"/>
+                <field name="col_16" optional="hide"/>
+                <field name="col_17" optional="hide"/>
+                <field name="col_18" optional="hide"/>
+                <field name="col_19" optional="hide"/>
+                <field name="col_20" optional="hide"/>
+                <field name="col_21" optional="hide"/>
+                <field name="col_22" optional="hide"/>
+                <field name="col_23" optional="hide"/>
+                <field name="col_24"/>
+                <field name="col_25" optional="hide"/>
+                <field name="col_26" optional="hide"/>
+                <field name="col_27" optional="hide"/>
+                <field name="col_28" optional="hide"/>
+                <field name="col_29" optional="hide"/>
+                <field name="col_30"/>
+                <field name="col_31" optional="hide"/>
+                <field name="col_32" optional="hide"/>
+                <field name="col_33" optional="hide"/>
+                <field name="col_34" optional="hide"/>
+                <field name="col_35" optional="hide"/>
+                <field name="col_36" optional="hide"/>
+                <field name="col_37" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_2276_report_action" model="ir.actions.act_window">
+        <field name="name">Resultado Reporte 2276</field>
+        <field name="res_model">l10n_co.exogenous_2276_report</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

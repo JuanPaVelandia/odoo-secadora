@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="l10n_co_exogenous_income_cert_batch_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_income_cert_batch_wizard.form</field>
+        <field name="model">l10n_co.exogenous_income_cert_batch_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generar Certificados de Ingresos en Lote">
+                <sheet>
+                    <group>
+                        <group string="Configuración">
+                            <field name="header_id"/>
+                            <field name="year"/>
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Salida">
+                            <field name="output_format" widget="radio"/>
+                            <field name="send_by_email"/>
+                            <field name="skip_existing"/>
+                        </group>
+                    </group>
+                    <group string="Empleados">
+                        <field name="employee_selection" widget="radio"/>
+                        <field name="employee_ids" widget="many2many_tags"
+                               invisible="employee_selection != 'selected'" required="employee_selection == 'selected'"
+                               domain="[('company_id', '=', company_id)]"/>
+                    </group>
+                    <div class="alert alert-info" role="alert">
+                        Se creará una solicitud por cada empleado, se generará el certificado
+                        en el formato escogido y, si la opción "Enviar por correo" está activa,
+                        se enviará al correo registrado en el empleado.
+                    </div>
+                </sheet>
+                <footer>
+                    <button name="action_generate_batch" type="object"
+                            string="Generar"
+                            class="oe_highlight"
+                            icon="fa-cogs"/>
+                    <button special="cancel" string="Cancelar"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_co_exogenous_income_cert_batch_wizard" model="ir.actions.act_window">
+        <field name="name">Generar Certificados en Lote</field>
+        <field name="res_model">l10n_co.exogenous_income_cert_batch_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

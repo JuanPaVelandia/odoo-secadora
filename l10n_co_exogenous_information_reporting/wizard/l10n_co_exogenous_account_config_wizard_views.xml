@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_co_exogenous_account_config_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous.account.config.wizard.form</field>
+        <field name="model">l10n_co.exogenous_account_config_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Configurar cuentas por concepto">
+                <!-- Cabecera: formato y compañía -->
+                <group col="4">
+                    <field name="format_id" options="{'no_create': True}" colspan="1"/>
+                    <field name="company_id" readonly="1" colspan="1"/>
+                    <field name="apply_concepts" invisible="1"/>
+                </group>
+
+                <notebook>
+                    <!-- ============ PESTAÑA: Configuración por concepto ============ -->
+                    <page string="Configuraci&#243;n por concepto" name="config"
+                          invisible="apply_concepts == False">
+
+                        <!-- Navegador de concepto -->
+                        <group col="6" string="Concepto seleccionado">
+                            <field name="concept_id"
+                                   domain="[('format_id', '=', format_id), ('company_id', '=', company_id)]"
+                                   options="{'no_create': True}"
+                                   colspan="2"/>
+                            <field name="concept_name" colspan="2" readonly="1" nolabel="1"
+                                   widget="text" placeholder="Seleccione un concepto..."/>
+                            <button name="action_prev_concept" type="object"
+                                    string="&#9664; Anterior" class="btn-secondary btn-sm"
+                                    icon="fa-arrow-left"/>
+                            <button name="action_next_concept" type="object"
+                                    string="Siguiente &#9654;" class="btn-secondary btn-sm"
+                                    icon="fa-arrow-right"/>
+                        </group>
+                        <group col="4">
+                            <field name="concept_index" string="Concepto #" readonly="1"/>
+                            <field name="concept_count" string="de" readonly="1"/>
+                            <field name="concept_configured" string="Configurados" readonly="1"/>
+                        </group>
+
+                        <!-- Tabla de columnas del formato -->
+                        <separator string="Columnas del formato"/>
+                        <field name="line_ids" nolabel="1" colspan="2">
+                            <list editable="bottom" decoration-warning="account_count == 0"
+                                  decoration-success="account_count > 0">
+                                <field name="field_label" readonly="1" string="Columna del reporte"/>
+                                <field name="field_attribute" readonly="1" string="Attr" optional="hide"/>
+                                <field name="account_pattern" string="Patr&#243;n de cuentas"
+                                       placeholder="Ej: 5105%, 5110%"/>
+                                <field name="account_ids" widget="many2many_tags"
+                                       options="{'no_create': True}"
+                                       string="Cuentas asignadas"/>
+                                <field name="nature_account" string="F&#243;rmula DIAN"/>
+                                <field name="account_count" string="# Ctas"/>
+                                <field name="concept_id" invisible="1"/>
+                                <field name="format_field_id" invisible="1"/>
+                                <field name="config_type" invisible="1"/>
+                            </list>
+                        </field>
+
+                        <!-- Botones de acción para concepto actual -->
+                        <group col="4">
+                            <button name="action_suggest_current" type="object"
+                                    string="Sugerir patrones (este concepto)"
+                                    class="btn-link" icon="fa-lightbulb-o" colspan="2"/>
+                            <button name="action_load_patterns_current" type="object"
+                                    string="Cargar cuentas desde patrones"
+                                    class="btn-link" icon="fa-download" colspan="2"/>
+                        </group>
+                    </page>
+
+                    <!-- ============ PESTAÑA: Campos directos (sin conceptos) ============ -->
+                    <page string="Configuraci&#243;n por campo" name="fields_config"
+                          invisible="apply_concepts != False">
+                        <div class="alert alert-info mb-2" role="alert">
+                            <i class="fa fa-info-circle"/> Este formato no usa conceptos.
+                            Configure las cuentas directamente para cada columna.
+                        </div>
+                        <field name="line_ids" nolabel="1" colspan="2">
+                            <list editable="bottom" decoration-warning="account_count == 0"
+                                  decoration-success="account_count > 0">
+                                <field name="field_label" readonly="1" string="Columna"/>
+                                <field name="account_pattern" string="Patr&#243;n" placeholder="Ej: 5105%"/>
+                                <field name="account_ids" widget="many2many_tags"
+                                       options="{'no_create': True}" string="Cuentas"/>
+                                <field name="nature_account" string="F&#243;rmula"/>
+                                <field name="account_count" string="# Ctas"/>
+                                <field name="format_field_id" invisible="1"/>
+                                <field name="config_type" invisible="1"/>
+                                <field name="concept_id" invisible="1"/>
+                                <field name="field_attribute" invisible="1"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- ============ PESTAÑA: Resumen de todos los conceptos ============ -->
+                    <page string="Resumen conceptos" name="summary"
+                          invisible="apply_concepts == False">
+                        <group col="4">
+                            <button name="action_suggest_all" type="object"
+                                    string="Sugerir patrones para TODOS"
+                                    class="btn-secondary" icon="fa-magic" colspan="2"/>
+                            <button name="action_load_patterns_all" type="object"
+                                    string="Cargar cuentas de TODOS los patrones"
+                                    class="btn-secondary" icon="fa-download" colspan="2"/>
+                        </group>
+                        <field name="summary_ids" nolabel="1" colspan="2">
+                            <list decoration-danger="account_count == 0"
+                                  decoration-success="configured_columns > 0"
+                                  create="0" delete="0">
+                                <field name="code" string="C&#243;digo"/>
+                                <field name="name" string="Concepto"/>
+                                <field name="configured_columns" string="Cols config."/>
+                                <field name="total_columns" string="Total cols."/>
+                                <field name="account_count" string="# Cuentas"/>
+                                <field name="concept_id" invisible="1"/>
+                            </list>
+                        </field>
+                    </page>
+
+                    <!-- ============ PESTAÑA: Ayuda ============ -->
+                    <page string="Ayuda" name="help">
+                        <group colspan="2">
+                            <div class="alert alert-info" role="alert">
+                                <h4>Flujo de configuraci&#243;n</h4>
+                                <ol>
+                                    <li><strong>Seleccionar formato:</strong> Elija el formato DIAN arriba</li>
+                                    <li><strong>Navegar conceptos:</strong> Use el selector o los botones &#9664;/&#9654; para moverse entre conceptos</li>
+                                    <li><strong>Sugerir patrones:</strong> Haga clic en "Sugerir patrones" para autocompletar seg&#250;n PUC colombiano</li>
+                                    <li><strong>Verificar f&#243;rmula:</strong> Revise que la f&#243;rmula DIAN sea correcta para cada columna</li>
+                                    <li><strong>Guardar:</strong> "Guardar concepto" guarda solo el actual. Use "Guardar y siguiente" para avanzar</li>
+                                </ol>
+                                <p class="mb-0"><strong>Masivo:</strong> En la pesta&#241;a "Resumen" puede sugerir y cargar patrones para TODOS los conceptos de una vez.</p>
+                            </div>
+                        </group>
+                        <group colspan="2">
+                            <div class="alert alert-secondary" role="alert">
+                                <h4>Columnas del formato DIAN</h4>
+                                <table class="table table-sm table-bordered mb-2">
+                                    <thead>
+                                        <tr><th>Columna</th><th>Descripci&#243;n</th><th>F&#243;rmula t&#237;pica</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td><strong>pago</strong></td><td>Pago o abono deducible</td><td>DB-CR</td></tr>
+                                        <tr><td><strong>pnded</strong></td><td>Pago NO deducible</td><td>DB-CR</td></tr>
+                                        <tr><td><strong>ided</strong></td><td>IVA mayor valor del costo</td><td>DB (solo d&#233;bitos)</td></tr>
+                                        <tr><td><strong>retp</strong></td><td>Retenci&#243;n practicada renta</td><td>CR-DB (cta 2365%)</td></tr>
+                                        <tr><td><strong>reta</strong></td><td>Retenci&#243;n practicada IVA</td><td>CR-DB (cta 2367%)</td></tr>
+                                        <tr><td><strong>ret</strong></td><td>Retenci&#243;n que le practicaron</td><td>DB-CR (cta 1355%)</td></tr>
+                                        <tr><td><strong>valor</strong></td><td>Valor de la operaci&#243;n</td><td>CR-DB o Base almacenada</td></tr>
+                                        <tr><td><strong>sal</strong></td><td>Saldo a diciembre 31</td><td>DB-CR o CR-DB</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </group>
+                        <group colspan="2">
+                            <div class="alert alert-light" role="alert">
+                                <h5>Uso de patrones</h5>
+                                <ul>
+                                    <li><code>5105%</code> &#8212; Todas las cuentas que empiezan con 5105</li>
+                                    <li><code>5105%, 5110%</code> &#8212; Cuentas 5105xx o 5110xx</li>
+                                    <li><code>51%</code> &#8212; Todo el grupo 51</li>
+                                    <li><code>2365%</code> &#8212; Retenciones en la fuente por pagar</li>
+                                </ul>
+                            </div>
+                        </group>
+                    </page>
+                </notebook>
+
+                <footer>
+                    <button name="action_apply_current" type="object"
+                            string="Guardar concepto" class="btn-primary" icon="fa-save"/>
+                    <button name="action_apply_and_next" type="object"
+                            string="Guardar y siguiente &#9654;" class="btn-primary"
+                            icon="fa-forward"
+                            invisible="apply_concepts == False"/>
+                    <button string="Cerrar" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_l10n_co_exogenous_account_config_wizard" model="ir.actions.act_window">
+        <field name="name">Configurar cuentas por concepto</field>
+        <field name="res_model">l10n_co.exogenous_account_config_wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

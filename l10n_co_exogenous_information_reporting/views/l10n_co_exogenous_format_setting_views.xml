@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_co_exogenous_format_setting_view_search" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.view.search</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field name="arch" type="xml">
+            <search string="Search Format">
+                <field name="format_id"/>
+                <field name="all_account_ids" string="Cuenta"/>
+                <filter domain="[('report_type','=', 'dian')]" name="filter_dian" string="DIAN (Nacional)"/>
+                <filter domain="[('report_type','=', 'district')]" name="filter_district" string="Distrital (ICA)"/>
+                <separator/>
+                <filter domain="[('active','=', False)]" name="inactive" string="Archived"/>
+                <group>
+                    <filter context="{'group_by': 'format_id'}" name="group_format" string="Formato"/>
+                    <filter context="{'group_by': 'company_id'}" groups="base.group_multi_company" name="company_id" string="Empresa"/>
+                </group>
+            </search></field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_view_form" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.view.form</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="1" name="priority"/>
+        <field name="arch" type="xml">
+            <form string="Format">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_load_default_columns" type="object" class="oe_stat_button" icon="fa-columns" invisible="format_id == False">
+                            <span>Cargar columnas</span>
+                        </button>
+                        <button name="action_view_concept_accounts" type="object" class="oe_stat_button" icon="fa-book" invisible="format_id == False or apply_concepts == False">
+                            <field name="concept_count" widget="statinfo" string="Conceptos"/>
+                        </button>
+                        <button name="action_view_concept_accounts" type="object" class="oe_stat_button" icon="fa-list-ol" invisible="format_id == False or apply_concepts != False">
+                            <field name="setting_line_count" widget="statinfo" string="Columnas"/>
+                        </button>
+                        <button name="action_audit_configuration" type="object" class="oe_stat_button" icon="fa-check-circle" invisible="format_id == False">
+                            <span>Auditar</span>
+                        </button>
+                        <button name="action_preview_columns" type="object" class="oe_stat_button" icon="fa-eye" invisible="format_id == False">
+                            <span>Preview</span>
+                        </button>
+                    </div>
+                    <widget bg_color="bg-danger"  name="web_ribbon" title="Archived" invisible="active == True"/>
+                    <group>
+                        <group name="info_left">
+                            <field name="format_id" required="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="company_ids" widget="many2many_tags"
+                                   placeholder="Sucursales / empresas adicionales..."
+                                   groups="base.group_multi_company"/>
+                            <field invisible="1" name="apply_concepts"/>
+                            <field invisible="1" name="active"/>
+                        </group>
+                        <group name="info_right_colab" string="Contrato de colaboración (5247-5252)">
+                            <field name="colaboracion_contract_id"
+                                   options="{'no_create': True}"
+                                   placeholder="Solo aplica para formatos 5247-5252"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="page_format_concepts" string="Configuracion">
+                            <field context="{'format_id': format_id}" name="format_setting_line_ids">
+                                <list editable="bottom" string="Configuracion de campos" decoration-warning="account_count == 0">
+                                    <field  domain="[('format_id', '=', context.get('format_id'))]" name="concept_id" invisible="parent.apply_concepts == False" required="apply_concepts == True"/>
+                                    <field domain="[('format_ids', '=', context.get('format_id')), ('source', '=', 'journal_items')]" name="format_field_id" string="Columna" required="1"/>
+                                    <field name="account_pattern" placeholder="Ej: 24%" string="Patrón %"/>
+                                    <field name="account_ids" widget="many2many_tags" options="{'no_create': True}" string="Cuentas"/>
+                                    <field name="nature_account" string="Naturaleza"/>
+                                    <field name="account_count" string="No. Cuentas"/>
+                                    <field name="move_type_filter" string="Tipo Mov." optional="hide"/>
+                                    <field name="exclude_reconciled" string="Excl.Conc." optional="hide"/>
+                                    <field name="only_with_tax" string="Solo c/imp." optional="hide"/>
+                                    <field name="custom_line_domain" string="Dominio" widget="domain"
+                                           options="{'model': 'account.move.line'}"
+                                           optional="hide" groups="base.group_no_one"/>
+                                    <field name="journal_ids" string="Solo diarios"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}" optional="hide"/>
+                                    <field name="group_by_journal" string="Agrupar/diario" optional="hide"/>
+                                    <field invisible="1" name="format_setting_id"/>
+                                    <field invisible="1" name="apply_concepts"/>
+                                </list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form></field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_view_tree" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.view.tree</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="1" name="priority"/>
+        <field name="arch" type="xml">
+            <list string="Formats">
+                <field name="format_id"/>
+                <field groups="base.group_multi_company" name="company_id"/>
+            </list></field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_action" model="ir.actions.act_window">
+        <field name="name">Formats</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">l10n_co.exogenous_format_setting</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your formats here.
+            </p></field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_generate_view_form" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.generate.view.form</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="100" name="priority"/>
+        <field name="arch" type="xml">
+            <form create="false" delete="false" string="Format">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" icon="fa-file-excel-o" name="generate_and_download_report" string="Generar Excel" type="object"/>
+                        <button class="oe_stat_button" icon="fa-file-code-o" name="generate_and_download_xml" string="Generar XML" type="object" invisible="report_type == 'district'"/>
+                        <button class="oe_stat_button" icon="fa-file-text-o" name="generate_and_download_flat_file" string="Generar Plano" type="object" invisible="report_type != 'district'"/>
+                        <button name="action_view_concept_accounts" type="object" class="oe_stat_button" icon="fa-book" invisible="apply_concepts == False">
+                            <field name="concept_count" widget="statinfo" string="Conceptos"/>
+                        </button>
+                        <button name="action_view_concept_accounts" type="object" class="oe_stat_button" icon="fa-list-ol" invisible="apply_concepts != False">
+                            <field name="setting_line_count" widget="statinfo" string="Columnas"/>
+                        </button>
+                        <button class="oe_stat_button" icon="fa-check-circle" name="action_audit_configuration" string="Auditar" type="object"/>
+                        <button class="oe_stat_button" icon="fa-search" name="action_detail_audit" string="Auxiliar" type="object"/>
+                        <button class="oe_stat_button" icon="fa-users" name="action_partner_audit" string="Aux. Tercero" type="object"/>
+                        <button class="oe_stat_button" icon="fa-file-excel-o" name="action_partner_audit_excel" string="Excel Tercero" type="object"/>
+                        <button class="oe_stat_button" icon="fa-eye" name="action_preview_columns" string="Preview" type="object"/>
+                    </div>
+                    <group  name="group_one" invisible="is_it_with_date_range == False">
+                        <group name="info_right">
+                            <field  name="date_start" invisible="is_it_with_date_range == False" required="is_it_with_date_range == True"/>
+                        </group>
+                        <group name="info_left">
+                            <field  name="date_end" invisible="is_it_with_date_range == False" required="is_it_with_date_range == True"/>
+                        </group>
+                    </group>
+                    <group name="group_uvt">
+                        <group>
+                            <field name="uvt_value" placeholder="Ej: 49799 (2025)"/>
+                        </group>
+                    </group>
+                    <group name="group_partner_grouping">
+                        <group>
+                            <field name="partner_group_field"/>
+                        </group>
+                        <group>
+                            <field name="truncate_to_max_length"/>
+                        </group>
+                    </group>
+                    <group name="group_companies" string="Empresas" groups="base.group_multi_company">
+                        <group colspan="2">
+                            <field name="company_ids" widget="many2many_tags"
+                                   placeholder="Sucursales o empresas adicionales a consolidar..."
+                                   help="Incluye líneas de movimiento de estas empresas en la generación del reporte (ej. sucursales con mismo NIT)."/>
+                        </group>
+                    </group>
+                    <group name="group_two" string="Exclusiones">
+                        <group name="exclusions_left">
+                            <field name="journal_ids" widget="many2many_tags" placeholder="Diarios a excluir..."/>
+                            <field name="partner_ids" widget="many2many_tags" placeholder="Contactos a excluir..."/>
+                            <field name="tax_ids" widget="many2many_tags" placeholder="Impuestos a excluir..."/>
+                        </group>
+                        <group name="exclusions_right">
+                            <field name="use_custom_domain" groups="base.group_no_one"/>
+                        </group>
+                    </group>
+                    <group name="group_custom_domain" string="Modo desarrollador"  groups="base.group_no_one" invisible="use_custom_domain == False">
+                        <group colspan="2">
+                            <div class="alert alert-info mb-2" role="alert">
+                                <p><strong>Dominio personalizado para account.move.line</strong></p>
+                                <p>Escriba un dominio Odoo valido. Ejemplos:</p>
+                                <ul>
+                                    <li><code>[('move_id.move_type', '=', 'entry')]</code> - Solo asientos contables</li>
+                                    <li><code>[('move_id.move_type', 'in', ['out_invoice', 'out_refund'])]</code> - Solo facturas de venta</li>
+                                    <li><code>[('account_id.code', '=like', '4%')]</code> - Solo cuentas de ingresos</li>
+                                    <li><code>[('move_id.ref', '!=', False)]</code> - Solo asientos con referencia</li>
+                                </ul>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="custom_domain" nolabel="1" colspan="2"
+                                   widget="domain"
+                                   options="{'model': 'account.move.line'}"
+                                   placeholder="[('campo', 'operador', 'valor')]"/>
+                        </group>
+                        <group>
+                            <field name="custom_domain_preview" readonly="1"/>
+                            <button name="action_test_custom_domain" string="Probar dominio" type="object" class="btn-secondary" icon="fa-check"/>
+                        </group>
+                    </group>
+                    <group name="group_three">
+                        <group name="info_left">
+                            <field name="format_id" readonly="1"/>
+                            <field invisible="1" name="apply_concepts"/>
+                            <field invisible="1" name="is_it_with_date_range"/>
+                            <field invisible="1" name="report_type"/>
+                        </group>
+                    </group>
+                    <group name="group_four" string="Archivos generados">
+                        <group name="info_left">
+                            <field filename="binary_file_name"  name="binary_file" readonly="1" widget="binary" invisible="binary_file == False"/>
+                            <field invisible="1" name="binary_file_name"/>
+                        </group>
+                        <group name="info_right">
+                            <field filename="xml_file_name"  name="xml_file" readonly="1" widget="binary" invisible="xml_file == False"/>
+                            <field invisible="1" name="xml_file_name"/>
+                            <field name="send_number" string="Número de envío" invisible="report_type == 'district'"/>
+                        </group>
+                    </group>
+                    <group name="group_flat_file" string="Archivo plano" invisible="report_type != 'district'">
+                        <group name="flat_left">
+                            <field filename="flat_file_name"  name="flat_file" readonly="1" widget="binary" invisible="flat_file == False"/>
+                            <field invisible="1" name="flat_file_name"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="page_format_concepts" string="Configuracion">
+                            <field name="format_setting_line_ids" readonly="1">
+                                <list string="Configuracion de campos">
+                                    <field  name="concept_id" invisible="parent.apply_concepts == False"/>
+                                    <field name="format_field_id" string="Columna"/>
+                                    <field name="account_pattern" string="Patrón %"/>
+                                    <field name="account_count" string="No. Cuentas"/>
+                                    <field name="nature_account" string="Naturaleza"/>
+                                    <field name="move_type_filter" string="Tipo Mov." optional="hide"/>
+                                    <field name="exclude_reconciled" string="Excl.Conc." optional="hide"/>
+                                    <field name="only_with_tax" string="Solo c/imp." optional="hide"/>
+                                    <field name="custom_line_domain" string="Dominio" widget="domain"
+                                           options="{'model': 'account.move.line'}"
+                                           optional="hide" groups="base.group_no_one"/>
+                                    <field name="journal_ids" string="Solo diarios"
+                                           widget="many2many_tags"
+                                           options="{'no_create': True}" optional="hide"/>
+                                    <field name="group_by_journal" string="Agrupar/diario" optional="hide"/>
+                                    <field invisible="1" name="format_setting_id"/>
+                                    <field invisible="1" name="apply_concepts"/>
+                                </list></field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form></field>
+    </record>
+    <record id="l10n_co_exogenous_format_setting_generate_view_tree" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.setting.generate.view.tree</field>
+        <field name="model">l10n_co.exogenous_format_setting</field>
+        <field eval="100" name="priority"/>
+        <field name="arch" type="xml">
+            <list create="false" delete="false" string="Formats">
+                <field name="format_id"/>
+                <field name="report_type"/>
+                <field groups="base.group_multi_company" name="company_id"/>
+            </list></field>
+    </record>
+    <record id="l10n_co_exogenous_format_generate_action" model="ir.actions.act_window">
+        <field name="name">Generate format file</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">l10n_co.exogenous_format_setting</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="l10n_co_exogenous_format_setting_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your formats here.
+            </p></field>
+    </record>
+    <record id="action_l10n_co_exogenous_format_setting_generate_view_tree" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="l10n_co_exogenous_format_generate_action"/>
+        <field eval="1" name="sequence"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="l10n_co_exogenous_format_setting_generate_view_tree"/>
+    </record>
+    <record id="action_l10n_co_exogenous_format_setting_generate_view_form" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="l10n_co_exogenous_format_generate_action"/>
+        <field eval="2" name="sequence"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="l10n_co_exogenous_format_setting_generate_view_form"/>
+    </record>
+</odoo>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_l10n_co_exogenous_aml_distribution_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_co.exogenous_aml_distribution_wizard.form</field>
+            <field name="model">l10n_co.exogenous_aml_distribution_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Distribución Exógena">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="apply_mode" widget="radio"/>
+                                <field name="line_count" readonly="1"/>
+                                <field name="move_count" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="line_ids" invisible="1"/>
+                                <field name="move_ids" invisible="1"/>
+                            </group>
+                        </group>
+                        <separator string="Campos a actualizar (marca lo que vas a cambiar)"/>
+                        <group>
+                            <group string="Omitir / Excluir de reportes">
+                                <field name="set_skip"/>
+                                <field name="skip_value"
+                                       invisible="set_skip == False"/>
+                                <field name="set_move_skip"/>
+                                <field name="move_skip_value"
+                                       invisible="set_move_skip == False"/>
+                            </group>
+                            <group string="Asignación manual de columna">
+                                <field name="set_format_field"/>
+                                <field name="format_field_id"
+                                       invisible="set_format_field == False"
+                                       options="{'no_create': True}"/>
+                                <field name="set_secondary_field"/>
+                                <field name="secondary_field_id"
+                                       invisible="set_secondary_field == False"
+                                       options="{'no_create': True}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="Concepto exógena">
+                                <field name="set_concept"/>
+                                <field name="concept_id"
+                                       invisible="set_concept == False"
+                                       options="{'no_create': True}"/>
+                            </group>
+                            <group string="Porcentaje y motivo">
+                                <field name="set_percentage"/>
+                                <field name="percentage"
+                                       invisible="set_percentage == False"/>
+                                <field name="set_reason"/>
+                                <field name="reason"
+                                       invisible="set_reason == False"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply" string="Aplicar" type="object" class="btn-primary"/>
+                        <button string="Cancelar" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_l10n_co_exogenous_aml_distribution_move" model="ir.actions.server">
+            <field name="name">Distribución Exógena</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="binding_model_id" ref="account.model_account_move"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+action = records.action_open_exogenous_distribution_wizard()
+            </field>
+        </record>
+
+        <record id="action_l10n_co_exogenous_aml_distribution_aml" model="ir.actions.server">
+            <field name="name">Distribución Exógena</field>
+            <field name="model_id" ref="account.model_account_move_line"/>
+            <field name="binding_model_id" ref="account.model_account_move_line"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="state">code</field>
+            <field name="code">
+action = records.action_open_exogenous_distribution_wizard()
+            </field>
+        </record>
+    </data>
+</odoo>

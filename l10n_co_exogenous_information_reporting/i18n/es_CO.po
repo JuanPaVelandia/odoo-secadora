@@ -1,0 +1,989 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_co_exogenous_information_reporting
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-12 22:41+0000\n"
+"PO-Revision-Date: 2024-01-12 22:41+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__account_id
+msgid "Account"
+msgstr "Cuenta"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field_account__accumulated
+msgid "Accumulated by"
+msgstr "Acumulado por"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_needaction
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_needaction
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_needaction
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_needaction
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_needaction
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__active
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__active
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__active
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__active
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__active
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_exception_decoration
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_exception_decoration
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_exception_decoration
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_exception_decoration
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_exception_decoration
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_state
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_state
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_state
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_state
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_state
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_type_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_type_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_type_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_type_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_type_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__appendix
+msgid "Appendix"
+msgstr "Anexo"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+msgid "Archived"
+msgstr "Archivado"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_attachment_count
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_attachment_count
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_attachment_count
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_attachment_count
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_attachment_count
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__attribute
+msgid "Attribute"
+msgstr "Atributo"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format_field_account.py:0
+#, python-format
+msgid "Balance"
+msgstr "Balance"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__code
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__code
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__code
+msgid "Code"
+msgstr "Código"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__company_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__company_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__company_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__company_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__company_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__company_id
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+msgid "Company"
+msgstr "Compañía"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__concept_id
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_form
+msgid "Concept"
+msgstr "Concepto"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.actions.act_window,name:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_action
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_concept
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_tree
+msgid "Concepts"
+msgstr "Conceptos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.actions.act_window,help:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_action
+#: model_terms:ir.actions.act_window,help:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_action
+msgid "Create your Document type table here."
+msgstr "Cree aquí su tabla Tipo de documento."
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.actions.act_window,help:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_action
+msgid "Create your concepts here."
+msgstr "Cree aquí sus conceptos."
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.actions.act_window,help:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_action
+#: model_terms:ir.actions.act_window,help:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_generate_action
+#: model_terms:ir.actions.act_window,help:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_action
+msgid "Create your formats here."
+msgstr "Cree aquí sus formatos."
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__create_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__create_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__create_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__create_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__create_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__create_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__create_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__create_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__create_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__create_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__create_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__create_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__create_date
+msgid "Created on"
+msgstr "Creado en"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format_field_account.py:0
+#, python-format
+msgid "Credit"
+msgstr "Crédito"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.submenu_l10n_co_exogenous_information_reporting_contact_settings
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format_field_account.py:0
+#, python-format
+msgid "Debit"
+msgstr "Débito"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format_field_account.py:0
+#, python-format
+msgid "Base"
+msgstr "Base"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__display_name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__display_name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__display_name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__display_name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__display_name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__display_name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__document_type_table_id
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+msgid "Document Type Table"
+msgstr "Tabla de tipos de documentos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__type_document_id
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_search
+msgid "Document type"
+msgstr "Tipo de documento"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_form
+msgid "Document type table"
+msgstr "Tabla de tipos de documentos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.actions.act_window,name:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_action
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_document_type
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_tree
+msgid "Document types"
+msgstr "Tipos de documentos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.actions.act_window,name:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_action
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_document_type_table
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_tree
+msgid "Documents type tables"
+msgstr "Tablas de tipos de documentos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model,name:l10n_co_exogenous_information_reporting.model_l10n_co_exogenous_format_setting
+msgid "Exogenous formats configuration model"
+msgstr "Modelo de configuración de formatos exógenos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_information_reporting_root
+msgid "Exogenous information"
+msgstr "Información exógena"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_form
+msgid "Exogenous information format field"
+msgstr "Campo de formato de información exógena"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.actions.act_window,name:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_action
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_format_field
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_tree
+msgid "Exogenous information format fields"
+msgstr "Campos del formato de información exógena"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_follower_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_follower_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_follower_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_follower_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_follower_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_partner_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_partner_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_partner_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_partner_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_partner_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_type_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_type_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_type_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_type_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_type_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__format_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__format_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__format_id
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.submenu_l10n_co_exogenous_information_reporting_format_settings
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_generate_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_form
+msgid "Format"
+msgstr "Formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__format_id
+msgid "Formats"
+msgstr "Formatos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__source
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_search
+msgid "Source"
+msgstr "Fuente"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__sequence
+msgid "Sequence"
+msgstr "Secuencia"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__format_field_id
+msgid "Format Field"
+msgstr "Campo de formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__format_setting_id
+msgid "Format Setting"
+msgstr "Ajuste de formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__format_setting_line_ids
+msgid "Format Setting Lines"
+msgstr "Líneas de ajuste de formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_generate_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_form
+msgid "Format concepts"
+msgstr "Conceptos de formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.actions.act_window,name:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_action
+#: model:ir.actions.act_window,name:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_action
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_format
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_tree
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_tree
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_generate_view_tree
+msgid "Formats"
+msgstr "Formatos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_format_setting
+msgid "Format configuration"
+msgstr "Configuración formatos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.submenu_l10n_co_exogenous_information_reporting_format_genral_settings
+msgid "Generals"
+msgstr "Generales"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.actions.act_window,name:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_generate_action
+msgid "Generate format file"
+msgstr "Generar archivo de formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.submenu_l10n_co_exogenous_format_generate
+msgid "Generate and download"
+msgstr "Generar y descargar"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_generate_view_form
+msgid "Generate and download report"
+msgstr "Generar y descargar informe"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+msgid "Group By"
+msgstr "Agrupar por"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__has_message
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__has_message
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__has_message
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__has_message
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__has_message
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_exception_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_exception_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_exception_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_exception_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_exception_icon
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_exception_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_exception_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_exception_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_exception_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_exception_icon
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_needaction
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_needaction
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_needaction
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_needaction
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_needaction
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_has_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_has_sms_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_has_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_has_sms_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_has_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_has_sms_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_has_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_has_sms_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_has_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_has_sms_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_has_error
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_is_follower
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_is_follower
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_is_follower
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_is_follower
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_is_follower
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept____last_update
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type____last_update
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table____last_update
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format____last_update
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field____last_update
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting____last_update
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__write_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__write_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__write_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__write_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__write_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__write_uid
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__write_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__write_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__write_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__write_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__write_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__write_date
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_main_attachment_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_main_attachment_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_main_attachment_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_main_attachment_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_main_attachment_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_main_attachment_id
+msgid "Main Attachment"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__max_length
+msgid "Max Length"
+msgstr "Longitud Máxima"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_has_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_has_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_has_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_has_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_has_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model,name:l10n_co_exogenous_information_reporting.model_l10n_co_exogenous_format_setting_line
+msgid ""
+"Model for the configuration of the concepts and categories for the exogenous"
+" reporting lines"
+msgstr ""
+"Modelo de configuración de los conceptos y categorías para "
+" las líneas de información exógenas"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model,name:l10n_co_exogenous_information_reporting.model_l10n_co_exogenous_format
+msgid "Module for the creation of formats required for exogenous information"
+msgstr "Módulo de creación de los formatos necesarios para la información exógena"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__my_activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__my_activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__my_activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__my_activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__my_activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__name
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format.py:0
+#, python-format
+msgid "Name and code must be unique"
+msgstr "El nombre y el código deben ser únicos"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_document_type.py:0
+#, python-format
+msgid "Name, code and document type must be unique"
+msgstr "El nombre, el código y el tipo de documento deben ser únicos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_date_deadline
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_summary
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_summary
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_summary
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_summary
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_summary
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_type_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_type_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_type_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_type_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_type_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_needaction_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_needaction_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_needaction_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_needaction_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_needaction_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_has_error_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_has_error_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_has_error_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_has_error_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_has_error_counter
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_needaction_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_needaction_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_needaction_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_needaction_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_needaction_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_has_error_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_has_error_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_has_error_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_has_error_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_has_error_counter
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_format_generate
+msgid "Generate reports"
+msgstr "Generar informes"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_user_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_user_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_user_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_user_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_user_id
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_user_id
+msgid "Responsible User"
+msgstr "Usuario Responsable"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__message_has_sms_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__message_has_sms_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__message_has_sms_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__message_has_sms_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__message_has_sms_error
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_search
+msgid "Search Concepts"
+msgstr "Buscar conceptos"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_search
+msgid "Search Exogenous information format field"
+msgstr "Buscar Campo de formato de información exógena"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_setting_view_search
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+msgid "Search Format"
+msgstr "Buscar formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_search
+msgid "Search document type"
+msgstr "Buscar tipo de documento"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_search
+msgid "Search document type table"
+msgstr "Buscar tabla de tipo de documento"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.ui.menu,name:l10n_co_exogenous_information_reporting.menu_l10n_co_exogenous_information_reporting_settings
+msgid "Settings"
+msgstr "Configuraciones"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_state
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_state
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_state
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_state
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_state
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__document_type_table_ids
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_search
+msgid "Tables"
+msgstr "Tablas"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model,name:l10n_co_exogenous_information_reporting.model_l10n_co_exogenous_document_type
+msgid ""
+"Template for the creation of detail tables of document types required for "
+"exogenous information formats."
+msgstr ""
+"Plantilla para la creación de cuadros detallados de los tipos de documentos necesarios para los  "
+"formatos de información exógena."
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model,name:l10n_co_exogenous_information_reporting.model_l10n_co_exogenous_concept
+msgid "Template for the creation of exogenous information concepts"
+msgstr "Plantilla para la creación de conceptos de información exógena"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model,name:l10n_co_exogenous_information_reporting.model_l10n_co_exogenous_format_field
+msgid "Template for the creation of fields by format"
+msgstr "Plantilla para la creación de campos por formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model,name:l10n_co_exogenous_information_reporting.model_l10n_co_exogenous_document_type_table
+msgid "Template for the creation of the tables to be used per format"
+msgstr "Plantilla para la creación de las tablas que se utilizarán por formato"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_document_type_table.py:0
+#, python-format
+msgid "The name must be unique"
+msgstr "El nombre debe ser único"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__activity_exception_decoration
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__activity_exception_decoration
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__activity_exception_decoration
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__activity_exception_decoration
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__activity_exception_decoration
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__version
+msgid "Version"
+msgstr "Versión"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__website_message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__website_message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__website_message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__website_message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__website_message_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__website_message_ids
+msgid "Website Messages"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__website_message_ids
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type__website_message_ids
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_document_type_table__website_message_ids
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__website_message_ids
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__website_message_ids
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__website_message_ids
+msgid "Website communication history"
+msgstr ""
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_view_form
+msgid "e.g. 01"
+msgstr "p. ej. 01"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_document_type_table_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_form
+msgid "e.g. Website"
+msgstr "Por ejemplo, el sitio web"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting_line__apply_concepts
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__apply_concepts
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__apply_concepts
+msgid "Apply Concepts?"
+msgstr "Aplica Conceptos?"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format_field.py:0
+#, python-format
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format_field.py:0
+#, python-format
+msgid "Journal Items"
+msgstr "Apuntes contables"
+
+#. module: l10n_co_exogenous_information_reporting
+#. odoo-python
+#: code:addons/l10n_co_exogenous_information_reporting/models/l10n_co_exogenous_format_field.py:0
+#, python-format
+msgid "Resolution
+msgstr "Resolución"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__field_odoo_id
+msgid "Odoo Field"
+msgstr "Campo Odoo"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__field_odoo_internal_id
+msgid "Odoo relational field"
+msgstr "Campo relacional Odoo"
+
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__date_start
+msgid "Start Date"
+msgstr "Fecha Inicio"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__date_end
+msgid "End Date"
+msgstr "Fecha Fin"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__journal_ids
+msgid "Journals to be excluded"
+msgstr "Diarios a excluir"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__applying_smaller_amounts
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+msgid "Applying smaller amounts?"
+msgstr "¿Aplicar cuantías menores?"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__smaller_ammounts
+msgid "Maximum amount"
+msgstr "Monto máximo"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field_account__field_account_ids
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__field_account_ids
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_concept_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_field_view_form
+msgid "Accounts"
+msgstr "Cuentas"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__format_applies_concepts
+msgid "Format applies concepts?"
+msgstr "¿formato aplica conceptos?"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__format_applies_concepts
+msgid ""
+"If this field is selected, the option to select which accounts are "
+"linked to this field is activated."
+msgstr ""
+"Si este campo esta seleccionado, se activa la opción de seleccionar que cuentas están "
+"ligadas a este campo."
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__is_it_with_date_range
+msgid "Is it with date range?"
+msgstr "¿Es con intervalo de fechas?"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model_terms:ir.ui.view,arch_db:l10n_co_exogenous_information_reporting.l10n_co_exogenous_format_view_search
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format__apply_concepts
+msgid "Apply Concepts?"
+msgstr "¿Aplicar conceptos?"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__is_unique_key
+msgid "is it a unique key to format?"
+msgstr "¿Es una clave única del formato?"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__is_unique_key
+msgid ""
+"If selected, it is used for the grouping of information by the "
+"fields that have this selected."
+msgstr ""
+"Si esta seleccionado se usa para la agrupación de la información por los "
+"campos que tengan esto seleccionado."
+
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_setting__partner_ids
+msgid "Contacts to be excluded"
+msgstr "Contactos a excluir"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__applies_to_company
+msgid "Does it apply to companies?"
+msgstr "¿Se aplica a compañía?"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__applies_to_company
+msgid ""
+"If the field is selected it means that this field applies when the type of contact is a company, "
+"e.g. the company name, the check digit."
+msgstr ""
+"Si el campo esta seleccionado quiere decir que este campo aplica cuando el tipo de contacto es una compañía, "
+"por ejemplo la razón social, el dígito de verificación."
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__applies_to_contact
+msgid "Does it apply to natural persons?"
+msgstr "¿Se aplica a persona natural?"
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,help:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_format_field__applies_to_contact
+msgid ""
+"If the field is selected it means that this field applies when the type of contact is a natural person, "
+"e.g. the name, the last name."
+msgstr ""
+"Si el campo está seleccionado significa que este campo se aplica cuando el tipo de contacto es una persona natural, "
+"por ejemplo, el nombre, el apellido."
+
+#. module: l10n_co_exogenous_information_reporting
+#: model:ir.model.fields,field_description:l10n_co_exogenous_information_reporting.field_l10n_co_exogenous_concept__report_with_informan_nit
+msgid "Report with the informant\'s nit?"
+msgstr "¿Informe con la nit del informante?"

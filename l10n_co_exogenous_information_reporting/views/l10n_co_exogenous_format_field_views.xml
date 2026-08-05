@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_co_exogenous_format_field_view_search" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.field.view.search</field>
+        <field name="model">l10n_co.exogenous_format_field</field>
+        <field name="arch" type="xml">
+            <search string="Buscar campos de formato">
+                <field name="name"/>
+                <field name="format_ids" string="Formato" filter_domain="[('format_ids.name', 'ilike', self)]"/>
+                <field name="account_pattern"/>
+                <separator/>
+                <filter string="Con cuentas" name="with_accounts"
+                        domain="[('account_count', '>', 0)]"/>
+                <filter string="Sin cuentas" name="without_accounts"
+                        domain="[('account_count', '=', 0)]"/>
+                <filter string="Con patrón" name="with_pattern"
+                        domain="[('account_pattern', '!=', False)]"/>
+                <separator/>
+                <filter string="Apuntes contables" name="journal_items"
+                        domain="[('source', '=', 'journal_items')]"/>
+                <filter string="Contacto" name="contact"
+                        domain="[('source', '=', 'contact')]"/>
+                <separator/>
+                <filter domain="[('active','=', False)]" name="inactive" string="Archivado"/>
+                <group>
+                    <filter context="{'group_by': 'format_ids'}" name="format_ids" string="Formato"/>
+                    <filter context="{'group_by': 'source'}" name="source" string="Fuente"/>
+                    <filter context="{'group_by': 'nature_account'}" name="nature_account" string="Fórmula"/>
+                    <filter context="{'group_by': 'corte'}" name="corte" string="Corte"/>
+                    <filter context="{'group_by': 'company_id'}" groups="base.group_multi_company" name="company_id" string="Compañía"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+
+    <record id="l10n_co_exogenous_format_field_view_form" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.field.view.form</field>
+        <field name="model">l10n_co.exogenous_format_field</field>
+        <field name="arch" type="xml">
+            <form string="Campo de formato">
+                <field name="company_id" invisible="1"/>
+                <header>
+                    <button name="action_load_accounts_from_pattern"
+                            string="Cargar desde patrón"
+                            type="object"
+                            class="btn-primary"
+                            icon="fa-download" invisible="account_pattern == False or format_applies_concepts != False"/>
+                    <button name="action_view_accounts"
+                            string="Ver cuentas"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-list" invisible="account_count == 0 or format_applies_concepts != False"/>
+                    <button name="action_clear_accounts"
+                            string="Limpiar cuentas"
+                            type="object"
+                            class="btn-secondary"
+                            icon="fa-trash"
+                            
+                            confirm="¿Está seguro de que desea eliminar todas las cuentas?" invisible="account_count == 0 or format_applies_concepts != False"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_accounts"
+                                type="object"
+                                class="oe_stat_button"
+                                icon="fa-list" invisible="account_count == 0 or format_applies_concepts != False">
+                            <field name="account_count" widget="statinfo" string="Cuentas"/>
+                        </button>
+                    </div>
+                    <widget bg_color="bg-danger"  name="web_ribbon" title="Archivado" invisible="active != False"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Nombre del campo" required="1"/>
+                        </h1>
+                        <field name="active" invisible="1"/>
+                    </div>
+                    <group>
+                        <group string="Configuración del campo">
+                            <field name="attribute" required="1"/>
+                            <field name="source" required="1"/>
+                            <field name="format_ids" required="1" widget="many2many_tags"/>
+                            <field name="sequence"/>
+                        </group>
+                        <group string="Opciones">
+                            <field name="is_unique_key" invisible="source == 'journal_items'"/>
+                            <field name="applies_to_company" invisible="source != 'contact'"/>
+                            <field name="applies_to_contact" invisible="source != 'contact'"/>
+                            <field name="format_applies_concepts" invisible="source != 'journal_items'"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <group string="Especificación XSD">
+                        <group>
+                            <field name="xsd_type"/>
+                            <field name="xsd_required"/>
+                            <field name="xsd_pattern" placeholder="Ej: [0-9]{1,18}"/>
+                            <field name="xsd_slice"/>
+                        </group>
+                        <group>
+                            <field name="min_length"/>
+                            <field name="max_length" required="1"/>
+                            <field name="xsd_min_value" placeholder="Valor mínimo"/>
+                            <field name="xsd_max_value" placeholder="Valor máximo"/>
+                        </group>
+                    </group>
+                    <group invisible="source != 'contact'">
+                        <group>
+                            <field name="field_odoo_id" options="{'no_create': True}" required="source == 'contact'"/>
+                            <field name="ttype" invisible="1"/>
+                            <field name="relation" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="field_odoo_internal_id" options="{'no_create': True}" invisible="ttype != 'many2one'" required="ttype == 'many2one'"/>
+                        </group>
+                    </group>
+
+                    <group  string="Columna reporte" invisible="source != 'journal_items'">
+                        <group>
+                            <field name="corte"/>
+                            <field name="nature_account" string="Fórmula DIAN"/>
+                            <field name="applies_smaller_amounts"/>
+                            <field name="formula_source_field_id"
+                                   domain="[('format_ids', 'in', format_ids), ('source', '=', 'journal_items'), ('id', '!=', id)]"
+                                   options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="principal_field_id"
+                                   domain="[('format_ids', 'in', format_ids), ('source', '=', 'journal_items'), ('id', '!=', id)]"
+                                   options="{'no_create': True}"/>
+                            <field name="sign_type"/>
+                            <field name="rounding_type"/>
+                            <field name="default_value" placeholder="Ej: 0"/>
+                        </group>
+                    </group>
+                    <group  string="Límites y porcentaje" invisible="source != 'journal_items'">
+                        <group>
+                            <field name="formula_percentage"/>
+                            <field name="formula_limit_type"/>
+                            <field name="formula_limit_value" invisible="formula_limit_type == 'none'" required="formula_limit_type != 'none'"/>
+                        </group>
+                        <group>
+                            <div class="text-muted" colspan="2">
+                                <small>
+                                    <i class="fa fa-info-circle"/> Opciones de transformación:
+                                    <ul>
+                                        <li><strong>Porcentaje:</strong> Aplica % sobre el valor (ej: 50% para mayor valor)</li>
+                                        <li><strong>Monto fijo:</strong> Limita al monto en COP</li>
+                                        <li><strong>UVT:</strong> Limita al equivalente en UVT (configure valor UVT en el formato)</li>
+                                        <li><strong>Columna origen:</strong> Toma valor de otra columna y aplica transformaciones</li>
+                                    </ul>
+                                </small>
+                            </div>
+                        </group>
+                    </group>
+                    <notebook invisible="format_applies_concepts != False or source != 'journal_items'">
+                        <page string="Configuración de cuentas" name="accounts">
+                            <group string="Carga automática">
+                                <field name="account_pattern" placeholder="Ej: 5105%, 5110%, 5115%"/>
+                                <div class="text-muted" colspan="2">
+                                    <small>
+                                        <i class="fa fa-info-circle"/> Use % como comodín. Separe múltiples patrones con coma.
+                                        <br/>
+                                        <strong>Ejemplos:</strong>
+                                        <ul>
+                                            <li>5105% - Todas las cuentas que empiezan con 5105</li>
+                                            <li>51%, 52% - Cuentas de gastos operacionales</li>
+                                        </ul>
+                                    </small>
+                                </div>
+                            </group>
+                            <group string="Cuentas directas">
+                                <field name="account_ids" nolabel="1" colspan="2"
+                                       widget="many2many_tags"
+                                       options="{'no_create': True}"/>
+                            </group>
+                        </page>
+                        <page string="Filtro de impuestos" name="tax_filter">
+                            <group>
+                                <group string="Tipo de línea">
+                                    <field name="line_tax_filter" widget="radio"/>
+                                </group>
+                                <group string="Filtrar por">
+                                    <field name="tax_group_ids" widget="many2many_tags"
+                                           options="{'no_create': True}"
+                                           placeholder="Ej: IVA, Retención fuente"/>
+                                    <field name="tax_ids_filter" widget="many2many_tags"
+                                           options="{'no_create': True}"
+                                           placeholder="Impuestos específicos"/>
+                                </group>
+                            </group>
+                            <group string="Filtro avanzado por dominio (sobre account.move.line)">
+                                <field name="filter_domain" nolabel="1" colspan="2"
+                                       widget="domain"
+                                       options="{'model': 'account.move.line'}"
+                                       placeholder='[("move_id.move_type","=","out_invoice")]'/>
+                            </group>
+                            <div class="text-muted">
+                                <small>
+                                    <i class="fa fa-info-circle"/> Ejemplos de uso:
+                                    <ul>
+                                        <li><strong>Mayor valor:</strong> Tipo="Solo líneas de impuesto" + Grupo="IVA"</li>
+                                        <li><strong>Retenciones:</strong> Tipo="Solo líneas de impuesto" + Grupo="Retención fuente"</li>
+                                        <li><strong>Base gravable:</strong> Tipo="Solo líneas base" + Impuesto específico</li>
+                                    </ul>
+                                </small>
+                            </div>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_format_field_view_tree" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.format.field.view.tree</field>
+        <field name="model">l10n_co.exogenous_format_field</field>
+        <field name="arch" type="xml">
+            <list string="Campos de formato" decoration-warning="account_count == 0 and source == 'journal_items' and not format_applies_concepts" decoration-danger="xsd_required and not attribute">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="attribute"/>
+                <field name="source"/>
+                <field name="xsd_type" optional="show"/>
+                <field name="xsd_required" optional="show"/>
+                <field name="min_length" optional="hide"/>
+                <field name="max_length"/>
+                <field name="is_unique_key" optional="hide"/>
+                <field name="format_applies_concepts" optional="hide"/>
+                <field name="account_pattern" optional="hide"/>
+                <field name="account_count" string="No. Cuentas" optional="hide"/>
+                <field name="corte" optional="hide"/>
+                <field name="nature_account" string="Fórmula DIAN" optional="hide"/>
+                <field name="applies_smaller_amounts" optional="hide"/>
+                <field name="principal_field_id" optional="hide"/>
+                <field name="sign_type" optional="hide"/>
+                <field name="rounding_type" optional="hide"/>
+                <field name="formula_percentage" optional="hide"/>
+                <field name="formula_limit_type" optional="hide"/>
+                <field name="formula_limit_value" optional="hide"/>
+                <field name="formula_source_field_id" optional="hide"/>
+                <field name="xsd_slice" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_format_field_action" model="ir.actions.act_window">
+        <field name="name">Campos de formato</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">l10n_co.exogenous_format_field</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="l10n_co_exogenous_format_field_view_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configurar campos de formato
+            </p>
+            <p>
+                Los campos definen las columnas que aparecerán en el reporte exógeno.
+                Cuando el formato no usa conceptos, configure las cuentas directamente aquí.
+            </p>
+            <p>
+                <strong>Consejo:</strong> Use el campo "Patrón de cuentas" para cargar
+                múltiples cuentas automáticamente. Ej: 5105%, 5110%
+            </p>
+        </field>
+    </record>
+
+    <record id="action_load_field_accounts_batch" model="ir.actions.server">
+        <field name="name">Cargar cuentas desde patrón</field>
+        <field name="model_id" ref="model_l10n_co_exogenous_format_field"/>
+        <field name="binding_model_id" ref="model_l10n_co_exogenous_format_field"/>
+        <field name="binding_view_types">list</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    records.action_load_accounts_from_pattern()
+        </field>
+    </record>
+
+</odoo>

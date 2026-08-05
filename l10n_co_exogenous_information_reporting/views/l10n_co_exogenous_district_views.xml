@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Search view -->
+    <record id="l10n_co_exogenous_district_view_search" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.district.view.search</field>
+        <field name="model">l10n_co.exogenous_district</field>
+        <field name="arch" type="xml">
+            <search string="Buscar distrito">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department"/>
+                <filter domain="[('active','=', False)]" name="inactive" string="Archivado"/>
+                <group>
+                    <filter context="{'group_by': 'department'}" name="department" string="Departamento"/>
+                    <filter context="{'group_by': 'delimiter'}" name="delimiter" string="Delimitador"/>
+                    <filter context="{'group_by': 'company_id'}" groups="base.group_multi_company" name="company_id" string="Compañía"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Form view -->
+    <record id="l10n_co_exogenous_district_view_form" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.district.view.form</field>
+        <field name="model">l10n_co.exogenous_district</field>
+        <field name="arch" type="xml">
+            <form string="Distrito / Municipio">
+                <sheet>
+                    <widget bg_color="bg-danger"  name="web_ribbon" title="Archivado" invisible="active == True"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" required="1" placeholder="Nombre del municipio"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="info_left" string="Información general">
+                            <field name="code" required="1"/>
+                            <field name="department"/>
+                            <field name="department_code"/>
+                            <field name="active" invisible="1"/>
+                            <field name="document_type_table_id" options="{'no_create': True}"/>
+                            <field groups="base.group_multi_company" name="company_id" options="{'no_create': True}"/>
+                        </group>
+                        <group name="info_right" string="Configuración archivo plano">
+                            <field name="delimiter"/>
+                            <field name="file_extension"/>
+                            <field name="include_header"/>
+                            <field name="text_encoding"/>
+                            <field name="sanitize_text"/>
+                            <field name="max_field_length"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="notes" placeholder="Notas sobre el formato del municipio..."/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree view -->
+    <record id="l10n_co_exogenous_district_view_tree" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.district.view.tree</field>
+        <field name="model">l10n_co.exogenous_district</field>
+        <field name="arch" type="xml">
+            <list string="Distritos / Municipios">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="department"/>
+                <field name="delimiter"/>
+                <field name="file_extension"/>
+                <field name="text_encoding" optional="hide"/>
+                <field name="include_header" optional="hide"/>
+                <field groups="base.group_multi_company" name="company_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="l10n_co_exogenous_district_action" model="ir.actions.act_window">
+        <field name="name">Distritos / Municipios</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">l10n_co.exogenous_district</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Configure los distritos/municipios para exógena ICA.
+            </p>
+        </field>
+    </record>
+</odoo>

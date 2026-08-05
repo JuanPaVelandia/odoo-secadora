@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_co_exogenous_partner_audit_wizard_view_form" model="ir.ui.view">
+        <field name="name">l10n.co.exogenous.partner.audit.wizard.form</field>
+        <field name="model">l10n_co.exogenous_partner_audit_wizard</field>
+        <field name="arch" type="xml">
+            <form string="Auxiliar por Tercero">
+                <header>
+                    <button name="action_generate_partner_detail" string="Generar" type="object" class="btn-primary" icon="fa-refresh"/>
+                    <button name="action_export_excel" string="Exportar Excel" type="object" class="btn-secondary" icon="fa-file-excel-o" invisible="total_lines == False"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="format_id" readonly="1"/>
+                            <field name="company_id" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="partner_filter_id" placeholder="Todos los terceros..."/>
+                        </group>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="total_partners" readonly="1"/>
+                            <field name="total_lines" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="total_debit" readonly="1"/>
+                            <field name="total_credit" readonly="1"/>
+                            <field name="total_formula" readonly="1"/>
+                        </group>
+                    </group>
+                    <group invisible="binary_file == False">
+                        <field name="binary_file" filename="binary_file_name" readonly="1" widget="binary"/>
+                        <field name="binary_file_name" invisible="1"/>
+                    </group>
+                    <notebook>
+                        <page string="Resumen por Tercero" name="page_summary">
+                            <field name="summary_line_ids" readonly="1">
+                                <list string="Resumen por tercero" decoration-bf="line_count > 10">
+                                    <field name="partner_vat" string="NIT/CC"/>
+                                    <field name="partner_name" string="Tercero"/>
+                                    <field name="concept_code" string="Concepto" optional="show"/>
+                                    <field name="field_name" string="Columna"/>
+                                    <field name="formula" string="Formula" optional="hide"/>
+                                    <field name="total_debit" string="Debito" sum="Total"/>
+                                    <field name="total_credit" string="Credito" sum="Total"/>
+                                    <field name="total_formula" string="Valor formula" sum="Total"/>
+                                    <field name="line_count" string="Lineas" sum="Total"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Detalle por Tercero" name="page_detail">
+                            <field name="detail_line_ids" readonly="1">
+                                <list string="Detalle por tercero">
+                                    <field name="partner_vat" string="NIT/CC"/>
+                                    <field name="partner_name" string="Tercero"/>
+                                    <field name="concept_code" string="Concepto" optional="show"/>
+                                    <field name="field_name" string="Columna"/>
+                                    <field name="account_display" string="Cuenta"/>
+                                    <field name="move_display" string="Asiento"/>
+                                    <field name="date" string="Fecha"/>
+                                    <field name="debit" string="Debito" sum="Total"/>
+                                    <field name="credit" string="Credito" sum="Total"/>
+                                    <field name="formula_type" string="Formula" optional="hide"/>
+                                    <field name="formula_value" string="Valor" sum="Total"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =====================================================
+         Acciones de cliente para las 3 vistas OWL
+         ===================================================== -->
+
+    <!-- Vista 1: Dashboard de Terceros -->
+    <record id="action_exogenous_partner_dashboard" model="ir.actions.client">
+        <field name="name">Dashboard de terceros</field>
+        <field name="tag">l10n_co_exogenous.partner_dashboard</field>
+    </record>
+
+    <!-- Vista 2: Auxiliar Resumido por Tercero -->
+    <record id="action_exogenous_partner_summary" model="ir.actions.client">
+        <field name="name">Auxiliar resumido</field>
+        <field name="tag">l10n_co_exogenous.partner_summary</field>
+    </record>
+
+    <!-- Vista 3: Plan de Conceptos-Cuentas -->
+    <record id="action_exogenous_concept_plan" model="ir.actions.client">
+        <field name="name">Plan de conceptos</field>
+        <field name="tag">l10n_co_exogenous.concept_plan</field>
+    </record>
+
+</odoo>

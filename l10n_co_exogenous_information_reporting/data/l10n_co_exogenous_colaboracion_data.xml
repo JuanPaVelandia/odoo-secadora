@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="contract_type_1" model="l10n_co.exogenous_colaboracion_contract_type">
+            <field name="code">1</field>
+            <field name="name">Mandato y/o Administración delegada</field>
+        </record>
+        <record id="contract_type_2" model="l10n_co.exogenous_colaboracion_contract_type">
+            <field name="code">2</field>
+            <field name="name">Consorcio y/o Unión Temporal</field>
+        </record>
+        <record id="contract_type_3" model="l10n_co.exogenous_colaboracion_contract_type">
+            <field name="code">3</field>
+            <field name="name">Exploración y Explotación de hidrocarburos, gases y minerales</field>
+        </record>
+        <record id="contract_type_4" model="l10n_co.exogenous_colaboracion_contract_type">
+            <field name="code">4</field>
+            <field name="name">Joint Venture</field>
+        </record>
+        <record id="contract_type_5" model="l10n_co.exogenous_colaboracion_contract_type">
+            <field name="code">5</field>
+            <field name="name">Cuentas en participación</field>
+        </record>
+        <record id="contract_type_6" model="l10n_co.exogenous_colaboracion_contract_type">
+            <field name="code">6</field>
+            <field name="name">Convenios de cooperación con entidades públicas</field>
+        </record>
+
+        <record id="format_5247" model="l10n_co.exogenous_format">
+            <field name="code">5247</field>
+            <field name="name">Pagos o abonos en cuenta y retenciones practicadas en contratos de colaboración empresarial y otros contratos</field>
+            <field name="version">v1</field>
+            <field name="appendix">Art.41 Res.162 de 2023</field>
+            <field name="year" eval="2025"/>
+            <field name="xml_root_element">mas</field>
+            <field name="xml_element_name">pagos</field>
+            <field name="xsd_version" eval="1"/>
+            <field name="report_type">dian</field>
+            <field name="is_it_with_date_range" eval="True"/>
+            <field name="apply_concepts" eval="True"/>
+            <field name="active" eval="True"/>
+        </record>
+        <record id="format_5248" model="l10n_co.exogenous_format">
+            <field name="code">5248</field>
+            <field name="name">Ingresos recibidos en contratos de colaboración empresarial y otros contratos</field>
+            <field name="version">v1</field>
+            <field name="appendix">Art.41 Res.162 de 2023</field>
+            <field name="year" eval="2025"/>
+            <field name="xml_root_element">mas</field>
+            <field name="xml_element_name">ingresos</field>
+            <field name="xsd_version" eval="1"/>
+            <field name="report_type">dian</field>
+            <field name="is_it_with_date_range" eval="True"/>
+            <field name="apply_concepts" eval="True"/>
+            <field name="active" eval="True"/>
+        </record>
+        <record id="format_5249" model="l10n_co.exogenous_format">
+            <field name="code">5249</field>
+            <field name="name">IVA descontable en contratos de colaboración empresarial y otros contratos</field>
+            <field name="version">v1</field>
+            <field name="appendix">Art.41 Res.162 de 2023</field>
+            <field name="year" eval="2025"/>
+            <field name="xml_root_element">mas</field>
+            <field name="xml_element_name">ivad</field>
+            <field name="xsd_version" eval="1"/>
+            <field name="report_type">dian</field>
+            <field name="is_it_with_date_range" eval="True"/>
+            <field name="apply_concepts" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+        <record id="format_5250" model="l10n_co.exogenous_format">
+            <field name="code">5250</field>
+            <field name="name">IVA generado en contratos de colaboración empresarial y otros contratos</field>
+            <field name="version">v1</field>
+            <field name="appendix">Art.41 Res.162 de 2023</field>
+            <field name="year" eval="2025"/>
+            <field name="xml_root_element">mas</field>
+            <field name="xml_element_name">ivag</field>
+            <field name="xsd_version" eval="1"/>
+            <field name="report_type">dian</field>
+            <field name="is_it_with_date_range" eval="True"/>
+            <field name="apply_concepts" eval="False"/>
+            <field name="active" eval="True"/>
+        </record>
+        <record id="format_5251" model="l10n_co.exogenous_format">
+            <field name="code">5251</field>
+            <field name="name">Saldos cuentas por cobrar a 31 de diciembre en contratos de colaboración empresarial y otros contratos</field>
+            <field name="version">v1</field>
+            <field name="appendix">Art.41 Res.162 de 2023</field>
+            <field name="year" eval="2025"/>
+            <field name="xml_root_element">mas</field>
+            <field name="xml_element_name">saldoscc</field>
+            <field name="xsd_version" eval="1"/>
+            <field name="report_type">dian</field>
+            <field name="is_it_with_date_range" eval="False"/>
+            <field name="apply_concepts" eval="True"/>
+            <field name="active" eval="True"/>
+        </record>
+        <record id="format_5252" model="l10n_co.exogenous_format">
+            <field name="code">5252</field>
+            <field name="name">Saldos de cuentas por pagar al 31 de diciembre en contratos de colaboración empresarial y otros contratos</field>
+            <field name="version">v1</field>
+            <field name="appendix">Art.41 Res.162 de 2023</field>
+            <field name="year" eval="2025"/>
+            <field name="xml_root_element">mas</field>
+            <field name="xml_element_name">saldoscp</field>
+            <field name="xsd_version" eval="1"/>
+            <field name="report_type">dian</field>
+            <field name="is_it_with_date_range" eval="False"/>
+            <field name="apply_concepts" eval="True"/>
+            <field name="active" eval="True"/>
+        </record>
+    </data>
+</odoo>

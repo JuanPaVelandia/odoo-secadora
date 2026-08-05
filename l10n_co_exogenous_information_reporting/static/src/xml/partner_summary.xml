@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="l10n_co_exogenous.PartnerSummary" owl="1">
+    <div class="o_action o_exogenous_partner_summary p-3">
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-4">
+            <div class="flex-grow-1">
+                <h2 class="mb-1 text-success fw-bold">
+                    <i class="fa fa-list-alt me-2"/>Auxiliar Resumido por Tercero
+                </h2>
+                <p class="text-muted mb-0">Vista condensada — exportación directa a Excel</p>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-5">
+                <label class="form-label fw-bold">Configuración de formato</label>
+                <select class="form-select" t-on-change="onSettingChange">
+                    <option value="">— Seleccionar formato —</option>
+                    <t t-foreach="state.formatSettings" t-as="fs" t-key="fs.id">
+                        <option t-att-value="fs.id" t-att-selected="state.selectedSettingId === fs.id">
+                            <t t-esc="fs.format_id[1]"/> (<t t-esc="fs.report_type"/>)
+                        </option>
+                    </t>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Buscar tercero</label>
+                <input type="text" class="form-control"
+                       placeholder="NIT o nombre..."
+                       t-att-value="state.searchQuery"
+                       t-on-input="onSearchChange"/>
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button class="btn btn-primary flex-grow-1"
+                        t-on-click="onGenerate"
+                        t-att-disabled="!state.selectedSettingId or state.loading">
+                    <i class="fa fa-play me-1"/>
+                    <t t-if="state.loading">Generando...</t>
+                    <t t-else="">Generar resumen</t>
+                </button>
+                <button class="btn btn-success"
+                        t-on-click="onExportExcel"
+                        t-att-disabled="state.summaryData.length === 0"
+                        title="Exportar a Excel">
+                    <i class="fa fa-file-excel-o"/>
+                </button>
+            </div>
+        </div>
+
+        <!-- Totals Bar -->
+        <t t-if="state.summaryData.length > 0">
+            <div class="row g-3 mb-4">
+                <div class="col">
+                    <div class="card border-0 shadow-sm bg-primary">
+                        <div class="card-body text-white text-center py-2">
+                            <div class="h4 mb-0 fw-bold"><t t-esc="state.totals.partners"/></div>
+                            <small class="fw-semibold">Terceros</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card border-0 shadow-sm bg-info">
+                        <div class="card-body text-white text-center py-2">
+                            <div class="h4 mb-0 fw-bold"><t t-esc="state.totals.lines"/></div>
+                            <small class="fw-semibold">Líneas</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card border-0 shadow-sm bg-success">
+                        <div class="card-body text-white text-center py-2">
+                            <div class="h5 mb-0 fw-bold"><t t-esc="formatNumber(state.totals.debit)"/></div>
+                            <small class="fw-semibold">Total débito</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card border-0 shadow-sm bg-danger">
+                        <div class="card-body text-white text-center py-2">
+                            <div class="h5 mb-0 fw-bold"><t t-esc="formatNumber(state.totals.credit)"/></div>
+                            <small class="fw-semibold">Total crédito</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card border-0 shadow-sm bg-secondary">
+                        <div class="card-body text-white text-center py-2">
+                            <div class="h5 mb-0 fw-bold"><t t-esc="formatNumber(state.totals.formula)"/></div>
+                            <small class="fw-semibold">Total fórmula</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+
+        <!-- Loading -->
+        <t t-if="state.loading">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"/>
+                <p class="mt-2 text-muted">Procesando auxiliar por tercero...</p>
+            </div>
+        </t>
+
+        <!-- Empty state -->
+        <t t-elif="state.summaryData.length === 0">
+            <div class="text-center py-5">
+                <i class="fa fa-table fa-3x text-muted mb-3 d-block"/>
+                <p class="text-muted">Seleccione un formato y haga clic en "Generar resumen"</p>
+            </div>
+        </t>
+
+        <!-- Collapsible Table -->
+        <t t-else="">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 30px;"></th>
+                            <th>NIT/CC</th>
+                            <th>Tercero</th>
+                            <th class="text-end">Total débito</th>
+                            <th class="text-end">Total crédito</th>
+                            <th class="text-end">Total fórmula</th>
+                            <th class="text-center"># Líneas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="filteredData" t-as="partner" t-key="partner.partner_id">
+                            <!-- Partner row (summary) -->
+                            <tr class="cursor-pointer fw-semibold bg-light"
+                                t-on-click="() => this.onToggleExpand(partner.partner_id)">
+                                <td>
+                                    <i t-att-class="'fa ' + (isExpanded(partner.partner_id) ? 'fa-chevron-down text-primary' : 'fa-chevron-right text-muted')"/>
+                                </td>
+                                <td><t t-esc="partner.vat || '-'"/></td>
+                                <td><t t-esc="partner.name"/></td>
+                                <td class="text-end text-success"><t t-esc="formatNumber(partner.total_debit)"/></td>
+                                <td class="text-end text-danger"><t t-esc="formatNumber(partner.total_credit)"/></td>
+                                <td class="text-end fw-bold text-primary"><t t-esc="formatNumber(partner.total_formula)"/></td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary"><t t-esc="partner.line_count"/></span>
+                                </td>
+                            </tr>
+                            <!-- Detail rows (concepts) -->
+                            <t t-if="isExpanded(partner.partner_id)">
+                                <t t-foreach="partner.concepts" t-as="concept" t-key="concept.concept_code + '-' + concept.field_name">
+                                    <tr class="small bg-light-subtle">
+                                        <td></td>
+                                        <td colspan="2" class="ps-4 text-muted">
+                                            <i class="fa fa-angle-right me-1"/>
+                                            <span class="badge bg-info me-1"><t t-esc="concept.concept_code"/></span>
+                                            <t t-esc="concept.field_name"/>
+                                            <span class="ms-1 text-secondary">(<t t-esc="concept.formula"/>)</span>
+                                        </td>
+                                        <td class="text-end"><t t-esc="formatNumber(concept.debit)"/></td>
+                                        <td class="text-end"><t t-esc="formatNumber(concept.credit)"/></td>
+                                        <td class="text-end"><t t-esc="formatNumber(concept.formula_value)"/></td>
+                                        <td class="text-center"><t t-esc="concept.lines"/></td>
+                                    </tr>
+                                </t>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-muted small mt-2">
+                <t t-esc="filteredData.length"/> terceros
+                <t t-if="state.searchQuery"> (filtrados)</t>
+            </div>
+        </t>
+    </div>
+</t>
+
+</templates>

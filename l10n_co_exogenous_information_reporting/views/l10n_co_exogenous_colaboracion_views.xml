@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_l10n_co_exogenous_colaboracion_contract_type_tree" model="ir.ui.view">
+            <field name="name">l10n_co.exogenous_colaboracion_contract_type.tree</field>
+            <field name="model">l10n_co.exogenous_colaboracion_contract_type</field>
+            <field name="arch" type="xml">
+                <list string="Tipos de contrato" editable="bottom">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="concept_5251_id" options="{'no_create': True}"/>
+                    <field name="concept_5252_id" options="{'no_create': True}"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+        <record id="action_l10n_co_exogenous_colaboracion_contract_type" model="ir.actions.act_window">
+            <field name="name">Tipos de contrato (DIAN)</field>
+            <field name="res_model">l10n_co.exogenous_colaboracion_contract_type</field>
+            <field name="view_mode">list</field>
+        </record>
+
+        <record id="view_l10n_co_exogenous_colaboracion_contract_tree" model="ir.ui.view">
+            <field name="name">l10n_co.exogenous_colaboracion_contract.tree</field>
+            <field name="model">l10n_co.exogenous_colaboracion_contract</field>
+            <field name="arch" type="xml">
+                <list string="Contratos de colaboración">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="contract_type_id"/>
+                    <field name="operator_company_id" groups="base.group_multi_company"/>
+                    <field name="participant_count"/>
+                    <field name="active"/>
+                </list>
+            </field>
+        </record>
+        <record id="view_l10n_co_exogenous_colaboracion_contract_form" model="ir.ui.view">
+            <field name="name">l10n_co.exogenous_colaboracion_contract.form</field>
+            <field name="model">l10n_co.exogenous_colaboracion_contract</field>
+            <field name="arch" type="xml">
+                <form string="Contrato de colaboración">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="Nombre del contrato..."/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="code"/>
+                                <field name="contract_type_id" options="{'no_create': True}"/>
+                                <field name="operator_company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="participant_count"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Partícipes">
+                                <field name="participant_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="partner_id" options="{'no_create': True}"/>
+                                        <field name="participation_pct"/>
+                                        <field name="is_operator"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Cuentas asociadas">
+                                <field name="account_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            </page>
+                            <page string="Notas">
+                                <field name="note" nolabel="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="action_l10n_co_exogenous_colaboracion_contract" model="ir.actions.act_window">
+            <field name="name">Contratos de colaboración</field>
+            <field name="res_model">l10n_co.exogenous_colaboracion_contract</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+    </data>
+</odoo>

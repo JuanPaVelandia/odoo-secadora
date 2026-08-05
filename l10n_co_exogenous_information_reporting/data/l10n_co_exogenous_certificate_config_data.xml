@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ===== Secuencias para consecutivos de certificados ===== -->
+        <record id="seq_certificate_ica" model="ir.sequence">
+            <field name="name">Consecutivo Certificado Retención ICA</field>
+            <field name="code">l10n_co.cert.retention.ica</field>
+            <field name="prefix">ICA/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_certificate_iva" model="ir.sequence">
+            <field name="name">Consecutivo Certificado Retención IVA</field>
+            <field name="code">l10n_co.cert.retention.iva</field>
+            <field name="prefix">IVA/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_certificate_timbre" model="ir.sequence">
+            <field name="name">Consecutivo Certificado Retención Timbre</field>
+            <field name="code">l10n_co.cert.retention.timbre</field>
+            <field name="prefix">TIM/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <record id="seq_certificate_fuente" model="ir.sequence">
+            <field name="name">Consecutivo Certificado Retención en la Fuente</field>
+            <field name="code">l10n_co.cert.retention.fuente</field>
+            <field name="prefix">FTE/</field>
+            <field name="padding">4</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+        </record>
+
+        <!-- ===== Configuración por defecto: Retención de ICA ===== -->
+        <record id="certificate_config_ica" model="l10n_co.exogenous_certificate_config">
+            <field name="certificate_type">ica</field>
+            <field name="report_title">CERTIFICADO DE RETENCIÓN DEL IMPUESTO DE INDUSTRIA Y COMERCIO (ICA)</field>
+            <field name="article">ART. 10 DECRETO 836/91. Recopilado en el artículo 1.6.1.12.12 del DUR 1625 de octubre de 2016.</field>
+            <field name="consecutive_sequence_id" ref="seq_certificate_ica"/>
+        </record>
+
+        <!-- ===== Configuración por defecto: Retención de IVA ===== -->
+        <record id="certificate_config_iva" model="l10n_co.exogenous_certificate_config">
+            <field name="certificate_type">iva</field>
+            <field name="report_title">CERTIFICADO DE RETENCIÓN DE IVA</field>
+            <field name="article">Artículo 381 del Estatuto Tributario. Este certificado se expide en concordancia con las disposiciones legales vigentes.</field>
+            <field name="consecutive_sequence_id" ref="seq_certificate_iva"/>
+        </record>
+
+        <!-- ===== Configuración por defecto: Retención de Timbre ===== -->
+        <record id="certificate_config_timbre" model="l10n_co.exogenous_certificate_config">
+            <field name="certificate_type">timbre</field>
+            <field name="report_title">CERTIFICADO DE RETENCIÓN DE TIMBRE</field>
+            <field name="article">Artículo 518 del Estatuto Tributario. Este certificado se expide en concordancia con las disposiciones legales vigentes.</field>
+            <field name="consecutive_sequence_id" ref="seq_certificate_timbre"/>
+        </record>
+
+        <!-- ===== Configuración por defecto: Retención en la Fuente ===== -->
+        <record id="certificate_config_fuente" model="l10n_co.exogenous_certificate_config">
+            <field name="certificate_type">fuente</field>
+            <field name="report_title">CERTIFICADO DE RETENCIÓN EN LA FUENTE</field>
+            <field name="article">Artículo 381 del Estatuto Tributario. Señor contribuyente: la base certificada corresponde a la sometida a retención durante el periodo gravable según las normas vigentes.</field>
+            <field name="consecutive_sequence_id" ref="seq_certificate_fuente"/>
+        </record>
+
+    </data>
+</odoo>

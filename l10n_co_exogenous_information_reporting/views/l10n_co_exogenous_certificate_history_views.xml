@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="l10n_co_exogenous_certificate_history_tree" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_certificate_history.list</field>
+        <field name="model">l10n_co.exogenous_certificate_history</field>
+        <field name="arch" type="xml">
+            <list decoration-danger="state == 'error'"
+                  decoration-success="state == 'sent'"
+                  decoration-warning="state == 'pending'"
+                  decoration-info="state == 'in_progress'"
+                  multi_edit="1">
+                <!-- v14: <header> con botones masivos no se soporta dentro de <list>.
+                     Las acciones masivas se exponen vía ir.actions.server con
+                     binding_view_types="list" (definir en data/) o desde el form view. -->
+                <field name="certificate_type"/>
+                <field name="partner_id"/>
+                <field name="email"/>
+                <field name="notification_date"/>
+                <field name="send_date"/>
+                <field name="generation_date"/>
+                <field name="user_id"/>
+                <field name="state"
+                       decoration-danger="state == 'error'"
+                       decoration-success="state == 'sent'"
+                       widget="badge"/>
+                <field name="consecutive"/>
+                <field name="city_id" optional="hide"/>
+                <field name="total_base" sum="Total base"/>
+                <field name="total_retained" sum="Total retenido"/>
+                <field name="pdf_file" invisible="1"/>
+                <button name="action_view_pdf" type="object"
+                        string="Ver" icon="fa-file-pdf-o" invisible="pdf_file == False"/>
+                <button name="action_resend_certificate" type="object"
+                        string="Reenviar" icon="fa-envelope"
+                        
+                        confirm="Desea reenviar este certificado?" invisible="state != 'error'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_certificate_history_form" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_certificate_history.form</field>
+        <field name="model">l10n_co.exogenous_certificate_history</field>
+        <field name="arch" type="xml">
+            <form string="Registro de certificado">
+                <header>
+                    <button name="action_regenerate_pdf" type="object"
+                            string="Regenerar PDF"
+                            class="oe_highlight"
+                            icon="fa-refresh" invisible="certificate_data == False"/>
+                    <button name="action_resend_certificate" type="object"
+                            string="Reenviar certificado"
+                            class="oe_highlight"
+                            icon="fa-envelope"
+                            
+                            confirm="Desea reenviar este certificado?" invisible="state not in ('error', 'pending')"/>
+                    <button name="action_view_pdf" type="object"
+                            string="Ver PDF"
+                            icon="fa-file-pdf-o" invisible="pdf_file == False"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="pending,in_progress,sent"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group string="Certificado">
+                            <field name="config_id"/>
+                            <field name="certificate_type"/>
+                            <field name="consecutive"/>
+                            <field name="city_id" invisible="certificate_type != 'ica'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group string="Tercero">
+                            <field name="partner_id"/>
+                            <field name="email"/>
+                            <field name="user_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Período">
+                            <field name="date_from"/>
+                            <field name="date_to"/>
+                            <field name="year"/>
+                        </group>
+                        <group string="Fechas de control">
+                            <field name="generation_date"/>
+                            <field name="notification_date"/>
+                            <field name="send_date"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Valores">
+                            <field name="total_base"/>
+                            <field name="total_retained"/>
+                        </group>
+                        <group string="Archivo">
+                            <field name="pdf_file" filename="pdf_filename"/>
+                            <field name="pdf_filename" invisible="1"/>
+                        </group>
+                    </group>
+                    <group string="Error" invisible="error_message == False">
+                        <field name="error_message" readonly="1"/>
+                    </group>
+                    <field name="certificate_data" invisible="1"/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_certificate_history_search" model="ir.ui.view">
+        <field name="name">l10n_co.exogenous_certificate_history.search</field>
+        <field name="model">l10n_co.exogenous_certificate_history</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="certificate_type"/>
+                <field name="consecutive"/>
+                <field name="email"/>
+                <field name="city_id"/>
+                <separator/>
+                <filter name="ica" string="ICA" domain="[('certificate_type', '=', 'ica')]"/>
+                <filter name="iva" string="IVA" domain="[('certificate_type', '=', 'iva')]"/>
+                <filter name="timbre" string="Timbre" domain="[('certificate_type', '=', 'timbre')]"/>
+                <filter name="fuente" string="Fuente" domain="[('certificate_type', '=', 'fuente')]"/>
+                <separator/>
+                <filter name="sent" string="Enviados" domain="[('state', '=', 'sent')]"/>
+                <filter name="error" string="Con error" domain="[('state', '=', 'error')]"/>
+                <filter name="pending" string="Pendientes" domain="[('state', '=', 'pending')]"/>
+                <separator/>
+                <filter name="this_year" string="Año actual"
+                        domain="[('date_from', '&gt;=', (context_today() - relativedelta(month=1, day=1)).strftime('%%Y-%%m-%%d')),
+                                 ('date_from', '&lt;=', (context_today() + relativedelta(month=12, day=31)).strftime('%%Y-%%m-%%d'))]"/>
+                <separator/>
+                <group>
+                    <filter name="group_type" string="Tipo certificado"
+                            context="{'group_by': 'certificate_type'}"/>
+                    <filter name="group_state" string="Estado"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_partner" string="Tercero"
+                            context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_notification" string="Fecha notificación"
+                            context="{'group_by': 'notification_date:month'}"/>
+                    <filter name="group_year" string="Año gravable"
+                            context="{'group_by': 'year'}"/>
+                    <filter name="group_city" string="Ciudad"
+                            context="{'group_by': 'city_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="l10n_co_exogenous_certificate_history_action" model="ir.actions.act_window">
+        <field name="name">Informe envío masivo de certificados</field>
+        <field name="res_model">l10n_co.exogenous_certificate_history</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="l10n_co_exogenous_certificate_history_search"/>
+        <field name="context">{'create': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay certificados generados
+            </p>
+            <p>
+                Use la opción "Envío masivo de certificados" desde la configuración
+                de certificados para generar y enviar certificados.
+            </p>
+        </field>
+    </record>
+
+</odoo>
