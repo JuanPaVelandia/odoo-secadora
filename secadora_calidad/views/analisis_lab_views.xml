@@ -79,7 +79,12 @@
                                 <group>
                                     <group>
                                         <field name="harina_pct"/>
-                                        <field name="grano_partido_blanco_pct"/>
+                                        <!-- Es el mismo dato de Parámetros
+                                             Principales, no otra medición: se
+                                             muestra aquí para poder capturarlo
+                                             sin cambiar de pestaña. -->
+                                        <field name="grano_partido"
+                                               string="Grano Partido Blanco (%)"/>
                                         <field name="indice_pilada_pct"/>
                                     </group>
                                     <group>

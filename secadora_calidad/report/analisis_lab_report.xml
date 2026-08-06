@@ -127,7 +127,9 @@
                                     </tr>
                                     <tr>
                                         <td><strong>G. Partido Blanco (%)</strong></td>
-                                        <td style="text-align: right;"><span t-field="o.grano_partido_blanco_pct"/></td>
+                                        <!-- Mismo dato que "Grano Partido" de
+                                             los parámetros principales. -->
+                                        <td style="text-align: right;"><span t-field="o.grano_partido"/></td>
                                         <td><strong>Transparencia</strong></td>
                                         <td style="text-align: right;"><span t-field="o.transparencia"/></td>
                                     </tr>

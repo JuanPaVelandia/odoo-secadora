@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Calidad y Laboratorio - Secadora',
-    'version': '19.0.1.5.0',
+    'version': '19.0.1.6.0',
     'category': 'Operations',
     'summary': 'Análisis de calidad de arroz y peso comercial',
     'description': """

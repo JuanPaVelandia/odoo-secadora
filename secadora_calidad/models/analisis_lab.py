@@ -120,7 +120,15 @@ class AnalisisLab(models.Model):
 
     # === Molinería ===
     harina_pct = fields.Float(string='Harina (%)', digits=(5, 2))
-    grano_partido_blanco_pct = fields.Float(string='Grano Partido Blanco (%)', digits=(5, 2))
+    # OBSOLETO: el partido blanco resultó ser el mismo dato que
+    # `grano_partido`, capturado dos veces por estar en pestañas distintas.
+    # Ahora ambas pestañas muestran `grano_partido`. Se conserva la columna
+    # para no perder lo ya capturado; se puede borrar cuando el histórico esté
+    # revisado.
+    grano_partido_blanco_pct = fields.Float(
+        string='Grano Partido Blanco (%) [obsoleto]',
+        digits=(5, 2),
+    )
     indice_pilada_pct = fields.Float(string='Índice de Pilada (%)', digits=(5, 2))
     blancura_kett = fields.Float(string='Blancura (kett)', digits=(5, 2))
     transparencia = fields.Float(string='Transparencia', digits=(5, 2))
