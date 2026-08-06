@@ -126,6 +126,74 @@
         </field>
     </record>
 
+    <!-- Formulario propio: al abrir una factura desde "Facturas por asignar"
+         interesa asignar y desagregar, no el documento contable completo. -->
+    <record id="view_move_form_maintenance_assign" model="ir.ui.view">
+        <field name="name">account.move.form.maintenance.assign</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <form string="Asignar factura a mantenimiento" create="0" delete="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Factura">
+                            <field name="partner_id" readonly="1"/>
+                            <field name="invoice_date" readonly="1"/>
+                            <field name="amount_total" readonly="1"/>
+                            <field name="maintenance_pending_count"
+                                   string="Líneas sin equipo" readonly="1"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                        </group>
+                        <group string="Cómo llegó">
+                            <field name="x_whatsapp_mensaje" readonly="1"
+                                   invisible="not x_whatsapp_mensaje"/>
+                            <field name="x_whatsapp_comprobante_link"
+                                   widget="url" readonly="1"
+                                   invisible="not x_whatsapp_comprobante_link"/>
+                            <field name="x_webviewlink" widget="url"
+                                   readonly="1"
+                                   invisible="not x_webviewlink"/>
+                        </group>
+                    </group>
+                    <group string="Asignar a toda la factura">
+                        <group>
+                            <field name="maintenance_equipment_id"/>
+                            <field name="maintenance_request_id"/>
+                        </group>
+                    </group>
+                    <!-- El monto es editable a propósito: el reparto se piensa
+                         en pesos y al escribirlo se recalcula el porcentaje. -->
+                    <group string="Detalle por línea"
+                           invisible="not maintenance_cost_line_ids">
+                        <field name="maintenance_cost_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="move_line_id" string="Línea"
+                                       domain="[('move_id', '=', parent.id), ('display_type', '=', 'product')]"
+                                       options="{'no_create': True}"/>
+                                <field name="name" string="Concepto"/>
+                                <field name="equipment_id"/>
+                                <field name="request_id"/>
+                                <field name="percentage" string="%"/>
+                                <field name="amount" string="Monto" sum="Total"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </group>
+                    <div class="text-muted"
+                         invisible="not maintenance_cost_line_ids">
+                        Para partir un costo entre varios equipos, agregue una
+                        fila con la misma línea de factura y reparta los montos:
+                        el porcentaje se calcula solo y no puede pasar de 100%
+                        por línea.
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
     <record id="view_move_search_maintenance_assign" model="ir.ui.view">
         <field name="name">account.move.search.maintenance.assign</field>
         <field name="model">account.move</field>
@@ -180,8 +248,8 @@
         </field>
     </record>
 
-    <!-- Vincular la lista propia a la acción, dejando el formulario estándar
-         de factura para cuando haya que repartir entre varios equipos. -->
+    <!-- Vincular las vistas propias a la acción: al abrir una factura desde
+         aquí se entra a la pantalla de asignación, no al documento contable. -->
     <record id="action_maintenance_invoices_to_assign_list" model="ir.actions.act_window.view">
         <field name="sequence">1</field>
         <field name="view_mode">list</field>
@@ -192,7 +260,7 @@
     <record id="action_maintenance_invoices_to_assign_form" model="ir.actions.act_window.view">
         <field name="sequence">2</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="account.view_move_form"/>
+        <field name="view_id" ref="view_move_form_maintenance_assign"/>
         <field name="act_window_id" ref="action_maintenance_invoices_to_assign"/>
     </record>
 
