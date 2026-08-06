@@ -56,12 +56,34 @@
                         Use varias filas solo para repartir el costo entre
                         equipos; el porcentaje debe sumar 100%.
                     </div>
-                    <button name="action_view_cost_lines"
-                            type="object"
-                            string="Ver / editar detalle de costos y OTs"
-                            class="btn-primary"
-                            icon="fa-list"
-                            groups="maintenance.group_equipment_manager"/>
+                    <!-- Detalle real: aquí se desagrega lo que la asignación
+                         general dejó igual para toda la factura. El monto es
+                         editable a propósito — el reparto se piensa en pesos,
+                         y al escribirlo se recalcula el porcentaje. -->
+                    <group string="Detalle por línea"
+                           invisible="not maintenance_cost_line_ids">
+                        <field name="maintenance_cost_line_ids" nolabel="1">
+                            <list editable="bottom">
+                                <field name="move_line_id" string="Línea"
+                                       domain="[('move_id', '=', parent.id), ('display_type', '=', 'product')]"
+                                       options="{'no_create': True}"/>
+                                <field name="name" string="Concepto"/>
+                                <field name="equipment_id"/>
+                                <field name="request_id"/>
+                                <field name="percentage" string="%"/>
+                                <field name="amount" string="Monto"/>
+                                <field name="origin" column_invisible="1"/>
+                                <field name="currency_id" column_invisible="1"/>
+                            </list>
+                        </field>
+                    </group>
+                    <div class="text-muted"
+                         invisible="not maintenance_cost_line_ids">
+                        Para partir un costo entre varios equipos, agregue una
+                        fila con la misma línea de factura y reparta los montos:
+                        el porcentaje se calcula solo y no puede pasar de 100%
+                        por línea.
+                    </div>
                 </page>
             </xpath>
         </field>

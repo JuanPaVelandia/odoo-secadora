@@ -21,6 +21,14 @@ class AccountMove(models.Model):
         'move_id',
         string='Equipos de mantenimiento',
     )
+    maintenance_cost_line_ids = fields.One2many(
+        'maintenance.equipment.cost.line',
+        'move_id',
+        string='Detalle de costos',
+        help='Un costo por cada línea de la factura. Aquí se desagrega: '
+             'partir una línea entre varios equipos, o darle a cada una su '
+             'propia orden de trabajo.',
+    )
     maintenance_pending_count = fields.Integer(
         string='Costos sin equipo',
         compute='_compute_maintenance_pending_count',

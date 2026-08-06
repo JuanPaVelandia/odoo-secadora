@@ -744,6 +744,39 @@ class TestMaintenanceCost(TransactionCase):
         self.assertEqual(sorted(costos.mapped('percentage')), [40.0, 60.0])
         self.assertEqual(costos.request_id, self.request)
 
+    def test_detalle_permite_dividir_un_costo_entre_equipos(self):
+        """Desde el detalle de la factura se parte una línea en dos equipos."""
+        equipo2 = self.env['maintenance.equipment'].create({
+            'name': 'Horno de Secado #4',
+            'category_id': self.category.id,
+        })
+        factura = self._factura_maquinaria_multilinea(
+            '2026-08-15', lineas=1, precio=500000.0)
+        factura.action_post()
+
+        costo = factura.maintenance_cost_line_ids
+        self.assertEqual(len(costo), 1, 'La factura debe traer su costo.')
+
+        # Repartir: 60% al equipo original, 40% a uno nuevo.
+        costo.write({'equipment_id': self.equipment.id, 'percentage': 60.0})
+        factura.write({
+            'maintenance_cost_line_ids': [(0, 0, {
+                'move_line_id': costo.move_line_id.id,
+                'equipment_id': equipo2.id,
+                'percentage': 40.0,
+            })],
+        })
+
+        factura.invalidate_recordset()
+        costos = factura.maintenance_cost_line_ids
+        self.assertEqual(len(costos), 2, 'El costo debió quedar dividido.')
+        self.assertEqual(sorted(costos.mapped('percentage')), [40.0, 60.0])
+        # El total repartido no puede pasar del importe de la línea.
+        self.assertAlmostEqual(
+            sum(costos.mapped('amount')),
+            costo.move_line_id.price_total, places=2,
+            msg='El reparto no cuadra con el total de la línea.')
+
     def test_buscar_facturas_pendientes(self):
         """El filtro 'Pendientes por asignar' debe encontrar la factura."""
         factura = self._factura_maquinaria_multilinea('2026-08-13', lineas=2)
