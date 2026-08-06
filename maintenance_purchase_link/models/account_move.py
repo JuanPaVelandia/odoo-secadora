@@ -325,6 +325,28 @@ class AccountMove(models.Model):
             if vals_list:
                 CostLine.create(vals_list)
 
+    def action_abrir_asignacion(self):
+        """Abrir la pantalla de asignación de esta factura.
+
+        La lista de "Facturas por asignar" es editable, así que el clic en una
+        fila entra a editar la celda en vez de abrir el registro: sin este
+        botón no habría forma de llegar al detalle por línea.
+        """
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': self.name or 'Asignar factura',
+            'res_model': 'account.move',
+            'res_id': self.id,
+            'view_mode': 'form',
+            'views': [(
+                self.env.ref(
+                    'maintenance_purchase_link.view_move_form_maintenance_assign'
+                ).id,
+                'form',
+            )],
+        }
+
     def action_view_cost_lines(self):
         self.ensure_one()
         return {

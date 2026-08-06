@@ -131,6 +131,14 @@
                 <field name="x_webviewlink" widget="url"
                        string="Enlace Drive" optional="hide" readonly="1"/>
                 <field name="currency_id" column_invisible="1"/>
+                <!-- La lista es editable: al hacer clic en una fila se entra a
+                     editar la celda, no se abre el registro. Este botón es la
+                     forma de llegar al detalle por línea. -->
+                <button name="action_abrir_asignacion"
+                        type="object"
+                        string="Ver líneas"
+                        icon="fa-list-ul"
+                        class="btn-link"/>
             </list>
         </field>
     </record>
