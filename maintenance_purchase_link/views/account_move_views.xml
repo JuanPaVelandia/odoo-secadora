@@ -46,7 +46,10 @@
                         <field name="maintenance_equipment_line_ids" nolabel="1">
                             <list editable="bottom">
                                 <field name="equipment_id"/>
-                                <field name="request_id"/>
+                                <field name="request_id"
+                                       domain="[('stage_id.done', '=', False),
+                                                '|', ('equipment_id', '=', equipment_id),
+                                                     ('equipment_id', '=', False)]"/>
                                 <field name="percentage"/>
                             </list>
                         </field>
@@ -69,7 +72,10 @@
                                        options="{'no_create': True}"/>
                                 <field name="name" string="Concepto"/>
                                 <field name="equipment_id"/>
-                                <field name="request_id"/>
+                                <field name="request_id"
+                                       domain="[('stage_id.done', '=', False),
+                                                '|', ('equipment_id', '=', equipment_id),
+                                                     ('equipment_id', '=', False)]"/>
                                 <field name="percentage" string="%"/>
                                 <field name="amount" string="Monto"/>
                                 <field name="origin" column_invisible="1"/>
@@ -115,7 +121,10 @@
                 <field name="maintenance_pending_count" string="Pend."
                        readonly="1"/>
                 <field name="maintenance_equipment_id" string="Equipo"/>
-                <field name="maintenance_request_id" string="Orden de trabajo"/>
+                <field name="maintenance_request_id"
+                       domain="[('stage_id.done', '=', False),
+                                '|', ('equipment_id', '=', maintenance_equipment_id),
+                                     ('equipment_id', '=', False)]" string="Orden de trabajo"/>
                 <field name="amount_total" string="Total" readonly="1" sum="Total"/>
                 <field name="x_whatsapp_comprobante_link" widget="url"
                        string="Comprobante" optional="hide" readonly="1"/>
@@ -161,7 +170,10 @@
                     <group string="Asignar a toda la factura">
                         <group>
                             <field name="maintenance_equipment_id"/>
-                            <field name="maintenance_request_id"/>
+                            <field name="maintenance_request_id"
+                       domain="[('stage_id.done', '=', False),
+                                '|', ('equipment_id', '=', maintenance_equipment_id),
+                                     ('equipment_id', '=', False)]"/>
                         </group>
                     </group>
                     <!-- El monto es editable a propósito: el reparto se piensa
@@ -175,7 +187,10 @@
                                        options="{'no_create': True}"/>
                                 <field name="name" string="Concepto"/>
                                 <field name="equipment_id"/>
-                                <field name="request_id"/>
+                                <field name="request_id"
+                                       domain="[('stage_id.done', '=', False),
+                                                '|', ('equipment_id', '=', equipment_id),
+                                                     ('equipment_id', '=', False)]"/>
                                 <field name="percentage" string="%"/>
                                 <field name="amount" string="Monto" sum="Total"/>
                                 <field name="currency_id" column_invisible="1"/>
