@@ -1,6 +1,6 @@
 {
     'name': 'Planes de Tareas de Mantenimiento',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Maintenance',
     'summary': 'Planes de mantenimiento basados en contadores con generación automática de OTs',
     'description': """

@@ -347,16 +347,6 @@ class AccountMove(models.Model):
             )],
         }
 
-    def action_view_cost_lines(self):
-        self.ensure_one()
-        return {
-            'type': 'ir.actions.act_window',
-            'name': 'Costos asignados',
-            'res_model': 'maintenance.equipment.cost.line',
-            'view_mode': 'list,form',
-            'domain': [('move_id', '=', self.id)],
-        }
-
     @api.model_create_multi
     def create(self, vals_list):
         moves = super().create(vals_list)

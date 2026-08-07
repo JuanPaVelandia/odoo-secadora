@@ -103,7 +103,17 @@
                     </group>
                     <group string="Órdenes de trabajo">
                         <field name="last_request_id"/>
-                        <field name="request_count"/>
+                        <!-- El contador abre las OTs de esta línea: antes era
+                             un número muerto y `action_view_requests` no tenía
+                             quién lo llamara. -->
+                        <button name="action_view_requests"
+                                type="object"
+                                class="btn-link ps-0"
+                                icon="fa-wrench"
+                                invisible="not request_count">
+                            <field name="request_count" nolabel="1"
+                                   string="Ver órdenes de trabajo"/>
+                        </button>
                     </group>
                 </sheet>
             </form>

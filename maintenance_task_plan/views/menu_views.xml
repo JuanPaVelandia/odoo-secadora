@@ -1,48 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Menú padre: Planes de Tareas -->
+    <!--
+        Los contenedores ("Contadores y lecturas", "Configuración") los declara
+        `maintenance_purchase_link`, del que este módulo depende: aquí solo se
+        cuelgan las entradas propias.
+    -->
+
+    <!-- ============ Contadores y lecturas ============ -->
+
+    <!-- Registrar lecturas en masa. Vive con las lecturas de horómetro y no
+         con los planes, porque lo que hace es precisamente crear lecturas
+         (ver update_counters_wizard.action_update). -->
     <menuitem
-        id="menu_task_plan_root"
-        name="Planes de Tareas"
-        parent="maintenance.menu_maintenance_title"
-        sequence="30"
+        id="menu_update_counters"
+        name="Registrar lecturas (masivo)"
+        parent="maintenance_purchase_link.menu_maintenance_counters_root"
+        action="action_update_counters_wizard"
+        sequence="20"
+        groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Planes de Tareas -->
+    <menuitem
+        id="menu_task_plan_line"
+        name="Seguimiento de contadores"
+        parent="maintenance_purchase_link.menu_maintenance_counters_root"
+        action="action_task_plan_line"
+        sequence="30"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <!-- ============ Planes de mantenimiento ============ -->
+
+    <menuitem
+        id="menu_task_plan_root"
+        name="Planes de mantenimiento"
+        parent="maintenance.menu_maintenance_title"
+        sequence="30"
+        groups="maintenance.group_equipment_manager"
+    />
+
     <menuitem
         id="menu_task_plan"
-        name="Planes de Tareas"
+        name="Planes de tareas"
         parent="menu_task_plan_root"
         action="action_task_plan"
         sequence="10"
+        groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Seguimiento de Contadores -->
-    <menuitem
-        id="menu_task_plan_line"
-        name="Seguimiento de Contadores"
-        parent="menu_task_plan_root"
-        action="action_task_plan_line"
-        sequence="20"
-    />
+    <!-- ============ Configuración ============ -->
 
-    <!-- Submenú: Actualizar Contadores -->
-    <menuitem
-        id="menu_update_counters"
-        name="Actualizar Contadores"
-        parent="menu_task_plan_root"
-        action="action_update_counters_wizard"
-        sequence="30"
-    />
-
-    <!-- Configuración: Tipos de Contador -->
     <menuitem
         id="menu_counter_type"
-        name="Tipos de Contador"
+        name="Tipos de contador"
         parent="maintenance.menu_maintenance_configuration"
         action="action_counter_type"
         sequence="20"
+        groups="maintenance.group_equipment_manager"
     />
 
 </odoo>

@@ -1,7 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Menú padre: Costos (bajo Mantenimiento) -->
+    <!--
+        Los menús de mantenimiento se agrupan por lo que uno va a hacer:
+        registrar lecturas, planificar, ver costos, consultar equipos.
+
+        Los contenedores viven aquí aunque algunos de sus hijos los aporte
+        `maintenance_task_plan`: ese módulo depende de este, así que puede
+        colgar de ellos, pero no al revés.
+    -->
+
+    <!-- ============ Equipos (bajo el menú del core) ============ -->
+
+    <menuitem
+        id="menu_equipment_tree"
+        name="Equipos por ubicación"
+        parent="maintenance.menu_equipment_form"
+        action="action_equipment_tree"
+        sequence="20"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <!-- ============ Contadores y lecturas ============ -->
+
+    <menuitem
+        id="menu_maintenance_counters_root"
+        name="Contadores y lecturas"
+        parent="maintenance.menu_maintenance_title"
+        sequence="20"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <menuitem
+        id="menu_horometro_readings"
+        name="Lecturas de horómetro"
+        parent="menu_maintenance_counters_root"
+        action="action_horometro_readings"
+        sequence="10"
+        groups="maintenance.group_equipment_manager"
+    />
+
+    <!-- ============ Costos ============ -->
+
     <menuitem
         id="menu_maintenance_costs_root"
         name="Costos"
@@ -10,54 +50,34 @@
         groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Costos de mantenimiento (modelo unificado) -->
     <menuitem
         id="menu_equipment_cost_lines"
         name="Costos de mantenimiento"
         parent="menu_maintenance_costs_root"
         action="action_equipment_cost_lines"
-        sequence="5"
+        sequence="10"
         groups="maintenance.group_equipment_manager"
     />
 
-    <!-- Submenú: Facturas por asignar -->
     <menuitem
         id="menu_maintenance_invoices_to_assign"
         name="Facturas por asignar"
         parent="menu_maintenance_costs_root"
         action="action_maintenance_invoices_to_assign"
-        sequence="10"
+        sequence="20"
         groups="maintenance.group_equipment_manager"
     />
 
+    <!-- ============ Configuración ============ -->
 
-    <!-- Menú: Equipos agrupados por ubicación -->
-    <menuitem
-        id="menu_equipment_tree"
-        name="Equipos por ubicación"
-        parent="maintenance.menu_maintenance_title"
-        action="action_equipment_tree"
-        sequence="44"
-        groups="maintenance.group_equipment_manager"
-    />
-
-    <!-- Menú: Historial de ubicación de equipos -->
+    <!-- El historial de ubicaciones se consulta de vez en cuando (y desde el
+         propio equipo, con su botón): no necesita sitio en el menú diario. -->
     <menuitem
         id="menu_equipment_location_history"
         name="Historial de ubicaciones"
-        parent="maintenance.menu_maintenance_title"
+        parent="maintenance.menu_maintenance_configuration"
         action="action_equipment_location_history"
-        sequence="46"
-        groups="maintenance.group_equipment_manager"
-    />
-
-    <!-- Submenú: Lecturas de horómetro -->
-    <menuitem
-        id="menu_horometro_readings"
-        name="Lecturas de horómetro"
-        parent="maintenance.menu_maintenance_title"
-        action="action_horometro_readings"
-        sequence="45"
+        sequence="30"
         groups="maintenance.group_equipment_manager"
     />
 
