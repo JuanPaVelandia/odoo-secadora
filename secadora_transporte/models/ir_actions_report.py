@@ -89,7 +89,45 @@ class IrActionsReport(models.Model):
         )
         partes.append(pdf_cierre)
 
+        # Certificaciones bancarias al final, como respaldo de los datos de
+        # cuenta que el reporte ya imprime. Si algo falla aquí se sigue sin
+        # ellas: el giro no puede quedarse sin su orden por un anexo.
+        try:
+            for pdf in self._recolectar_certificaciones(facturas):
+                if _pdf_valido(pdf):
+                    partes.append(pdf)
+                else:
+                    _logger.warning(
+                        'Viajes por pagar: la certificación bancaria no es un '
+                        'PDF válido, se omite del anexo.'
+                    )
+        except Exception as e:
+            _logger.warning(
+                'Viajes por pagar: no se pudieron anexar las certificaciones '
+                'bancarias (%s). El reporte sale sin ellas.', e
+            )
+
         return merge_pdf(partes), 'pdf'
+
+    def _recolectar_certificaciones(self, facturas):
+        """PDFs de certificación bancaria de los beneficiarios del giro.
+
+        Se toma el partner de cada factura —a quien realmente se le consigna,
+        el mismo del bloque "Datos para inscripción del beneficiario"— y no la
+        transportadora del flete, que puede ser un tercero distinto.
+
+        `mapped` ya devuelve cada partner una sola vez, así que un proveedor
+        con varias facturas en el mismo giro aporta UNA certificación.
+        """
+        pdfs = []
+        # sudo: el adjunto vive en el filestore y quien imprime el giro puede
+        # no tener permiso de lectura sobre el contacto; sin esto la
+        # certificación se omitiría en silencio.
+        for partner in facturas.mapped('partner_id').sudo():
+            datos = getattr(partner, 'certificacion_bancaria', False)
+            if datos:
+                pdfs.append(base64.b64decode(datos))
+        return pdfs
 
     def _recolectar_pdfs_facturas(self, facturas):
         """Devuelve la lista de contenidos PDF (bytes) de las facturas, en el

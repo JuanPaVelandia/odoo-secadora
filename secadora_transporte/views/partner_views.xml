@@ -10,9 +10,29 @@
             <field name="arch" type="xml">
                 <xpath expr="//notebook" position="inside">
                     <page string="Transporte">
+                        <!-- Necesario en la vista para poder condicionar el
+                             bloque de certificación a que sea proveedor. -->
+                        <field name="supplier_rank" invisible="1"/>
                         <group>
                             <field name="generar_flete_automatico"/>
                             <field name="flete_pago"/>
+                        </group>
+                        <!-- Solo para proveedores: es el respaldo de la cuenta
+                             a la que se les gira. En agricultores y clientes
+                             solo ensuciaría la ficha. -->
+                        <group string="Certificación bancaria"
+                               invisible="not supplier_rank">
+                            <field name="certificacion_bancaria"
+                                   filename="certificacion_bancaria_nombre"
+                                   string="Archivo (PDF)"/>
+                            <field name="certificacion_bancaria_nombre"
+                                   invisible="1"/>
+                            <field name="certificacion_bancaria_fecha"/>
+                            <div colspan="2" class="text-muted"
+                                 invisible="not certificacion_bancaria">
+                                Se anexa al final de la orden de giro en
+                                Transporte → Tablero → Imprimir.
+                            </div>
                         </group>
                     </page>
                 </xpath>
