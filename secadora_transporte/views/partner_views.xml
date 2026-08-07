@@ -24,7 +24,7 @@
                                invisible="not supplier_rank">
                             <field name="certificacion_bancaria"
                                    filename="certificacion_bancaria_nombre"
-                                   string="Archivo (PDF)"/>
+                                   string="Archivo (PDF o foto)"/>
                             <field name="certificacion_bancaria_nombre"
                                    invisible="1"/>
                             <field name="certificacion_bancaria_fecha"/>

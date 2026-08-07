@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import base64
+import io
 import logging
 
 from odoo import models
@@ -101,10 +102,12 @@ class IrActionsReport(models.Model):
                         'Viajes por pagar: la certificación bancaria no es un '
                         'PDF válido, se omite del anexo.'
                     )
-        except Exception as e:
-            _logger.warning(
+        except Exception:
+            # Con el traceback completo: sin él, un fallo aquí solo se veía
+            # como un reporte sin certificaciones, sin pista de por qué.
+            _logger.exception(
                 'Viajes por pagar: no se pudieron anexar las certificaciones '
-                'bancarias (%s). El reporte sale sin ellas.', e
+                'bancarias. El reporte sale sin ellas.'
             )
 
         return merge_pdf(partes), 'pdf'
@@ -120,14 +123,62 @@ class IrActionsReport(models.Model):
         con varias facturas en el mismo giro aporta UNA certificación.
         """
         pdfs = []
+        partners = facturas.mapped('partner_id')
+        if 'certificacion_bancaria' not in partners._fields:
+            return pdfs
         # sudo: el adjunto vive en el filestore y quien imprime el giro puede
         # no tener permiso de lectura sobre el contacto; sin esto la
         # certificación se omitiría en silencio.
-        for partner in facturas.mapped('partner_id').sudo():
-            datos = getattr(partner, 'certificacion_bancaria', False)
-            if datos:
-                pdfs.append(base64.b64decode(datos))
+        for partner in partners.sudo():
+            datos = partner.certificacion_bancaria
+            if not datos:
+                _logger.info(
+                    'Viajes por pagar: %s no tiene certificación bancaria '
+                    'cargada; no se anexa.', partner.display_name)
+                continue
+            # El campo es `attachment=True`: en lectura devuelve base64, pero
+            # según el contexto puede llegar ya en bytes.
+            contenido = datos if isinstance(datos, bytes) else base64.b64decode(datos)
+            if contenido[:4] != b'%PDF':
+                # La certificación suele llegar por WhatsApp como foto: se
+                # convierte a una hoja para poder unirla al giro.
+                contenido = self._imagen_a_pdf(contenido, partner)
+                if not contenido:
+                    continue
+            pdfs.append(contenido)
+            _logger.info(
+                'Viajes por pagar: se anexa la certificación bancaria de %s.',
+                partner.display_name)
         return pdfs
+
+    def _imagen_a_pdf(self, contenido, partner):
+        """Convierte una imagen a una página PDF tamaño carta.
+
+        Devuelve None si el archivo no es una imagen legible; el giro se
+        imprime igual sin esa certificación.
+        """
+        try:
+            from PIL import Image
+        except ImportError:
+            _logger.warning(
+                'Viajes por pagar: falta Pillow, no se puede convertir la '
+                'certificación de %s (no es PDF). Se omite.',
+                partner.display_name)
+            return None
+        try:
+            imagen = Image.open(io.BytesIO(contenido))
+            # El PDF no admite transparencia ni paleta: se aplana a RGB.
+            if imagen.mode not in ('RGB', 'L'):
+                imagen = imagen.convert('RGB')
+            salida = io.BytesIO()
+            # 72 dpi = puntos PDF, así una foto de móvil entra en la hoja.
+            imagen.save(salida, format='PDF', resolution=72.0)
+            return salida.getvalue()
+        except Exception:
+            _logger.exception(
+                'Viajes por pagar: la certificación de %s no es un PDF ni una '
+                'imagen legible. Se omite del anexo.', partner.display_name)
+            return None
 
     def _recolectar_pdfs_facturas(self, facturas):
         """Devuelve la lista de contenidos PDF (bytes) de las facturas, en el
