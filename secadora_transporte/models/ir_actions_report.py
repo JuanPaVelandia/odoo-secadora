@@ -71,6 +71,28 @@ class IrActionsReport(models.Model):
                 report_ref, res_ids=[factura.id], data=data_grupo
             )
             partes.append(pdf_grupo)
+            # Certificación bancaria del beneficiario, pegada a su orden de
+            # giro: cada proveedor queda con su paquete completo (orden,
+            # certificación, factura y tiquetes) en vez de tener que buscarla
+            # al final del documento.
+            try:
+                for pdf in self._recolectar_certificaciones(factura):
+                    if _pdf_valido(pdf):
+                        partes.append(pdf)
+                    else:
+                        _logger.warning(
+                            'Viajes por pagar: la certificación bancaria de la '
+                            'factura %s no es un PDF válido, se omite.',
+                            factura.name
+                        )
+            except Exception:
+                # Con el traceback completo: sin él, un fallo aquí solo se veía
+                # como un reporte sin certificaciones, sin pista de por qué.
+                _logger.exception(
+                    'Viajes por pagar: no se pudo anexar la certificación '
+                    'bancaria de la factura %s. El reporte sigue sin ella.',
+                    factura.name
+                )
             # PDF físico de la factura, justo detrás. Solo se anexan los
             # válidos; uno corrupto se omite (con warning) sin tumbar el resto.
             for pdf in self._recolectar_pdfs_facturas(factura):
@@ -90,26 +112,6 @@ class IrActionsReport(models.Model):
         )
         partes.append(pdf_cierre)
 
-        # Certificaciones bancarias al final, como respaldo de los datos de
-        # cuenta que el reporte ya imprime. Si algo falla aquí se sigue sin
-        # ellas: el giro no puede quedarse sin su orden por un anexo.
-        try:
-            for pdf in self._recolectar_certificaciones(facturas):
-                if _pdf_valido(pdf):
-                    partes.append(pdf)
-                else:
-                    _logger.warning(
-                        'Viajes por pagar: la certificación bancaria no es un '
-                        'PDF válido, se omite del anexo.'
-                    )
-        except Exception:
-            # Con el traceback completo: sin él, un fallo aquí solo se veía
-            # como un reporte sin certificaciones, sin pista de por qué.
-            _logger.exception(
-                'Viajes por pagar: no se pudieron anexar las certificaciones '
-                'bancarias. El reporte sale sin ellas.'
-            )
-
         return merge_pdf(partes), 'pdf'
 
     def _recolectar_certificaciones(self, facturas):
@@ -119,8 +121,11 @@ class IrActionsReport(models.Model):
         el mismo del bloque "Datos para inscripción del beneficiario"— y no la
         transportadora del flete, que puede ser un tercero distinto.
 
-        `mapped` ya devuelve cada partner una sola vez, así que un proveedor
-        con varias facturas en el mismo giro aporta UNA certificación.
+        `mapped` ya devuelve cada partner una sola vez. Se llama con una sola
+        factura por vez —la certificación va pegada a su orden de giro—, así
+        que un proveedor con varias facturas en el giro la lleva repetida en
+        cada una: es a propósito, cada orden debe poder desprenderse completa
+        para llevarla al banco.
         """
         pdfs = []
         partners = facturas.mapped('partner_id')
