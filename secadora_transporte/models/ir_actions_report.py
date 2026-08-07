@@ -136,9 +136,20 @@ class IrActionsReport(models.Model):
                     'Viajes por pagar: %s no tiene certificación bancaria '
                     'cargada; no se anexa.', partner.display_name)
                 continue
-            # El campo es `attachment=True`: en lectura devuelve base64, pero
-            # según el contexto puede llegar ya en bytes.
-            contenido = datos if isinstance(datos, bytes) else base64.b64decode(datos)
+            # El campo es `attachment=True`: en lectura devuelve el contenido
+            # en base64 —que en Python también es `bytes`, así que mirar el
+            # tipo no basta para saber si ya viene decodificado—. Se decodifica
+            # salvo que el dato ya se vea como archivo crudo.
+            contenido = datos
+            if not self._parece_archivo(contenido):
+                try:
+                    contenido = base64.b64decode(datos, validate=True)
+                except (ValueError, TypeError):
+                    _logger.warning(
+                        'Viajes por pagar: no se pudo decodificar la '
+                        'certificación de %s. Se omite del anexo.',
+                        partner.display_name)
+                    continue
             if contenido[:4] != b'%PDF':
                 # La certificación suele llegar por WhatsApp como foto: se
                 # convierte a una hoja para poder unirla al giro.
@@ -150,6 +161,25 @@ class IrActionsReport(models.Model):
                 'Viajes por pagar: se anexa la certificación bancaria de %s.',
                 partner.display_name)
         return pdfs
+
+    def _parece_archivo(self, datos):
+        """¿El dato ya es el archivo crudo, o viene en base64?
+
+        No basta con mirar el tipo: base64 en Python también es `bytes`. Se
+        reconoce por la firma de los formatos que aquí interesan.
+        """
+        if not isinstance(datos, (bytes, bytearray)):
+            return False
+        firmas = (
+            b'%PDF',           # PDF
+            b'\xff\xd8\xff',   # JPEG
+            b'\x89PNG',        # PNG
+            b'GIF8',           # GIF
+            b'BM',             # BMP
+            b'II*\x00',        # TIFF little endian
+            b'MM\x00*',        # TIFF big endian
+        )
+        return any(bytes(datos[:8]).startswith(f) for f in firmas)
 
     def _imagen_a_pdf(self, contenido, partner):
         """Convierte una imagen a una página PDF tamaño carta.
