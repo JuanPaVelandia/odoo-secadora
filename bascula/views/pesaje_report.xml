@@ -77,13 +77,18 @@
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>FECHA</strong></div>
                         <div style="font-size: 14px; margin-top: 2px;"><strong t-field="o.fecha" t-options='{"format": "dd/MM/yyyy"}'/></div>
                     </div>
+                    <!-- Fecha y hora en dos lineas: un pesaje puede entrar un
+                         dia y salir al siguiente, y con solo la hora no se
+                         distingue. La columna es estrecha para ponerlo junto. -->
                     <div style="float: left; width: 21%; box-sizing: border-box; padding: 8px 10px; border-left: 1px solid #ccc;">
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>ENTRADA</strong></div>
-                        <div style="font-size: 12px; margin-top: 3px;"><span t-field="o.hora_entrada" t-options='{"format": "HH:mm:ss"}'/></div>
+                        <div style="font-size: 11px; margin-top: 3px;"><span t-field="o.hora_entrada" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                        <div style="font-size: 12px;"><span t-field="o.hora_entrada" t-options='{"format": "HH:mm:ss"}'/></div>
                     </div>
                     <div style="float: left; width: 21%; box-sizing: border-box; padding: 8px 10px; border-left: 1px solid #ccc;">
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>SALIDA</strong></div>
-                        <div style="font-size: 12px; margin-top: 3px;"><span t-field="o.hora_salida" t-options='{"format": "HH:mm:ss"}'/></div>
+                        <div style="font-size: 11px; margin-top: 3px;"><span t-field="o.hora_salida" t-options='{"format": "dd/MM/yyyy"}'/></div>
+                        <div style="font-size: 12px;"><span t-field="o.hora_salida" t-options='{"format": "HH:mm:ss"}'/></div>
                     </div>
                     <div style="float: left; width: 31%; box-sizing: border-box; padding: 8px 2px 8px 10px; border-left: 1px solid #ccc;">
                         <div style="font-size: 9px; letter-spacing: 1px;"><strong>ESTADO</strong></div>
