@@ -161,8 +161,14 @@ class MaintenanceTaskPlanLine(models.Model):
                 'description': description,
                 'company_id': company.id,
             }
-            equipo_mant = self.env['maintenance.team'].search(
+            # El equipo de mantenimiento es obligatorio en la OT. Si la
+            # compañía no tiene uno propio se usa cualquiera: los equipos
+            # pueden no tener compañía asignada, y quedarse sin OT por eso
+            # seria peor que asignarle un equipo que luego se corrige.
+            equipo_mant = self.env['maintenance.team'].sudo().search(
                 [('company_id', '=', company.id)], limit=1)
+            if not equipo_mant:
+                equipo_mant = self.env['maintenance.team'].sudo().search([], limit=1)
             if equipo_mant:
                 vals['maintenance_team_id'] = equipo_mant.id
             request = Request.with_company(company).create(vals)

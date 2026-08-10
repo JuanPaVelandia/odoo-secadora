@@ -61,6 +61,23 @@ class TestHorometro(TransactionCase):
         })
         self.assertTrue(reading.triggered_request_id)
 
+    def test_la_ot_generada_trae_equipo_de_mantenimiento(self):
+        """`maintenance_team_id` es obligatorio: sin él la lectura falla.
+
+        No basta con que la OT se cree: si el campo va vacío, Odoo aborta con
+        "Falta el valor requerido para el campo 'Equipo'" y la lectura de
+        horómetro no se puede guardar.
+        """
+        reading = self.env['maintenance.horometro.reading'].create({
+            'equipment_id': self.equipment.id,
+            'value': 600.0,
+        })
+        ot = reading.triggered_request_id
+        self.assertTrue(ot, 'No se generó la orden de trabajo.')
+        self.assertTrue(
+            ot.maintenance_team_id,
+            'La OT nació sin equipo de mantenimiento y ese campo es obligatorio.')
+
     def test_consecutive_triggers(self):
         """Se generan OTs consecutivas cada intervalo."""
         # Primera lectura: 500h → trigger
