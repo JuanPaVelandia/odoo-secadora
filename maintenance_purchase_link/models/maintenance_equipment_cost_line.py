@@ -316,9 +316,17 @@ class MaintenanceEquipmentCostLine(models.Model):
         """
         for rec in self:
             ot = rec.request_id.sudo()
-            if ot and rec.equipment_id and not ot.equipment_id:
-                ot.equipment_id = rec.equipment_id
-                # La compañía sigue al equipo: la OT es trabajo sobre ese
-                # activo, no de quien la registró.
-                if rec.equipment_id.company_id:
-                    ot.company_id = rec.equipment_id.company_id
+            if not (ot and rec.equipment_id and not ot.equipment_id):
+                continue
+            # Equipo y compañía se escriben JUNTOS, en un solo write. Por
+            # separado, Odoo valida el cruce de compañías al poner el equipo
+            # —cuando la OT todavía tiene la anterior— y rechaza la operación
+            # con "inconsistencias en la empresa", aunque la línea siguiente
+            # fuera a corregirla. El coordinador imputa facturas de varias
+            # empresas seguidas, así que este caso es el normal, no el raro.
+            valores = {'equipment_id': rec.equipment_id.id}
+            # La compañía sigue al equipo: la OT es trabajo sobre ese activo,
+            # no de quien la registró.
+            if rec.equipment_id.company_id:
+                valores['company_id'] = rec.equipment_id.company_id.id
+            ot.write(valores)

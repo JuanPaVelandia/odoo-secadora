@@ -511,6 +511,42 @@ class TestMaintenanceCost(TransactionCase):
         self.assertEqual(costo.company_id, otra,
                          'El costo quedó en la compañía equivocada.')
 
+    def test_ot_y_equipo_de_companias_distintas_no_bloquea(self):
+        """Imputar un equipo de otra compañía a la OT no debe dar error.
+
+        El coordinador llena facturas de todas las empresas seguidas, así que
+        que la OT y el equipo nazcan en compañías distintas es lo normal. Al
+        escribir equipo y compañía por separado, Odoo validaba el cruce en el
+        instante intermedio y rechazaba la operación.
+        """
+        otra = self._otra_compania()
+        equipo_otra = self.env['maintenance.equipment'].create({
+            'name': 'Equipo de otra compañía',
+            'category_id': self.category.id,
+            'company_id': otra.id,
+        })
+        # OT en la compañía activa, sin equipo: como nace desde el flujo de
+        # costos.
+        ot = self.env['maintenance.request'].create({
+            'name': 'OT sin equipo',
+            'company_id': self.env.company.id,
+        })
+
+        costo = self.env['maintenance.equipment.cost.line'].create({
+            'equipment_id': equipo_otra.id,
+            'request_id': ot.id,
+            'name': 'Grasa',
+            'date': '2026-08-10',
+            'amount': 50000.0,
+        })
+
+        self.assertEqual(costo.request_id, ot)
+        ot.invalidate_recordset()
+        self.assertEqual(ot.equipment_id, equipo_otra,
+                         'El equipo no bajó a la orden de trabajo.')
+        self.assertEqual(ot.company_id, otra,
+                         'La OT debía quedar en la compañía del equipo.')
+
     def test_factura_anterior_al_pivote_no_crea_costos(self):
         """Antes del corte manda el histórico importado: no duplicar."""
         factura = self._factura_maquinaria('2026-01-15')
