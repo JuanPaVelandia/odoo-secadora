@@ -71,20 +71,8 @@ class MaintenanceHorometroReading(models.Model):
                         ultimo=eq.horometro_last_maintenance,
                     ),
                 }
-                # El equipo de mantenimiento es obligatorio en la OT y no tiene
-                # valor por defecto al crearla por código: sin esto la lectura
-                # falla con "Falta el valor requerido para el campo 'Equipo'".
-                # Se toma el de la compañía del equipo, como hace el plan de
-                # tareas (task_plan_line.py).
-                compania = eq.company_id or self.env.company
-                equipo_mant = self.env['maintenance.team'].sudo().search(
-                    [('company_id', '=', compania.id)], limit=1)
-                if not equipo_mant:
-                    # Los equipos de mantenimiento pueden no tener compañía
-                    # (son de todas): vale cualquiera antes que no crear la OT.
-                    equipo_mant = self.env['maintenance.team'].sudo().search([], limit=1)
-                if equipo_mant:
-                    vals['maintenance_team_id'] = equipo_mant.id
+                # El equipo de mantenimiento (obligatorio) lo pone el `create`
+                # de maintenance.request, que cubre todas las vías de creación.
                 request = self.env['maintenance.request'].create(vals)
                 reading.triggered_request_id = request.id
                 eq.horometro_last_maintenance = reading.value

@@ -511,6 +511,19 @@ class TestMaintenanceCost(TransactionCase):
         self.assertEqual(costo.company_id, otra,
                          'El costo quedó en la compañía equivocada.')
 
+    def test_ot_creada_al_vuelo_trae_equipo_de_mantenimiento(self):
+        """Crear la OT escribiendo su nombre en la lista de facturas.
+
+        Es la vía normal desde "Facturas por asignar": se teclea el nombre y
+        Odoo la crea. `maintenance_team_id` es obligatorio y no tiene default
+        al crear por código, así que sin rellenarlo la operación aborta con
+        "Falta el valor requerido para el campo 'Equipo'".
+        """
+        ot = self.env['maintenance.request'].create({'name': 'OT al vuelo'})
+        self.assertTrue(
+            ot.maintenance_team_id,
+            'La OT nació sin equipo de mantenimiento, que es obligatorio.')
+
     def test_ot_y_equipo_de_companias_distintas_no_bloquea(self):
         """Imputar un equipo de otra compañía a la OT no debe dar error.
 

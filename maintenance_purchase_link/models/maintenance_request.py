@@ -68,7 +68,34 @@ class MaintenanceRequest(models.Model):
             # de la secuencia, que continúa esa misma serie.
             if not vals.get('ot_number'):
                 vals['ot_number'] = self._siguiente_ot_number()
+            # `maintenance_team_id` es obligatorio y no tiene default al crear
+            # por código. Sin esto, escribir el nombre de una OT nueva en el
+            # desplegable de "Facturas por asignar" —la vía normal de crearlas
+            # desde el flujo de costos— aborta con "Falta el valor requerido
+            # para el campo 'Equipo'".
+            if not vals.get('maintenance_team_id'):
+                equipo = self._equipo_mantenimiento_por_defecto(vals)
+                if equipo:
+                    vals['maintenance_team_id'] = equipo
         return super().create(vals_list)
+
+    @api.model
+    def _equipo_mantenimiento_por_defecto(self, vals):
+        """Equipo de mantenimiento de la compañía de la OT, o cualquiera.
+
+        Se prefiere el de su compañía; si no lo hay se toma otro, porque un
+        equipo sin compañía sirve a todas y quedarse sin poder crear la orden
+        sería peor que asignar uno que luego se corrija.
+        """
+        Team = self.env['maintenance.team'].sudo()
+        compania = vals.get('company_id')
+        if not compania and vals.get('equipment_id'):
+            equipo = self.env['maintenance.equipment'].sudo().browse(
+                vals['equipment_id'])
+            compania = equipo.company_id.id
+        compania = compania or self.env.company.id
+        team = Team.search([('company_id', '=', compania)], limit=1)
+        return (team or Team.search([], limit=1)).id or False
 
     @api.depends('ot_number', 'name')
     def _compute_display_name(self):
