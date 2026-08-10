@@ -11,6 +11,7 @@
                 <field name="tipo_servicio_id"/>
                 <field name="peso_entrada"/>
                 <field name="peso_salida_real"/>
+                <field name="observaciones"/>
                 <field name="state" widget="badge"/>
             </list>
         </field>
