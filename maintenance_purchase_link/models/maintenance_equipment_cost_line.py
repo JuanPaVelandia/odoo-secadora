@@ -327,6 +327,20 @@ class MaintenanceEquipmentCostLine(models.Model):
             valores = {'equipment_id': rec.equipment_id.id}
             # La compañía sigue al equipo: la OT es trabajo sobre ese activo,
             # no de quien la registró.
-            if rec.equipment_id.company_id:
-                valores['company_id'] = rec.equipment_id.company_id.id
+            compania = rec.equipment_id.company_id
+            if compania:
+                valores['company_id'] = compania.id
+                # Al cambiar de compañía, el core vacía `maintenance_team_id`
+                # si el equipo de mantenimiento actual era de la anterior
+                # (maintenance.py:298). Como el campo es obligatorio, la
+                # escritura fallaba con "Falta el valor requerido para el
+                # campo 'Equipo'". Se le da el de la compañía nueva en el
+                # mismo write, para que el compute no tenga que adivinarlo.
+                if ot.maintenance_team_id.company_id != compania:
+                    valores['maintenance_team_id'] = (
+                        rec.equipment_id.maintenance_team_id.id
+                        or self.env['maintenance.team'].sudo().search(
+                            [('company_id', '=', compania.id)], limit=1).id
+                        or ot.maintenance_team_id.id
+                    )
             ot.write(valores)

@@ -533,6 +533,14 @@ class TestMaintenanceCost(TransactionCase):
         instante intermedio y rechazaba la operación.
         """
         otra = self._otra_compania()
+        # La compañía destino necesita su propio equipo de mantenimiento: es
+        # el que el core exige tras el cambio de compañía.
+        if not self.env['maintenance.team'].sudo().search(
+                [('company_id', '=', otra.id)], limit=1):
+            self.env['maintenance.team'].sudo().create({
+                'name': 'Mantenimiento (otra compañía)',
+                'company_id': otra.id,
+            })
         equipo_otra = self.env['maintenance.equipment'].create({
             'name': 'Equipo de otra compañía',
             'category_id': self.category.id,
@@ -559,6 +567,15 @@ class TestMaintenanceCost(TransactionCase):
                          'El equipo no bajó a la orden de trabajo.')
         self.assertEqual(ot.company_id, otra,
                          'La OT debía quedar en la compañía del equipo.')
+        # Al cambiar de compañía el core vacía el equipo de mantenimiento si
+        # era de la anterior, y el campo es obligatorio: sin reponerlo, el
+        # write entero falla.
+        self.assertTrue(
+            ot.maintenance_team_id,
+            'La OT se quedó sin equipo de mantenimiento al cambiar de compañía.')
+        self.assertEqual(
+            ot.maintenance_team_id.company_id, otra,
+            'El equipo de mantenimiento debía ser el de la compañía nueva.')
 
     def test_factura_anterior_al_pivote_no_crea_costos(self):
         """Antes del corte manda el histórico importado: no duplicar."""
