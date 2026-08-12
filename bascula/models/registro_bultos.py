@@ -83,9 +83,24 @@ class RegistroBultos(models.Model):
         string='Bodega',
         domain=[('tipo', '=', 'bodega')],
         index=True,
-        help='Bodega donde quedaron los bultos tras despacharlos. Es lo que '
-             'permite saber qué hay en cada una.',
+        default=lambda self: self._bodega_por_defecto(),
+        help='Bodega donde están los bultos. Nacen en la de la secadora y se '
+             'cambian cuando el agricultor se los lleva a la suya.',
     )
+
+    @api.model
+    def _bodega_por_defecto(self):
+        """La bodega de la secadora, configurable en Ajustes.
+
+        Se resuelve por parámetro y no por nombre: renombrar la bodega no debe
+        romper el automatismo.
+        """
+        bodega_id = int(self.env['ir.config_parameter'].sudo().get_param(
+            'bascula.bodega_por_defecto_id', '0') or 0)
+        if not bodega_id:
+            return False
+        bodega = self.env['secadora.lugar'].browse(bodega_id).exists()
+        return bodega.id if bodega else False
 
     fecha = fields.Date(
         string='Fecha Empaque',
@@ -279,6 +294,13 @@ class RegistroBultos(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # El `default` del campo solo actúa en la interfaz; los registros que
+        # crea el tablero al despachar llegan por código y se quedarían sin
+        # bodega, que es justo el caso más frecuente.
+        bodega_defecto = self._bodega_por_defecto()
+        if bodega_defecto:
+            for vals in vals_list:
+                vals.setdefault('bodega_id', bodega_defecto)
         registros = super().create(vals_list)
         registros.mapped('orden_id').recalcular_servicios()
         registros._registrar_ingreso_en_bodega()

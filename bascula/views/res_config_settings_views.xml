@@ -38,6 +38,12 @@
                                     <field name="lugar_planta_id" class="oe_inline"/>
                                 </div>
                             </setting>
+                            <setting help="Los bultos que se empacan nacen en esta bodega y ahí se contabilizan hasta que el agricultor se los lleva a la suya.">
+                                <label for="bodega_por_defecto_id" string="Bodega de la Secadora"/>
+                                <div>
+                                    <field name="bodega_por_defecto_id" class="oe_inline"/>
+                                </div>
+                            </setting>
                         </block>
                         <block title="Transformación de Inventario">
                             <setting help="Factor para calcular cuánto Verde se consume al vender Seco en operaciones propias (compra/venta). Ejemplo: 1.18 significa que 8,500 kg Seco requirieron 10,030 kg Verde.">

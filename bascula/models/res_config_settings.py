@@ -28,6 +28,15 @@ class ResConfigSettings(models.TransientModel):
              'Ejemplo: 1.18 significa que 1 kg Seco requiere 1.18 kg Verde.'
     )
 
+    bodega_por_defecto_id = fields.Many2one(
+        'secadora.lugar',
+        string='Bodega de la Secadora',
+        domain=[('tipo', '=', 'bodega')],
+        config_parameter='bascula.bodega_por_defecto_id',
+        help='Los bultos que se empacan nacen en esta bodega, que es donde '
+             'quedan hasta que el agricultor los despacha a la suya.',
+    )
+
     def action_generate_bascula_api_key(self):
         """Genera una API Key aleatoria segura"""
         # Generar token aleatorio de 32 caracteres
