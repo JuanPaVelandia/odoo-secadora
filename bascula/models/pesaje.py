@@ -785,6 +785,37 @@ class SecadoraPesaje(models.Model):
                 record._aplicar_resumen_despacho()
                 record._trasladar_bultos_a_bodega_destino()
 
+    def unlink(self):
+        """Al borrar un pesaje, deshacer lo que hizo con los bultos.
+
+        El despacho tiene `ondelete='set null'`, así que sin esto quedaba vivo
+        y huérfano: seguía descontando el saldo para siempre, y el registro
+        creado en la bodega destino se quedaba ahí. Borrar un pesaje dejaba el
+        inventario descuadrado por los dos lados.
+        """
+        self._revertir_bultos_del_pesaje()
+        return super().unlink()
+
+    def _revertir_bultos_del_pesaje(self):
+        """Devuelve los bultos al saldo y retira lo trasladado al destino."""
+        Registro = self.env['secadora.registro.bultos'].sudo()
+        Mov = self.env['secadora.movimiento.bultos'].sudo()
+
+        for pesaje in self:
+            # Lo que se creó en la bodega destino se identifica por el
+            # movimiento de traslado que lo acompaña.
+            movs = Mov.search([('notas', '=', f'Pesaje {pesaje.name}')])
+            copias = movs.mapped('registro_bultos_id')
+            movs.unlink()
+            # Solo se retiran las copias intactas: si de esa bodega ya salió
+            # algo, borrarlas escondería un movimiento real.
+            for copia in copias:
+                if copia.exists() and not copia.cantidad_despachada:
+                    copia.unlink()
+
+            # Quitar el descuento devuelve el pendiente a su valor anterior.
+            pesaje.despacho_bultos_ids.unlink()
+
     def _trasladar_bultos_a_bodega_destino(self):
         """Si los bultos van a otra bodega, hacer que aparezcan allá.
 
