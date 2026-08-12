@@ -77,6 +77,14 @@ class MovimientoBultos(models.Model):
         string='Registrado por',
         default=lambda self: self.env.user,
     )
+    pesaje_id = fields.Many2one(
+        'secadora.pesaje',
+        string='Pesaje',
+        ondelete='cascade',
+        index=True,
+        help='El pesaje de salida que trasladó estos bultos. Se guarda como '
+             'referencia y no por su nombre, que Odoo puede reasignar.',
+    )
     # El enlace al flete lo agrega `secadora_transporte`: es ese módulo el que
     # depende de este, no al revés.
     notas = fields.Text(string='Notas')

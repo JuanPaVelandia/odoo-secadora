@@ -804,7 +804,7 @@ class SecadoraPesaje(models.Model):
         for pesaje in self:
             # Lo que se creó en la bodega destino se identifica por el
             # movimiento de traslado que lo acompaña.
-            movs = Mov.search([('notas', '=', f'Pesaje {pesaje.name}')])
+            movs = Mov.search([('pesaje_id', '=', pesaje.id)])
             copias = movs.mapped('registro_bultos_id')
             movs.unlink()
             # Solo se retiran las copias intactas: si de esa bodega ya salió
@@ -837,7 +837,7 @@ class SecadoraPesaje(models.Model):
 
         # Un pesaje se puede reabrir y volver a completar; sin esto el
         # traslado se repetiría y los bultos se multiplicarían en el destino.
-        if Mov.search_count([('notas', '=', f'Pesaje {self.name}')]):
+        if Mov.search_count([('pesaje_id', '=', self.id)]):
             return
 
         for linea in self.despacho_bultos_ids:
@@ -866,6 +866,7 @@ class SecadoraPesaje(models.Model):
                 'bodega_origen_id': origen.bodega_id.id,
                 'bodega_destino_id': destino.id,
                 'cantidad': linea.cantidad,
+                'pesaje_id': self.id,
                 'notas': f'Pesaje {self.name}',
             })
 
