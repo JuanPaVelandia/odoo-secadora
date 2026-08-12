@@ -101,5 +101,26 @@
             </field>
         </record>
 
+        <!-- Las bodegas se crean y consultan aparte: son el sitio donde queda
+             el arroz del agricultor y se buscan a diario, no como el resto del
+             catálogo de lugares. -->
+        <record id="action_secadora_bodega" model="ir.actions.act_window">
+            <field name="name">Bodegas</field>
+            <field name="res_model">secadora.lugar</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('tipo', '=', 'bodega')]</field>
+            <field name="context">{'default_tipo': 'bodega', 'search_default_active': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Registrar una bodega
+                </p>
+                <p>
+                    Las bodegas son los sitios donde queda el arroz despachado.
+                    Indique la empresa dueña para que cada agricultor vea
+                    únicamente las suyas en el inventario de bultos.
+                </p>
+            </field>
+        </record>
+
     </data>
 </odoo>

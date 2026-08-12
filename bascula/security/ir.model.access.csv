@@ -29,3 +29,5 @@ access_secadora_lote_basculero,secadora.lote.basculero,model_secadora_lote,group
 access_secadora_lote_admin,secadora.lote.admin,model_secadora_lote,group_bascula_admin,1,1,1,1
 access_secadora_pesaje_distribucion_basculero,secadora.pesaje.distribucion.basculero,model_secadora_pesaje_distribucion,group_basculero,1,1,1,1
 access_secadora_pesaje_distribucion_admin,secadora.pesaje.distribucion.admin,model_secadora_pesaje_distribucion,group_bascula_admin,1,1,1,1
+access_secadora_movimiento_bultos_basculero,secadora.movimiento.bultos.basculero,model_secadora_movimiento_bultos,group_basculero,1,1,1,0
+access_secadora_movimiento_bultos_admin,secadora.movimiento.bultos.admin,model_secadora_movimiento_bultos,group_bascula_admin,1,1,1,1

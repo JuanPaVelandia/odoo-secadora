@@ -54,6 +54,39 @@ class RegistroBultos(models.Model):
         help='Producto de arroz empacado (ej: Arroz Paddy Seco, Rechazo)'
     )
 
+    # La variedad se venía guardando como texto en `observaciones`, así que no
+    # se podía filtrar ni agrupar por ella. Como campo permite el inventario
+    # por variedad y código, que es lo que se consulta en bodega.
+    variedad_id = fields.Many2one(
+        'secadora.variedad.arroz',
+        string='Variedad',
+        index=True,
+        help='Variedad del arroz empacado. Se toma de los pesajes de entrada '
+             'de la orden, y puede corregirse a mano.',
+    )
+
+    codigo_variedad = fields.Char(
+        string='Código',
+        related='variedad_id.codigo',
+        store=True,
+        help='Código de la variedad, el que identifica la semilla.',
+    )
+
+    es_semilla = fields.Boolean(
+        string='Es Semilla',
+        index=True,
+        help='La semilla se lleva aparte del arroz comercial.',
+    )
+
+    bodega_id = fields.Many2one(
+        'secadora.lugar',
+        string='Bodega',
+        domain=[('tipo', '=', 'bodega')],
+        index=True,
+        help='Bodega donde quedaron los bultos tras despacharlos. Es lo que '
+             'permite saber qué hay en cada una.',
+    )
+
     fecha = fields.Date(
         string='Fecha Empaque',
         required=True,
@@ -220,16 +253,27 @@ class RegistroBultos(models.Model):
 
     @api.onchange('producto_id')
     def _onchange_producto_id(self):
-        if self.producto_id and 'paddy' in (self.producto_id.name or '').lower():
-            pesajes = self.orden_id.pesaje_entrada_ids
-            variedades = pesajes.mapped('variedad_id.name')
-            variedades_unicas = list(dict.fromkeys(v for v in variedades if v))
-            if variedades_unicas:
-                self.observaciones = ', '.join(variedades_unicas)
-            else:
-                self.observaciones = False
-        else:
+        """Traer variedad y semilla desde los pesajes de entrada de la orden.
+
+        Se rellena `variedad_id` cuando la orden trae una sola variedad, que es
+        el caso normal. Si vinieran varias, se deja vacía para que alguien
+        elija: inventar una sería peor que preguntar.
+
+        `observaciones` sigue recibiendo el listado en texto, porque en las
+        cargas mixtas es la única forma de ver todas las variedades juntas.
+        """
+        if not (self.producto_id and 'paddy' in (self.producto_id.name or '').lower()):
             self.observaciones = False
+            return
+
+        pesajes = self.orden_id.pesaje_entrada_ids
+        variedades = pesajes.mapped('variedad_id')
+        self.observaciones = ', '.join(variedades.mapped('name')) or False
+        if len(variedades) == 1:
+            self.variedad_id = variedades
+        # La semilla se marca si algún pesaje de la orden venía como semilla.
+        if any(pesajes.mapped('es_semilla')):
+            self.es_semilla = True
 
     # ==================== MÉTODOS ====================
 
@@ -237,13 +281,56 @@ class RegistroBultos(models.Model):
     def create(self, vals_list):
         registros = super().create(vals_list)
         registros.mapped('orden_id').recalcular_servicios()
+        registros._registrar_ingreso_en_bodega()
         return registros
 
     def write(self, vals):
+        # La bodega anterior hay que leerla ANTES de escribir; después ya se
+        # perdió y el movimiento quedaría sin origen.
+        anteriores = {}
+        if 'bodega_id' in vals:
+            anteriores = {r.id: r.bodega_id for r in self}
+
         res = super().write(vals)
+
         if 'cantidad' in vals:
             self.mapped('orden_id').recalcular_servicios()
+        if 'bodega_id' in vals:
+            self._registrar_cambio_de_bodega(anteriores)
         return res
+
+    # ==================== INVENTARIO EN BODEGA ====================
+
+    def _registrar_ingreso_en_bodega(self):
+        """Deja constancia de los bultos que nacen ya ubicados en una bodega."""
+        Mov = self.env['secadora.movimiento.bultos'].sudo()
+        for rec in self.filtered('bodega_id'):
+            Mov.create({
+                'registro_bultos_id': rec.id,
+                'tipo': 'ingreso',
+                'bodega_destino_id': rec.bodega_id.id,
+                'cantidad': rec.cantidad,
+            })
+
+    def _registrar_cambio_de_bodega(self, anteriores):
+        """Un ingreso si no tenía bodega, un traslado si cambió de sitio.
+
+        Se anota la cantidad pendiente y no la empacada: lo que se mueve entre
+        bodegas es lo que queda, no lo que ya salió.
+        """
+        Mov = self.env['secadora.movimiento.bultos'].sudo()
+        for rec in self:
+            antes = anteriores.get(rec.id)
+            ahora = rec.bodega_id
+            if antes == ahora:
+                continue
+            Mov.create({
+                'registro_bultos_id': rec.id,
+                'tipo': 'traslado' if antes and ahora else 'ingreso',
+                'bodega_origen_id': antes.id if antes else False,
+                'bodega_destino_id': ahora.id if ahora else False,
+                'cantidad': rec.cantidad_pendiente or rec.cantidad,
+            })
 
     def unlink(self):
         es_admin = self.env.user.has_group('bascula.group_bascula_admin')

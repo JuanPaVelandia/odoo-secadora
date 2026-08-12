@@ -11,6 +11,10 @@
                     <field name="cliente_id"/>
                     <field name="orden_id"/>
                     <field name="producto_id"/>
+                    <field name="variedad_id" optional="show"/>
+                    <field name="codigo_variedad" optional="show"/>
+                    <field name="es_semilla" optional="hide"/>
+                    <field name="bodega_id" optional="show"/>
                     <field name="fecha"/>
                     <field name="cantidad" sum="Total Bultos"/>
                     <field name="cantidad_despachada" sum="Total Despachados"/>
@@ -30,12 +34,40 @@
                     <field name="cliente_id"/>
                     <field name="orden_id"/>
                     <field name="producto_id"/>
+                    <field name="variedad_id"/>
+                    <field name="codigo_variedad" string="Código"/>
+                    <field name="bodega_id"/>
+                    <filter name="filter_con_saldo" string="Con saldo"
+                            domain="[('cantidad_pendiente', '&gt;', 0)]"/>
+                    <filter name="filter_semilla" string="Solo semilla"
+                            domain="[('es_semilla', '=', True)]"/>
+                    <filter name="filter_en_bodega" string="Ubicados en bodega"
+                            domain="[('bodega_id', '!=', False)]"/>
+                    <separator/>
+                    <filter name="filter_fecha" string="Fecha de empaque" date="fecha"/>
                     <group>
+                        <filter name="group_bodega" string="Bodega" context="{'group_by': 'bodega_id'}"/>
+                        <filter name="group_variedad" string="Variedad" context="{'group_by': 'variedad_id'}"/>
                         <filter name="group_cliente" string="Dueño / Agricultor" context="{'group_by': 'cliente_id'}"/>
                         <filter name="group_despachado" string="Despachado" context="{'group_by': 'despachado'}"/>
                         <filter name="group_producto" string="Producto" context="{'group_by': 'producto_id'}"/>
+                        <filter name="group_semilla" string="Semilla" context="{'group_by': 'es_semilla'}"/>
                     </group>
                 </search>
+            </field>
+        </record>
+
+        <!-- Pivot: el corte bodega x variedad, que es la pregunta que se hace
+             a diario ("cuánta semilla de cada código hay en cada bodega"). -->
+        <record id="view_registro_bultos_pivot" model="ir.ui.view">
+            <field name="name">secadora.registro.bultos.pivot</field>
+            <field name="model">secadora.registro.bultos</field>
+            <field name="arch" type="xml">
+                <pivot string="Inventario en bodegas">
+                    <field name="bodega_id" type="row"/>
+                    <field name="variedad_id" type="col"/>
+                    <field name="cantidad_pendiente" type="measure"/>
+                </pivot>
             </field>
         </record>
 
@@ -46,6 +78,27 @@
             <field name="view_mode">list</field>
             <field name="search_view_id" ref="view_registro_bultos_search"/>
             <field name="context">{'search_default_group_cliente': 1}</field>
+        </record>
+
+        <record id="action_inventario_bultos" model="ir.actions.act_window">
+            <field name="name">Inventario en bodegas</field>
+            <field name="res_model">secadora.registro.bultos</field>
+            <field name="view_mode">list,pivot</field>
+            <field name="search_view_id" ref="view_registro_bultos_search"/>
+            <field name="context">{
+                'search_default_filter_con_saldo': 1,
+                'search_default_group_bodega': 1,
+                'search_default_group_variedad': 1,
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Todavía no hay bultos con saldo en bodega
+                </p>
+                <p>
+                    Aquí se ve cuántos bultos quedan en cada bodega, por variedad
+                    y código. El saldo baja solo cuando un flete sale de la bodega.
+                </p>
+            </field>
         </record>
 
     </data>

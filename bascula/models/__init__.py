@@ -13,6 +13,7 @@ from . import pesaje_distribucion
 from . import res_config_settings
 from . import orden_servicio
 from . import registro_bultos
+from . import movimiento_bultos
 from . import despacho_bultos
 from . import orden_servicio_linea
 from . import servicio_regla

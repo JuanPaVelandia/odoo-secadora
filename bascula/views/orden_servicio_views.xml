@@ -144,6 +144,12 @@
                                       decoration-muted="despachado">
                                     <field name="fecha"/>
                                     <field name="producto_id"/>
+                                    <field name="variedad_id" optional="show"/>
+                                    <field name="codigo_variedad" optional="hide"/>
+                                    <field name="es_semilla" optional="hide"/>
+                                    <!-- Dónde quedan los bultos: es lo que
+                                         alimenta el inventario en bodegas. -->
+                                    <field name="bodega_id" optional="show"/>
                                     <field name="producto_empaque_id"/>
                                     <field name="cantidad" sum="Total Bultos"/>
                                     <field name="peso_promedio"/>

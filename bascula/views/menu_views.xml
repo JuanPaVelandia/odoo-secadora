@@ -52,6 +52,20 @@
                   action="action_registro_bultos"
                   sequence="25"/>
 
+        <!-- Lo que hay hoy en cada bodega, que es una pregunta distinta de
+             "qué se empacó": esta mira el saldo, aquella el histórico. -->
+        <menuitem id="menu_bascula_inventario_bultos"
+                  name="Inventario en bodegas"
+                  parent="menu_bascula_root"
+                  action="action_inventario_bultos"
+                  sequence="26"/>
+
+        <menuitem id="menu_bascula_movimientos_bultos"
+                  name="Movimientos de bultos"
+                  parent="menu_bascula_root"
+                  action="action_movimiento_bultos"
+                  sequence="27"/>
+
         <!-- Menú: Configuración -->
         <menuitem id="menu_bascula_configuracion"
                   name="Configuración"
@@ -88,6 +102,12 @@
                   parent="menu_bascula_configuracion"
                   action="action_secadora_variedad_arroz"
                   sequence="40"/>
+
+        <menuitem id="menu_bascula_bodegas"
+                  name="Bodegas"
+                  parent="menu_bascula_configuracion"
+                  action="action_secadora_bodega"
+                  sequence="45"/>
 
         <menuitem id="menu_bascula_lugares"
                   name="Lugares (Origen/Destino)"
