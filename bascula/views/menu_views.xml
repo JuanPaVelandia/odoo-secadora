@@ -45,26 +45,33 @@
                   action="action_orden_servicio"
                   sequence="20"/>
 
-        <!-- Menú: Bultos Empacados -->
+        <!-- Bultos: agrupados como los pesajes. Son tres vistas del mismo
+             tema —lo empacado, lo que queda y cómo se movió— y sueltas en la
+             raíz competían con Pesajes y Órdenes de Servicio. -->
+        <menuitem id="menu_bascula_bultos"
+                  name="Bultos"
+                  parent="menu_bascula_root"
+                  sequence="25"/>
+
         <menuitem id="menu_bascula_bultos_empacados"
                   name="Bultos Empacados"
-                  parent="menu_bascula_root"
+                  parent="menu_bascula_bultos"
                   action="action_registro_bultos"
-                  sequence="25"/>
+                  sequence="10"/>
 
         <!-- Lo que hay hoy en cada bodega, que es una pregunta distinta de
              "qué se empacó": esta mira el saldo, aquella el histórico. -->
         <menuitem id="menu_bascula_inventario_bultos"
                   name="Inventario en bodegas"
-                  parent="menu_bascula_root"
+                  parent="menu_bascula_bultos"
                   action="action_inventario_bultos"
-                  sequence="26"/>
+                  sequence="20"/>
 
         <menuitem id="menu_bascula_movimientos_bultos"
-                  name="Movimientos de bultos"
-                  parent="menu_bascula_root"
+                  name="Movimientos"
+                  parent="menu_bascula_bultos"
                   action="action_movimiento_bultos"
-                  sequence="27"/>
+                  sequence="30"/>
 
         <!-- Menú: Configuración -->
         <menuitem id="menu_bascula_configuracion"
