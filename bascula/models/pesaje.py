@@ -783,6 +783,60 @@ class SecadoraPesaje(models.Model):
             if record.despacho_bultos_ids:
                 record.despacho_bultos_ids.write({'confirmado': True})
                 record._aplicar_resumen_despacho()
+                record._trasladar_bultos_a_bodega_destino()
+
+    def _trasladar_bultos_a_bodega_destino(self):
+        """Si los bultos van a otra bodega, hacer que aparezcan allá.
+
+        Sin esto el despacho solo restaba: los bultos bajaban del saldo de la
+        secadora y no subían en ningún lado, como si se hubieran evaporado.
+
+        Se crea un registro nuevo en la bodega destino con lo despachado, ya
+        marcado como recibido para que no se pueda volver a despachar desde
+        allí por error. El registro de origen conserva lo que no salió, así que
+        un despacho parcial deja 400 aquí y 100 allá.
+        """
+        self.ensure_one()
+        destino = self.destino_id
+        if not destino or destino.tipo != 'bodega':
+            return
+
+        Registro = self.env['secadora.registro.bultos'].sudo()
+        Mov = self.env['secadora.movimiento.bultos'].sudo()
+
+        # Un pesaje se puede reabrir y volver a completar; sin esto el
+        # traslado se repetiría y los bultos se multiplicarían en el destino.
+        if Mov.search_count([('notas', '=', f'Pesaje {self.name}')]):
+            return
+
+        for linea in self.despacho_bultos_ids:
+            origen = linea.registro_bultos_id
+            if not origen.bodega_id or origen.bodega_id == destino:
+                continue
+
+            copia = Registro.create({
+                'orden_id': origen.orden_id.id,
+                'producto_id': origen.producto_id.id,
+                'variedad_id': origen.variedad_id.id,
+                'es_semilla': origen.es_semilla,
+                'bodega_id': destino.id,
+                'fecha': origen.fecha,
+                'cantidad': linea.cantidad,
+                'peso_promedio': origen.peso_promedio,
+                'producto_empaque_id': origen.producto_empaque_id.id,
+                # El empaque ya se cobró en el registro original: cobrarlo otra
+                # vez al trasladar sería facturar dos veces el mismo saco.
+                'proveedor_empaque': 'cliente',
+                'observaciones': origen.observaciones,
+            })
+            Mov.create({
+                'registro_bultos_id': copia.id,
+                'tipo': 'traslado',
+                'bodega_origen_id': origen.bodega_id.id,
+                'bodega_destino_id': destino.id,
+                'cantidad': linea.cantidad,
+                'notas': f'Pesaje {self.name}',
+            })
 
     def _aplicar_resumen_despacho(self):
         """Escribe en observaciones un resumen del despacho de bultos.
