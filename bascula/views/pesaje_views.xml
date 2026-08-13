@@ -151,6 +151,17 @@
                         <field name="os_modalidad_salida" invisible="1"/>
                         <group string="Bultos a Despachar"
                                invisible="direccion != 'salida' or not tipo_operacion_id or not tipo_operacion_id.es_servicio">
+                            <!-- Sin bodega resuelta la lista de abajo sale
+                                 vacía; se explica por qué en vez de dejar al
+                                 usuario adivinando. -->
+                            <div class="alert alert-warning" role="alert"
+                                 colspan="2"
+                                 invisible="bodega_origen_id">
+                                No hay una bodega de origen para este pesaje, así
+                                que no se puede escoger bultos. Defina la
+                                "Bodega de la Secadora" en los Ajustes de
+                                Báscula, o escoja como origen una bodega.
+                            </div>
                             <field name="despacho_bultos_ids" nolabel="1"
                                    readonly="bloqueado">
                                 <list editable="bottom">
