@@ -391,6 +391,30 @@ class SecadoraPesaje(models.Model):
             record.despacho_bultos_ids.filtered(
                 lambda d: not d.confirmado).write({'confirmado': True})
             record._aplicar_resumen_despacho()
+            record._trasladar_bultos_a_bodega_destino()
+
+        # Corregir el destino de un pesaje ya completado también debe mover los
+        # bultos: el traslado solo ocurría en la 2ª pesada, así que poner la
+        # bodega después dejaba el arroz sin llegar a ninguna parte.
+        if 'destino_id' in vals:
+            Mov = self.env['secadora.movimiento.bultos'].sudo()
+            for record in self.filtered(
+                lambda p: p.state == 'completado'
+                and not p.permite_edicion
+                and p.despacho_bultos_ids
+            ):
+                # Si ya había trasladado a otra bodega, se deshace primero:
+                # cambiar el destino mueve el arroz, no lo duplica.
+                previos = Mov.search([
+                    ('pesaje_id', '=', record.id),
+                    ('tipo', '=', 'traslado'),
+                    ('bodega_destino_id', '!=', record.destino_id.id),
+                ])
+                for copia in previos.mapped('registro_bultos_id'):
+                    if copia.exists() and not copia.cantidad_despachada:
+                        copia.sudo().unlink()
+                previos.unlink()
+                record._trasladar_bultos_a_bodega_destino()
         # Si cambió algo que afecta el peso de la orden, recalcular sus
         # servicios automáticos (fuera de cualquier campo calculado).
         if {'peso_bruto', 'peso_tara', 'state', 'orden_servicio_id'} & set(vals):

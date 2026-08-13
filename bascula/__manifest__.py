@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Báscula Secadora La Gran Colombia',
-    'version': '19.0.2.20.0',
+    'version': '19.0.2.21.0',
     'category': 'Operations',
     'summary': 'Módulo de pesaje para secadora de arroz',
     'description': """
