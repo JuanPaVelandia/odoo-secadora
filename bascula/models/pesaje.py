@@ -840,6 +840,29 @@ class SecadoraPesaje(models.Model):
             # Quitar el descuento devuelve el pendiente a su valor anterior.
             pesaje.despacho_bultos_ids.unlink()
 
+    bodega_origen_id = fields.Many2one(
+        'secadora.lugar',
+        string='Bodega de origen',
+        compute='_compute_bodega_origen',
+        help='De qué bodega salen los bultos de este pesaje. Sirve para no '
+             'ofrecer arroz que está guardado en otra parte.',
+    )
+
+    @api.depends('origen_id')
+    def _compute_bodega_origen(self):
+        """La bodega de la que salen los bultos.
+
+        Si el pesaje sale de una bodega, es esa. Si sale de la planta —el caso
+        corriente— son los bultos que están en la bodega de la secadora, que se
+        configura en Ajustes.
+        """
+        defecto = self.env['secadora.registro.bultos']._bodega_por_defecto()
+        for rec in self:
+            if rec.origen_id and rec.origen_id.tipo == 'bodega':
+                rec.bodega_origen_id = rec.origen_id.id
+            else:
+                rec.bodega_origen_id = defecto or False
+
     def _trasladar_bultos_a_bodega_destino(self):
         """Si los bultos van a otra bodega, hacer que aparezcan allá.
 

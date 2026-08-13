@@ -34,6 +34,9 @@
                         <field name="permite_edicion" invisible="1"/>
                         <field name="bloqueado" invisible="1"/>
                         <field name="peso_bloqueado" invisible="1"/>
+                        <!-- Lo usa el selector de bultos para no ofrecer arroz
+                             que está en otra bodega. -->
+                        <field name="bodega_origen_id" invisible="1"/>
                         <field name="state" widget="statusbar" statusbar_visible="borrador,en_transito,completado"/>
                     </header>
                     <sheet>
@@ -151,8 +154,14 @@
                             <field name="despacho_bultos_ids" nolabel="1"
                                    readonly="bloqueado">
                                 <list editable="bottom">
+                                    <!-- Solo los bultos que están en la bodega
+                                         de la que sale el pesaje: no se puede
+                                         sacar de aquí arroz que ya se llevaron
+                                         a otra bodega. -->
                                     <field name="registro_bultos_id"
-                                           domain="[('orden_id.cliente_id', '=', parent.tercero_id), ('despachado', '=', False)]"
+                                           domain="[('orden_id.cliente_id', '=', parent.tercero_id),
+                                                    ('despachado', '=', False),
+                                                    ('bodega_id', '=', parent.bodega_origen_id)]"
                                            options="{'no_create': True}"/>
                                     <field name="orden_id" readonly="1" string="OS"/>
                                     <field name="producto_id" readonly="1"/>
