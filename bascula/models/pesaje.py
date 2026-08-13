@@ -855,46 +855,47 @@ class SecadoraPesaje(models.Model):
              'de bodega y orden de servicio aplicados.',
     )
 
-    dominio_bultos_despacho = fields.Char(
-        string='Dominio de bultos',
+    ordenes_despachables_ids = fields.Many2many(
+        'secadora.orden.servicio',
+        string='Órdenes que puede despachar',
         compute='_compute_bultos_disponibles',
-        help='Qué bultos puede ofrecer el selector de este pesaje.',
+        help='La orden del pesaje, o todas las del cliente si el pesaje no '
+             'trae orden. El selector de bultos se limita a estas.',
     )
-
-    def _dominio_bultos_despacho(self):
-        """Los bultos que este pesaje puede despachar.
-
-        Se arma en Python y no en el XML porque la parte de la orden de
-        servicio es condicional: si el pesaje no trae orden, no se restringe.
-        """
-        self.ensure_one()
-        dominio = [
-            ('orden_id.cliente_id', '=', self.tercero_id.id),
-            ('despachado', '=', False),
-            ('bodega_id', '=', self.bodega_origen_id.id),
-        ]
-        if self.orden_servicio_id:
-            dominio.append(('orden_id', '=', self.orden_servicio_id.id))
-        return dominio
 
     @api.depends('tercero_id', 'bodega_origen_id', 'orden_servicio_id')
     def _compute_bultos_disponibles(self):
-        """Cuenta lo que el selector va a ofrecer.
+        """Qué órdenes puede despachar el pesaje y cuántos bultos quedan.
 
-        Sirve para explicar una lista vacía: sin esto el usuario no distingue
-        entre "no hay bultos" y "el filtro los escondió".
+        La restricción por orden es condicional —hay salidas sin orden, y ahí
+        no se debe esconder nada— y el dominio del XML no admite condicionales,
+        así que se resuelve aquí como una lista de órdenes permitidas.
+
+        El conteo sirve para explicar una lista vacía: sin él el usuario no
+        distingue entre "no hay bultos" y "el filtro los escondió".
         """
         Reg = self.env['secadora.registro.bultos']
+        Orden = self.env['secadora.orden.servicio']
         for rec in self:
-            if not rec.tercero_id or not rec.bodega_origen_id:
-                # Sin tercero o sin bodega no hay nada que ofrecer, y un
-                # dominio vacío mostraría los bultos de todo el mundo.
-                rec.dominio_bultos_despacho = repr([('id', '=', False)])
+            if rec.orden_servicio_id:
+                ordenes = rec.orden_servicio_id
+            elif rec.tercero_id:
+                # Sin orden en el pesaje no se restringe por orden; se listan
+                # las del cliente para que el dominio siga siendo una lista.
+                ordenes = Orden.search([('cliente_id', '=', rec.tercero_id.id)])
+            else:
+                ordenes = Orden.browse()
+            rec.ordenes_despachables_ids = ordenes
+
+            if not rec.tercero_id or not rec.bodega_origen_id or not ordenes:
                 rec.bultos_disponibles_count = 0
                 continue
-            dominio = rec._dominio_bultos_despacho()
-            rec.dominio_bultos_despacho = repr(dominio)
-            rec.bultos_disponibles_count = Reg.search_count(dominio)
+            rec.bultos_disponibles_count = Reg.search_count([
+                ('orden_id.cliente_id', '=', rec.tercero_id.id),
+                ('despachado', '=', False),
+                ('bodega_id', '=', rec.bodega_origen_id.id),
+                ('orden_id', 'in', ordenes.ids),
+            ])
 
     @api.depends('origen_id')
     def _compute_bodega_origen(self):

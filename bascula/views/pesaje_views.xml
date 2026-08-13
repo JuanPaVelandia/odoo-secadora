@@ -34,9 +34,10 @@
                         <field name="permite_edicion" invisible="1"/>
                         <field name="bloqueado" invisible="1"/>
                         <field name="peso_bloqueado" invisible="1"/>
-                        <!-- Lo usa el selector de bultos para no ofrecer arroz
-                             que está en otra bodega. -->
+                        <!-- Los usa el selector de bultos para no ofrecer arroz
+                             que está en otra bodega ni de otra orden. -->
                         <field name="bodega_origen_id" invisible="1"/>
+                        <field name="ordenes_despachables_ids" invisible="1"/>
                         <field name="state" widget="statusbar" statusbar_visible="borrador,en_transito,completado"/>
                     </header>
                     <sheet>
@@ -182,7 +183,10 @@
                                          orden; si no la trae, no se restringe.
                                          -->
                                     <field name="registro_bultos_id"
-                                           domain="parent.dominio_bultos_despacho"
+                                           domain="[('orden_id.cliente_id', '=', parent.tercero_id),
+                                                    ('despachado', '=', False),
+                                                    ('bodega_id', '=', parent.bodega_origen_id),
+                                                    ('orden_id', 'in', parent.ordenes_despachables_ids)]"
                                            options="{'no_create': True}"/>
                                     <field name="orden_id" readonly="1" string="OS"/>
                                     <field name="producto_id" readonly="1"/>
