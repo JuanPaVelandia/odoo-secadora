@@ -365,12 +365,18 @@ class DespacharPosicionWizard(models.TransientModel):
         ordenes = self.posicion_ids.mapped('orden_servicio_id')
         variedades = self.posicion_ids.mapped('variedad_id')
         texto_variedades = ', '.join(v.name for v in variedades if v) or ''
+        # La variedad como dato, no solo como texto: es lo que permite el
+        # inventario por variedad y código. Si el despacho mezcla varias, se
+        # deja vacía y queda el listado en observaciones.
+        variedad_unica = variedades if len(variedades) == 1 else False
+        es_semilla = any(self.posicion_ids.mapped('es_semilla'))
 
         for os in ordenes:
             for linea in lineas:
                 # Solo poner variedad en observaciones si el producto es paddy
                 es_paddy = 'paddy' in (linea.producto_id.name or '').lower()
                 observaciones = texto_variedades if es_paddy else ''
+                variedad_id = variedad_unica.id if (variedad_unica and es_paddy) else False
 
                 # Buscar registro existente con mismos atributos
                 existente = RegistroBultos.search([
@@ -380,6 +386,7 @@ class DespacharPosicionWizard(models.TransientModel):
                     ('peso_promedio', '=', linea.peso_promedio),
                     ('proveedor_empaque', '=', linea.proveedor_empaque),
                     ('observaciones', '=', observaciones),
+                    ('variedad_id', '=', variedad_id),
                     ('despachado', '=', False),
                 ], limit=1)
 
@@ -392,6 +399,8 @@ class DespacharPosicionWizard(models.TransientModel):
                     RegistroBultos.create({
                         'orden_id': os.id,
                         'producto_id': linea.producto_id.id,
+                        'variedad_id': variedad_id,
+                        'es_semilla': es_semilla,
                         'cantidad': linea.cantidad_bultos,
                         'peso_promedio': linea.peso_promedio,
                         'producto_empaque_id': linea.producto_empaque_id.id,
