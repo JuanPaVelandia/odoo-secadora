@@ -27,7 +27,13 @@
                         </div>
                         <group>
                             <group>
-                                <field name="silobolsa_id" readonly="state != 'borrador'"/>
+                                <!-- Editable aunque el viaje esté confirmado:
+                                     equivocarse de silobolsa al registrar es
+                                     corriente, y el peso de cada una es
+                                     computado, así que las dos se recalculan
+                                     solas al corregirlo. Solo se bloquea si
+                                     el viaje está cancelado. -->
+                                <field name="silobolsa_id" readonly="state == 'cancelado'"/>
                                 <field name="sitio_id" readonly="state != 'borrador'"/>
                                 <field name="fecha" readonly="state != 'borrador'"/>
                                 <field name="usuario_id"/>

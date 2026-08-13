@@ -120,6 +120,24 @@ class EmbolsadoViaje(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('secadora.embolsado.viaje') or 'Nuevo'
         return super().create(vals_list)
 
+    def write(self, vals):
+        """Permite corregir la silobolsa de un viaje ya confirmado.
+
+        Equivocarse de silobolsa al registrar es corriente, y el peso de cada
+        una es computado a partir de sus viajes: al cambiarlo, la de origen y
+        la de destino se recalculan solas. Lo único que hay que impedir es
+        mandar arroz a una silobolsa cerrada, porque su peso ya se dio por
+        definitivo.
+        """
+        if vals.get('silobolsa_id'):
+            destino = self.env['secadora.silobolsa'].browse(vals['silobolsa_id'])
+            if destino.state != 'abierto':
+                raise UserError(
+                    'La silobolsa %s está cerrada y no admite más viajes. '
+                    'Reábrala si de verdad va allí.' % destino.name
+                )
+        return super().write(vals)
+
     def unlink(self):
         if any(rec.state == 'confirmado' for rec in self):
             raise UserError('No se puede eliminar un viaje confirmado. Cancélelo primero.')
