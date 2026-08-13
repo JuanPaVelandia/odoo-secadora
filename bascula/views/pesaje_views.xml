@@ -151,9 +151,9 @@
                         <field name="os_modalidad_salida" invisible="1"/>
                         <group string="Bultos a Despachar"
                                invisible="direccion != 'salida' or not tipo_operacion_id or not tipo_operacion_id.es_servicio">
-                            <!-- Sin bodega resuelta la lista de abajo sale
-                                 vacía; se explica por qué en vez de dejar al
-                                 usuario adivinando. -->
+                            <!-- Una lista vacía se explica, en vez de dejar al
+                                 usuario adivinando si el sistema falló. -->
+                            <field name="bultos_disponibles_count" invisible="1"/>
                             <div class="alert alert-warning" role="alert"
                                  colspan="2"
                                  invisible="bodega_origen_id">
@@ -162,17 +162,27 @@
                                 "Bodega de la Secadora" en los Ajustes de
                                 Báscula, o escoja como origen una bodega.
                             </div>
+                            <div class="alert alert-info" role="alert"
+                                 colspan="2"
+                                 invisible="not bodega_origen_id or bultos_disponibles_count &gt; 0">
+                                En la bodega de origen no hay bultos pendientes
+                                de este cliente<span invisible="not orden_servicio_id">
+                                para la orden de servicio del pesaje</span>.
+                                Revise que no se hayan trasladado ya a otra
+                                bodega ni despachado en otro pesaje.
+                            </div>
                             <field name="despacho_bultos_ids" nolabel="1"
                                    readonly="bloqueado">
                                 <list editable="bottom">
                                     <!-- Solo los bultos que están en la bodega
                                          de la que sale el pesaje: no se puede
                                          sacar de aquí arroz que ya se llevaron
-                                         a otra bodega. -->
+                                         a otra bodega. Y si el pesaje trae una
+                                         orden de servicio, solo los de esa
+                                         orden; si no la trae, no se restringe.
+                                         -->
                                     <field name="registro_bultos_id"
-                                           domain="[('orden_id.cliente_id', '=', parent.tercero_id),
-                                                    ('despachado', '=', False),
-                                                    ('bodega_id', '=', parent.bodega_origen_id)]"
+                                           domain="parent.dominio_bultos_despacho"
                                            options="{'no_create': True}"/>
                                     <field name="orden_id" readonly="1" string="OS"/>
                                     <field name="producto_id" readonly="1"/>

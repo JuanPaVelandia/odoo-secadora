@@ -848,6 +848,54 @@ class SecadoraPesaje(models.Model):
              'ofrecer arroz que está guardado en otra parte.',
     )
 
+    bultos_disponibles_count = fields.Integer(
+        string='Bultos que se pueden escoger',
+        compute='_compute_bultos_disponibles',
+        help='Cuántos registros de bultos ofrece el selector con los filtros '
+             'de bodega y orden de servicio aplicados.',
+    )
+
+    dominio_bultos_despacho = fields.Char(
+        string='Dominio de bultos',
+        compute='_compute_bultos_disponibles',
+        help='Qué bultos puede ofrecer el selector de este pesaje.',
+    )
+
+    def _dominio_bultos_despacho(self):
+        """Los bultos que este pesaje puede despachar.
+
+        Se arma en Python y no en el XML porque la parte de la orden de
+        servicio es condicional: si el pesaje no trae orden, no se restringe.
+        """
+        self.ensure_one()
+        dominio = [
+            ('orden_id.cliente_id', '=', self.tercero_id.id),
+            ('despachado', '=', False),
+            ('bodega_id', '=', self.bodega_origen_id.id),
+        ]
+        if self.orden_servicio_id:
+            dominio.append(('orden_id', '=', self.orden_servicio_id.id))
+        return dominio
+
+    @api.depends('tercero_id', 'bodega_origen_id', 'orden_servicio_id')
+    def _compute_bultos_disponibles(self):
+        """Cuenta lo que el selector va a ofrecer.
+
+        Sirve para explicar una lista vacía: sin esto el usuario no distingue
+        entre "no hay bultos" y "el filtro los escondió".
+        """
+        Reg = self.env['secadora.registro.bultos']
+        for rec in self:
+            if not rec.tercero_id or not rec.bodega_origen_id:
+                # Sin tercero o sin bodega no hay nada que ofrecer, y un
+                # dominio vacío mostraría los bultos de todo el mundo.
+                rec.dominio_bultos_despacho = repr([('id', '=', False)])
+                rec.bultos_disponibles_count = 0
+                continue
+            dominio = rec._dominio_bultos_despacho()
+            rec.dominio_bultos_despacho = repr(dominio)
+            rec.bultos_disponibles_count = Reg.search_count(dominio)
+
     @api.depends('origen_id')
     def _compute_bodega_origen(self):
         """La bodega de la que salen los bultos.
