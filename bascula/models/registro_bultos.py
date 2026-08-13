@@ -88,6 +88,16 @@ class RegistroBultos(models.Model):
              'cambian cuando el agricultor se los lleva a la suya.',
     )
 
+    trasladado_de_id = fields.Many2one(
+        'secadora.registro.bultos',
+        string='Trasladado de',
+        index=True,
+        ondelete='set null',
+        help='Si estos bultos llegaron por un traslado, el registro del que '
+             'salieron. Sirve para no contarlos dos veces: el mismo arroz '
+             'aparece en la bodega de donde salió y en la que llegó.',
+    )
+
     @api.model
     def _bodega_por_defecto(self):
         """La bodega de la secadora, configurable en Ajustes.
@@ -317,9 +327,26 @@ class RegistroBultos(models.Model):
 
         if 'cantidad' in vals:
             self.mapped('orden_id').recalcular_servicios()
+            self._ajustar_ingreso_por_correccion()
         if 'bodega_id' in vals:
             self._registrar_cambio_de_bodega(anteriores)
         return res
+
+    def _ajustar_ingreso_por_correccion(self):
+        """Corregir la cantidad del registro corrige también su ingreso.
+
+        El ingreso se anota al crear el registro; si después se corrige el
+        conteo, sin esto el libro de movimientos se queda con la cifra vieja y
+        el inventario no cuadra con el registro.
+        """
+        Mov = self.env['secadora.movimiento.bultos'].sudo()
+        for rec in self:
+            ingreso = Mov.search([
+                ('registro_bultos_id', '=', rec.id),
+                ('tipo', '=', 'ingreso'),
+            ], limit=1)
+            if ingreso and ingreso.cantidad != rec.cantidad:
+                ingreso.cantidad = rec.cantidad
 
     # ==================== INVENTARIO EN BODEGA ====================
 

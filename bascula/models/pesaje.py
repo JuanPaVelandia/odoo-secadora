@@ -955,6 +955,9 @@ class SecadoraPesaje(models.Model):
                 # vez al trasladar sería facturar dos veces el mismo saco.
                 'proveedor_empaque': 'cliente',
                 'observaciones': origen.observaciones,
+                # Marca de dónde vino para que los totales de la orden no
+                # cuenten dos veces el mismo arroz.
+                'trasladado_de_id': origen.id,
             })
             Mov.create({
                 'registro_bultos_id': copia.id,

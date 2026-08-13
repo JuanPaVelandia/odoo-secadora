@@ -366,7 +366,8 @@ class OrdenServicio(models.Model):
     @api.depends('registro_bultos_ids.cantidad',
                  'registro_bultos_ids.peso_promedio',
                  'registro_bultos_ids.proveedor_empaque',
-                 'registro_bultos_ids.subtotal_empaque')
+                 'registro_bultos_ids.subtotal_empaque',
+                 'registro_bultos_ids.trasladado_de_id')
     def _compute_totales_bultos(self):
         for record in self:
             total_bultos = 0
@@ -376,8 +377,12 @@ class OrdenServicio(models.Model):
             subtotal_empaques = 0
 
             for linea in record.registro_bultos_ids:
-                total_bultos += linea.cantidad
-                peso_total += linea.peso_total
+                # Los bultos que llegaron por traslado son el mismo arroz que
+                # ya se conto en la bodega de donde salio: sumarlos otra vez
+                # duplicaria el total empacado de la orden.
+                if not linea.trasladado_de_id:
+                    total_bultos += linea.cantidad
+                    peso_total += linea.peso_total
 
                 if linea.proveedor_empaque == 'secadora':
                     empaques_secadora += linea.cantidad
