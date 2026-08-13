@@ -160,7 +160,7 @@
                             </div>
 
                             <!-- Detalle de Bultos Empacados -->
-                            <div t-if="o.modalidad_salida in ('bultos', 'mixta') and o.registro_bultos_ids" style="margin-bottom: 20px;">
+                            <div t-if="o.modalidad_salida in ('bultos', 'mixta') and o.registro_bultos_empacados_ids" style="margin-bottom: 20px;">
                                 <h4 style="background-color: #444444; color: white; padding: 8px; margin: 0 0 10px 0; font-size: 14px;">Registro de Bultos Empacados</h4>
                                 <table style="width: 100%; border-collapse: collapse; border: 1px solid #ddd;">
                                     <thead>
@@ -175,7 +175,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr t-foreach="o.registro_bultos_ids" t-as="bulto">
+                                        <tr t-foreach="o.registro_bultos_empacados_ids" t-as="bulto">
                                             <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="bulto.fecha"/></td>
                                             <td style="border: 1px solid #ddd; padding: 8px;"><span t-field="bulto.producto_id"/></td>
                                             <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">

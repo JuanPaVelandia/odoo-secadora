@@ -140,6 +140,19 @@ class OrdenServicio(models.Model):
         help='Registro de bultos empacados día a día'
     )
 
+    # Lo que se ve en la pestaña de la orden. Las copias que crea un traslado
+    # son el mismo arroz que ya figura en la bodega de donde salió: mostrarlas
+    # aquí hace parecer que la orden empacó el doble. Siguen existiendo —son el
+    # inventario de la bodega de destino— y se consultan en Báscula → Bultos.
+    registro_bultos_empacados_ids = fields.One2many(
+        'secadora.registro.bultos',
+        'orden_id',
+        string='Bultos Empacados',
+        domain=[('trasladado_de_id', '=', False)],
+        help='Los bultos que se empacaron en esta orden, sin contar los que '
+             'aparecen de nuevo por haberse trasladado a otra bodega.',
+    )
+
     total_bultos = fields.Integer(
         string='Total Bultos',
         compute='_compute_totales_bultos',
@@ -399,14 +412,19 @@ class OrdenServicio(models.Model):
     @api.depends('registro_bultos_ids.cantidad_despachada',
                  'registro_bultos_ids.cantidad_pendiente',
                  'registro_bultos_ids.cantidad',
-                 'registro_bultos_ids.peso_promedio')
+                 'registro_bultos_ids.peso_promedio',
+                 'registro_bultos_ids.trasladado_de_id')
     def _compute_despacho_bultos(self):
         for record in self:
             bultos_despachados = 0
             peso_despachado = 0.0
             bultos_pendientes = 0
             peso_pendiente = 0.0
-            for reg in record.registro_bultos_ids:
+            # Los bultos que llegaron por traslado ya salieron de la secadora;
+            # contarlos como pendientes diria que la orden tiene todo por
+            # despachar cuando en realidad ya se entrego.
+            for reg in record.registro_bultos_ids.filtered(
+                    lambda r: not r.trasladado_de_id):
                 bultos_despachados += reg.cantidad_despachada
                 peso_despachado += reg.cantidad_despachada * reg.peso_promedio
                 bultos_pendientes += reg.cantidad_pendiente

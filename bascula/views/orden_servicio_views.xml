@@ -138,7 +138,8 @@
                             </group>
                         </page>
                         <page string="Bultos" invisible="modalidad_salida not in ('bultos', 'mixta')">
-                            <field name="registro_bultos_ids" readonly="state == 'facturado'">
+                            <field name="registro_bultos_empacados_ids"
+                                   readonly="state == 'facturado'">
                                 <list editable="bottom"
                                       decoration-success="despachado"
                                       decoration-muted="despachado">
