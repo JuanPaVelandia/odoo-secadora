@@ -851,6 +851,7 @@ class SecadoraPesaje(models.Model):
     bultos_disponibles_count = fields.Integer(
         string='Bultos que se pueden escoger',
         compute='_compute_bultos_disponibles',
+        compute_sudo=True,
         help='Cuántos registros de bultos ofrece el selector con los filtros '
              'de bodega y orden de servicio aplicados.',
     )
@@ -859,6 +860,7 @@ class SecadoraPesaje(models.Model):
         'secadora.orden.servicio',
         string='Órdenes que puede despachar',
         compute='_compute_bultos_disponibles',
+        compute_sudo=True,
         help='La orden del pesaje, o todas las del cliente si el pesaje no '
              'trae orden. El selector de bultos se limita a estas.',
     )
@@ -873,6 +875,12 @@ class SecadoraPesaje(models.Model):
 
         El conteo sirve para explicar una lista vacía: sin él el usuario no
         distingue entre "no hay bultos" y "el filtro los escondió".
+
+        Va con compute_sudo porque hay pesajes cuya orden es de otra empresa
+        (PES-06111 es de Jose Eduardo y apunta a OS-0004, de Secadora): sin
+        eso, abrir la lista de pesajes con una sola empresa activa reventaba
+        con un error de acceso. No abre ningún dato: solo alimenta el dominio
+        del selector, y las reglas multiempresa siguen filtrando los bultos.
         """
         Reg = self.env['secadora.registro.bultos']
         Orden = self.env['secadora.orden.servicio']
