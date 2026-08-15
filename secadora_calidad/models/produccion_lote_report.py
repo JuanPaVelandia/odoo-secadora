@@ -63,8 +63,8 @@ class ProduccionLoteReport(models.Model):
         tools.drop_view_if_exists(self.env.cr, self._table)
         self.env.cr.execute("""
             CREATE OR REPLACE VIEW secadora_produccion_lote_report AS (
-                WITH lab AS (
-                    -- Último análisis de laboratorio por pesaje con temperatura medida
+                WITH lab_temp AS (
+                    -- Último análisis por pesaje con temperatura medida
                     SELECT DISTINCT ON (al.pesaje_id)
                            al.pesaje_id,
                            al.temperatura
@@ -72,6 +72,29 @@ class ProduccionLoteReport(models.Model):
                     WHERE al.pesaje_id IS NOT NULL
                       AND COALESCE(al.temperatura, 0) > 0
                     ORDER BY al.pesaje_id, al.fecha_hora DESC, al.id DESC
+                ),
+                lab_gp AS (
+                    -- El grano partido se mide en el laboratorio, no en la
+                    -- báscula: la columna del pesaje existe pero nunca se
+                    -- llena. Se busca aparte de la temperatura porque un
+                    -- análisis puede traer uno y no el otro.
+                    --
+                    -- Los análisis que quedaron sin hacer traen 0; se ignoran
+                    -- para que no bajen el promedio del lote.
+                    SELECT DISTINCT ON (al.pesaje_id)
+                           al.pesaje_id,
+                           al.grano_partido
+                    FROM secadora_analisis_lab al
+                    WHERE al.pesaje_id IS NOT NULL
+                      AND COALESCE(al.grano_partido, 0) > 0
+                    ORDER BY al.pesaje_id, al.fecha_hora DESC, al.id DESC
+                ),
+                lab AS (
+                    SELECT COALESCE(t.pesaje_id, g.pesaje_id) AS pesaje_id,
+                           t.temperatura,
+                           g.grano_partido
+                    FROM lab_temp t
+                    FULL OUTER JOIN lab_gp g ON g.pesaje_id = t.pesaje_id
                 ),
                 tot AS (
                     SELECT pesaje_id, SUM(bultos) AS total_bultos
@@ -126,9 +149,11 @@ class ProduccionLoteReport(models.Model):
                             THEN b.peso_kg / 62.5 / ha.hectareas END AS bultos_ha,
                        CASE WHEN ha.hectareas > 0
                             THEN corr.peso_kg_corregido / 62.5 / ha.hectareas END AS bultos_ha_corregido,
+                       -- Un análisis sin hacer deja estos campos en 0: se
+                       -- anulan para que no cuenten en el promedio del lote.
                        NULLIF(p.humedad, 0) AS humedad,
                        NULLIF(p.impurezas, 0) AS impurezas,
-                       NULLIF(p.grano_partido, 0) AS grano_partido,
+                       lab.grano_partido,
                        lab.temperatura
                 FROM base b
                 JOIN secadora_pesaje p ON p.id = b.pesaje_id
