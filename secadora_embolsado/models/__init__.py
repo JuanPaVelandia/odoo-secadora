@@ -8,3 +8,4 @@ from . import movimiento_arroz
 from . import sitio_muestra
 from . import posicion_arroz
 from . import analisis_lab
+from . import certificado_inventario

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Formato de papel: Carta.
+             IMPORTANTE: debe ir ANTES del action_report para que la referencia funcione -->
+        <record id="paperformat_certificado_inventario" model="report.paperformat">
+            <field name="name">Certificado de Inventarios Carta</field>
+            <field name="default" eval="False"/>
+            <field name="format">Letter</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">12</field>
+            <field name="margin_bottom">12</field>
+            <field name="margin_left">14</field>
+            <field name="margin_right">14</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">6</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <record id="action_report_certificado_inventario" model="ir.actions.report">
+            <field name="name">Certificado de Inventarios</field>
+            <field name="model">secadora.certificado.inventario</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">secadora_embolsado.report_certificado_inventario_document</field>
+            <field name="report_file">secadora_embolsado.report_certificado_inventario_document</field>
+            <field name="binding_model_id" ref="model_secadora_certificado_inventario"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Certificado de inventarios %s' % (object.fecha)</field>
+            <field name="paperformat_id" ref="secadora_embolsado.paperformat_certificado_inventario"/>
+        </record>
+
+        <!-- Plantilla. Patrón de la casa: web.basic_layout, SIN TABLAS
+             (el CSS de assets pinta bordes en todo td/th y le gana a <style>
+             en el wkhtmltopdf de este servidor): divs flotados con anchos
+             en porcentaje y estilos inline. -->
+        <template id="report_certificado_inventario_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.basic_layout">
+                        <t t-set="fmt" t-value="lambda v: '{:,.0f}'.format(v).replace(',', '.')"/>
+                        <div class="page" style="font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000;">
+                            <t t-set="ancho_tabla" t-value="'width: 78%;'"/>
+
+                            <!-- Encabezado del certificante -->
+                            <div style="text-align: center; margin-bottom: 22px;">
+                                <div style="font-size: 13px;"><strong t-esc="o._get_certificante_nombre()"/></div>
+                                <div style="font-size: 13px;"><strong>CC <t t-esc="o._get_certificante_cc()"/></strong></div>
+                                <div style="font-size: 12px; margin-top: 20px;"><strong t-esc="(o.company_id or o.env.company).name"/></div>
+                                <div style="font-size: 12px; margin-top: 20px;"><strong>CERTIFICA:</strong></div>
+                            </div>
+
+                            <!-- Párrafo de apertura -->
+                            <div style="margin-bottom: 22px; line-height: 1.5;">
+                                Que hasta la fecha <span t-esc="o.fecha.strftime('%d/%m/%Y')"/>
+                                existen <span t-esc="fmt(o.total_saldo_kg)"/> kgs de arroz paddy seco
+                                almacenados en nuestras bodegas, como se muestra a continuación:
+                            </div>
+
+                            <!-- Encabezado de la rejilla -->
+                            <div t-att-style="'background-color: #4472c4; color: #ffffff; overflow: hidden; page-break-inside: avoid; ' + ancho_tabla">
+                                <div style="float: left; width: 14%; box-sizing: border-box; text-align: center; padding: 4px 3px; border-right: 1px solid #ffffff;"><strong>SILO</strong></div>
+                                <div style="float: left; width: 21%; box-sizing: border-box; text-align: center; padding: 4px 3px; border-right: 1px solid #ffffff;"><strong>EMBOLSADO</strong></div>
+                                <div style="float: left; width: 25%; box-sizing: border-box; text-align: center; padding: 4px 3px; border-right: 1px solid #ffffff;"><strong>DESEMBOLSADO</strong></div>
+                                <div style="float: left; width: 40%; box-sizing: border-box; text-align: center; padding: 4px 3px;"><strong>SALDO</strong></div>
+                            </div>
+
+                            <!-- Una fila por silobolsa -->
+                            <t t-foreach="o.linea_ids" t-as="l">
+                                <div t-att-style="'overflow: hidden; border-left: 1px solid #8ea9db; border-right: 1px solid #8ea9db; border-bottom: 1px solid #8ea9db; page-break-inside: avoid; ' + ancho_tabla">
+                                    <div style="float: left; width: 14%; box-sizing: border-box; text-align: center; padding: 3px 4px; border-right: 1px solid #8ea9db;"><t t-esc="l.silobolsa_name"/></div>
+                                    <div style="float: left; width: 21%; box-sizing: border-box; text-align: right; padding: 3px 6px; border-right: 1px solid #8ea9db;"><t t-esc="fmt(l.embolsado_kg)"/></div>
+                                    <div style="float: left; width: 25%; box-sizing: border-box; text-align: right; padding: 3px 6px; border-right: 1px solid #8ea9db;"><t t-esc="fmt(l.desembolsado_kg)"/></div>
+                                    <div style="float: left; width: 40%; box-sizing: border-box; text-align: right; padding: 3px 6px;"><t t-esc="fmt(l.saldo_kg)"/></div>
+                                </div>
+                            </t>
+
+                            <!-- Fila de totales -->
+                            <div t-att-style="'overflow: hidden; border: 1px solid #333; margin-top: 10px; page-break-inside: avoid; ' + ancho_tabla">
+                                <div style="float: left; width: 14%; box-sizing: border-box; text-align: center; padding: 4px; border-right: 1px solid #333;"><strong>Total</strong></div>
+                                <div style="float: left; width: 21%; box-sizing: border-box; text-align: right; padding: 4px 6px; border-right: 1px solid #333;"><strong t-esc="fmt(o.total_embolsado_kg)"/></div>
+                                <div style="float: left; width: 25%; box-sizing: border-box; text-align: right; padding: 4px 6px; border-right: 1px solid #333;"><strong t-esc="fmt(o.total_desembolsado_kg)"/></div>
+                                <div style="float: left; width: 40%; box-sizing: border-box; text-align: right; padding: 4px 6px;"><strong t-esc="fmt(o.total_saldo_kg)"/></div>
+                            </div>
+
+                            <!-- Cierre y firma. Se mantienen juntos para que la
+                                 firma nunca quede huérfana en otra página. -->
+                            <div style="margin-top: 28px; page-break-inside: avoid;">
+                                <div style="margin-bottom: 24px;">
+                                    Se expide el presente certificado a solicitud del interesado para los fines pertinentes.
+                                </div>
+                                <div style="margin-bottom: 4px;">Cordialmente,</div>
+                                <div style="height: 62px;">
+                                    <img t-att-src="o._get_firma_src()" style="height: 62px;" alt=""/>
+                                </div>
+                                <div><strong t-esc="o._get_firmante_nombre()"/></div>
+                                <div>C.C <t t-esc="o._get_firmante_cc()"/></div>
+                                <div><t t-esc="o._get_firmante_cargo()"/></div>
+                            </div>
+
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

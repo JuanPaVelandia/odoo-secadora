@@ -21,5 +21,37 @@
             <field name="value">7</field>
         </record>
 
+        <!-- Certificado de inventarios: destinatarios del envío diario -->
+        <record id="param_certificado_destinatarios" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.certificado_destinatarios</field>
+            <field name="value">mydiaz@almaviva.com.co</field>
+        </record>
+
+        <!-- Datos que salen impresos en el certificado -->
+        <record id="param_certificado_certificante_nombre" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.certificado_certificante_nombre</field>
+            <field name="value">JOSE EDUARDO VELANDIA OTALORA</field>
+        </record>
+
+        <record id="param_certificado_certificante_cc" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.certificado_certificante_cc</field>
+            <field name="value">74.750.290</field>
+        </record>
+
+        <record id="param_certificado_firmante_nombre" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.certificado_firmante_nombre</field>
+            <field name="value">Juan Pablo Velandia Cala</field>
+        </record>
+
+        <record id="param_certificado_firmante_cc" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.certificado_firmante_cc</field>
+            <field name="value">1.026.297.343</field>
+        </record>
+
+        <record id="param_certificado_firmante_cargo" model="ir.config_parameter">
+            <field name="key">secadora_embolsado.certificado_firmante_cargo</field>
+            <field name="value">Administrador</field>
+        </record>
+
     </data>
 </odoo>

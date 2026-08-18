@@ -38,5 +38,11 @@
                   action="action_embolsado_tara"
                   sequence="30"/>
 
+        <menuitem id="menu_embolsado_certificados"
+                  name="Certificados de Inventarios"
+                  parent="menu_embolsado"
+                  action="action_certificado_inventario"
+                  sequence="35"/>
+
     </data>
 </odoo>

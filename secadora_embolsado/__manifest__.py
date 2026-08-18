@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Embolsado en Silobolsas',
-    'version': '19.0.3.3.0',
+    'version': '19.0.3.4.0',
     'category': 'Operations',
     'summary': 'Registro de llenado de silobolsas con arroz en proceso',
     'description': """
@@ -16,6 +16,7 @@
         - Consumo del insumo silobolsa del inventario al llenar cada bolsa
         - Análisis de laboratorio por secciones del silobolsa
         - Estimación de peso seco (doble descuento) en contenedores configurados
+        - Certificado diario de inventarios en PDF, firmado y enviado por correo
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
     'depends': ['bascula', 'secadora_bascula', 'secadora_tablero', 'secadora_calidad', 'stock', 'mail', 'maintenance'],
@@ -24,6 +25,7 @@
         'security/ir.model.access.csv',
         'data/sequence_data.xml',
         'data/config_parameter_data.xml',
+        'data/cron_data.xml',
         'views/silobolsa_views.xml',
         'views/embolsado_viaje_views.xml',
         'views/embolsado_combo_views.xml',
@@ -31,6 +33,8 @@
         'views/sitio_muestra_views.xml',
         'views/posicion_arroz_views.xml',
         'views/analisis_lab_views.xml',
+        'views/certificado_inventario_views.xml',
+        'report/certificado_inventario_report.xml',
         'wizard/registrar_viaje_wizard_views.xml',
         'views/menu_views.xml',
     ],
