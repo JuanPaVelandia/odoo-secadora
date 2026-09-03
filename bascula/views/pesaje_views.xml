@@ -68,8 +68,9 @@
                                        force_save="1"/>
                                 <field name="orden_servicio_id"
                                        options="{'no_create': False, 'no_open': False}"
-                                       placeholder="Seleccione la orden de servicio (opcional)"
+                                       placeholder="Déjela vacía para cargar varias órdenes"
                                        readonly="bloqueado"
+                                       help="Déjela vacía si el viaje lleva bultos de varias órdenes del mismo cliente: el selector de bultos ofrecerá las de todas sus órdenes y cada una descontará su propio saldo."
                                        invisible="not tipo_operacion_id or not tipo_operacion_id.es_servicio"/>
                                 <field name="direccion"
                                        readonly="bloqueado"/>
@@ -171,6 +172,22 @@
                                 para la orden de servicio del pesaje</span>.
                                 Revise que no se hayan trasladado ya a otra
                                 bodega ni despachado en otro pesaje.
+                                <span
+                                invisible="not orden_servicio_id">
+                                Si los bultos son de otra orden del mismo
+                                cliente, deje vacía la "Orden de Servicio".</span>
+                            </div>
+                            <!-- El multi-orden se descubría por accidente: el
+                                 selector solo abre las demás órdenes cuando el
+                                 pesaje no trae una, y nada lo decía. -->
+                            <div class="alert alert-info" role="alert"
+                                 colspan="2"
+                                 invisible="direccion != 'salida' or not orden_servicio_id">
+                                Este viaje está limitado a la orden de
+                                servicio del pesaje. Si el camión lleva bultos
+                                de varias órdenes del mismo cliente, deje vacía
+                                la "Orden de Servicio" de arriba: cada bulto
+                                descuenta el saldo de su propia orden.
                             </div>
                             <field name="despacho_bultos_ids" nolabel="1"
                                    readonly="bloqueado">
@@ -199,6 +216,12 @@
                             </field>
                             <group invisible="direccion != 'salida' or not despacho_bultos_ids">
                                 <group>
+                                    <field name="ordenes_despachadas_count" invisible="1"/>
+                                    <field name="ordenes_despachadas_ids"
+                                           widget="many2many_tags"
+                                           readonly="1"
+                                           string="Órdenes en el viaje"
+                                           invisible="ordenes_despachadas_count &lt; 2"/>
                                     <field name="peso_total_bultos_despacho" readonly="1"/>
                                     <field name="peso_neto" string="Peso Báscula (kg)" readonly="1"/>
                                 </group>

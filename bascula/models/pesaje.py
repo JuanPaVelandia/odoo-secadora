@@ -865,6 +865,38 @@ class SecadoraPesaje(models.Model):
              'trae orden. El selector de bultos se limita a estas.',
     )
 
+    ordenes_despachadas_ids = fields.Many2many(
+        'secadora.orden.servicio',
+        'pesaje_orden_despachada_rel',
+        'pesaje_id',
+        'orden_id',
+        string='Órdenes despachadas en el viaje',
+        compute='_compute_ordenes_despachadas',
+        help='Órdenes de servicio a las que pertenecen los bultos cargados en '
+             'este viaje. Un viaje puede llevar bultos de varias órdenes del '
+             'mismo cliente si el pesaje se deja sin orden.',
+    )
+
+    ordenes_despachadas_count = fields.Integer(
+        string='Órdenes en el viaje',
+        compute='_compute_ordenes_despachadas',
+    )
+
+    @api.depends('despacho_bultos_ids.registro_bultos_id.orden_id')
+    def _compute_ordenes_despachadas(self):
+        """Qué órdenes salen en este viaje, según los bultos cargados.
+
+        Un pesaje sin orden puede llevar bultos de varias órdenes del mismo
+        cliente: cada línea sabe la suya por su registro de bultos, y cada
+        orden descuenta su propio saldo. Sin este campo el basculero no tiene
+        dónde ver que el viaje quedó repartido entre varias órdenes, porque el
+        campo 'Orden de Servicio' del pesaje está justamente vacío.
+        """
+        for rec in self:
+            ordenes = rec.despacho_bultos_ids.mapped('registro_bultos_id.orden_id')
+            rec.ordenes_despachadas_ids = ordenes
+            rec.ordenes_despachadas_count = len(ordenes)
+
     @api.depends('tercero_id', 'bodega_origen_id', 'orden_servicio_id')
     def _compute_bultos_disponibles(self):
         """Qué órdenes puede despachar el pesaje y cuántos bultos quedan.
