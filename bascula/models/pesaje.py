@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import re
 import pytz
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
@@ -1039,9 +1040,13 @@ class SecadoraPesaje(models.Model):
         if len(lineas) > 1:
             resumen += f" = {total_bultos} bultos"
         resumen += f" / {self.peso_total_bultos_despacho:,.0f} kg."
-        base = self.observaciones or ''
-        if 'Despacho:' in base:
-            base = base.split('Despacho:')[0].rstrip()
+        # El resumen empieza por "Despacho" y sigue con el producto, si lo hay:
+        # buscar "Despacho:" con los dos puntos pegados no encontraba
+        # "Despacho Maíz: ..." y el resumen viejo se quedaba, quedando el
+        # mensaje repetido al recompletar el pesaje. Se corta por el comienzo
+        # de la línea del resumen, con o sin producto en medio.
+        base = re.sub(r'\n?Despacho[^\n:]*:.*$', '', self.observaciones or '',
+                      flags=re.DOTALL).rstrip()
         self.observaciones = (base + '\n' if base else '') + resumen
 
     def action_cancelar(self):
