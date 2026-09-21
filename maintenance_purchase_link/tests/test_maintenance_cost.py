@@ -445,6 +445,39 @@ class TestMaintenanceCost(TransactionCase):
                          'El costo huérfano debía rellenarse, no duplicarse.')
         self.assertEqual(costos.equipment_id, self.equipment)
 
+    def _otra_unidad_de_negocio(self):
+        return self.env['account.analytic.account'].create({
+            'name': 'Agricultura Test',
+            'plan_id': self.maint_account.plan_id.id,
+        })
+
+    def test_corregir_unidad_de_negocio_tras_publicar(self):
+        """Una factura marcada Maquinaria por error se puede corregir."""
+        factura = self._factura_maquinaria('2026-08-03')
+        factura.action_post()
+        linea = factura.invoice_line_ids
+        self.assertEqual(len(linea.equipment_cost_line_ids), 1)
+
+        factura.button_draft()
+        otra = self._otra_unidad_de_negocio()
+        linea.analytic_distribution = {str(otra.id): 100}
+
+        linea.invalidate_recordset()
+        self.assertFalse(linea.equipment_cost_line_ids,
+                         'El costo vacío debía retirarse con la Maquinaria.')
+
+    def test_no_corregir_unidad_de_negocio_con_equipo_asignado(self):
+        """Con equipo ya asignado, quitar Maquinaria sigue bloqueado."""
+        factura = self._factura_maquinaria('2026-08-03')
+        factura.action_post()
+        linea = factura.invoice_line_ids
+        linea.equipment_cost_line_ids.equipment_id = self.equipment
+
+        factura.button_draft()
+        otra = self._otra_unidad_de_negocio()
+        with self.assertRaises(ValidationError):
+            linea.analytic_distribution = {str(otra.id): 100}
+
     def test_equipo_asignado_en_borrador_baja_al_publicar(self):
         """Equipos puestos en borrador deben bajar a los costos al publicar."""
         factura = self._factura_maquinaria('2026-08-02')

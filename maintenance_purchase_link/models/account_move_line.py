@@ -72,6 +72,16 @@ class AccountMoveLine(models.Model):
                 continue
             distribution = line.analytic_distribution or {}
             if not any(maquinaria_keys & set(k.split(',')) for k in distribution):
+                # Al publicar, cada línea Maquinaria recibe una línea de costo
+                # vacía para asignarle equipo después. Si nadie la usó, no es
+                # una asignación: se retira para poder corregir la unidad de
+                # negocio de una factura que se marcó Maquinaria por error.
+                cost_lines = line.equipment_cost_line_ids.sudo()
+                asignadas = cost_lines.filtered(
+                    lambda cl: cl.equipment_id or cl.request_id)
+                if not asignadas and not line.maintenance_request_ids:
+                    cost_lines.unlink()
+                    continue
                 raise ValidationError(_(
                     'Solo puede asociar equipos u órdenes de trabajo a líneas '
                     'con Unidad de negocio = "Maquinaria".'
