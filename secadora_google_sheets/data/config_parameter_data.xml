@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- ID de la hoja de Google Sheets (el tramo largo de la URL entre
+             /d/ y /edit). Vacío = el cron no hace nada. -->
+        <record id="param_spreadsheet_id" model="ir.config_parameter">
+            <field name="key">secadora_google_sheets.spreadsheet_id</field>
+            <field name="value"></field>
+        </record>
+
+    </data>
+</odoo>
