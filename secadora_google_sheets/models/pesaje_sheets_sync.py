@@ -41,6 +41,22 @@ COLUMNAS_HOROMETROS = [
     'Horas desde la anterior', 'Días desde la anterior', 'Registrado por',
     'Notas', 'OT generada',
 ]
+HOJA_BULTOS = 'Registros'
+HOJA_BULTOS_SALDO = 'Saldo por bodega'
+HOJA_BULTOS_MES = 'Empacado por mes'
+COLUMNAS_BULTOS = [
+    'Fecha empaque', 'Descripción', 'Orden de servicio', 'Dueño / Agricultor',
+    'Empresa', 'Producto', 'Variedad', 'Código', 'Semilla', 'Bodega',
+    'Tipo de empaque', 'Provee el empaque', 'Bultos', 'Peso promedio (kg)',
+    'Peso total (kg)', 'Despachados', 'Pendientes', 'Estado', 'Origen',
+    'Registrado por', 'Observaciones',
+]
+_TOTALES = ['Bultos empacados', 'Despachados', 'Pendientes (saldo)', 'Peso total (kg)']
+COLUMNAS_BULTOS_SALDO = [
+    'Dueño / Agricultor', 'Producto', 'Variedad', 'Código', 'Semilla', 'Bodega',
+] + _TOTALES
+COLUMNAS_BULTOS_MES = ['Mes', 'Dueño / Agricultor', 'Producto'] + _TOTALES
+
 COLUMNAS_EQUIPOS = [
     'Equipo', 'Categoría', 'Serie', 'Ubicación', 'Horómetro actual',
     'Fecha última lectura', 'Nro. lecturas', 'Intervalo mant. (horas)',
@@ -192,40 +208,44 @@ class GoogleSheetsSync(models.AbstractModel):
         ).execute()
 
     @api.model
-    def publicar_pesajes(self):
-        """Reescribe la hoja completa. Devuelve el número de pesajes
-        publicados, o None si no se pudo (queda en el log)."""
+    def _publicar(self, parametro, hojas, etiqueta):
+        """Reescribe en la hoja indicada por `parametro` cada pestaña de
+        `hojas` ({nombre: filas}) más la de Actualización. Devuelve el número
+        de filas de la primera pestaña, o None si no se pudo (queda en el
+        log; nunca lanza, porque corre desde un cron)."""
         spreadsheet_id = self.env['ir.config_parameter'].sudo().get_param(
-            'secadora_google_sheets.spreadsheet_id')
+            f'secadora_google_sheets.{parametro}')
         if not spreadsheet_id:
-            _logger.info('Sheets: sin secadora_google_sheets.spreadsheet_id; '
-                         'no se publica nada.')
+            _logger.info('Sheets: sin secadora_google_sheets.%s; no se '
+                         'publica nada.', parametro)
             return None
         svc = self._cliente_sheets()
         if svc is None:
             return None
 
-        pesajes = self._filas_pesajes()
-        mixtas = self._filas_mixtas()
-        ahora = fields.Datetime.now()
-        info = [
-            ['Última actualización (Colombia)', self._hora_local(ahora)],
-            ['Pesajes de entrada', len(pesajes) - 1],
-            ['Líneas de cargas mixtas', len(mixtas) - 1],
-            ['Fuente', f'Odoo, base {self.env.cr.dbname}. '
-                       'La hoja se reescribe cada hora; lo que se edite aquí se pierde.'],
-        ]
+        info = [['Última actualización (Colombia)',
+                 self._hora_local(fields.Datetime.now())]]
+        info += [[nombre, len(filas) - 1] for nombre, filas in hojas.items()]
+        info.append(['Fuente', f'Odoo, base {self.env.cr.dbname}. La hoja se '
+                     'reescribe cada hora; lo que se edite aquí se pierde.'])
         try:
-            self._asegurar_hojas(svc, spreadsheet_id,
-                                 [HOJA_PESAJES, HOJA_MIXTAS, HOJA_INFO])
-            self._escribir_hoja(svc, spreadsheet_id, HOJA_PESAJES, pesajes)
-            self._escribir_hoja(svc, spreadsheet_id, HOJA_MIXTAS, mixtas)
+            self._asegurar_hojas(svc, spreadsheet_id, list(hojas) + [HOJA_INFO])
+            for nombre, filas in hojas.items():
+                self._escribir_hoja(svc, spreadsheet_id, nombre, filas)
             self._escribir_hoja(svc, spreadsheet_id, HOJA_INFO, info)
         except Exception as e:
-            _logger.warning('Sheets: no se pudo publicar los pesajes: %s', e)
+            _logger.warning('Sheets: no se pudo publicar %s: %s', etiqueta, e)
             return None
-        _logger.info('Sheets: publicados %d pesajes de entrada.', len(pesajes) - 1)
-        return len(pesajes) - 1
+        n = len(next(iter(hojas.values()))) - 1
+        _logger.info('Sheets: publicadas %d filas de %s.', n, etiqueta)
+        return n
+
+    @api.model
+    def publicar_pesajes(self):
+        return self._publicar('spreadsheet_id', {
+            HOJA_PESAJES: self._filas_pesajes(),
+            HOJA_MIXTAS: self._filas_mixtas(),
+        }, 'pesajes de entrada')
 
     @api.model
     def _cron_publicar_pesajes(self):
@@ -293,39 +313,99 @@ class GoogleSheetsSync(models.AbstractModel):
 
     @api.model
     def publicar_horometros(self):
-        """Reescribe la hoja de horómetros. Devuelve el número de lecturas
-        publicadas, o None si no se pudo."""
-        spreadsheet_id = self.env['ir.config_parameter'].sudo().get_param(
-            'secadora_google_sheets.horometros_spreadsheet_id')
-        if not spreadsheet_id:
-            _logger.info('Sheets: sin secadora_google_sheets.'
-                         'horometros_spreadsheet_id; no se publica nada.')
-            return None
-        svc = self._cliente_sheets()
-        if svc is None:
-            return None
-
-        lecturas = self._filas_horometros()
-        equipos = self._filas_equipos()
-        info = [
-            ['Última actualización (Colombia)', self._hora_local(fields.Datetime.now())],
-            ['Lecturas de horómetro', len(lecturas) - 1],
-            ['Equipos con lecturas', len(equipos) - 1],
-            ['Fuente', f'Odoo, base {self.env.cr.dbname}. '
-                       'La hoja se reescribe cada hora; lo que se edite aquí se pierde.'],
-        ]
-        try:
-            self._asegurar_hojas(svc, spreadsheet_id,
-                                 [HOJA_HOROMETROS, HOJA_EQUIPOS, HOJA_INFO])
-            self._escribir_hoja(svc, spreadsheet_id, HOJA_HOROMETROS, lecturas)
-            self._escribir_hoja(svc, spreadsheet_id, HOJA_EQUIPOS, equipos)
-            self._escribir_hoja(svc, spreadsheet_id, HOJA_INFO, info)
-        except Exception as e:
-            _logger.warning('Sheets: no se pudo publicar los horómetros: %s', e)
-            return None
-        _logger.info('Sheets: publicadas %d lecturas de horómetro.', len(lecturas) - 1)
-        return len(lecturas) - 1
+        return self._publicar('horometros_spreadsheet_id', {
+            HOJA_HOROMETROS: self._filas_horometros(),
+            HOJA_EQUIPOS: self._filas_equipos(),
+        }, 'lecturas de horómetro')
 
     @api.model
     def _cron_publicar_horometros(self):
         self.publicar_horometros()
+
+    # ------------------------------------------------------------------
+    # Bultos empacados
+    # ------------------------------------------------------------------
+    @api.model
+    def _filas_bultos(self):
+        """Un registro de empaque por fila."""
+        Registro = self.env['secadora.registro.bultos'].sudo()
+        estados = dict(Registro._fields['state']._description_selection(self.env))
+        origenes = dict(Registro._fields['origen']._description_selection(self.env))
+        provee = dict(Registro._fields['proveedor_empaque']._description_selection(self.env))
+        filas = [COLUMNAS_BULTOS]
+        for r in Registro.search([], order='fecha, id'):
+            filas.append([
+                str(r.fecha) if r.fecha else '',
+                r.name or '',
+                r.orden_id.name or '',
+                r.cliente_id.name or '',
+                r.company_id.name or '',
+                r.producto_id.display_name or '',
+                r.variedad_id.name or '',
+                r.codigo_variedad or '',
+                self._si_no(r.es_semilla),
+                r.bodega_id.name or '',
+                r.producto_empaque_id.display_name or '',
+                provee.get(r.proveedor_empaque, r.proveedor_empaque or ''),
+                r.cantidad,
+                r.peso_promedio,
+                r.peso_total,
+                r.cantidad_despachada,
+                r.cantidad_pendiente,
+                estados.get(r.state, r.state),
+                origenes.get(r.origen, r.origen or ''),
+                r.usuario_id.name or '',
+                r.observaciones or '',
+            ])
+        return filas
+
+    @api.model
+    def _resumen_bultos(self, claves, columnas):
+        """Suma empacados/despachados/pendientes/peso agrupando por las
+        funciones de `claves` (una por columna de agrupación)."""
+        acumulado = {}
+        for r in self.env['secadora.registro.bultos'].sudo().search([]):
+            k = tuple(f(r) for f in claves)
+            a = acumulado.setdefault(k, [0, 0, 0, 0.0])
+            a[0] += r.cantidad
+            a[1] += r.cantidad_despachada
+            a[2] += r.cantidad_pendiente
+            a[3] += r.peso_total
+        filas = [columnas]
+        for k in sorted(acumulado):
+            a = acumulado[k]
+            filas.append(list(k) + [a[0], a[1], a[2], round(a[3], 2)])
+        return filas
+
+    @api.model
+    def _filas_bultos_saldo(self):
+        """Saldo por dueño, producto, variedad, semilla y bodega."""
+        return self._resumen_bultos([
+            lambda r: r.cliente_id.name or '',
+            lambda r: r.producto_id.display_name or '',
+            lambda r: r.variedad_id.name or '',
+            lambda r: r.codigo_variedad or '',
+            lambda r: self._si_no(r.es_semilla),
+            lambda r: r.bodega_id.name or '(sin bodega)',
+        ], COLUMNAS_BULTOS_SALDO)
+
+    @api.model
+    def _filas_bultos_mes(self):
+        """Empacado por mes y dueño."""
+        return self._resumen_bultos([
+            lambda r: r.fecha.strftime('%Y-%m') if r.fecha else '',
+            lambda r: r.cliente_id.name or '',
+            lambda r: r.producto_id.display_name or '',
+        ], COLUMNAS_BULTOS_MES)
+
+    @api.model
+    def publicar_bultos(self):
+        return self._publicar('bultos_spreadsheet_id', {
+            HOJA_BULTOS_SALDO: self._filas_bultos_saldo(),
+            HOJA_BULTOS_MES: self._filas_bultos_mes(),
+            HOJA_BULTOS: self._filas_bultos(),
+        }, 'registros de bultos')
+
+    @api.model
+    def _cron_publicar_bultos(self):
+        self.publicar_bultos()

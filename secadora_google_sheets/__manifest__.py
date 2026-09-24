@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Pesajes en Google Sheets',
-    'version': '19.0.1.1.0',
+    'version': '19.0.1.2.0',
     'category': 'Operations',
-    'summary': 'Publica pesajes de entrada y horómetros en Google Sheets cada hora',
+    'summary': 'Publica pesajes, horómetros y bultos empacados en Google Sheets cada hora',
     'description': """
         Pesajes en Google Sheets - Secadora La Gran Colombia
         ====================================================

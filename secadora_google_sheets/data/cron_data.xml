@@ -22,5 +22,15 @@
             <field name="active">True</field>
         </record>
 
+        <record id="cron_bultos_google_sheets" model="ir.cron">
+            <field name="name">Bultos: publicar en Google Sheets</field>
+            <field name="model_id" ref="model_secadora_google_sheets_sync"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_publicar_bultos()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">hours</field>
+            <field name="active">True</field>
+        </record>
+
     </data>
 </odoo>

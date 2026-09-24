@@ -15,5 +15,11 @@
             <field name="value"></field>
         </record>
 
+        <!-- Hoja de bultos empacados (saldo por bodega, por mes, registros). -->
+        <record id="param_bultos_spreadsheet_id" model="ir.config_parameter">
+            <field name="key">secadora_google_sheets.bultos_spreadsheet_id</field>
+            <field name="value"></field>
+        </record>
+
     </data>
 </odoo>
