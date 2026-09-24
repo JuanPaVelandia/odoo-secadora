@@ -9,5 +9,11 @@
             <field name="value"></field>
         </record>
 
+        <!-- Hoja de horómetros (lecturas + estado por equipo). -->
+        <record id="param_horometros_spreadsheet_id" model="ir.config_parameter">
+            <field name="key">secadora_google_sheets.horometros_spreadsheet_id</field>
+            <field name="value"></field>
+        </record>
+
     </data>
 </odoo>

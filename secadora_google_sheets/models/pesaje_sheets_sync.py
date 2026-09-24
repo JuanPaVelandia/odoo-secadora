@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Publica los pesajes de entrada en una hoja de Google Sheets.
+"""Publica los pesajes de entrada y los horómetros en hojas de Google Sheets.
 
 La hoja se reescribe completa en cada corrida: es la forma más simple de que
 una corrección en Odoo (humedad, cancelación, cambio de lote) se vea en la
@@ -34,10 +34,23 @@ COLUMNAS_MIXTAS = [
     'Número', 'Fecha', 'Finca', 'Lote', 'Bultos', 'Peso (kg)', 'Porcentaje (%)',
 ]
 
+HOJA_HOROMETROS = 'Lecturas'
+HOJA_EQUIPOS = 'Estado por equipo'
+COLUMNAS_HOROMETROS = [
+    'Fecha', 'Equipo', 'Categoría', 'Serie', 'Ubicación', 'Lectura (horas)',
+    'Horas desde la anterior', 'Días desde la anterior', 'Registrado por',
+    'Notas', 'OT generada',
+]
+COLUMNAS_EQUIPOS = [
+    'Equipo', 'Categoría', 'Serie', 'Ubicación', 'Horómetro actual',
+    'Fecha última lectura', 'Nro. lecturas', 'Intervalo mant. (horas)',
+    'Lectura último mant.', 'Horas para el próximo mant.',
+]
+
 
 class GoogleSheetsSync(models.AbstractModel):
     _name = 'secadora.google.sheets.sync'
-    _description = 'Publicación de pesajes en Google Sheets'
+    _description = 'Publicación de datos en Google Sheets'
 
     # ------------------------------------------------------------------
     # Cliente
@@ -217,3 +230,102 @@ class GoogleSheetsSync(models.AbstractModel):
     @api.model
     def _cron_publicar_pesajes(self):
         self.publicar_pesajes()
+
+    # ------------------------------------------------------------------
+    # Horómetros
+    # ------------------------------------------------------------------
+    @api.model
+    def _filas_horometros(self):
+        """Una lectura por fila, de la más antigua a la más reciente, con la
+        diferencia frente a la lectura anterior del mismo equipo."""
+        lecturas = self.env['maintenance.horometro.reading'].sudo().search(
+            [], order='equipment_id, date, id')
+        filas = [COLUMNAS_HOROMETROS]
+        anterior = {}
+        for l in lecturas:
+            eq = l.equipment_id
+            prev = anterior.get(eq.id)
+            horas = round(l.value - prev.value, 2) if prev else ''
+            dias = (l.date - prev.date).days if prev else ''
+            filas.append([
+                str(l.date) if l.date else '',
+                eq.complete_name or eq.name or '',
+                eq.category_id.name or '',
+                eq.serial_no or '',
+                eq.lugar_id.name if 'lugar_id' in eq._fields else '',
+                l.value,
+                horas,
+                dias,
+                l.user_id.name or '',
+                l.notes or '',
+                l.triggered_request_id.name or '',
+            ])
+            anterior[eq.id] = l
+        return filas
+
+    @api.model
+    def _filas_equipos(self):
+        """Resumen por equipo con lectura actual y horas para el próximo
+        mantenimiento (negativo = vencido)."""
+        equipos = self.env['maintenance.equipment'].sudo().search(
+            [('horometro_reading_ids', '!=', False)], order='name')
+        filas = [COLUMNAS_EQUIPOS]
+        for eq in equipos:
+            ultima = eq.horometro_reading_ids.sorted(
+                key=lambda r: (r.date, r.id), reverse=True)[:1]
+            faltan = ''
+            if eq.horometro_interval:
+                faltan = round(eq.horometro_last_maintenance
+                               + eq.horometro_interval - eq.horometro_current, 2)
+            filas.append([
+                eq.complete_name or eq.name or '',
+                eq.category_id.name or '',
+                eq.serial_no or '',
+                eq.lugar_id.name if 'lugar_id' in eq._fields else '',
+                eq.horometro_current,
+                str(ultima.date) if ultima else '',
+                eq.horometro_reading_count,
+                eq.horometro_interval or '',
+                eq.horometro_last_maintenance or '',
+                faltan,
+            ])
+        return filas
+
+    @api.model
+    def publicar_horometros(self):
+        """Reescribe la hoja de horómetros. Devuelve el número de lecturas
+        publicadas, o None si no se pudo."""
+        spreadsheet_id = self.env['ir.config_parameter'].sudo().get_param(
+            'secadora_google_sheets.horometros_spreadsheet_id')
+        if not spreadsheet_id:
+            _logger.info('Sheets: sin secadora_google_sheets.'
+                         'horometros_spreadsheet_id; no se publica nada.')
+            return None
+        svc = self._cliente_sheets()
+        if svc is None:
+            return None
+
+        lecturas = self._filas_horometros()
+        equipos = self._filas_equipos()
+        info = [
+            ['Última actualización (Colombia)', self._hora_local(fields.Datetime.now())],
+            ['Lecturas de horómetro', len(lecturas) - 1],
+            ['Equipos con lecturas', len(equipos) - 1],
+            ['Fuente', f'Odoo, base {self.env.cr.dbname}. '
+                       'La hoja se reescribe cada hora; lo que se edite aquí se pierde.'],
+        ]
+        try:
+            self._asegurar_hojas(svc, spreadsheet_id,
+                                 [HOJA_HOROMETROS, HOJA_EQUIPOS, HOJA_INFO])
+            self._escribir_hoja(svc, spreadsheet_id, HOJA_HOROMETROS, lecturas)
+            self._escribir_hoja(svc, spreadsheet_id, HOJA_EQUIPOS, equipos)
+            self._escribir_hoja(svc, spreadsheet_id, HOJA_INFO, info)
+        except Exception as e:
+            _logger.warning('Sheets: no se pudo publicar los horómetros: %s', e)
+            return None
+        _logger.info('Sheets: publicadas %d lecturas de horómetro.', len(lecturas) - 1)
+        return len(lecturas) - 1
+
+    @api.model
+    def _cron_publicar_horometros(self):
+        self.publicar_horometros()
