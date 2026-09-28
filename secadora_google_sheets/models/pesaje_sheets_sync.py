@@ -66,6 +66,18 @@ COLUMNAS_SEMILLA_RESUMEN = [
     'Producto', 'Variedad', 'Código', 'Semilla', 'Bodega',
     'Bultos en existencia', 'Peso (kg)', f'Hectáreas ({KG_SEMILLA_POR_HA} kg/ha)',
 ]
+# Resumen por orden de servicio del mismo agricultor: kg que entraron y
+# salieron, merma y a dónde fue cada bulto.
+HOJA_OS_CLIENTE = 'Órdenes José Velandia'
+BODEGA_SEMILLA = 'Duitama'
+COLUMNAS_OS_CLIENTE = [
+    'Orden', 'Estado', 'Variedad', 'Código', 'Origen (finca y lotes)',
+    'Primera entrada', 'Última entrada', 'Mulas', 'Kg entrada',
+    'Kg salida (bultos)', 'Merma (kg)', 'Merma (%)', 'Bultos empacados',
+    'Rechazo (bultos)', f'Bultos en Bodega {BODEGA_SEMILLA}',
+    'Despachados a otros sitios', 'Otros sitios (detalle)',
+    'Bultos aún en la secadora', 'Observaciones de la OS',
+]
 COLUMNAS_SEMILLA_DETALLE = [
     'Fecha empaque', 'Orden de servicio', 'Origen (finca y lotes)',
     'Producto', 'Variedad', 'Código', 'Semilla', 'Bodega',
@@ -511,10 +523,90 @@ class GoogleSheetsSync(models.AbstractModel):
         return filas
 
     @api.model
+    def _filas_os_cliente(self):
+        """Una fila por orden de servicio de CLIENTE_SEMILLA que empacó
+        bultos: kg de entrada y salida, merma, y el destino de los bultos.
+
+        Los bultos empacados salen del total de la orden (sin las copias que
+        crea un traslado). Los que están en la bodega de semilla son el saldo
+        de esas copias; los despachados a otros sitios son los que salieron
+        en un pesaje hacia un destino que no es bodega, desde cualquiera de
+        las dos."""
+        Orden = self.env['secadora.orden.servicio'].sudo()
+        estados = dict(Orden._fields['state']._description_selection(self.env))
+        ordenes = Orden.search([
+            ('cliente_id.name', '=ilike', CLIENTE_SEMILLA),
+            ('total_bultos', '>', 0),
+        ], order='name')
+
+        filas = [[f'Órdenes de servicio de {CLIENTE_SEMILLA} con bultos empacados'],
+                 COLUMNAS_OS_CLIENTE]
+        tot = {'mulas': 0, 'entrada': 0.0, 'salida': 0.0, 'merma': 0.0,
+               'bultos': 0, 'rechazo': 0, 'bodega': 0, 'otros': 0, 'secadora': 0}
+        for o in ordenes:
+            registros = o.registro_bultos_ids
+            propios = registros.filtered(lambda r: not r.trasladado_de_id)
+            rechazo = sum(r.cantidad for r in propios if self._es_rechazo(r))
+            en_bodega = sum(
+                r.cantidad_pendiente for r in registros
+                if r.trasladado_de_id and BODEGA_SEMILLA.lower() in (r.bodega_id.name or '').lower())
+            otros = {}
+            for d in registros.mapped('despacho_ids'):
+                destino = d.pesaje_id.destino_id
+                if destino and destino.tipo == 'bodega':
+                    continue
+                nombre = destino.name or '(sin destino)'
+                otros[nombre] = otros.get(nombre, 0) + d.cantidad
+            variedades = sorted({r.variedad_id.name for r in propios
+                                 if r.variedad_id and not self._es_rechazo(r)})
+            codigos = sorted({r.codigo_variedad for r in propios if r.codigo_variedad})
+            fechas = sorted(o.pesaje_entrada_ids.mapped('fecha'))
+            filas.append([
+                o.name,
+                estados.get(o.state, o.state),
+                ', '.join(variedades),
+                ', '.join(codigos),
+                self._origen_orden(o),
+                str(fechas[0]) if fechas else '',
+                str(fechas[-1]) if fechas else '',
+                len(o.pesaje_entrada_ids),
+                o.peso_entrada,
+                o.peso_salida_real,
+                o.merma_real,
+                o.merma_real_porcentaje,
+                o.total_bultos,
+                rechazo,
+                en_bodega,
+                sum(otros.values()),
+                '; '.join(f'{k}: {v}' for k, v in sorted(otros.items())),
+                o.bultos_pendientes,
+                (o.observaciones or '').strip(),
+            ])
+            tot['mulas'] += len(o.pesaje_entrada_ids)
+            tot['entrada'] += o.peso_entrada
+            tot['salida'] += o.peso_salida_real
+            tot['merma'] += o.merma_real
+            tot['bultos'] += o.total_bultos
+            tot['rechazo'] += rechazo
+            tot['bodega'] += en_bodega
+            tot['otros'] += sum(otros.values())
+            tot['secadora'] += o.bultos_pendientes
+        merma_pct = round(tot['merma'] / tot['entrada'] * 100, 2) if tot['entrada'] else 0
+        filas.append(['TOTAL', '', '', '', '', '', '', tot['mulas'],
+                      round(tot['entrada'], 2), round(tot['salida'], 2),
+                      round(tot['merma'], 2), merma_pct, tot['bultos'],
+                      tot['rechazo'], tot['bodega'], tot['otros'], '',
+                      tot['secadora'], ''])
+        filas.append(['Kg salida = bultos empacados × peso promedio; la merma es '
+                      'entrada menos salida. Bultos empacados incluye el rechazo.'])
+        return filas
+
+    @api.model
     def publicar_bultos(self):
         return self._publicar('bultos_spreadsheet_id', {
             HOJA_BULTOS_SALDO: self._filas_bultos_saldo(),
             HOJA_SEMILLA_CLIENTE: self._filas_semilla_cliente(),
+            HOJA_OS_CLIENTE: self._filas_os_cliente(),
             HOJA_BULTOS_MES: self._filas_bultos_mes(),
             HOJA_BULTOS: self._filas_bultos(),
         }, 'registros de bultos')
