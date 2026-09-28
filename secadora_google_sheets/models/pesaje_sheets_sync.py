@@ -57,6 +57,22 @@ COLUMNAS_BULTOS_SALDO = [
 ] + _TOTALES
 COLUMNAS_BULTOS_MES = ['Mes', 'Dueño / Agricultor', 'Producto'] + _TOTALES
 
+# Pestaña con la semilla de un solo agricultor: qué tiene en existencia, de
+# qué finca y lote salió cada bulto y para cuántas hectáreas alcanza.
+HOJA_SEMILLA_CLIENTE = 'José Velandia'
+CLIENTE_SEMILLA = 'JOSE EDUARDO VELANDIA OTALORA'
+KG_SEMILLA_POR_HA = 200
+COLUMNAS_SEMILLA_RESUMEN = [
+    'Producto', 'Variedad', 'Código', 'Semilla', 'Bodega',
+    'Bultos en existencia', 'Peso (kg)', f'Hectáreas ({KG_SEMILLA_POR_HA} kg/ha)',
+]
+COLUMNAS_SEMILLA_DETALLE = [
+    'Fecha empaque', 'Orden de servicio', 'Origen (finca y lotes)',
+    'Producto', 'Variedad', 'Código', 'Semilla', 'Bodega',
+    'Bultos en existencia', 'Peso (kg)', f'Hectáreas ({KG_SEMILLA_POR_HA} kg/ha)',
+    'Empacados', 'Despachados', 'Llegó por traslado desde', 'Observaciones',
+]
+
 COLUMNAS_EQUIPOS = [
     'Equipo', 'Categoría', 'Serie', 'Ubicación', 'Horómetro actual',
     'Fecha última lectura', 'Nro. lecturas', 'Intervalo mant. (horas)',
@@ -399,9 +415,106 @@ class GoogleSheetsSync(models.AbstractModel):
         ], COLUMNAS_BULTOS_MES)
 
     @api.model
+    def _origen_orden(self, orden):
+        """Fincas y lotes de donde entró el arroz de la orden, como texto:
+        'FINCA X (lotes 33, 38); FINCA Y (lote 75)'. Una carga mixta aporta
+        los lotes de sus líneas de distribución."""
+        lotes_por_finca = {}
+        for p in orden.pesaje_entrada_ids:
+            if p.distribucion_ids:
+                pares = [(d.finca_id.name, d.lote_id.name) for d in p.distribucion_ids]
+            else:
+                pares = [(p.origen_id.name, p.lote_id.name or p.lote_finca)]
+            for finca, lote in pares:
+                lotes = lotes_por_finca.setdefault(finca or '(sin finca)', set())
+                if lote:
+                    lotes.add(lote)
+        partes = []
+        for finca in sorted(lotes_por_finca):
+            lotes = sorted(lotes_por_finca[finca], key=lambda x: (len(x), x))
+            if lotes:
+                partes.append('%s (%s %s)' % (
+                    finca, 'lote' if len(lotes) == 1 else 'lotes', ', '.join(lotes)))
+            else:
+                partes.append(finca)
+        return '; '.join(partes)
+
+    @staticmethod
+    def _es_rechazo(registro):
+        return 'rechazo' in (registro.producto_id.name or '').lower()
+
+    @api.model
+    def _filas_semilla_cliente(self):
+        """Existencias de semilla de CLIENTE_SEMILLA: un resumen por variedad
+        y bodega con las hectáreas que alcanza a sembrar, y debajo el detalle
+        de cada registro con saldo y la finca/lote de donde salió.
+
+        Solo cuentan los bultos pendientes (no despachados): los registros de
+        la bodega de la secadora que ya se trasladaron a otra bodega quedan
+        en 0 y no se duplican. El rechazo se lista pero no suma hectáreas."""
+        registros = self.env['secadora.registro.bultos'].sudo().search([
+            ('cliente_id.name', '=ilike', CLIENTE_SEMILLA),
+            ('cantidad_pendiente', '>', 0),
+        ], order='fecha, id')
+
+        def hectareas(kg):
+            return round(kg / KG_SEMILLA_POR_HA, 1)
+
+        resumen = {}
+        detalle = []
+        origenes = {}
+        for r in registros:
+            kg = round(r.peso_promedio * r.cantidad_pendiente, 2)
+            rechazo = self._es_rechazo(r)
+            k = (r.producto_id.display_name or '', r.variedad_id.name or '',
+                 r.codigo_variedad or '', self._si_no(r.es_semilla),
+                 r.bodega_id.name or '(sin bodega)')
+            a = resumen.setdefault(k, [0, 0.0, rechazo])
+            a[0] += r.cantidad_pendiente
+            a[1] += kg
+            orden = r.orden_id
+            if orden and orden.id not in origenes:
+                origenes[orden.id] = self._origen_orden(orden)
+            detalle.append([
+                str(r.fecha) if r.fecha else '',
+                orden.name or '',
+                origenes.get(orden.id, ''),
+                k[0], k[1], k[2], k[3], k[4],
+                r.cantidad_pendiente,
+                kg,
+                '' if rechazo else hectareas(kg),
+                r.cantidad,
+                r.cantidad_despachada,
+                r.trasladado_de_id.bodega_id.name if r.trasladado_de_id else '',
+                r.observaciones or '',
+            ])
+
+        filas = [[f'Semilla de {CLIENTE_SEMILLA}: bultos en existencia y para '
+                  f'cuántas hectáreas alcanzan a {KG_SEMILLA_POR_HA} kg por hectárea'],
+                 COLUMNAS_SEMILLA_RESUMEN]
+        total_bultos = total_kg = kg_semilla = 0.0
+        for k in sorted(resumen):
+            bultos, kg, rechazo = resumen[k]
+            filas.append(list(k) + [bultos, round(kg, 2), '' if rechazo else hectareas(kg)])
+            total_bultos += bultos
+            total_kg += kg
+            if not rechazo:
+                kg_semilla += kg
+        filas.append(['TOTAL', '', '', '', '', int(total_bultos), round(total_kg, 2),
+                      hectareas(kg_semilla)])
+        filas.append([f'Las hectáreas se calculan sobre el arroz sin contar el '
+                      f'rechazo: {round(kg_semilla, 2)} kg ÷ {KG_SEMILLA_POR_HA} kg/ha.'])
+        filas.append([])
+        filas.append(['Detalle: de dónde salió cada bulto'])
+        filas.append(COLUMNAS_SEMILLA_DETALLE)
+        filas.extend(detalle)
+        return filas
+
+    @api.model
     def publicar_bultos(self):
         return self._publicar('bultos_spreadsheet_id', {
             HOJA_BULTOS_SALDO: self._filas_bultos_saldo(),
+            HOJA_SEMILLA_CLIENTE: self._filas_semilla_cliente(),
             HOJA_BULTOS_MES: self._filas_bultos_mes(),
             HOJA_BULTOS: self._filas_bultos(),
         }, 'registros de bultos')
