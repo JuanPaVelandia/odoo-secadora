@@ -4,6 +4,7 @@
 
         <menuitem id="menu_finca_root"
                   name="Labores de Finca"
+                  web_icon="finca_labores,static/description/icon.png"
                   groups="group_finca_usuario"
                   sequence="45"/>
 

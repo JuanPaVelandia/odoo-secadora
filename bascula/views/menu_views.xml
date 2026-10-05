@@ -2,9 +2,9 @@
 <odoo>
     <data>
 
-        <!-- Menú Principal: Báscula -->
+        <!-- Menú Principal: Secadora -->
         <menuitem id="menu_bascula_root"
-                  name="Báscula"
+                  name="Secadora"
                   web_icon="bascula,static/description/icon.png"
                   sequence="10"/>
 

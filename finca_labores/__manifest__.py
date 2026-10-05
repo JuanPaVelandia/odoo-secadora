@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Labores de Finca',
-    'version': '19.0.1.4.0',
+    'version': '19.0.1.5.0',
     'category': 'Operations',
     'summary': 'Labores por contrato, jornales y trabajos de maquinaria por finca, con saldo por operador',
     'description': """
