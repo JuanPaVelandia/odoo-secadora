@@ -24,3 +24,4 @@ access_secadora_lote_finca_admin,secadora.lote.finca.admin,bascula.model_secador
 access_maintenance_equipment_finca_usuario,maintenance.equipment.finca.usuario,maintenance.model_maintenance_equipment,group_finca_usuario,1,0,0,0
 access_maintenance_equipment_category_finca_usuario,maintenance.equipment.category.finca.usuario,maintenance.model_maintenance_equipment_category,group_finca_usuario,1,0,0,0
 access_maintenance_equipment_category_finca_admin,maintenance.equipment.category.finca.admin,maintenance.model_maintenance_equipment_category,group_finca_admin,1,1,0,0
+access_finca_resumen_usuario,finca.resumen.usuario,model_finca_resumen,group_finca_usuario,1,1,1,1

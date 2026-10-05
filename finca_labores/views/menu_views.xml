@@ -18,6 +18,8 @@
 
         <!-- Saldos -->
         <menuitem id="menu_finca_saldos" name="Saldos" parent="menu_finca_root" sequence="20"/>
+        <menuitem id="menu_finca_resumen" name="Resumen de saldos" parent="menu_finca_saldos"
+                  action="action_finca_resumen" sequence="5"/>
         <menuitem id="menu_finca_saldos_resumen" name="Saldos por dueño y operador" parent="menu_finca_saldos"
                   action="action_finca_labor_movimiento_saldos" sequence="10"/>
         <menuitem id="menu_finca_movimientos" name="Movimientos" parent="menu_finca_saldos"
