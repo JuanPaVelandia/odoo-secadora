@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tarifas de la pestaña Parámetros del consolidado 2025-2026.
+         noupdate: una vez instaladas se ajustan desde Configuración > Labores. -->
+    <data noupdate="1">
+
+        <record id="labor_1_pason" model="finca.labor">
+            <field name="name">1 Pason</field>
+            <field name="sequence">10</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">12000</field>
+        </record>
+
+        <record id="labor_2_pason" model="finca.labor">
+            <field name="name">2 Pason</field>
+            <field name="sequence">20</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">12000</field>
+        </record>
+
+        <record id="labor_3_pason" model="finca.labor">
+            <field name="name">3 Pason</field>
+            <field name="sequence">30</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">11000</field>
+        </record>
+
+        <record id="labor_pason_adicional" model="finca.labor">
+            <field name="name">Pason adicional</field>
+            <field name="sequence">40</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">6000</field>
+        </record>
+
+        <record id="labor_paso_de_tubo" model="finca.labor">
+            <field name="name">Paso de tubo</field>
+            <field name="sequence">50</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">6000</field>
+        </record>
+
+        <record id="labor_encalada" model="finca.labor">
+            <field name="name">Encalada</field>
+            <field name="sequence">60</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">13000</field>
+        </record>
+
+        <record id="labor_quema_sin_preparacion" model="finca.labor">
+            <field name="name">Quema (sin preparacion)</field>
+            <field name="sequence">70</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">3500</field>
+        </record>
+
+        <record id="labor_quema" model="finca.labor">
+            <field name="name">Quema</field>
+            <field name="sequence">80</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2500</field>
+        </record>
+
+        <record id="labor_requema" model="finca.labor">
+            <field name="name">Requema</field>
+            <field name="sequence">90</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2500</field>
+        </record>
+
+        <record id="labor_staneada" model="finca.labor">
+            <field name="name">Staneada</field>
+            <field name="sequence">100</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2500</field>
+        </record>
+
+        <record id="labor_staneada_2" model="finca.labor">
+            <field name="name">Staneada 2</field>
+            <field name="sequence">110</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2500</field>
+        </record>
+
+        <record id="labor_preabonada" model="finca.labor">
+            <field name="name">Preabonada</field>
+            <field name="sequence">120</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2000</field>
+        </record>
+
+        <record id="labor_1_abonada" model="finca.labor">
+            <field name="name">1 abonada</field>
+            <field name="sequence">130</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2000</field>
+        </record>
+
+        <record id="labor_2_abonada" model="finca.labor">
+            <field name="name">2 abonada</field>
+            <field name="sequence">140</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2000</field>
+        </record>
+
+        <record id="labor_3_abonada" model="finca.labor">
+            <field name="name">3 abonada</field>
+            <field name="sequence">150</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">2000</field>
+        </record>
+
+        <record id="labor_siembra_sembradora_2" model="finca.labor">
+            <field name="name">Siembra (sembradora) 2</field>
+            <field name="sequence">160</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">8000</field>
+        </record>
+
+        <record id="labor_siembra_voleadora" model="finca.labor">
+            <field name="name">Siembra (voleadora)</field>
+            <field name="sequence">170</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">bulto</field>
+            <field name="valor_unitario">1500</field>
+        </record>
+
+        <record id="labor_corta" model="finca.labor">
+            <field name="name">Corta</field>
+            <field name="sequence">180</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">bulto</field>
+            <field name="valor_unitario">550</field>
+        </record>
+
+        <record id="labor_corta_soca" model="finca.labor">
+            <field name="name">Corta soca</field>
+            <field name="sequence">190</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">bulto</field>
+            <field name="valor_unitario">5000</field>
+        </record>
+
+        <record id="labor_sacada_arroz" model="finca.labor">
+            <field name="name">Sacada arroz</field>
+            <field name="sequence">200</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">bulto</field>
+            <field name="valor_unitario">250</field>
+        </record>
+
+        <record id="labor_sacada_soca" model="finca.labor">
+            <field name="name">Sacada soca</field>
+            <field name="sequence">210</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">bulto</field>
+            <field name="valor_unitario">2000</field>
+        </record>
+
+        <record id="labor_rodillo" model="finca.labor">
+            <field name="name">Rodillo</field>
+            <field name="sequence">220</field>
+            <field name="tipo">contrato</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">4000</field>
+        </record>
+
+        <record id="labor_jornal" model="finca.labor">
+            <field name="name">Jornal</field>
+            <field name="sequence">10</field>
+            <field name="tipo">jornal</field>
+            <field name="unidad">dia</field>
+        </record>
+
+        <record id="labor_mensualidad" model="finca.labor">
+            <field name="name">Mensualidad</field>
+            <field name="sequence">20</field>
+            <field name="tipo">jornal</field>
+            <field name="unidad">mes</field>
+        </record>
+
+    </data>
+</odoo>

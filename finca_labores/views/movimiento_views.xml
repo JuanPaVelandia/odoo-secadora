@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_finca_labor_movimiento_list" model="ir.ui.view">
+            <field name="name">finca.labor.movimiento.list</field>
+            <field name="model">finca.labor.movimiento</field>
+            <field name="arch" type="xml">
+                <list string="Movimientos" create="false" edit="false" delete="false"
+                      decoration-success="tipo == 'pago'">
+                    <field name="fecha"/>
+                    <field name="campana_id" optional="hide"/>
+                    <field name="dueno_id"/>
+                    <field name="operador_id"/>
+                    <field name="finca_id" optional="show"/>
+                    <field name="tipo"/>
+                    <field name="referencia"/>
+                    <field name="descripcion" optional="show"/>
+                    <field name="trabajos" sum="Trabajos"/>
+                    <field name="pagos" sum="Pagos"/>
+                    <field name="saldo" sum="Saldo"/>
+                    <field name="res_model" column_invisible="True"/>
+                    <button name="action_abrir_origen" type="object" icon="fa-external-link"
+                            title="Abrir documento"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Equivale a "Resumen total": dueño x operador con trabajos, pagos y saldo. -->
+        <record id="view_finca_labor_movimiento_pivot" model="ir.ui.view">
+            <field name="name">finca.labor.movimiento.pivot</field>
+            <field name="model">finca.labor.movimiento</field>
+            <field name="arch" type="xml">
+                <pivot string="Saldos" disable_linking="False">
+                    <field name="dueno_id" type="row"/>
+                    <field name="operador_id" type="row"/>
+                    <field name="trabajos" type="measure"/>
+                    <field name="pagos" type="measure"/>
+                    <field name="saldo" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="view_finca_labor_movimiento_search" model="ir.ui.view">
+            <field name="name">finca.labor.movimiento.search</field>
+            <field name="model">finca.labor.movimiento</field>
+            <field name="arch" type="xml">
+                <search string="Buscar movimientos">
+                    <field name="operador_id"/>
+                    <field name="dueno_id"/>
+                    <field name="finca_id"/>
+                    <field name="referencia"/>
+                    <separator/>
+                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                            domain="[('campana_id.state', '=', 'abierta')]"/>
+                    <separator/>
+                    <filter name="filter_trabajos" string="Trabajos" domain="[('tipo', '!=', 'pago')]"/>
+                    <filter name="filter_pagos" string="Pagos" domain="[('tipo', '=', 'pago')]"/>
+                    <filter name="filter_sin_dueno" string="Sin dueño" domain="[('dueno_id', '=', False)]"/>
+                    <group>
+                        <filter name="group_dueno" string="Dueño" context="{'group_by': 'dueno_id'}"/>
+                        <filter name="group_operador" string="Operador" context="{'group_by': 'operador_id'}"/>
+                        <filter name="group_finca" string="Finca" context="{'group_by': 'finca_id'}"/>
+                        <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo'}"/>
+                        <filter name="group_campana" string="Campaña" context="{'group_by': 'campana_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_finca_labor_movimiento_saldos" model="ir.actions.act_window">
+            <field name="name">Saldos por dueño y operador</field>
+            <field name="res_model">finca.labor.movimiento</field>
+            <field name="view_mode">pivot,list</field>
+            <field name="search_view_id" ref="view_finca_labor_movimiento_search"/>
+            <field name="context">{'search_default_filter_campana_abierta': 1}</field>
+        </record>
+
+        <record id="action_finca_labor_movimiento" model="ir.actions.act_window">
+            <field name="name">Movimientos</field>
+            <field name="res_model">finca.labor.movimiento</field>
+            <field name="view_mode">list,pivot</field>
+            <field name="search_view_id" ref="view_finca_labor_movimiento_search"/>
+            <field name="context">{'search_default_filter_campana_abierta': 1, 'search_default_group_operador': 1}</field>
+        </record>
+
+    </data>
+</odoo>

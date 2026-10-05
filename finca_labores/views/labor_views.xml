@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_finca_labor_list" model="ir.ui.view">
+            <field name="name">finca.labor.list</field>
+            <field name="model">finca.labor</field>
+            <field name="arch" type="xml">
+                <list string="Labores" editable="bottom">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                    <field name="tipo"/>
+                    <field name="unidad"/>
+                    <field name="valor_unitario"/>
+                    <field name="active" column_invisible="True"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_finca_labor_search" model="ir.ui.view">
+            <field name="name">finca.labor.search</field>
+            <field name="model">finca.labor</field>
+            <field name="arch" type="xml">
+                <search string="Buscar labores">
+                    <field name="name"/>
+                    <filter name="filter_contrato" string="Por contrato" domain="[('tipo', '=', 'contrato')]"/>
+                    <filter name="filter_jornal" string="Jornales" domain="[('tipo', '=', 'jornal')]"/>
+                    <separator/>
+                    <filter name="filter_archivadas" string="Archivadas" domain="[('active', '=', False)]"/>
+                    <group>
+                        <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_finca_labor" model="ir.actions.act_window">
+            <field name="name">Labores y tarifas</field>
+            <field name="res_model">finca.labor</field>
+            <field name="view_mode">list</field>
+            <field name="search_view_id" ref="view_finca_labor_search"/>
+            <field name="context">{'search_default_group_tipo': 1}</field>
+        </record>
+
+        <!-- Topes de maquinaria: se editan sobre las categorías de equipo
+             que creó la migración de Fracttal. -->
+        <record id="view_finca_equipment_category_tope_list" model="ir.ui.view">
+            <field name="name">maintenance.equipment.category.tope.list</field>
+            <field name="model">maintenance.equipment.category</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="Topes de maquinaria" editable="bottom" create="false" delete="false">
+                    <field name="name" readonly="1"/>
+                    <field name="finca_valor_max_contrato"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_finca_equipment_category_tope" model="ir.actions.act_window">
+            <field name="name">Topes de maquinaria</field>
+            <field name="res_model">maintenance.equipment.category</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_finca_equipment_category_tope_list"/>
+        </record>
+
+    </data>
+</odoo>

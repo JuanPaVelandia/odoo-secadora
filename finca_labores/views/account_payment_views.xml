@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Al final de la hoja: el formulario de pago tiene dos campos
+             partner_id (cliente/proveedor) y no conviene anclarse a ninguno. -->
+        <record id="view_account_payment_form_finca" model="ir.ui.view">
+            <field name="name">account.payment.form.finca.labores</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="inside">
+                    <group string="Labores de finca" name="finca_labores"
+                           invisible="not finca_campana_id and not partner_id">
+                        <group>
+                            <field name="finca_campana_id"/>
+                            <field name="finca_dueno_id" invisible="not finca_campana_id"
+                                   required="finca_campana_id"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_account_payment_search_finca" model="ir.ui.view">
+            <field name="name">account.payment.search.finca.labores</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <separator/>
+                    <filter name="filter_finca_labores" string="Pagos de labores"
+                            domain="[('finca_campana_id', '!=', False)]"/>
+                    <filter name="filter_finca_sin_dueno" string="Labores sin dueño"
+                            domain="[('finca_campana_id', '!=', False), ('finca_dueno_id', '=', False)]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Desde el menú de labores: pagos a operadores, para revisar que
+             cada uno tenga campaña y dueño. -->
+        <record id="action_finca_pagos" model="ir.actions.act_window">
+            <field name="name">Pagos a operadores</field>
+            <field name="res_model">account.payment</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('partner_id.es_operador_finca', '=', True)]</field>
+            <field name="context">{'create': False}</field>
+        </record>
+
+    </data>
+</odoo>

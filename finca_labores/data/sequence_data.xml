@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="seq_finca_contrato" model="ir.sequence">
+            <field name="name">Labor por contrato</field>
+            <field name="code">finca.contrato</field>
+            <field name="prefix">CTR-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_finca_jornal" model="ir.sequence">
+            <field name="name">Jornal de finca</field>
+            <field name="code">finca.jornal</field>
+            <field name="prefix">JOR-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+        <record id="seq_finca_maquinaria_trabajo" model="ir.sequence">
+            <field name="name">Trabajo de maquinaria</field>
+            <field name="code">finca.maquinaria.trabajo</field>
+            <field name="prefix">MAQ-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

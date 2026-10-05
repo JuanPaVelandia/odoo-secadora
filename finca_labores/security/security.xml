@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="module_category_finca_labores" model="ir.module.category">
+            <field name="name">Labores de Finca</field>
+            <field name="description">Labores por contrato, jornales y maquinaria de las fincas</field>
+            <field name="sequence">25</field>
+        </record>
+
+        <record id="res_groups_privilege_finca_labores" model="res.groups.privilege">
+            <field name="name">Labores de Finca</field>
+            <field name="category_id" ref="module_category_finca_labores"/>
+        </record>
+
+        <!-- Registra y confirma labores, jornales y trabajos de maquinaria -->
+        <record id="group_finca_usuario" model="res.groups">
+            <field name="name">Usuario Labores</field>
+            <field name="privilege_id" ref="res_groups_privilege_finca_labores"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        </record>
+
+        <!-- Además administra campañas, tarifas y dueños, y vuelve registros a borrador -->
+        <record id="group_finca_admin" model="res.groups">
+            <field name="name">Administrador Labores</field>
+            <field name="privilege_id" ref="res_groups_privilege_finca_labores"/>
+            <field name="implied_ids" eval="[(4, ref('group_finca_usuario'))]"/>
+            <field name="user_ids" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- ====== Reglas Multi-Empresa ====== -->
+
+        <record id="finca_contrato_company_rule" model="ir.rule">
+            <field name="name">Labor por contrato: Multi-Company</field>
+            <field name="model_id" ref="model_finca_contrato"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="finca_jornal_company_rule" model="ir.rule">
+            <field name="name">Jornal: Multi-Company</field>
+            <field name="model_id" ref="model_finca_jornal"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <record id="finca_maquinaria_trabajo_company_rule" model="ir.rule">
+            <field name="name">Trabajo de maquinaria: Multi-Company</field>
+            <field name="model_id" ref="model_finca_maquinaria_trabajo"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+        <!-- Los pagos de un operador pueden estar en la compañía de cada dueño:
+             el saldo solo cuadra si se ven las compañías activas, igual que
+             en contabilidad. -->
+        <record id="finca_labor_movimiento_company_rule" model="ir.rule">
+            <field name="name">Movimiento de labores: Multi-Company</field>
+            <field name="model_id" ref="model_finca_labor_movimiento"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
+    </data>
+</odoo>

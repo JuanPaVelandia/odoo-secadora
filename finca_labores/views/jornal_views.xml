@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Se captura en la lista, como en la hoja; el formulario queda para
+             ver el historial. -->
+        <record id="view_finca_jornal_list" model="ir.ui.view">
+            <field name="name">finca.jornal.list</field>
+            <field name="model">finca.jornal</field>
+            <field name="arch" type="xml">
+                <list string="Jornales" editable="bottom" open_form_view="True"
+                      decoration-info="state == 'borrador'"
+                      decoration-muted="state == 'cancelado'">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object" class="oe_highlight"/>
+                    </header>
+                    <field name="name" readonly="1" optional="show"/>
+                    <field name="campana_id" optional="hide" readonly="state != 'borrador'"/>
+                    <field name="finca_id" readonly="state != 'borrador'"/>
+                    <field name="fecha_desde" readonly="state != 'borrador'"/>
+                    <field name="fecha_hasta" readonly="state != 'borrador'"/>
+                    <field name="operador_id" readonly="state != 'borrador'"/>
+                    <field name="labor_id" readonly="state != 'borrador'"/>
+                    <field name="descripcion" optional="show" readonly="state != 'borrador'"/>
+                    <field name="cantidad" readonly="state != 'borrador'"/>
+                    <field name="unidad" optional="show"/>
+                    <field name="valor_unitario" readonly="state != 'borrador'"/>
+                    <field name="total" sum="Total"/>
+                    <field name="dueno_id" optional="hide" readonly="state != 'borrador'"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'borrador'"
+                           decoration-success="state == 'confirmado'"
+                           decoration-muted="state == 'cancelado'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_finca_jornal_form" model="ir.ui.view">
+            <field name="name">finca.jornal.form</field>
+            <field name="model">finca.jornal</field>
+            <field name="arch" type="xml">
+                <form string="Jornal">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"/>
+                        <button name="action_borrador" string="Volver a borrador" type="object"
+                                invisible="state == 'borrador'"
+                                groups="finca_labores.group_finca_admin"/>
+                        <button name="action_cancelar" string="Cancelar" type="object"
+                                invisible="state != 'borrador'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmado"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="campana_id" readonly="state != 'borrador'"/>
+                                <field name="finca_id" readonly="state != 'borrador'"/>
+                                <field name="dueno_id" readonly="state != 'borrador'"/>
+                                <field name="operador_id" readonly="state != 'borrador'"/>
+                                <field name="fecha_desde" readonly="state != 'borrador'"/>
+                                <field name="fecha_hasta" readonly="state != 'borrador'"/>
+                            </group>
+                            <group>
+                                <field name="labor_id" readonly="state != 'borrador'"/>
+                                <field name="descripcion" readonly="state != 'borrador'"/>
+                                <label for="cantidad"/>
+                                <div class="o_row">
+                                    <field name="cantidad" readonly="state != 'borrador'"/>
+                                    <field name="unidad" readonly="1" nolabel="1"/>
+                                </div>
+                                <field name="valor_unitario" readonly="state != 'borrador'"/>
+                                <field name="total"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_finca_jornal_search" model="ir.ui.view">
+            <field name="name">finca.jornal.search</field>
+            <field name="model">finca.jornal</field>
+            <field name="arch" type="xml">
+                <search string="Buscar jornales">
+                    <field name="operador_id"/>
+                    <field name="finca_id"/>
+                    <field name="labor_id"/>
+                    <field name="dueno_id"/>
+                    <separator/>
+                    <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
+                    <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
+                    <separator/>
+                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                            domain="[('campana_id.state', '=', 'abierta')]"/>
+                    <group>
+                        <filter name="group_finca" string="Finca" context="{'group_by': 'finca_id'}"/>
+                        <filter name="group_operador" string="Persona" context="{'group_by': 'operador_id'}"/>
+                        <filter name="group_mes" string="Mes" context="{'group_by': 'fecha_hasta:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_finca_jornal" model="ir.actions.act_window">
+            <field name="name">Jornales</field>
+            <field name="res_model">finca.jornal</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_finca_jornal_search"/>
+            <field name="context">{'search_default_filter_campana_abierta': 1}</field>
+        </record>
+
+    </data>
+</odoo>

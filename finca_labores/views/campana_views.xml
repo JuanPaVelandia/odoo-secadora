@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_finca_campana_list" model="ir.ui.view">
+            <field name="name">finca.campana.list</field>
+            <field name="model">finca.campana</field>
+            <field name="arch" type="xml">
+                <list string="Campañas" decoration-muted="state == 'cerrada'">
+                    <field name="name"/>
+                    <field name="fecha_inicio"/>
+                    <field name="fecha_fin"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'abierta'"
+                           decoration-muted="state == 'cerrada'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_finca_campana_form" model="ir.ui.view">
+            <field name="name">finca.campana.form</field>
+            <field name="model">finca.campana</field>
+            <field name="arch" type="xml">
+                <form string="Campaña">
+                    <header>
+                        <button name="action_cerrar" string="Cerrar campaña" type="object"
+                                invisible="state != 'abierta'"
+                                confirm="Al cerrar la campaña ya no se propone en los nuevos registros. ¿Continuar?"/>
+                        <button name="action_reabrir" string="Reabrir" type="object"
+                                invisible="state != 'cerrada'"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="Ej: 2026-2027"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="fecha_inicio"/>
+                                <field name="fecha_fin"/>
+                            </group>
+                        </group>
+                        <field name="notes" placeholder="Notas..."/>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_finca_campana" model="ir.actions.act_window">
+            <field name="name">Campañas</field>
+            <field name="res_model">finca.campana</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Crear la primera campaña</p>
+                <p>Cada labor, jornal y pago pertenece a una campaña (ej. 2026-2027).
+                   Los pagos a operadores se asignan a la campaña según su fecha.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

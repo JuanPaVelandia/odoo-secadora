@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_estado_cuenta" model="ir.actions.report">
+            <field name="name">Estado de cuenta de operador</field>
+            <field name="model">finca.estado.cuenta.wizard</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">finca_labores.report_estado_cuenta_document</field>
+            <field name="report_file">finca_labores.report_estado_cuenta_document</field>
+            <field name="print_report_name">'Estado_cuenta_%s_%s' % (object.operador_id.name, object.campana_id.name)</field>
+        </record>
+
+        <!-- Reemplaza la pestaña "Reporte" del consolidado: detalle por dueño
+             de lo trabajado y lo pagado, con el saldo de cada uno. -->
+        <template id="report_estado_cuenta_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <t t-set="grupos" t-value="o._get_movimientos()"/>
+                        <div class="page" style="font-size: 12px;">
+                            <h3 class="text-center">ESTADO DE CUENTA DE LABORES</h3>
+                            <table class="table table-sm table-borderless" style="width: auto;">
+                                <tr><td><strong>Operador:</strong></td><td><span t-field="o.operador_id"/></td></tr>
+                                <tr><td><strong>Campaña:</strong></td><td><span t-field="o.campana_id"/></td></tr>
+                                <tr><td><strong>Fecha:</strong></td>
+                                    <td t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/></tr>
+                            </table>
+
+                            <p t-if="not grupos">El operador no tiene movimientos en esta campaña.</p>
+
+                            <t t-set="gran_saldo" t-value="0"/>
+                            <t t-foreach="grupos" t-as="grupo">
+                                <t t-set="dueno" t-value="grupo[0]"/>
+                                <t t-set="movs" t-value="grupo[1]"/>
+                                <t t-set="gran_saldo" t-value="gran_saldo + sum(movs.mapped('saldo'))"/>
+                                <h5 style="margin-top: 18px; border-bottom: 1px solid #000;">
+                                    Dueño: <t t-out="dueno.name or 'Sin dueño asignado'"/>
+                                </h5>
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Referencia</th>
+                                            <th>Finca</th>
+                                            <th>Detalle</th>
+                                            <th class="text-end">Trabajos</th>
+                                            <th class="text-end">Pagos</th>
+                                            <th class="text-end">Saldo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-set="acumulado" t-value="0"/>
+                                        <tr t-foreach="movs" t-as="m">
+                                            <t t-set="acumulado" t-value="acumulado + m.saldo"/>
+                                            <td><span t-field="m.fecha"/></td>
+                                            <td><span t-field="m.referencia"/></td>
+                                            <td><span t-field="m.finca_id"/></td>
+                                            <td><span t-field="m.descripcion"/></td>
+                                            <td class="text-end"><t t-if="m.trabajos" t-out="'{:,.0f}'.format(m.trabajos).replace(',', '.')"/></td>
+                                            <td class="text-end"><t t-if="m.pagos" t-out="'{:,.0f}'.format(m.pagos).replace(',', '.')"/></td>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(acumulado).replace(',', '.')"/>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="font-weight: bold;">
+                                            <td colspan="4">Subtotal <t t-out="dueno.name or 'sin dueño'"/></td>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(sum(movs.mapped('trabajos'))).replace(',', '.')"/>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(sum(movs.mapped('pagos'))).replace(',', '.')"/>
+                                            <td class="text-end" t-out="'{:,.0f}'.format(sum(movs.mapped('saldo'))).replace(',', '.')"/>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </t>
+
+                            <div t-if="grupos" style="margin-top: 20px; font-size: 14px; text-align: right;">
+                                <strong>
+                                    <t t-if="gran_saldo &gt;= 0">Saldo a favor del operador:</t>
+                                    <t t-else="">Saldo a favor de los dueños (pagado de más):</t>
+                                    $ <t t-out="'{:,.0f}'.format(abs(gran_saldo)).replace(',', '.')"/>
+                                </strong>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

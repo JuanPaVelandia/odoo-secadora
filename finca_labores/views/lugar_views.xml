@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_secadora_lugar_form_finca" model="ir.ui.view">
+            <field name="name">secadora.lugar.form.finca.labores</field>
+            <field name="model">secadora.lugar</field>
+            <field name="inherit_id" ref="bascula.view_secadora_lugar_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="dueno_id" invisible="tipo != 'finca'"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_secadora_lugar_list_finca" model="ir.ui.view">
+            <field name="name">secadora.lugar.list.finca.labores</field>
+            <field name="model">secadora.lugar</field>
+            <field name="inherit_id" ref="bascula.view_secadora_lugar_list"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="dueno_id" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_finca_fincas" model="ir.actions.act_window">
+            <field name="name">Fincas</field>
+            <field name="res_model">secadora.lugar</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('tipo', '=', 'finca')]</field>
+            <field name="context">{'default_tipo': 'finca'}</field>
+        </record>
+
+    </data>
+</odoo>

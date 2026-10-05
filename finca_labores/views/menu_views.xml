@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_finca_root"
+                  name="Labores de Finca"
+                  groups="group_finca_usuario"
+                  sequence="45"/>
+
+        <!-- Registro -->
+        <menuitem id="menu_finca_registro" name="Registro" parent="menu_finca_root" sequence="10"/>
+        <menuitem id="menu_finca_contrato" name="Labores por contrato" parent="menu_finca_registro"
+                  action="action_finca_contrato" sequence="10"/>
+        <menuitem id="menu_finca_jornal" name="Jornales" parent="menu_finca_registro"
+                  action="action_finca_jornal" sequence="20"/>
+        <menuitem id="menu_finca_maquinaria" name="Trabajos de maquinaria" parent="menu_finca_registro"
+                  action="action_finca_maquinaria_trabajo" sequence="30"/>
+
+        <!-- Saldos -->
+        <menuitem id="menu_finca_saldos" name="Saldos" parent="menu_finca_root" sequence="20"/>
+        <menuitem id="menu_finca_saldos_resumen" name="Saldos por dueño y operador" parent="menu_finca_saldos"
+                  action="action_finca_labor_movimiento_saldos" sequence="10"/>
+        <menuitem id="menu_finca_movimientos" name="Movimientos" parent="menu_finca_saldos"
+                  action="action_finca_labor_movimiento" sequence="20"/>
+        <menuitem id="menu_finca_estado_cuenta" name="Estado de cuenta" parent="menu_finca_saldos"
+                  action="action_finca_estado_cuenta_wizard" sequence="30"/>
+        <menuitem id="menu_finca_pagos" name="Pagos a operadores" parent="menu_finca_saldos"
+                  action="action_finca_pagos" sequence="40"
+                  groups="account.group_account_invoice,account.group_account_readonly"/>
+
+        <!-- Configuración -->
+        <menuitem id="menu_finca_config" name="Configuración" parent="menu_finca_root"
+                  sequence="90" groups="group_finca_admin"/>
+        <menuitem id="menu_finca_campana" name="Campañas" parent="menu_finca_config"
+                  action="action_finca_campana" sequence="10"/>
+        <menuitem id="menu_finca_labor" name="Labores y tarifas" parent="menu_finca_config"
+                  action="action_finca_labor" sequence="20"/>
+        <menuitem id="menu_finca_fincas" name="Fincas y dueños" parent="menu_finca_config"
+                  action="action_finca_fincas" sequence="30"/>
+        <menuitem id="menu_finca_lotes" name="Lotes" parent="menu_finca_config"
+                  action="bascula.action_secadora_lote" sequence="40"/>
+        <menuitem id="menu_finca_operadores" name="Operadores" parent="menu_finca_config"
+                  action="action_partner_operador_finca" sequence="50"/>
+        <menuitem id="menu_finca_topes" name="Topes de maquinaria" parent="menu_finca_config"
+                  action="action_finca_equipment_category_tope" sequence="60"/>
+
+    </data>
+</odoo>

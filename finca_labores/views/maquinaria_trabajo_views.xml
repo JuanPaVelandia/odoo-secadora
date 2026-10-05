@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_finca_maquinaria_trabajo_form" model="ir.ui.view">
+            <field name="name">finca.maquinaria.trabajo.form</field>
+            <field name="model">finca.maquinaria.trabajo</field>
+            <field name="arch" type="xml">
+                <form string="Trabajo de maquinaria">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"/>
+                        <button name="action_borrador" string="Volver a borrador" type="object"
+                                invisible="state == 'borrador'"
+                                groups="finca_labores.group_finca_admin"/>
+                        <button name="action_cancelar" string="Cancelar" type="object"
+                                invisible="state != 'borrador'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmado"/>
+                    </header>
+                    <sheet>
+                        <div class="alert alert-warning" role="alert" invisible="not excede_tope">
+                            Con este trabajo el equipo acumula más que el tope por contrato
+                            de su categoría (<field name="valor_max_contrato" readonly="1" nolabel="1"/>).
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="campana_id" readonly="state != 'borrador'"/>
+                                <field name="fecha" readonly="state != 'borrador'"/>
+                                <field name="equipment_id" readonly="state != 'borrador'"/>
+                                <field name="category_id"/>
+                                <field name="lugar_id" readonly="state != 'borrador'"/>
+                                <field name="dueno_id" readonly="state != 'borrador'"/>
+                            </group>
+                            <group>
+                                <field name="operador_id" readonly="state != 'borrador'"/>
+                                <field name="descripcion" readonly="state != 'borrador'"/>
+                                <field name="valor" readonly="state != 'borrador'"/>
+                                <field name="pagado_equipo"/>
+                                <field name="excede_tope" invisible="1"/>
+                                <field name="cost_line_id" invisible="not cost_line_id"/>
+                                <field name="company_id" groups="base.group_multi_company"/>
+                            </group>
+                        </group>
+                        <field name="observaciones" placeholder="Observaciones..."/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_finca_maquinaria_trabajo_list" model="ir.ui.view">
+            <field name="name">finca.maquinaria.trabajo.list</field>
+            <field name="model">finca.maquinaria.trabajo</field>
+            <field name="arch" type="xml">
+                <list string="Trabajos de maquinaria"
+                      decoration-info="state == 'borrador'"
+                      decoration-danger="excede_tope and state != 'cancelado'"
+                      decoration-muted="state == 'cancelado'">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object" class="oe_highlight"/>
+                    </header>
+                    <field name="name"/>
+                    <field name="fecha"/>
+                    <field name="campana_id" optional="hide"/>
+                    <field name="equipment_id"/>
+                    <field name="category_id" optional="show"/>
+                    <field name="lugar_id" optional="show"/>
+                    <field name="operador_id"/>
+                    <field name="dueno_id" optional="show"/>
+                    <field name="valor" sum="Total"/>
+                    <field name="excede_tope" column_invisible="True"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'borrador'"
+                           decoration-success="state == 'confirmado'"
+                           decoration-muted="state == 'cancelado'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_finca_maquinaria_trabajo_search" model="ir.ui.view">
+            <field name="name">finca.maquinaria.trabajo.search</field>
+            <field name="model">finca.maquinaria.trabajo</field>
+            <field name="arch" type="xml">
+                <search string="Buscar trabajos de maquinaria">
+                    <field name="equipment_id"/>
+                    <field name="operador_id"/>
+                    <field name="dueno_id"/>
+                    <field name="category_id"/>
+                    <separator/>
+                    <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
+                    <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
+                    <separator/>
+                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                            domain="[('campana_id.state', '=', 'abierta')]"/>
+                    <group>
+                        <filter name="group_equipo" string="Equipo" context="{'group_by': 'equipment_id'}"/>
+                        <filter name="group_categoria" string="Tipo de equipo" context="{'group_by': 'category_id'}"/>
+                        <filter name="group_operador" string="Operador" context="{'group_by': 'operador_id'}"/>
+                        <filter name="group_dueno" string="Dueño" context="{'group_by': 'dueno_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_finca_maquinaria_trabajo" model="ir.actions.act_window">
+            <field name="name">Trabajos de maquinaria</field>
+            <field name="res_model">finca.maquinaria.trabajo</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_finca_maquinaria_trabajo_search"/>
+            <field name="context">{'search_default_filter_campana_abierta': 1}</field>
+        </record>
+
+    </data>
+</odoo>

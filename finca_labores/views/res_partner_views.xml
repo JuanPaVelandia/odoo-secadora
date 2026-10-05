@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Lista propia en vez de heredar el formulario de contacto, que
+             varios módulos de localización ya modifican. -->
+        <record id="view_partner_operador_finca_list" model="ir.ui.view">
+            <field name="name">res.partner.operador.finca.list</field>
+            <field name="model">res.partner</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="Operadores" editable="bottom" open_form_view="True">
+                    <field name="name"/>
+                    <field name="vat"/>
+                    <field name="phone"/>
+                    <field name="es_operador_finca"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_partner_operador_finca" model="ir.actions.act_window">
+            <field name="name">Operadores</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_id" ref="view_partner_operador_finca_list"/>
+            <field name="domain">[('es_operador_finca', '=', True)]</field>
+            <field name="context">{'default_es_operador_finca': True, 'default_is_company': False}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Sin operadores todavía</p>
+                <p>Un contacto queda marcado como operador al confirmar la primera
+                   labor a su nombre. Sus pagos se descuentan entonces del saldo.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

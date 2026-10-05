@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_finca_estado_cuenta_wizard_form" model="ir.ui.view">
+            <field name="name">finca.estado.cuenta.wizard.form</field>
+            <field name="model">finca.estado.cuenta.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Estado de cuenta">
+                    <group>
+                        <field name="campana_id"/>
+                        <field name="operador_id"/>
+                        <field name="dueno_id"/>
+                    </group>
+                    <footer>
+                        <button name="action_imprimir" string="Imprimir PDF" type="object" class="oe_highlight"/>
+                        <button name="action_ver" string="Ver en pantalla" type="object"/>
+                        <button string="Cerrar" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_finca_estado_cuenta_wizard" model="ir.actions.act_window">
+            <field name="name">Estado de cuenta</field>
+            <field name="res_model">finca.estado.cuenta.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+    </data>
+</odoo>
