@@ -2,14 +2,14 @@
   <!-- escape -->
   <rect x="74" y="22" width="6" height="22" rx="2.500" fill="#3B4A5A"/>
   <!-- cabina -->
-  <path d="M20 48 L24.500 19 Q25.200 14 30 14 L50 14 Q54.500 14 55.500 19 L60 48 Z" fill="#0F9D7E"/>
-  <path d="M28.500 44 L31.500 21 L48.500 21 L52.500 44 Z" fill="#D5F5EC"/>
+  <path d="M20 48 L24.500 19 Q25.200 14 30 14 L50 14 Q54.500 14 55.500 19 L60 48 Z" fill="#D4600A"/>
+  <path d="M28.500 44 L31.500 21 L48.500 21 L52.500 44 Z" fill="#FFE8D2"/>
   <!-- cuerpo -->
-  <path d="M14 46 Q14 42 18 42 L86 42 Q92 42 92 48 L92 62 Q92 67 87 67 L14 67 Z" fill="#1AD3A6"/>
+  <path d="M14 46 Q14 42 18 42 L86 42 Q92 42 92 48 L92 62 Q92 67 87 67 L14 67 Z" fill="#F58A1F"/>
   <!-- ruedas -->
   <circle cx="36" cy="66" r="24" fill="#3B4A5A"/>
-  <circle cx="36" cy="66" r="11" fill="#FBB945"/>
+  <circle cx="36" cy="66" r="11" fill="#FFD08A"/>
   <circle cx="36" cy="66" r="3.500" fill="#3B4A5A"/>
   <circle cx="79" cy="77" r="13" fill="#3B4A5A"/>
-  <circle cx="79" cy="77" r="5.500" fill="#FBB945"/>
+  <circle cx="79" cy="77" r="5.500" fill="#FFD08A"/>
 </svg>
