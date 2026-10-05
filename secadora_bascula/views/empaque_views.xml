@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Marca de empaque en el producto -->
+    <record id="product_template_form_view_empaque" model="ir.ui.view">
+        <field name="name">product.template.form.empaque</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='categ_id']" position="after">
+                <field name="es_empaque" invisible="type != 'consu'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--  Inventario de empaques: kardex. El total de "Saldo" es la   -->
+    <!--  existencia.                                                 -->
+    <!-- ============================================================ -->
+
+    <record id="view_empaque_movimiento_list" model="ir.ui.view">
+        <field name="name">secadora.empaque.movimiento.list</field>
+        <field name="model">secadora.empaque.movimiento</field>
+        <field name="arch" type="xml">
+            <list string="Inventario de empaques" create="false" edit="false" delete="false"
+                  decoration-success="tipo == 'compra'"
+                  decoration-warning="tipo == 'ajuste'">
+                <field name="fecha"/>
+                <field name="product_id"/>
+                <field name="tipo"/>
+                <field name="referencia"/>
+                <field name="entrada" sum="Entradas"/>
+                <field name="salida" sum="Salidas"/>
+                <field name="saldo" sum="Existencia"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_empaque_movimiento_pivot" model="ir.ui.view">
+        <field name="name">secadora.empaque.movimiento.pivot</field>
+        <field name="model">secadora.empaque.movimiento</field>
+        <field name="arch" type="xml">
+            <pivot string="Inventario de empaques">
+                <field name="product_id" type="row"/>
+                <field name="tipo" type="row"/>
+                <field name="fecha" interval="month" type="col"/>
+                <field name="saldo" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_empaque_movimiento_search" model="ir.ui.view">
+        <field name="name">secadora.empaque.movimiento.search</field>
+        <field name="model">secadora.empaque.movimiento</field>
+        <field name="arch" type="xml">
+            <search string="Buscar movimientos de empaques">
+                <field name="referencia"/>
+                <field name="product_id"/>
+                <filter name="filter_compras" string="Compras" domain="[('tipo', 'in', ('compra', 'devolucion'))]"/>
+                <filter name="filter_consumos" string="Consumos" domain="[('tipo', '=', 'consumo')]"/>
+                <filter name="filter_ajustes" string="Ajustes" domain="[('tipo', 'in', ('ajuste', 'otro'))]"/>
+                <separator/>
+                <filter name="filter_fecha" string="Fecha" date="fecha"/>
+                <group>
+                    <filter name="group_producto" string="Empaque" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo'}"/>
+                    <filter name="group_mes" string="Mes" context="{'group_by': 'fecha:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_empaque_movimiento" model="ir.actions.act_window">
+        <field name="name">Inventario de empaques</field>
+        <field name="res_model">secadora.empaque.movimiento</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="search_view_id" ref="view_empaque_movimiento_search"/>
+        <field name="context">{'search_default_group_producto': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Sin movimientos de empaques</p>
+            <p>Los empaques entran al asignar las facturas en "Compras de empaques" y
+               salen al registrar bultos con empaque de la secadora. El producto debe
+               estar marcado como "Empaque de la secadora".</p>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--  Compras de empaques: se asigna el empaque a la línea de la  -->
+    <!--  factura de proveedor, sin tocar su contabilidad.            -->
+    <!-- ============================================================ -->
+
+    <record id="view_move_line_empaque_list" model="ir.ui.view">
+        <field name="name">account.move.line.empaque.list</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <list string="Compras de empaques" editable="bottom" create="0" delete="0"
+                  decoration-success="empaque_ingresado"
+                  decoration-warning="empaque_id and not empaque_ingresado">
+                <field name="invoice_date" string="Fecha" readonly="1"/>
+                <field name="company_id" string="Empresa" readonly="1" optional="show"
+                       groups="base.group_multi_company"/>
+                <field name="partner_id" string="Proveedor" readonly="1"/>
+                <field name="move_name" string="Factura" readonly="1"/>
+                <field name="name" string="Descripción" readonly="1"/>
+                <field name="quantity" string="Cant. factura" readonly="1"/>
+                <field name="price_unit" string="Precio unit." readonly="1" optional="show"/>
+                <field name="price_subtotal" string="Subtotal" readonly="1" sum="Total"/>
+                <field name="empaque_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="empaque_cantidad" sum="Empaques"/>
+                <field name="empaque_ingresado" readonly="1"/>
+                <field name="parent_state" string="Estado factura" readonly="1" optional="hide"/>
+                <field name="currency_id" column_invisible="1"/>
+                <button name="action_abrir_factura_empaque" type="object" string="Ver factura"
+                        icon="fa-external-link" class="btn-link"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_move_line_empaque_search" model="ir.ui.view">
+        <field name="name">account.move.line.empaque.search</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">90</field>
+        <field name="arch" type="xml">
+            <search string="Buscar líneas de factura">
+                <field name="name" string="Descripción"/>
+                <field name="partner_id" string="Proveedor"/>
+                <field name="move_name" string="Factura"/>
+                <!-- En el mismo grupo: se suman (posibles O asignadas). -->
+                <filter name="filter_posibles" string="Posibles empaques"
+                        domain="[('empaque_id', '=', False),
+                                 '|', '|', '|', '|',
+                                 ('name', 'ilike', 'lona'),
+                                 ('name', 'ilike', 'polipropileno'),
+                                 ('name', 'ilike', '70x1'),
+                                 ('name', 'ilike', '70 x 1'),
+                                 ('name', 'ilike', 'costal')]"/>
+                <filter name="filter_asignadas" string="Asignadas a empaques"
+                        domain="[('empaque_id', '!=', False)]"/>
+                <separator/>
+                <filter name="filter_sin_publicar" string="Factura sin publicar"
+                        domain="[('parent_state', '!=', 'posted')]"/>
+                <separator/>
+                <filter name="filter_fecha" string="Fecha de factura" date="invoice_date"/>
+                <group>
+                    <filter name="group_proveedor" string="Proveedor" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_mes" string="Mes" context="{'group_by': 'invoice_date:month'}"/>
+                    <filter name="group_empaque" string="Empaque" context="{'group_by': 'empaque_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_move_line_empaque" model="ir.actions.act_window">
+        <field name="name">Compras de empaques</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_move_line_empaque_list"/>
+        <field name="search_view_id" ref="view_move_line_empaque_search"/>
+        <field name="domain">[('move_id.move_type', 'in', ('in_invoice', 'in_refund')),
+                              ('display_type', '=', 'product')]</field>
+        <field name="context">{'search_default_filter_posibles': 1, 'search_default_filter_asignadas': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No hay líneas de factura que parezcan empaques</p>
+            <p>Quite los filtros y busque la factura por proveedor o descripción. En la
+               columna "Empaque" elija el producto: con la factura publicada, la cantidad
+               entra al inventario de empaques.</p>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!--  Ajuste por conteo físico                                    -->
+    <!-- ============================================================ -->
+
+    <record id="view_empaque_ajuste_form" model="ir.ui.view">
+        <field name="name">secadora.empaque.ajuste.form</field>
+        <field name="model">secadora.empaque.ajuste</field>
+        <field name="arch" type="xml">
+            <form string="Ajustar existencia por conteo">
+                <group>
+                    <group>
+                        <field name="producto_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="fecha"/>
+                        <field name="motivo" placeholder="Ej: conteo de fin de mes"/>
+                    </group>
+                    <group>
+                        <field name="existencia"/>
+                        <field name="cantidad_contada"/>
+                        <field name="diferencia" decoration-danger="diferencia &lt; 0"
+                               decoration-success="diferencia &gt; 0"/>
+                    </group>
+                </group>
+                <p class="text-muted small">
+                    Se registra un movimiento por la diferencia entre lo contado y lo que
+                    muestra el sistema a esa fecha. Negativo: faltan empaques (rotos,
+                    perdidos o consumos sin registrar). Positivo: hay más de los registrados
+                    (compras sin factura en el sistema).
+                </p>
+                <footer>
+                    <button name="action_aplicar" type="object" string="Aplicar ajuste" class="oe_highlight"/>
+                    <button string="Cancelar" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_empaque_ajuste" model="ir.actions.act_window">
+        <field name="name">Ajustar existencia por conteo</field>
+        <field name="res_model">secadora.empaque.ajuste</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menú -->
+    <menuitem id="menu_bascula_empaques" name="Empaques" parent="bascula.menu_bascula_root" sequence="27"/>
+    <menuitem id="menu_bascula_empaques_inventario" name="Inventario de empaques"
+              parent="menu_bascula_empaques" action="action_empaque_movimiento" sequence="10"/>
+    <menuitem id="menu_bascula_empaques_compras" name="Compras de empaques"
+              parent="menu_bascula_empaques" action="action_move_line_empaque" sequence="20"
+              groups="account.group_account_invoice"/>
+    <menuitem id="menu_bascula_empaques_ajuste" name="Ajustar por conteo"
+              parent="menu_bascula_empaques" action="action_empaque_ajuste" sequence="30"
+              groups="bascula.group_bascula_admin"/>
+
+</odoo>

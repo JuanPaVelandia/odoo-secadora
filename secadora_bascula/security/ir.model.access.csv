@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_secadora_empaque_movimiento_basculero,secadora.empaque.movimiento.basculero,model_secadora_empaque_movimiento,bascula.group_basculero,1,0,0,0
+access_secadora_empaque_movimiento_contabilidad,secadora.empaque.movimiento.contabilidad,model_secadora_empaque_movimiento,account.group_account_invoice,1,0,0,0
+access_secadora_empaque_ajuste_admin,secadora.empaque.ajuste.admin,model_secadora_empaque_ajuste,bascula.group_bascula_admin,1,1,1,1

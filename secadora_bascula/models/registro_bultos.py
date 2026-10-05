@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields
-from odoo.exceptions import UserError
+from odoo import api, models, fields
 
 
 class RegistroBultosStock(models.Model):
@@ -15,42 +14,53 @@ class RegistroBultosStock(models.Model):
         help='Movimiento que consume empaques del inventario'
     )
 
+    # El consumo sigue al registro desde que se crea: los registros no se
+    # confirman en la práctica (el tablero los deja en borrador), así que
+    # amarrarlo a la confirmación dejaba el inventario sin descontar.
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records._sincronizar_consumo_empaque()
+        return records
+
+    def write(self, vals):
+        res = super().write(vals)
+        if {'cantidad', 'producto_empaque_id', 'proveedor_empaque', 'fecha',
+                'trasladado_de_id', 'orden_id'} & vals.keys():
+            self._sincronizar_consumo_empaque()
+        return res
+
+    def unlink(self):
+        movimientos = self.sudo().stock_move_id
+        res = super().unlink()
+        movimientos._empaque_anular()
+        return res
+
     def action_confirmar(self):
-        """Extiende confirmacion para consumir empaques del inventario"""
-        for record in self:
-            if record.state != 'borrador':
-                continue
-
-            if record.proveedor_empaque == 'secadora' and record.producto_empaque_id:
-                record._crear_movimiento_consumo_empaque()
-
+        self._sincronizar_consumo_empaque()
         return super().action_confirmar()
 
-    def _crear_movimiento_consumo_empaque(self):
-        """Consume empaques del inventario cuando los provee la secadora"""
+    def _empaques_a_consumir(self):
+        """Empaques que este registro saca del inventario de la secadora.
+
+        Los que trae el cliente no cuentan, y los bultos que llegan por
+        traslado ya se descontaron en el registro del que salieron."""
         self.ensure_one()
+        if (self.proveedor_empaque != 'secadora' or self.trasladado_de_id
+                or not self.producto_empaque_id.es_empaque):
+            return 0
+        return self.cantidad
 
-        if self.stock_move_id:
-            return
-
-        location_stock = self.env.ref('stock.stock_location_stock', raise_if_not_found=False)
-        location_production = self.env['stock.location']._get_produccion_secadora(self.company_id)
-
-        if not location_stock or not location_production:
-            raise UserError('No se encontraron las ubicaciones de inventario necesarias.')
-
-        move = self.env['stock.move'].create({
-            'description_picking': f'Consumo empaques - {self.orden_id.name}',
-            'product_id': self.producto_empaque_id.id,
-            'product_uom_qty': self.cantidad,
-            'product_uom': self.producto_empaque_id.uom_id.id,
-            'location_id': location_stock.id,
-            'location_dest_id': location_production.id,
-            'origin': self.orden_id.name,
-        })
-
-        move._action_confirm()
-        move._action_assign()
-        move._action_done()
-
-        self.stock_move_id = move.id
+    def _sincronizar_consumo_empaque(self):
+        Move = self.env['stock.move']
+        for record in self:
+            cantidad = record._empaques_a_consumir()
+            if not cantidad and not record.stock_move_id:
+                continue
+            move = Move._empaque_sincronizar(
+                record.stock_move_id, record.producto_empaque_id, cantidad, 'consumo', False,
+                record.fecha,
+                ' - '.join(filter(None, [record.orden_id.name, record.sudo().cliente_id.name])))
+            if move != record.stock_move_id:
+                record.sudo().stock_move_id = move
