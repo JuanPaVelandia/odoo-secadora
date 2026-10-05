@@ -2,36 +2,30 @@
 <odoo>
     <data>
 
+        <!-- Filtros arriba en dos columnas (campaña y dueño / operador) y el
+             tablero debajo; el detalle se abre con los botones del encabezado. -->
         <record id="view_finca_resumen_form" model="ir.ui.view">
             <field name="name">finca.resumen.form</field>
             <field name="model">finca.resumen</field>
             <field name="arch" type="xml">
-                <form string="Resumen de saldos">
+                <form string="Resumen de saldos" create="false" delete="false" duplicate="false">
+                    <header>
+                        <button name="action_ver_movimientos" type="object" string="Ver movimientos"
+                                icon="fa-list"/>
+                        <button name="action_ver_pivote" type="object" string="Ver pivote"
+                                icon="fa-table"/>
+                    </header>
                     <sheet>
-                        <div class="d-flex flex-wrap align-items-end gap-3 mb-2">
-                            <div>
-                                <label for="campana_id" class="small text-muted d-block"/>
+                        <group>
+                            <group>
                                 <field name="campana_id" options="{'no_create': True, 'no_open': True}"/>
-                            </div>
-                            <div>
-                                <label for="dueno_id" class="small text-muted d-block"/>
+                                <field name="solo_pendientes" widget="boolean_toggle"/>
+                            </group>
+                            <group>
                                 <field name="dueno_id" options="{'no_create': True, 'no_open': True}"/>
-                            </div>
-                            <div>
-                                <label for="operador_id" class="small text-muted d-block"/>
                                 <field name="operador_id" options="{'no_create': True, 'no_open': True}"/>
-                            </div>
-                            <div>
-                                <field name="solo_pendientes"/>
-                                <label for="solo_pendientes"/>
-                            </div>
-                            <div class="ms-auto">
-                                <button name="action_ver_pivote" type="object" string="Pivote"
-                                        class="btn-secondary" icon="fa-table"/>
-                                <button name="action_ver_movimientos" type="object" string="Movimientos"
-                                        class="btn-secondary ms-1" icon="fa-list"/>
-                            </div>
-                        </div>
+                            </group>
+                        </group>
                         <field name="resumen_html" nolabel="1" readonly="1"/>
                     </sheet>
                 </form>
