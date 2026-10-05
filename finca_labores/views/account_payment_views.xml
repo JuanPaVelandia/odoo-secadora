@@ -14,6 +14,7 @@
                            invisible="not finca_campana_id and not partner_id">
                         <group>
                             <field name="finca_campana_id"/>
+                            <field name="finca_pagador_id" invisible="not finca_campana_id"/>
                             <field name="finca_dueno_id" invisible="not finca_campana_id"
                                    required="finca_campana_id"/>
                         </group>

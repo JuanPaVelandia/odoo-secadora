@@ -4,6 +4,7 @@ from . import campana
 from . import labor
 from . import lugar
 from . import res_partner
+from . import socio
 from . import contrato
 from . import jornal
 from . import maintenance

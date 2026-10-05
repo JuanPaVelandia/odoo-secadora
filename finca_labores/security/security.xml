@@ -57,5 +57,11 @@
             <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         </record>
 
+        <record id="finca_labor_socio_company_rule" model="ir.rule">
+            <field name="name">Costo por socio: Multi-Company</field>
+            <field name="model_id" ref="model_finca_labor_socio"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
     </data>
 </odoo>

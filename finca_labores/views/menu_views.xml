@@ -22,6 +22,8 @@
                   action="action_finca_labor_movimiento_saldos" sequence="10"/>
         <menuitem id="menu_finca_movimientos" name="Movimientos" parent="menu_finca_saldos"
                   action="action_finca_labor_movimiento" sequence="20"/>
+        <menuitem id="menu_finca_costo_socio" name="Costo por socio" parent="menu_finca_saldos"
+                  action="action_finca_labor_socio" sequence="25"/>
         <menuitem id="menu_finca_estado_cuenta" name="Estado de cuenta" parent="menu_finca_saldos"
                   action="action_finca_estado_cuenta_wizard" sequence="30"/>
         <menuitem id="menu_finca_pagos" name="Pagos a operadores" parent="menu_finca_saldos"
@@ -37,6 +39,8 @@
                   action="action_finca_labor" sequence="20"/>
         <menuitem id="menu_finca_fincas" name="Fincas y dueños" parent="menu_finca_config"
                   action="action_finca_fincas" sequence="30"/>
+        <menuitem id="menu_finca_sociedades" name="Sociedades" parent="menu_finca_config"
+                  action="action_partner_sociedad_finca" sequence="35"/>
         <menuitem id="menu_finca_lotes" name="Lotes" parent="menu_finca_config"
                   action="bascula.action_secadora_lote" sequence="40"/>
         <menuitem id="menu_finca_operadores" name="Operadores" parent="menu_finca_config"

@@ -26,35 +26,84 @@
                                 <field name="campana_id" readonly="state != 'borrador'"/>
                                 <field name="fecha" readonly="state != 'borrador'"/>
                                 <field name="finca_id" readonly="state != 'borrador'"/>
-                                <field name="lote_id" readonly="state != 'borrador'"
-                                       context="{'default_finca_id': finca_id}"/>
                                 <field name="dueno_id" readonly="state != 'borrador'"/>
                             </group>
                             <group>
                                 <field name="labor_id" readonly="state != 'borrador'"/>
-                                <label for="cantidad"/>
-                                <div class="o_row">
-                                    <field name="cantidad" readonly="state != 'borrador'"/>
-                                    <field name="unidad" readonly="1" nolabel="1"/>
-                                </div>
+                                <field name="unidad" readonly="1"/>
                                 <field name="tarifa" readonly="state != 'borrador'"/>
-                                <field name="total"/>
                                 <field name="company_id" groups="base.group_multi_company"/>
                             </group>
                         </group>
+
+                        <!-- Los cuadres de la hoja, a la vista mientras se digita -->
+                        <div class="row mb-3 text-center">
+                            <div class="col-md-3">
+                                <div class="text-muted small">
+                                    <span invisible="unidad != 'ha'">Has registradas / de la finca</span>
+                                    <span invisible="unidad == 'ha'">Total registrado</span>
+                                </div>
+                                <div class="fs-5">
+                                    <field name="total_cantidad" class="d-inline" readonly="1"/>
+                                    <span invisible="unidad != 'ha'"> /
+                                        <field name="hectareas_finca" class="d-inline" readonly="1"/>
+                                    </span>
+                                </div>
+                                <div class="text-warning small" invisible="unidad != 'ha' or diferencia_hectareas == 0">
+                                    Diferencia <field name="diferencia_hectareas" class="d-inline" readonly="1"/> ha
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-muted small">Valor de la tarea</div>
+                                <div class="fs-5"><field name="total" class="d-inline" readonly="1"/></div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-muted small">Total operadores</div>
+                                <div class="fs-5"><field name="total_operadores" class="d-inline" readonly="1"/></div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-muted small">Tramos sin cuadrar</div>
+                                <div class="fs-5 text-success" invisible="tramos_descuadrados != 0">Todo cuadra</div>
+                                <div class="fs-5 text-danger" invisible="tramos_descuadrados == 0">
+                                    <field name="tramos_descuadrados" class="d-inline" readonly="1"/>
+                                </div>
+                            </div>
+                        </div>
+
                         <notebook>
-                            <page string="Operadores" name="operadores">
-                                <field name="linea_ids" readonly="state != 'borrador'">
-                                    <list editable="bottom">
-                                        <field name="operador_id"/>
-                                        <field name="participacion"/>
-                                        <field name="valor" sum="Total"/>
+                            <page string="Tramos" name="tramos">
+                                <field name="tramo_ids" readonly="state != 'borrador'">
+                                    <list editable="bottom" open_form_view="True"
+                                          decoration-danger="not cuadra"
+                                          decoration-warning="cuadra and excede_lote">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="lote_id"
+                                               domain="[('finca_id', '=', parent.finca_id)]"
+                                               context="{'default_finca_id': parent.finca_id}"/>
+                                        <field name="detalle" optional="show"/>
+                                        <field name="cantidad" sum="Total"/>
+                                        <field name="tarifa" optional="show"/>
+                                        <field name="total" sum="Total"/>
+                                        <field name="entre_cuantos"/>
+                                        <field name="operador_ids" widget="many2many_tags"/>
+                                        <field name="num_operadores" optional="show"/>
+                                        <field name="valor_persona" invisible="reparto_especial"/>
+                                        <field name="reparto_especial" string="Especial" optional="show"/>
+                                        <field name="cuadra" column_invisible="True"/>
+                                        <field name="excede_lote" column_invisible="True"/>
                                     </list>
                                 </field>
-                                <p class="text-muted">
-                                    El total se reparte según la participación. Con 1 para
-                                    todos queda en partes iguales, como el "Entre cuántos" de la hoja.
+                                <p class="text-muted small">
+                                    Cada fila es una columna del bloque de la hoja. Si una cuadrilla hizo
+                                    solo parte de un lote, agregue el mismo lote dos veces con sus hectáreas
+                                    (en amarillo si entre las dos pasan el área del lote). "Entre cuántos"
+                                    es opcional: si lo digita y no coincide con los operadores marcados, la
+                                    fila queda en rojo y no deja confirmar. Si alguien no recibe la parte
+                                    igual, abra el tramo (flecha al final de la fila) y use "Reparto especial".
                                 </p>
+                            </page>
+                            <page string="Verificación" name="verificacion">
+                                <field name="verificacion_html" nolabel="1"/>
                             </page>
                             <page string="Observaciones" name="observaciones">
                                 <field name="observaciones" placeholder="Observaciones..."/>
@@ -66,24 +115,76 @@
             </field>
         </record>
 
+
+        <!-- Se abre desde la flecha de la fila del tramo -->
+        <record id="view_finca_contrato_tramo_form" model="ir.ui.view">
+            <field name="name">finca.contrato.tramo.form</field>
+            <field name="model">finca.contrato.tramo</field>
+            <field name="arch" type="xml">
+                <form string="Tramo">
+                    <div class="alert alert-danger" role="alert" invisible="cuadra">
+                        No cuadra: <field name="motivo_descuadre" readonly="1" class="d-inline"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="contrato_id" readonly="1"/>
+                            <field name="finca_id" invisible="1"/>
+                            <field name="contrato_state" invisible="1"/>
+                            <field name="lote_id" readonly="contrato_state != 'borrador'"
+                                   domain="[('finca_id', '=', finca_id)]"
+                                   context="{'default_finca_id': finca_id}"/>
+                            <field name="detalle" readonly="contrato_state != 'borrador'"/>
+                            <field name="cantidad" readonly="contrato_state != 'borrador'"/>
+                            <field name="tarifa" readonly="contrato_state != 'borrador'"/>
+                            <field name="total"/>
+                        </group>
+                        <group>
+                            <field name="entre_cuantos" readonly="contrato_state != 'borrador'"/>
+                            <field name="operador_ids" widget="many2many_tags"
+                                   readonly="contrato_state != 'borrador'"/>
+                            <field name="num_operadores"/>
+                            <field name="cuadra" invisible="1"/>
+                        </group>
+                    </group>
+                    <separator string="Reparto especial"/>
+                    <field name="ajuste_ids" readonly="contrato_state != 'borrador'">
+                        <list editable="bottom">
+                            <field name="operador_id" domain="[('id', 'in', parent.operador_ids)]"/>
+                            <field name="partes"/>
+                            <field name="valor_fijo"/>
+                            <field name="valor"/>
+                        </list>
+                    </field>
+                    <p class="text-muted small">
+                        Agregue solo a quien no recibe la parte igual. Partes: los demás cuentan 1
+                        (0,5 = media parte, 2 = doble). Monto fijo: recibe ese valor y el resto
+                        del tramo se reparte entre los demás.
+                    </p>
+                    <separator string="Así queda"/>
+                    <field name="reparto_html" nolabel="1"/>
+                </form>
+            </field>
+        </record>
+
         <record id="view_finca_contrato_list" model="ir.ui.view">
             <field name="name">finca.contrato.list</field>
             <field name="model">finca.contrato</field>
             <field name="arch" type="xml">
                 <list string="Labores por contrato"
+                      decoration-danger="tramos_descuadrados and state == 'borrador'"
                       decoration-info="state == 'borrador'"
                       decoration-muted="state == 'cancelado'">
                     <field name="name"/>
                     <field name="fecha"/>
                     <field name="campana_id" optional="hide"/>
                     <field name="finca_id"/>
-                    <field name="lote_id"/>
                     <field name="labor_id"/>
-                    <field name="cantidad"/>
+                    <field name="total_cantidad"/>
                     <field name="unidad" optional="show"/>
                     <field name="tarifa" optional="show"/>
                     <field name="cantidad_operadores" optional="show"/>
                     <field name="total" sum="Total"/>
+                    <field name="tramos_descuadrados" optional="show"/>
                     <field name="dueno_id" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'borrador'"
@@ -100,13 +201,14 @@
                 <search string="Buscar labores">
                     <field name="name"/>
                     <field name="finca_id"/>
-                    <field name="lote_id"/>
                     <field name="labor_id"/>
-                    <field name="linea_ids" string="Operador" filter_domain="[('linea_ids.operador_id', 'ilike', self)]"/>
+                    <field name="tramo_ids" string="Lote" filter_domain="[('tramo_ids.lote_id.name', 'ilike', self)]"/>
+                    <field name="tramo_ids" string="Operador" filter_domain="[('tramo_ids.operador_ids', 'ilike', self)]"/>
                     <field name="dueno_id"/>
                     <separator/>
                     <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
                     <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
+                    <filter name="filter_descuadrados" string="Sin cuadrar" domain="[('tramos_descuadrados', '&gt;', 0)]"/>
                     <separator/>
                     <filter name="filter_campana_abierta" string="Campaña abierta"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
@@ -129,8 +231,8 @@
             <field name="context">{'search_default_filter_campana_abierta': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">Registrar una labor por contrato</p>
-                <p>Finca, lote y labor; la cantidad y la tarifa se proponen solas.
-                   Agregue los operadores que la hicieron y confirme.</p>
+                <p>Una labor por finca, como un bloque de la hoja: agregue un tramo por
+                   lote con sus operadores. Las hectáreas y la tarifa se proponen solas.</p>
             </field>
         </record>
 

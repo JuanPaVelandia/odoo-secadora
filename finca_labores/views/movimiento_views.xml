@@ -19,6 +19,7 @@
                     <field name="trabajos" sum="Trabajos"/>
                     <field name="pagos" sum="Pagos"/>
                     <field name="saldo" sum="Saldo"/>
+                    <field name="pagador_id" optional="hide"/>
                     <field name="res_model" column_invisible="True"/>
                     <button name="action_abrir_origen" type="object" icon="fa-external-link"
                             title="Abrir documento"/>

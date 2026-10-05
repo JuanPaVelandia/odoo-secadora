@@ -6,7 +6,11 @@ access_finca_labor_usuario,finca.labor.usuario,model_finca_labor,group_finca_usu
 access_finca_labor_admin,finca.labor.admin,model_finca_labor,group_finca_admin,1,1,1,1
 access_finca_contrato_usuario,finca.contrato.usuario,model_finca_contrato,group_finca_usuario,1,1,1,0
 access_finca_contrato_admin,finca.contrato.admin,model_finca_contrato,group_finca_admin,1,1,1,1
-access_finca_contrato_linea_usuario,finca.contrato.linea.usuario,model_finca_contrato_linea,group_finca_usuario,1,1,1,1
+access_finca_contrato_tramo_usuario,finca.contrato.tramo.usuario,model_finca_contrato_tramo,group_finca_usuario,1,1,1,1
+access_finca_contrato_tramo_ajuste_usuario,finca.contrato.tramo.ajuste.usuario,model_finca_contrato_tramo_ajuste,group_finca_usuario,1,1,1,1
+access_finca_socio_usuario,finca.socio.usuario,model_finca_socio,group_finca_usuario,1,0,0,0
+access_finca_socio_admin,finca.socio.admin,model_finca_socio,group_finca_admin,1,1,1,1
+access_finca_labor_socio_usuario,finca.labor.socio.usuario,model_finca_labor_socio,group_finca_usuario,1,0,0,0
 access_finca_jornal_usuario,finca.jornal.usuario,model_finca_jornal,group_finca_usuario,1,1,1,0
 access_finca_jornal_admin,finca.jornal.admin,model_finca_jornal,group_finca_admin,1,1,1,1
 access_finca_maquinaria_trabajo_usuario,finca.maquinaria.trabajo.usuario,model_finca_maquinaria_trabajo,group_finca_usuario,1,1,1,0

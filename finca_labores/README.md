@@ -12,7 +12,9 @@ descuentan del saldo.
 | Consolidado › Parámetros: fincas, lotes, dueños | Configuración › Fincas y dueños / Lotes (`secadora.lugar`, `secadora.lote` de `bascula`) |
 | Consolidado › Parámetros: trabajo por contrato y valor unitario | Configuración › Labores y tarifas (`finca.labor`, precargadas) |
 | Consolidado › Parámetros: mtto maquinaria y valor unitario | Configuración › Topes de maquinaria (campo en la categoría de equipo) |
-| Finca › Por contrato (bloques lote / trabajo / has / entre cuántos) | Registro › Labores por contrato (`finca.contrato`): una labor por lote, con sus operadores |
+| Finca › Por contrato (un bloque por trabajo) | Registro › Labores por contrato (`finca.contrato`): un bloque por labor y finca; cada columna de la hoja es un tramo (`finca.contrato.tramo`: lote, has, entre cuántos, operadores) |
+| Finca › Por contrato: valores distintos por persona | Reparto especial del tramo (flecha de la fila): partes (0,5, 2…) o monto fijo; el resto se reparte entre los demás |
+| Finca › Por contrato: filas Total y Confirmación | Cuadres arriba del formulario (has registradas vs. finca, valor de la tarea vs. total operadores, tramos sin cuadrar) y pestaña Verificación con la grilla operador x tramo |
 | Finca › Por jornales, Liquidador_jornales | Registro › Jornales (`finca.jornal`) |
 | Maquinaria › Maquinaria | Registro › Trabajos de maquinaria (`finca.maquinaria.trabajo`); al confirmar crea un costo "Recursos Humanos" en el equipo |
 | Maquinaria › Verificación | Aviso "supera el tope" en el trabajo y en la lista |
@@ -33,6 +35,24 @@ descuentan del saldo.
    (Rastra 250.000, Encaladora 500.000, Fumigadora 350.000, Voleadora 250.000,
    Zorro 200.000, Sembradora 1.250.000, Tolvo 270.000, Cosechadora pequeña
    1.800.000 en 2025-2026).
+
+## Sociedades (La Alianza, La Fortuna)
+
+La sociedad es un contacto propio y es el **dueño** de la finca: contrata, paga
+los anticipos y con ella se lleva el saldo de cada operador, igual que en las
+hojas. En Configuración › Sociedades se registran sus socios con su porcentaje
+(deben sumar 100 %). Saldos › Costo por socio reparte lo trabajado de cada
+sociedad entre sus socios; los dueños sin socios aparecen al 100 %.
+
+Cada pago tiene **Pagado por** (quién puso la plata; se propone la compañía del
+pago) y **A cuenta de** (por defecto quien pagó). Si un socio paga a nombre de la
+sociedad (ej. Juan Pablo paga por La Alianza), se pone la sociedad en *A cuenta
+de*: el pago se descuenta del saldo de la sociedad y en Costo por socio aparece
+como **aporte** de Juan Pablo. La columna *Cuenta entre socios* (aportes menos
+la parte de los pagos que le toca a cada socio) dice quién ha puesto de más.
+
+Los equipos compartidos (ej. "FT/JPV") se manejan igual: una sociedad con los
+dos socios como dueño del trabajo de maquinaria.
 
 ## Cómo se arma el saldo
 

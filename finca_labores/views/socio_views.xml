@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Sociedades: contactos con socios. Formulario propio y reducido para
+             no heredar el de contacto, y para que las participaciones se
+             guarden juntas (la suma debe dar 100 %). -->
+        <record id="view_partner_sociedad_finca_list" model="ir.ui.view">
+            <field name="name">res.partner.sociedad.finca.list</field>
+            <field name="model">res.partner</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="Sociedades">
+                    <field name="name"/>
+                    <field name="vat"/>
+                    <field name="finca_socio_ids" widget="many2many_tags" string="Socios"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_partner_sociedad_finca_form" model="ir.ui.view">
+            <field name="name">res.partner.sociedad.finca.form</field>
+            <field name="model">res.partner</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <form string="Sociedad">
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="Ej: Finca La Alianza"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="vat"/>
+                                <field name="is_company" invisible="1"/>
+                            </group>
+                        </group>
+                        <field name="finca_socio_ids">
+                            <list editable="bottom">
+                                <field name="socio_id"/>
+                                <field name="porcentaje" sum="Total"/>
+                            </list>
+                        </field>
+                        <p class="text-muted small">
+                            La sociedad es el dueño de la finca y la que paga a los operadores:
+                            el saldo de cada operador se lleva con ella. Las participaciones solo
+                            reparten su costo en Saldos › Costo por socio.
+                        </p>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_partner_sociedad_finca" model="ir.actions.act_window">
+            <field name="name">Sociedades</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('finca_socio_ids', '!=', False)]</field>
+            <field name="context">{'default_is_company': True}</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_partner_sociedad_finca_list')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_partner_sociedad_finca_form')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Registrar una sociedad</p>
+                <p>Para fincas de varios dueños, como La Alianza o La Fortuna: cree el
+                   contacto de la sociedad con sus socios y póngala como dueño de la finca.</p>
+            </field>
+        </record>
+
+        <!-- Costo por socio -->
+        <record id="view_finca_labor_socio_pivot" model="ir.ui.view">
+            <field name="name">finca.labor.socio.pivot</field>
+            <field name="model">finca.labor.socio</field>
+            <field name="arch" type="xml">
+                <pivot string="Costo por socio">
+                    <field name="socio_id" type="row"/>
+                    <field name="dueno_id" type="row"/>
+                    <field name="trabajos" type="measure"/>
+                    <field name="pagos" type="measure"/>
+                    <field name="aportes" type="measure"/>
+                    <field name="cuenta_socios" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="view_finca_labor_socio_list" model="ir.ui.view">
+            <field name="name">finca.labor.socio.list</field>
+            <field name="model">finca.labor.socio</field>
+            <field name="arch" type="xml">
+                <list string="Costo por socio" create="false" edit="false" delete="false">
+                    <field name="fecha"/>
+                    <field name="socio_id"/>
+                    <field name="dueno_id"/>
+                    <field name="porcentaje"/>
+                    <field name="operador_id"/>
+                    <field name="finca_id" optional="show"/>
+                    <field name="tipo"/>
+                    <field name="referencia"/>
+                    <field name="trabajos" sum="Trabajos"/>
+                    <field name="pagos" sum="Pagos"/>
+                    <field name="aportes" sum="Aportes"/>
+                    <field name="cuenta_socios" sum="Cuenta entre socios"/>
+                    <field name="saldo" sum="Saldo" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_finca_labor_socio_search" model="ir.ui.view">
+            <field name="name">finca.labor.socio.search</field>
+            <field name="model">finca.labor.socio</field>
+            <field name="arch" type="xml">
+                <search string="Buscar">
+                    <field name="socio_id"/>
+                    <field name="dueno_id"/>
+                    <field name="operador_id"/>
+                    <field name="finca_id"/>
+                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                            domain="[('campana_id.state', '=', 'abierta')]"/>
+                    <filter name="filter_trabajos" string="Trabajos" domain="[('tipo', '!=', 'pago')]"/>
+                    <group>
+                        <filter name="group_socio" string="Socio" context="{'group_by': 'socio_id'}"/>
+                        <filter name="group_dueno" string="Dueño" context="{'group_by': 'dueno_id'}"/>
+                        <filter name="group_finca" string="Finca" context="{'group_by': 'finca_id'}"/>
+                        <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_finca_labor_socio" model="ir.actions.act_window">
+            <field name="name">Costo por socio</field>
+            <field name="res_model">finca.labor.socio</field>
+            <field name="view_mode">pivot,list</field>
+            <field name="search_view_id" ref="view_finca_labor_socio_search"/>
+            <field name="context">{'search_default_filter_campana_abierta': 1}</field>
+        </record>
+
+    </data>
+</odoo>
