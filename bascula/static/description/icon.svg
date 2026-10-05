@@ -6,7 +6,15 @@
   <rect x="12" y="49" width="46" height="3" fill="#088BF5" opacity=".6"/>
   <rect x="12" y="62" width="46" height="3" fill="#088BF5" opacity=".6"/>
   <rect x="12" y="75" width="46" height="3" fill="#088BF5" opacity=".6"/>
-  <!-- llama -->
-  <path d="M77 40 C79 53 95 59 95 74 C95 83 87.500 89 78.500 89 C69.500 89 62 83 62 74 C62 66 66.500 62 68.500 54 C71.500 57 73 60 74 63 C76.500 56 76 47 77 40 Z" fill="#F9464C"/>
-  <path d="M78.500 65 C79.500 71 86.500 73.500 86.500 80 C86.500 84.500 83 87.500 78.500 87.500 C74 87.500 70.500 84.500 70.500 80 C70.500 74 77.500 71 78.500 65 Z" fill="#FBB945"/>
+  <!-- espiga de arroz -->
+  <path d="M80 44 L80 89" stroke="#E0931A" stroke-width="3.500" stroke-linecap="round" fill="none"/>
+  <g fill="#FBB945">
+    <ellipse cx="80" cy="33" rx="5.500" ry="10"/>
+    <ellipse cx="71.500" cy="48" rx="5" ry="9.500" transform="rotate(-28 71.500 48)"/>
+    <ellipse cx="88.500" cy="48" rx="5" ry="9.500" transform="rotate(28 88.500 48)"/>
+    <ellipse cx="71.500" cy="63" rx="5" ry="9.500" transform="rotate(-28 71.500 63)"/>
+    <ellipse cx="88.500" cy="63" rx="5" ry="9.500" transform="rotate(28 88.500 63)"/>
+    <ellipse cx="71.500" cy="78" rx="5" ry="9.500" transform="rotate(-28 71.500 78)"/>
+    <ellipse cx="88.500" cy="78" rx="5" ry="9.500" transform="rotate(28 88.500 78)"/>
+  </g>
 </svg>
