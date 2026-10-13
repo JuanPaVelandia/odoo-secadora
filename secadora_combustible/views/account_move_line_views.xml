@@ -87,8 +87,6 @@
                         domain="[('acpm_tipo', '=', 'finca'), ('acpm_campana_id', '=', False)]"/>
                 <filter name="filter_sin_vehiculo" string="Sin vehículo"
                         domain="[('acpm_tipo', '=', 'logistica'), ('acpm_equipment_id', '=', False)]"/>
-                <filter name="filter_analitica_pendiente" string="Analítica pendiente"
-                        domain="[('acpm_es', '=', True), ('acpm_analitica_ok', '=', False)]"/>
                 <filter name="filter_cuenta_no_diversos" string="Finca con cuenta distinta de Diversos"
                         domain="[('acpm_tipo', '=', 'finca'), ('account_id.name', 'not ilike', 'Diversos')]"/>
                 <separator/>
