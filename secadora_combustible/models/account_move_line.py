@@ -217,23 +217,53 @@ class AccountMoveLine(models.Model):
 
     def write(self, vals):
         vals = self._acpm_ajustar_vals(vals)
+        # Borrar la finca a mano: se quita también de la analítica.
+        quitar_finca = ('acpm_lugar_id' in vals and not vals['acpm_lugar_id']
+                        and vals.get('acpm_es') is not False and not vals.get('acpm_tipo'))
         res = super().write(vals)
         if vals.get('acpm_es'):
             self._acpm_completar()
         if vals.get('acpm_es') or 'acpm_tipo' in vals or 'acpm_lugar_id' in vals:
-            self._acpm_sincronizar_analitica()
+            self._acpm_sincronizar_analitica(quitar_finca=quitar_finca)
         return res
 
     def _acpm_completar(self):
-        """Galones y tipo por defecto en las líneas recién marcadas."""
+        """Galones, tipo y finca por defecto en las líneas recién marcadas. La
+        finca se propone de la analítica si contabilidad ya la había puesto."""
+        planes = self._acpm_planes_punto_operativo()
+        ids_po = self._acpm_ids_punto_operativo(planes)
         for line in self.filtered('acpm_es'):
             vals = {}
             if not line.acpm_galones:
                 vals['acpm_galones'] = line._acpm_galones_propuestos()
             if not line.acpm_tipo:
                 vals['acpm_tipo'] = 'finca'
+            if (vals.get('acpm_tipo', line.acpm_tipo) == 'finca'
+                    and not line.acpm_lugar_id and not line.acpm_equipment_id):
+                lugar = line._acpm_lugar_desde_analitica(ids_po)
+                if lugar:
+                    vals['acpm_lugar_id'] = lugar.id
             if vals:
                 super(AccountMoveLine, line).write(vals)
+
+    def _acpm_lugar_desde_analitica(self, ids_po):
+        """Lugar cuya cuenta de Punto operativo ya está en la analítica de la
+        línea: por el enlace directo del lugar o, si no, por el nombre."""
+        self.ensure_one()
+        en_linea = self._acpm_ids_en_distribucion() & ids_po
+        if not en_linea:
+            return None
+        Lugar = self.env['secadora.lugar'].sudo()
+        lugar = Lugar.search([('analytic_account_id', 'in', list(en_linea))], order='id', limit=1)
+        if lugar:
+            return lugar
+        cuentas = self.env['account.analytic.account'].sudo().browse(list(en_linea))
+        for cuenta in cuentas:
+            lugar = Lugar.search([('name', '=ilike', (cuenta.name or '').strip()),
+                                  ('tipo', 'in', ('finca', 'planta'))], order='id', limit=1)
+            if lugar:
+                return lugar
+        return None
 
     # ------------------------------------------------------------------
     # Analítica (plan Punto operativo)
@@ -304,17 +334,19 @@ class AccountMoveLine(models.Model):
                 nueva[k] = nueva.get(k, 0.0) + pct
         return nueva
 
-    def _acpm_sincronizar_analitica(self):
+    def _acpm_sincronizar_analitica(self, quitar_finca=False):
         """Finca: pone la finca en la analítica de la línea y conserva lo
         demás (Cultivo de arroz, cosecha, etc.), reemplazando cualquier otra
-        cuenta del plan Punto operativo. Logística: quita la finca si la había."""
+        cuenta del plan Punto operativo. Logística: quita la finca si la había.
+        Con `quitar_finca`, las líneas de finca sin finca también la pierden
+        en la analítica (el usuario la borró a propósito)."""
         planes = self._acpm_planes_punto_operativo()
         if not planes:
             return
         ids_po = self._acpm_ids_punto_operativo(planes)
         for line in self.filtered('acpm_es'):
             actual = line.analytic_distribution or {}
-            if line.acpm_tipo == 'logistica':
+            if line.acpm_tipo == 'logistica' or (quitar_finca and not line.acpm_lugar_id):
                 nueva = line._acpm_distribucion_sin_finca(ids_po)
             elif line.acpm_lugar_id:
                 cuenta = line._acpm_cuenta_analitica(planes)

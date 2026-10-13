@@ -22,8 +22,10 @@ partir de las facturas de proveedor, sin tocar su contabilidad.
    de la factura.
 2. Al asignar la finca se corrige la **distribución analítica** de la línea:
    se pone la cuenta de la finca en el plan *Punto operativo* y se conserva lo
-   demás (Cultivo de arroz, cosecha...). En logística se quita la finca de la
-   analítica si la había. La columna *Analítica* indica si quedó. No se
+   demás (Cultivo de arroz, cosecha...). Si se borra la finca de la línea,
+   también se quita de la analítica. En logística se quita la finca de la
+   analítica si la había. Al marcar una línea que ya traía finca en la
+   analítica, esa finca se propone sola. La columna *Analítica* indica si quedó. No se
    corrige cuando la finca no tiene cuenta analítica para la compañía de la
    factura o la fecha está bloqueada; en ese caso queda en falso para
    revisarla. El filtro *Finca con cuenta distinta de Diversos* señala las
