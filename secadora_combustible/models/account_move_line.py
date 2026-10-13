@@ -183,11 +183,15 @@ class AccountMoveLine(models.Model):
         cuenta = lugar.analytic_account_id
         if cuenta and cuenta.plan_id in planes and (not cuenta.company_id or cuenta.company_id == compania):
             return cuenta
+        # Las cuentas están duplicadas por compañía (y a veces dentro de la
+        # misma): se busca por nombre, primero en la compañía de la línea, y
+        # se toma la más antigua para que la elección sea estable.
         Analitica = self.env['account.analytic.account'].sudo()
         nombre = (lugar.name or '').strip()
         for dominio_cia in ([('company_id', '=', compania.id)], [('company_id', '=', False)]):
             cuenta = Analitica.search(
-                [('plan_id', 'in', planes.ids), ('name', '=ilike', nombre)] + dominio_cia, limit=1)
+                [('plan_id', 'in', planes.ids), ('name', '=ilike', nombre)] + dominio_cia,
+                order='id', limit=1)
             if cuenta:
                 return cuenta
         return None
