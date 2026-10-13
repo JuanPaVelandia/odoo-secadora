@@ -172,6 +172,18 @@ class AccountMoveLine(models.Model):
         elif self.acpm_tipo == 'logistica':
             self.acpm_lugar_id = False
 
+    @api.onchange('acpm_equipment_id')
+    def _onchange_acpm_equipment_id(self):
+        if self.acpm_equipment_id:
+            self.acpm_tipo = 'logistica'
+            self.acpm_lugar_id = False
+
+    @api.onchange('acpm_lugar_id')
+    def _onchange_acpm_lugar_id(self):
+        if self.acpm_lugar_id:
+            self.acpm_tipo = 'finca'
+            self.acpm_equipment_id = False
+
     # ------------------------------------------------------------------
     # Escritura
     # ------------------------------------------------------------------
@@ -182,7 +194,14 @@ class AccountMoveLine(models.Model):
         if vals.get('acpm_es') is False:
             vals = dict(vals, acpm_tipo=False, acpm_galones=0.0,
                         acpm_lugar_id=False, acpm_equipment_id=False)
-        elif vals.get('acpm_tipo') == 'finca':
+            return vals
+        # Escribir un vehículo o una finca define el tipo por sí solo.
+        if not vals.get('acpm_tipo'):
+            if vals.get('acpm_equipment_id'):
+                vals = dict(vals, acpm_tipo='logistica')
+            elif vals.get('acpm_lugar_id'):
+                vals = dict(vals, acpm_tipo='finca')
+        if vals.get('acpm_tipo') == 'finca':
             vals = dict(vals, acpm_equipment_id=False)
         elif vals.get('acpm_tipo') == 'logistica':
             vals = dict(vals, acpm_lugar_id=False)

@@ -37,11 +37,11 @@
                 <field name="acpm_es" widget="boolean_toggle"/>
                 <field name="acpm_tipo" readonly="not acpm_es"/>
                 <field name="acpm_galones" sum="Galones" readonly="not acpm_es"/>
-                <field name="acpm_lugar_id" readonly="not acpm_es or acpm_tipo != 'finca'"
+                <field name="acpm_lugar_id" readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"/>
-                <field name="acpm_campana_id" readonly="not acpm_es or acpm_tipo != 'finca'"
+                <field name="acpm_campana_id" readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"/>
-                <field name="acpm_equipment_id" readonly="not acpm_es or acpm_tipo != 'logistica'"
+                <field name="acpm_equipment_id" readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="acpm_analitica_ok" readonly="1" optional="show"/>
                 <field name="analytic_distribution" widget="analytic_distribution"
