@@ -14,10 +14,12 @@
         <field name="arch" type="xml">
             <list string="Compras de ACPM" editable="bottom" multi_edit="1" create="0" delete="0"
                   decoration-muted="not acpm_es"
-                  decoration-warning="acpm_es and (not acpm_lugar_id or not acpm_campana_id)"
-                  decoration-success="acpm_es and acpm_lugar_id and acpm_campana_id and acpm_analitica_ok">
+                  decoration-warning="acpm_es and ((acpm_tipo == 'finca' and (not acpm_lugar_id or not acpm_campana_id)) or (acpm_tipo == 'logistica' and not acpm_equipment_id))"
+                  decoration-success="acpm_es and acpm_analitica_ok and ((acpm_tipo == 'finca' and acpm_lugar_id and acpm_campana_id) or (acpm_tipo == 'logistica' and acpm_equipment_id))">
                 <header>
-                    <button name="action_acpm_marcar" type="object" string="Marcar como ACPM"
+                    <button name="action_acpm_marcar" type="object" string="Marcar como ACPM de finca"
+                            class="btn-primary"/>
+                    <button name="action_acpm_marcar_logistica" type="object" string="Marcar como ACPM de logística"
                             class="btn-primary"/>
                     <button name="action_acpm_desmarcar" type="object" string="Quitar marca de ACPM"
                             confirm="Las líneas seleccionadas dejan de contarse como ACPM y pierden galones y finca. ¿Continuar?"/>
@@ -33,10 +35,13 @@
                 <field name="price_unit" string="Precio unit." readonly="1" optional="show"/>
                 <field name="price_subtotal" string="Subtotal" readonly="1" sum="Total"/>
                 <field name="acpm_es" widget="boolean_toggle"/>
+                <field name="acpm_tipo" readonly="not acpm_es"/>
                 <field name="acpm_galones" sum="Galones" readonly="not acpm_es"/>
-                <field name="acpm_lugar_id" readonly="not acpm_es"
+                <field name="acpm_lugar_id" readonly="not acpm_es or acpm_tipo != 'finca'"
                        options="{'no_create': True, 'no_open': True}"/>
-                <field name="acpm_campana_id" readonly="not acpm_es"
+                <field name="acpm_campana_id" readonly="not acpm_es or acpm_tipo != 'finca'"
+                       options="{'no_create': True, 'no_open': True}"/>
+                <field name="acpm_equipment_id" readonly="not acpm_es or acpm_tipo != 'logistica'"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="acpm_analitica_ok" readonly="1" optional="show"/>
                 <field name="analytic_distribution" widget="analytic_distribution"
@@ -60,6 +65,7 @@
                 <field name="partner_id" string="Proveedor"/>
                 <field name="move_name" string="Factura"/>
                 <field name="acpm_lugar_id"/>
+                <field name="acpm_equipment_id"/>
                 <!-- En el mismo grupo: se suman (posibles O marcadas). -->
                 <filter name="filter_posibles" string="Posibles ACPM"
                         domain="[('acpm_es', '=', False),
@@ -72,10 +78,19 @@
                 <filter name="filter_acpm" string="Marcadas como ACPM"
                         domain="[('acpm_es', '=', True)]"/>
                 <separator/>
+                <filter name="filter_finca" string="ACPM de finca" domain="[('acpm_tipo', '=', 'finca')]"/>
+                <filter name="filter_logistica" string="ACPM de logística" domain="[('acpm_tipo', '=', 'logistica')]"/>
+                <separator/>
                 <filter name="filter_sin_finca" string="Sin finca"
-                        domain="[('acpm_es', '=', True), ('acpm_lugar_id', '=', False)]"/>
+                        domain="[('acpm_tipo', '=', 'finca'), ('acpm_lugar_id', '=', False)]"/>
                 <filter name="filter_sin_campana" string="Sin campaña"
-                        domain="[('acpm_es', '=', True), ('acpm_campana_id', '=', False)]"/>
+                        domain="[('acpm_tipo', '=', 'finca'), ('acpm_campana_id', '=', False)]"/>
+                <filter name="filter_sin_vehiculo" string="Sin vehículo"
+                        domain="[('acpm_tipo', '=', 'logistica'), ('acpm_equipment_id', '=', False)]"/>
+                <filter name="filter_analitica_pendiente" string="Analítica pendiente"
+                        domain="[('acpm_es', '=', True), ('acpm_analitica_ok', '=', False)]"/>
+                <filter name="filter_cuenta_no_diversos" string="Finca con cuenta distinta de Diversos"
+                        domain="[('acpm_tipo', '=', 'finca'), ('account_id.name', 'not ilike', 'Diversos')]"/>
                 <separator/>
                 <filter name="filter_publicadas" string="Factura publicada"
                         domain="[('parent_state', '=', 'posted')]"/>
@@ -86,7 +101,9 @@
                 <group>
                     <filter name="group_proveedor" string="Proveedor" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_mes" string="Mes" context="{'group_by': 'invoice_date:month'}"/>
+                    <filter name="group_tipo" string="Tipo ACPM" context="{'group_by': 'acpm_tipo'}"/>
                     <filter name="group_finca" string="Finca" context="{'group_by': 'acpm_lugar_id'}"/>
+                    <filter name="group_vehiculo" string="Vehículo" context="{'group_by': 'acpm_equipment_id'}"/>
                     <filter name="group_campana" string="Campaña" context="{'group_by': 'acpm_campana_id'}"/>
                     <filter name="group_cuenta" string="Cuenta" context="{'group_by': 'account_id'}"/>
                     <filter name="group_empresa" string="Empresa" context="{'group_by': 'company_id'}"/>
@@ -107,8 +124,9 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">No hay líneas de factura que parezcan ACPM</p>
             <p>Quite los filtros y busque la factura por proveedor o descripción. Active
-               "ACPM" en la línea, revise los galones y escriba la finca: la campaña se
-               propone por la fecha de la factura. Si trabaja con varias empresas,
+               "ACPM" en la línea, revise los galones y elija el tipo: de finca (se escribe
+               la finca y la campaña se propone por la fecha de la factura) o de logística
+               (se escribe el vehículo). Si trabaja con varias empresas,
                actívelas todas en el selector de compañías para ver todas las facturas.</p>
         </field>
     </record>

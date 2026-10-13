@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import fields, models, tools
+
+from .account_move_line import ACPM_TIPOS
 from odoo.exceptions import UserError
 from odoo.tools import SQL
 
@@ -24,6 +26,9 @@ class AcpmCompra(models.Model):
     factura = fields.Char(string='Número', readonly=True)
     descripcion = fields.Char(string='Descripción', readonly=True)
     account_id = fields.Many2one('account.account', string='Cuenta', readonly=True)
+    tipo = fields.Selection(ACPM_TIPOS, string='Tipo')
+    equipment_id = fields.Many2one(
+        'maintenance.equipment', string='Vehículo', domain=[('es_vehiculo', '=', True)])
     lugar_id = fields.Many2one(
         'secadora.lugar', string='Finca', domain=[('tipo', 'in', ('finca', 'planta'))])
     campana_id = fields.Many2one('finca.campana', string='Campaña')
@@ -49,6 +54,8 @@ class AcpmCompra(models.Model):
                        am.name AS factura,
                        aml.name AS descripcion,
                        aml.account_id,
+                       aml.acpm_tipo AS tipo,
+                       aml.acpm_equipment_id AS equipment_id,
                        aml.acpm_lugar_id AS lugar_id,
                        aml.acpm_campana_id AS campana_id,
                        aml.acpm_galones AS galones,
@@ -65,6 +72,8 @@ class AcpmCompra(models.Model):
 
     # Campos de la fila -> campos de la línea de factura.
     _ACPM_EDITABLES = {
+        'tipo': 'acpm_tipo',
+        'equipment_id': 'acpm_equipment_id',
         'lugar_id': 'acpm_lugar_id',
         'campana_id': 'acpm_campana_id',
         'galones': 'acpm_galones',
@@ -75,7 +84,7 @@ class AcpmCompra(models.Model):
         con los permisos de quien edita (hace falta el rol de facturación)."""
         otros = set(vals) - set(self._ACPM_EDITABLES)
         if otros:
-            raise UserError('En el resumen solo se pueden cambiar la finca, la campaña y los galones.')
+            raise UserError('En el resumen solo se pueden cambiar el tipo, el vehículo, la finca, la campaña y los galones.')
         self.check_access('write')
         lineas = self.env['account.move.line'].browse(self.ids)
         lineas.write({self._ACPM_EDITABLES[k]: v for k, v in vals.items()})

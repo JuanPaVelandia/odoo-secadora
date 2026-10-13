@@ -2,10 +2,16 @@
 """Compras de ACPM a partir de las líneas de factura de proveedor.
 
 Es control operativo, no contabilidad: la línea de la factura se marca como
-ACPM y se le ponen galones, finca y campaña. No se toca ni la cuenta ni el
-producto de la línea (cambiarlos en una factura publicada movería cuentas e
-impuestos). Lo único contable que se corrige es la distribución analítica del
-plan Punto operativo, para que el costo del cultivo por finca quede bien.
+ACPM y se le ponen galones y destino. No se toca ni la cuenta ni el producto
+de la línea (cambiarlos en una factura publicada movería cuentas e impuestos).
+
+Hay dos tipos de ACPM:
+
+- **Finca**: costo del cultivo. Lleva finca (punto operativo) y campaña. Al
+  asignar la finca se corrige la distribución analítica del plan Punto
+  operativo, conservando lo demás (Cultivo de arroz, cosecha...).
+- **Logística**: va a un vehículo (camioneta). No lleva finca ni campaña y,
+  si la línea traía una finca en la analítica, se le quita.
 """
 
 import logging
@@ -15,8 +21,10 @@ from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
 
-# Palabras con las que suele venir el combustible en las facturas.
-ACPM_PALABRAS = ('acpm', 'diesel', 'diésel', 'combustible', 'gasolina')
+ACPM_TIPOS = [
+    ('finca', 'Finca'),
+    ('logistica', 'Logística'),
+]
 
 
 class AccountMoveLine(models.Model):
@@ -27,7 +35,15 @@ class AccountMoveLine(models.Model):
         copy=False,
         index=True,
         help='Esta línea es una compra de combustible. Se lleva en el '
-             'resumen de ACPM por finca y campaña.',
+             'resumen de ACPM.',
+    )
+    acpm_tipo = fields.Selection(
+        ACPM_TIPOS,
+        string='Tipo ACPM',
+        copy=False,
+        index=True,
+        help='Finca: costo del cultivo, con finca y campaña. '
+             'Logística: combustible de un vehículo.',
     )
     acpm_galones = fields.Float(
         string='Galones',
@@ -58,6 +74,16 @@ class AccountMoveLine(models.Model):
         help='Se propone la campaña de Labores de Finca que contiene la fecha '
              'de la factura. Se puede cambiar.',
     )
+    acpm_equipment_id = fields.Many2one(
+        'maintenance.equipment',
+        string='Vehículo',
+        copy=False,
+        index='btree_not_null',
+        ondelete='restrict',
+        domain=[('es_vehiculo', '=', True)],
+        help='Vehículo que recibió el combustible (ACPM de logística). Solo '
+             'aparecen los equipos marcados como vehículo en Mantenimiento.',
+    )
     acpm_valor = fields.Monetary(
         string='Valor ACPM',
         compute='_compute_acpm_valor',
@@ -68,19 +94,19 @@ class AccountMoveLine(models.Model):
     acpm_analitica_ok = fields.Boolean(
         string='Analítica',
         compute='_compute_acpm_analitica_ok',
-        help='La distribución analítica de la línea ya tiene la finca en el '
-             'plan Punto operativo.',
+        help='Finca: la analítica de la línea ya tiene la finca en el plan '
+             'Punto operativo. Logística: la línea no tiene finca en la analítica.',
     )
 
     # ------------------------------------------------------------------
     # Computes
     # ------------------------------------------------------------------
 
-    @api.depends('acpm_es', 'move_id.invoice_date', 'date')
+    @api.depends('acpm_es', 'acpm_tipo', 'move_id.invoice_date', 'date')
     def _compute_acpm_campana_id(self):
         Campana = self.env['finca.campana'].sudo()
         for line in self:
-            if not line.acpm_es:
+            if not line.acpm_es or line.acpm_tipo != 'finca':
                 line.acpm_campana_id = False
                 continue
             # Si ya tiene campaña (puesta a mano o antes) se respeta.
@@ -103,15 +129,22 @@ class AccountMoveLine(models.Model):
                 signo = -1 if line.move_id.move_type == 'in_refund' else 1
                 line.acpm_valor = signo * line.price_subtotal
 
-    @api.depends('acpm_es', 'acpm_lugar_id', 'analytic_distribution', 'company_id')
+    @api.depends('acpm_es', 'acpm_tipo', 'acpm_lugar_id', 'analytic_distribution', 'company_id')
     def _compute_acpm_analitica_ok(self):
         planes = self._acpm_planes_punto_operativo()
+        ids_po = self._acpm_ids_punto_operativo(planes)
         for line in self:
-            cuenta = line._acpm_cuenta_analitica(planes) if line.acpm_es and line.acpm_lugar_id else None
-            line.acpm_analitica_ok = bool(cuenta) and cuenta.id in line._acpm_ids_en_distribucion()
+            en_linea = line._acpm_ids_en_distribucion()
+            if not line.acpm_es:
+                line.acpm_analitica_ok = False
+            elif line.acpm_tipo == 'logistica':
+                line.acpm_analitica_ok = not (en_linea & ids_po)
+            else:
+                cuenta = line._acpm_cuenta_analitica(planes) if line.acpm_lugar_id else None
+                line.acpm_analitica_ok = bool(cuenta) and cuenta.id in en_linea
 
     # ------------------------------------------------------------------
-    # Galones propuestos
+    # Valores propuestos
     # ------------------------------------------------------------------
 
     def _acpm_galones_propuestos(self):
@@ -123,37 +156,65 @@ class AccountMoveLine(models.Model):
     def _onchange_acpm_es(self):
         if not self.acpm_es:
             self.acpm_galones = 0.0
+            self.acpm_tipo = False
             self.acpm_lugar_id = False
-        elif not self.acpm_galones:
-            self.acpm_galones = self._acpm_galones_propuestos()
+            self.acpm_equipment_id = False
+        else:
+            if not self.acpm_galones:
+                self.acpm_galones = self._acpm_galones_propuestos()
+            if not self.acpm_tipo:
+                self.acpm_tipo = 'finca'
+
+    @api.onchange('acpm_tipo')
+    def _onchange_acpm_tipo(self):
+        if self.acpm_tipo == 'finca':
+            self.acpm_equipment_id = False
+        elif self.acpm_tipo == 'logistica':
+            self.acpm_lugar_id = False
 
     # ------------------------------------------------------------------
     # Escritura
     # ------------------------------------------------------------------
 
+    @api.model
+    def _acpm_ajustar_vals(self, vals):
+        """Mantiene coherentes los campos de ACPM en una escritura."""
+        if vals.get('acpm_es') is False:
+            vals = dict(vals, acpm_tipo=False, acpm_galones=0.0,
+                        acpm_lugar_id=False, acpm_equipment_id=False)
+        elif vals.get('acpm_tipo') == 'finca':
+            vals = dict(vals, acpm_equipment_id=False)
+        elif vals.get('acpm_tipo') == 'logistica':
+            vals = dict(vals, acpm_lugar_id=False)
+        return vals
+
     @api.model_create_multi
     def create(self, vals_list):
-        for vals in vals_list:
-            if vals.get('acpm_es') is False:
-                vals.update(acpm_galones=0.0, acpm_lugar_id=False)
+        vals_list = [self._acpm_ajustar_vals(v) for v in vals_list]
         lines = super().create(vals_list)
-        lines._acpm_completar_galones()
+        lines._acpm_completar()
         lines._acpm_sincronizar_analitica()
         return lines
 
     def write(self, vals):
-        if vals.get('acpm_es') is False:
-            vals = dict(vals, acpm_galones=0.0, acpm_lugar_id=False)
+        vals = self._acpm_ajustar_vals(vals)
         res = super().write(vals)
-        if vals.get('acpm_es') and 'acpm_galones' not in vals:
-            self._acpm_completar_galones()
-        if vals.get('acpm_es') or 'acpm_lugar_id' in vals:
+        if vals.get('acpm_es'):
+            self._acpm_completar()
+        if vals.get('acpm_es') or 'acpm_tipo' in vals or 'acpm_lugar_id' in vals:
             self._acpm_sincronizar_analitica()
         return res
 
-    def _acpm_completar_galones(self):
-        for line in self.filtered(lambda l: l.acpm_es and not l.acpm_galones):
-            super(AccountMoveLine, line).write({'acpm_galones': line._acpm_galones_propuestos()})
+    def _acpm_completar(self):
+        """Galones y tipo por defecto en las líneas recién marcadas."""
+        for line in self.filtered('acpm_es'):
+            vals = {}
+            if not line.acpm_galones:
+                vals['acpm_galones'] = line._acpm_galones_propuestos()
+            if not line.acpm_tipo:
+                vals['acpm_tipo'] = 'finca'
+            if vals:
+                super(AccountMoveLine, line).write(vals)
 
     # ------------------------------------------------------------------
     # Analítica (plan Punto operativo)
@@ -170,6 +231,13 @@ class AccountMoveLine(models.Model):
             if plan:
                 planes |= plan.sudo()
         return planes
+
+    @api.model
+    def _acpm_ids_punto_operativo(self, planes):
+        if not planes:
+            return set()
+        return set(self.env['account.analytic.account'].sudo().with_context(active_test=False)
+                   .search([('plan_id', 'in', planes.ids)]).ids)
 
     def _acpm_cuenta_analitica(self, planes):
         """Cuenta analítica de la finca en el plan Punto operativo, usable en
@@ -205,33 +273,41 @@ class AccountMoveLine(models.Model):
             ids.update(int(i) for i in str(clave).split(',') if i.strip().isdigit())
         return ids
 
+    def _acpm_distribucion_sin_finca(self, ids_po):
+        """La distribución de la línea sin las cuentas del plan Punto operativo."""
+        self.ensure_one()
+        nueva = {}
+        for clave, pct in (self.analytic_distribution or {}).items():
+            ids = [int(i) for i in str(clave).split(',') if i.strip().isdigit()]
+            resto = [i for i in ids if i not in ids_po]
+            if resto:
+                k = ','.join(map(str, resto))
+                nueva[k] = nueva.get(k, 0.0) + pct
+        return nueva
+
     def _acpm_sincronizar_analitica(self):
-        """Pone la finca en la analítica de la línea y conserva lo demás
-        (Cultivo de arroz, cosecha, etc.). Reemplaza cualquier otra cuenta del
-        plan Punto operativo que tuviera."""
+        """Finca: pone la finca en la analítica de la línea y conserva lo
+        demás (Cultivo de arroz, cosecha, etc.), reemplazando cualquier otra
+        cuenta del plan Punto operativo. Logística: quita la finca si la había."""
         planes = self._acpm_planes_punto_operativo()
         if not planes:
             return
-        ids_po = set(self.env['account.analytic.account'].sudo().with_context(active_test=False)
-                     .search([('plan_id', 'in', planes.ids)]).ids)
-        for line in self:
-            if not line.acpm_es or not line.acpm_lugar_id:
-                continue
-            cuenta = line._acpm_cuenta_analitica(planes)
-            if not cuenta:
-                _logger.info('ACPM: la finca %s no tiene cuenta analítica de Punto operativo '
-                             'en %s; la analítica de %s no se toca.',
-                             line.acpm_lugar_id.name, line.company_id.name, line.move_id.name)
-                continue
+        ids_po = self._acpm_ids_punto_operativo(planes)
+        for line in self.filtered('acpm_es'):
             actual = line.analytic_distribution or {}
-            nueva = {}
-            for clave, pct in actual.items():
-                ids = [int(i) for i in str(clave).split(',') if i.strip().isdigit()]
-                resto = [i for i in ids if i not in ids_po]
-                if resto:
-                    k = ','.join(map(str, resto))
-                    nueva[k] = nueva.get(k, 0.0) + pct
-            nueva[str(cuenta.id)] = 100.0
+            if line.acpm_tipo == 'logistica':
+                nueva = line._acpm_distribucion_sin_finca(ids_po)
+            elif line.acpm_lugar_id:
+                cuenta = line._acpm_cuenta_analitica(planes)
+                if not cuenta:
+                    _logger.info('ACPM: la finca %s no tiene cuenta analítica de Punto operativo '
+                                 'en %s; la analítica de %s no se toca.',
+                                 line.acpm_lugar_id.name, line.company_id.name, line.move_id.name)
+                    continue
+                nueva = line._acpm_distribucion_sin_finca(ids_po)
+                nueva[str(cuenta.id)] = 100.0
+            else:
+                continue
             if nueva == actual:
                 continue
             try:
@@ -248,12 +324,18 @@ class AccountMoveLine(models.Model):
     # ------------------------------------------------------------------
 
     def action_acpm_marcar(self):
-        """Marca como ACPM las líneas seleccionadas (botón de la lista)."""
-        lineas = self.filtered(lambda l: not l.acpm_es
-                               and l.display_type == 'product'
-                               and l.move_id.move_type in ('in_invoice', 'in_refund'))
-        lineas.write({'acpm_es': True})
+        """Marca como ACPM de finca las líneas seleccionadas (botón de la lista)."""
+        self._acpm_marcar('finca')
         return True
+
+    def action_acpm_marcar_logistica(self):
+        self._acpm_marcar('logistica')
+        return True
+
+    def _acpm_marcar(self, tipo):
+        lineas = self.filtered(lambda l: l.display_type == 'product'
+                               and l.move_id.move_type in ('in_invoice', 'in_refund'))
+        lineas.write({'acpm_es': True, 'acpm_tipo': tipo})
 
     def action_acpm_desmarcar(self):
         self.filtered('acpm_es').write({'acpm_es': False})

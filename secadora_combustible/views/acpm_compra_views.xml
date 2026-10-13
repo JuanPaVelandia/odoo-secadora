@@ -10,6 +10,7 @@
         <field name="model">secadora.acpm.compra</field>
         <field name="arch" type="xml">
             <pivot string="ACPM por finca y campaña" disable_linking="0">
+                <field name="tipo" type="row"/>
                 <field name="lugar_id" type="row"/>
                 <field name="campana_id" type="col"/>
                 <field name="galones" type="measure"/>
@@ -35,15 +36,17 @@
         <field name="model">secadora.acpm.compra</field>
         <field name="arch" type="xml">
             <list string="Compras de ACPM" create="false" delete="false" editable="bottom" multi_edit="1"
-                  decoration-warning="not lugar_id or not campana_id"
+                  decoration-warning="(tipo == 'finca' and (not lugar_id or not campana_id)) or (tipo == 'logistica' and not equipment_id)"
                   decoration-muted="estado != 'posted'">
                 <field name="fecha" readonly="1"/>
                 <field name="company_id" readonly="1" optional="hide" groups="base.group_multi_company"/>
                 <field name="partner_id" readonly="1"/>
                 <field name="factura" readonly="1"/>
                 <field name="descripcion" readonly="1" optional="show"/>
-                <field name="lugar_id" options="{'no_create': True, 'no_open': True}"/>
-                <field name="campana_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="tipo"/>
+                <field name="lugar_id" readonly="tipo != 'finca'" options="{'no_create': True, 'no_open': True}"/>
+                <field name="campana_id" readonly="tipo != 'finca'" options="{'no_create': True, 'no_open': True}"/>
+                <field name="equipment_id" readonly="tipo != 'logistica'" options="{'no_create': True, 'no_open': True}"/>
                 <field name="galones" sum="Galones"/>
                 <field name="precio_galon" readonly="1" optional="show"/>
                 <field name="valor" readonly="1" sum="Valor"/>
@@ -64,16 +67,23 @@
                 <field name="partner_id"/>
                 <field name="lugar_id"/>
                 <field name="campana_id"/>
+                <field name="equipment_id"/>
                 <field name="descripcion"/>
                 <filter name="filter_publicadas" string="Facturas publicadas"
                         domain="[('estado', '=', 'posted')]"/>
                 <separator/>
-                <filter name="filter_sin_finca" string="Sin finca" domain="[('lugar_id', '=', False)]"/>
-                <filter name="filter_sin_campana" string="Sin campaña" domain="[('campana_id', '=', False)]"/>
+                <filter name="filter_finca" string="ACPM de finca" domain="[('tipo', '=', 'finca')]"/>
+                <filter name="filter_logistica" string="ACPM de logística" domain="[('tipo', '=', 'logistica')]"/>
+                <separator/>
+                <filter name="filter_sin_finca" string="Sin finca" domain="[('tipo', '=', 'finca'), ('lugar_id', '=', False)]"/>
+                <filter name="filter_sin_campana" string="Sin campaña" domain="[('tipo', '=', 'finca'), ('campana_id', '=', False)]"/>
+                <filter name="filter_sin_vehiculo" string="Sin vehículo" domain="[('tipo', '=', 'logistica'), ('equipment_id', '=', False)]"/>
                 <separator/>
                 <filter name="filter_fecha" string="Fecha" date="fecha"/>
                 <group>
+                    <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo'}"/>
                     <filter name="group_finca" string="Finca" context="{'group_by': 'lugar_id'}"/>
+                    <filter name="group_vehiculo" string="Vehículo" context="{'group_by': 'equipment_id'}"/>
                     <filter name="group_campana" string="Campaña" context="{'group_by': 'campana_id'}"/>
                     <filter name="group_mes" string="Mes" context="{'group_by': 'fecha:month'}"/>
                     <filter name="group_proveedor" string="Proveedor" context="{'group_by': 'partner_id'}"/>
@@ -94,8 +104,9 @@
             <p class="o_view_nocontent_smiling_face">Todavía no hay compras de ACPM</p>
             <p>Se registran en "Compras de ACPM (facturas)" marcando las líneas de las
                facturas de proveedor. Aquí se ven los galones y el valor por finca, campaña,
-               mes y proveedor; en la lista se puede cambiar la finca, la campaña y los
-               galones de cada compra, o de varias a la vez seleccionándolas.</p>
+               mes, vehículo y proveedor; en la lista se puede cambiar el tipo, la finca, la
+               campaña, el vehículo y los galones de cada compra, o de varias a la vez
+               seleccionándolas.</p>
         </field>
     </record>
 

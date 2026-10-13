@@ -10,15 +10,22 @@
             <xpath expr="//field[@name='invoice_line_ids']//list//field[@name='analytic_distribution']" position="after">
                 <field name="acpm_es" string="ACPM" optional="hide"
                        column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
+                <field name="acpm_tipo" string="Tipo ACPM" optional="hide"
+                       readonly="not acpm_es"
+                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="acpm_galones" string="Galones" optional="hide"
                        readonly="not acpm_es"
                        column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="acpm_lugar_id" string="Finca ACPM" optional="hide"
-                       readonly="not acpm_es"
+                       readonly="not acpm_es or acpm_tipo != 'finca'"
                        options="{'no_create': True, 'no_open': True}"
                        column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="acpm_campana_id" string="Campaña ACPM" optional="hide"
-                       readonly="not acpm_es"
+                       readonly="not acpm_es or acpm_tipo != 'finca'"
+                       options="{'no_create': True, 'no_open': True}"
+                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
+                <field name="acpm_equipment_id" string="Vehículo ACPM" optional="hide"
+                       readonly="not acpm_es or acpm_tipo != 'logistica'"
                        options="{'no_create': True, 'no_open': True}"
                        column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
             </xpath>

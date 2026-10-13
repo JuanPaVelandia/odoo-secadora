@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hr_equipment_view_form_inherit_acpm" model="ir.ui.view">
+        <field name="name">maintenance.equipment.form.inherit.acpm</field>
+        <field name="model">maintenance.equipment</field>
+        <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_id']" position="after">
+                <field name="es_vehiculo"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
