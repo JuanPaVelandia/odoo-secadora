@@ -12,7 +12,7 @@
         <field name="model">account.move.line</field>
         <field name="priority">90</field>
         <field name="arch" type="xml">
-            <list string="Compras de ACPM" editable="bottom" create="0" delete="0"
+            <list string="Compras de ACPM" editable="bottom" multi_edit="1" create="0" delete="0"
                   decoration-muted="not acpm_es"
                   decoration-warning="acpm_es and (not acpm_lugar_id or not acpm_campana_id)"
                   decoration-success="acpm_es and acpm_lugar_id and acpm_campana_id and acpm_analitica_ok">

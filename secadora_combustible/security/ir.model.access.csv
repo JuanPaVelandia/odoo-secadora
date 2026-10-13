@@ -1,2 +1,2 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_secadora_acpm_compra,secadora.acpm.compra,model_secadora_acpm_compra,group_combustible,1,0,0,0
+access_secadora_acpm_compra,secadora.acpm.compra,model_secadora_acpm_compra,group_combustible,1,1,0,0

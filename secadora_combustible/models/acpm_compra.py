@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 from odoo import fields, models, tools
+from odoo.exceptions import UserError
 from odoo.tools import SQL
 
 
 class AcpmCompra(models.Model):
     """Resumen de ACPM: una fila por línea de factura marcada como ACPM. Los
-    galones y el valor van en negativo en las notas crédito."""
+    galones y el valor van en negativo en las notas crédito.
+
+    Finca, campaña y galones se pueden editar aquí mismo: el cambio se escribe
+    en la línea de la factura (el id de la fila es el id de la línea)."""
     _name = 'secadora.acpm.compra'
     _description = 'Compra de ACPM'
     _auto = False
@@ -20,9 +24,10 @@ class AcpmCompra(models.Model):
     factura = fields.Char(string='Número', readonly=True)
     descripcion = fields.Char(string='Descripción', readonly=True)
     account_id = fields.Many2one('account.account', string='Cuenta', readonly=True)
-    lugar_id = fields.Many2one('secadora.lugar', string='Finca', readonly=True)
-    campana_id = fields.Many2one('finca.campana', string='Campaña', readonly=True)
-    galones = fields.Float(string='Galones', digits=(12, 2), readonly=True)
+    lugar_id = fields.Many2one(
+        'secadora.lugar', string='Finca', domain=[('tipo', 'in', ('finca', 'planta'))])
+    campana_id = fields.Many2one('finca.campana', string='Campaña')
+    galones = fields.Float(string='Galones', digits=(12, 2))
     valor = fields.Float(string='Valor', digits=(14, 0), readonly=True)
     precio_galon = fields.Float(
         string='Precio por galón', digits=(12, 0), readonly=True, aggregator='avg')
@@ -57,6 +62,25 @@ class AcpmCompra(models.Model):
                    AND am.move_type IN ('in_invoice', 'in_refund')
             )
         """, table=SQL.identifier(self._table)))
+
+    # Campos de la fila -> campos de la línea de factura.
+    _ACPM_EDITABLES = {
+        'lugar_id': 'acpm_lugar_id',
+        'campana_id': 'acpm_campana_id',
+        'galones': 'acpm_galones',
+    }
+
+    def write(self, vals):
+        """No hay tabla detrás: lo editable se escribe en la línea de factura,
+        con los permisos de quien edita (hace falta el rol de facturación)."""
+        otros = set(vals) - set(self._ACPM_EDITABLES)
+        if otros:
+            raise UserError('En el resumen solo se pueden cambiar la finca, la campaña y los galones.')
+        self.check_access('write')
+        lineas = self.env['account.move.line'].browse(self.ids)
+        lineas.write({self._ACPM_EDITABLES[k]: v for k, v in vals.items()})
+        self.invalidate_recordset()
+        return True
 
     def action_abrir_factura(self):
         self.ensure_one()

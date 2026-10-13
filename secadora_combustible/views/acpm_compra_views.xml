@@ -34,21 +34,21 @@
         <field name="name">secadora.acpm.compra.list</field>
         <field name="model">secadora.acpm.compra</field>
         <field name="arch" type="xml">
-            <list string="Compras de ACPM" create="false" edit="false" delete="false"
+            <list string="Compras de ACPM" create="false" delete="false" editable="bottom" multi_edit="1"
                   decoration-warning="not lugar_id or not campana_id"
                   decoration-muted="estado != 'posted'">
-                <field name="fecha"/>
-                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
-                <field name="partner_id"/>
-                <field name="factura"/>
-                <field name="descripcion" optional="show"/>
-                <field name="lugar_id"/>
-                <field name="campana_id"/>
+                <field name="fecha" readonly="1"/>
+                <field name="company_id" readonly="1" optional="hide" groups="base.group_multi_company"/>
+                <field name="partner_id" readonly="1"/>
+                <field name="factura" readonly="1"/>
+                <field name="descripcion" readonly="1" optional="show"/>
+                <field name="lugar_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="campana_id" options="{'no_create': True, 'no_open': True}"/>
                 <field name="galones" sum="Galones"/>
-                <field name="precio_galon" optional="show"/>
-                <field name="valor" sum="Valor"/>
-                <field name="account_id" optional="hide"/>
-                <field name="estado" optional="hide"/>
+                <field name="precio_galon" readonly="1" optional="show"/>
+                <field name="valor" readonly="1" sum="Valor"/>
+                <field name="account_id" readonly="1" optional="hide"/>
+                <field name="estado" readonly="1" optional="hide"/>
                 <button name="action_abrir_factura" type="object" string="Ver factura"
                         icon="fa-external-link" class="btn-link"/>
             </list>
@@ -92,9 +92,10 @@
         <field name="context">{'search_default_filter_publicadas': 1}</field>
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Todavía no hay compras de ACPM</p>
-            <p>Se registran en "Compras de ACPM" marcando las líneas de las facturas de
-               proveedor. Aquí se ven los galones y el valor por finca, campaña, mes y
-               proveedor.</p>
+            <p>Se registran en "Compras de ACPM (facturas)" marcando las líneas de las
+               facturas de proveedor. Aquí se ven los galones y el valor por finca, campaña,
+               mes y proveedor; en la lista se puede cambiar la finca, la campaña y los
+               galones de cada compra, o de varias a la vez seleccionándolas.</p>
         </field>
     </record>
 

@@ -20,7 +20,9 @@ partir de las facturas de proveedor, sin tocar su contabilidad.
    para revisarla.
 3. **Combustible → Resumen por finca y campaña**: pivote de galones y valor
    (negativos en notas crédito), con gráfico y lista. Por defecto solo cuenta
-   facturas publicadas.
+   facturas publicadas. En la lista (y en *Compras registradas*) se cambian
+   la finca, la campaña y los galones directamente en la fila; seleccionando
+   varias filas el cambio se aplica a todas (edición en bloque).
 
 Las mismas columnas (ACPM, Galones, Finca, Campaña) están disponibles como
 columnas opcionales en las líneas del formulario de la factura.
