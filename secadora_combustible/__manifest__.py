@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Combustible (ACPM)',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.1.0',
     'category': 'Operations',
     'summary': 'Compras de ACPM por finca y campaña, a partir de las facturas de proveedor',
     'description': """
