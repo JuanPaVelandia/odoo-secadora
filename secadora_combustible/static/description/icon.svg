@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- galón de ACPM -->
+  <!-- tapa y asa -->
+  <rect x="30" y="8" width="14" height="12" rx="3" fill="#3B4A5A"/>
+  <path d="M48 20 L48 12 Q48 8 52 8 L70 8 Q74 8 74 12 L74 20 L67 20 L67 15 L55 15 L55 20 Z" fill="#3B4A5A"/>
+  <!-- cuerpo -->
+  <path d="M14 26 Q14 18 22 18 L78 18 Q86 18 86 26 L86 84 Q86 92 78 92 L22 92 Q14 92 14 84 Z" fill="#C8372D"/>
+  <!-- relieve en X -->
+  <path d="M22 30 L78 80 M78 30 L22 80" stroke="#A52A22" stroke-width="7" stroke-linecap="round" fill="none"/>
+  <!-- gota -->
+  <path d="M50 38 Q62 54 62 62 A12 12 0 0 1 38 62 Q38 54 50 38 Z" fill="#FFE8D2"/>
+</svg>

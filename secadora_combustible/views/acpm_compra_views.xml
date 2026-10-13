@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!--  Resumen de ACPM por finca y campaña                          -->
+    <!-- ============================================================ -->
+
+    <record id="view_acpm_compra_pivot" model="ir.ui.view">
+        <field name="name">secadora.acpm.compra.pivot</field>
+        <field name="model">secadora.acpm.compra</field>
+        <field name="arch" type="xml">
+            <pivot string="ACPM por finca y campaña" disable_linking="0">
+                <field name="lugar_id" type="row"/>
+                <field name="campana_id" type="col"/>
+                <field name="galones" type="measure"/>
+                <field name="valor" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="view_acpm_compra_graph" model="ir.ui.view">
+        <field name="name">secadora.acpm.compra.graph</field>
+        <field name="model">secadora.acpm.compra</field>
+        <field name="arch" type="xml">
+            <graph string="Galones de ACPM por finca" type="bar" stacked="1">
+                <field name="lugar_id"/>
+                <field name="campana_id"/>
+                <field name="galones" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_acpm_compra_list" model="ir.ui.view">
+        <field name="name">secadora.acpm.compra.list</field>
+        <field name="model">secadora.acpm.compra</field>
+        <field name="arch" type="xml">
+            <list string="Compras de ACPM" create="false" edit="false" delete="false"
+                  decoration-warning="not lugar_id or not campana_id"
+                  decoration-muted="estado != 'posted'">
+                <field name="fecha"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+                <field name="partner_id"/>
+                <field name="factura"/>
+                <field name="descripcion" optional="show"/>
+                <field name="lugar_id"/>
+                <field name="campana_id"/>
+                <field name="galones" sum="Galones"/>
+                <field name="precio_galon" optional="show"/>
+                <field name="valor" sum="Valor"/>
+                <field name="account_id" optional="hide"/>
+                <field name="estado" optional="hide"/>
+                <button name="action_abrir_factura" type="object" string="Ver factura"
+                        icon="fa-external-link" class="btn-link"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_acpm_compra_search" model="ir.ui.view">
+        <field name="name">secadora.acpm.compra.search</field>
+        <field name="model">secadora.acpm.compra</field>
+        <field name="arch" type="xml">
+            <search string="Buscar compras de ACPM">
+                <field name="factura"/>
+                <field name="partner_id"/>
+                <field name="lugar_id"/>
+                <field name="campana_id"/>
+                <field name="descripcion"/>
+                <filter name="filter_publicadas" string="Facturas publicadas"
+                        domain="[('estado', '=', 'posted')]"/>
+                <separator/>
+                <filter name="filter_sin_finca" string="Sin finca" domain="[('lugar_id', '=', False)]"/>
+                <filter name="filter_sin_campana" string="Sin campaña" domain="[('campana_id', '=', False)]"/>
+                <separator/>
+                <filter name="filter_fecha" string="Fecha" date="fecha"/>
+                <group>
+                    <filter name="group_finca" string="Finca" context="{'group_by': 'lugar_id'}"/>
+                    <filter name="group_campana" string="Campaña" context="{'group_by': 'campana_id'}"/>
+                    <filter name="group_mes" string="Mes" context="{'group_by': 'fecha:month'}"/>
+                    <filter name="group_proveedor" string="Proveedor" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_cuenta" string="Cuenta" context="{'group_by': 'account_id'}"/>
+                    <filter name="group_empresa" string="Empresa" context="{'group_by': 'company_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_acpm_compra" model="ir.actions.act_window">
+        <field name="name">Resumen de ACPM</field>
+        <field name="res_model">secadora.acpm.compra</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="search_view_id" ref="view_acpm_compra_search"/>
+        <field name="context">{'search_default_filter_publicadas': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Todavía no hay compras de ACPM</p>
+            <p>Se registran en "Compras de ACPM" marcando las líneas de las facturas de
+               proveedor. Aquí se ven los galones y el valor por finca, campaña, mes y
+               proveedor.</p>
+        </field>
+    </record>
+
+    <record id="action_acpm_compra_list" model="ir.actions.act_window">
+        <field name="name">Compras registradas</field>
+        <field name="res_model">secadora.acpm.compra</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="view_acpm_compra_search"/>
+        <field name="context">{'search_default_filter_publicadas': 1, 'search_default_group_finca': 1}</field>
+    </record>
+
+</odoo>

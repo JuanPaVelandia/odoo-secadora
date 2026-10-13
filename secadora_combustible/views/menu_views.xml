@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="menu_combustible_root"
+              name="Combustible"
+              web_icon="secadora_combustible,static/description/icon.png"
+              groups="group_combustible"
+              sequence="46"/>
+
+    <menuitem id="menu_combustible_resumen" name="Resumen por finca y campaña"
+              parent="menu_combustible_root" action="action_acpm_compra" sequence="10"/>
+    <menuitem id="menu_combustible_registradas" name="Compras registradas"
+              parent="menu_combustible_root" action="action_acpm_compra_list" sequence="20"/>
+    <menuitem id="menu_combustible_compras" name="Compras de ACPM (facturas)"
+              parent="menu_combustible_root" action="action_move_line_acpm" sequence="30"
+              groups="account.group_account_invoice"/>
+
+</odoo>
