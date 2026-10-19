@@ -90,12 +90,22 @@ class ProduccionLoteReport(models.Model):
 
     def _read_group(self, domain, groupby=(), aggregates=(), having=(),
                     offset=0, limit=None, order=None):
+        # Si los grupos se ordenan por una razón, el ORDER BY de SQL (sobre
+        # la suma) no sirve: se traen todos los grupos, se recalcula, se
+        # ordena en Python y recién ahí se aplica el límite.
+        ordenar = self._orden_por_razon(order)
+        if ordenar:
+            offset_sql, limit_sql = 0, None
+        else:
+            offset_sql, limit_sql = offset, limit
         rows = super()._read_group(
             domain, groupby, aggregates, having=having,
-            offset=offset, limit=limit, order=order)
-        return self._recalcular_razones(
-            domain, groupby, aggregates, rows,
-            order=order if not (offset or limit) else None)
+            offset=offset_sql, limit=limit_sql, order=order)
+        rows = self._recalcular_razones(
+            domain, groupby, aggregates, rows, orden=ordenar)
+        if ordenar and (offset or limit):
+            rows = rows[offset:(offset + limit) if limit else None]
+        return rows
 
     def _read_grouping_sets(self, domain, grouping_sets, aggregates=(), order=None):
         result = super()._read_grouping_sets(
@@ -129,7 +139,19 @@ class ProduccionLoteReport(models.Model):
                 t[2] += kg_corr or 0.0
         return totales
 
-    def _recalcular_razones(self, domain, groupby, aggregates, rows, order=None):
+    @staticmethod
+    def _orden_por_razon(order):
+        """(campo, desc) si el primer criterio de `order` es una columna
+        recalculada; None si no."""
+        if not order:
+            return None
+        primero = order.split(',')[0].strip().split()
+        fname = primero[0].split(':')[0]
+        if fname not in RECALCULADAS:
+            return None
+        return fname, len(primero) > 1 and primero[1].lower() == 'desc'
+
+    def _recalcular_razones(self, domain, groupby, aggregates, rows, orden=None):
         aggregates = list(aggregates)
         posiciones = [
             (i, spec.split(':')[0]) for i, spec in enumerate(aggregates)
@@ -152,18 +174,15 @@ class ProduccionLoteReport(models.Model):
                     row[n + i] = base / divisor / ha if ha else None
             nuevas.append(tuple(row))
 
-        # La lista permite ordenar los grupos por una de estas columnas; el
-        # orden SQL salió de las sumas, así que se reordena con los valores
-        # recalculados (solo el primer criterio, los demás ya vienen).
-        if order:
-            primero = order.split(',')[0].strip().split()
-            fname = primero[0].split(':')[0]
-            desc = len(primero) > 1 and primero[1].lower() == 'desc'
+        if orden:
+            fname, desc = orden
             indice = next((n + i for i, f in posiciones if f == fname), None)
             if indice is not None:
+                # Los grupos sin valor van al final en ambos sentidos
                 nuevas.sort(
-                    key=lambda r: (r[indice] is None, r[indice] or 0.0),
+                    key=lambda r: r[indice] if r[indice] is not None else 0.0,
                     reverse=desc)
+                nuevas.sort(key=lambda r: r[indice] is None)
         return nuevas
 
     def init(self):
