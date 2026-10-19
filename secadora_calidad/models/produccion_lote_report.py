@@ -53,7 +53,9 @@ class ProduccionLoteReport(models.Model):
     produccion_ha = fields.Float(
         string='Producción (kg/ha)', readonly=True, digits=(12, 2), aggregator='sum',
         help='Peso ÷ hectáreas del lote. Al agrupar es el peso total del grupo '
-             '÷ hectáreas de sus lotes (no la suma de las filas).')
+             '÷ hectáreas de sus lotes (no la suma de las filas). La soca, '
+             'registrada como lote sin hectáreas, suma kilos a la finca sin '
+             'sumar área.')
     peso_kg_corregido = fields.Float(
         string='Peso Corregido (kg)', readonly=True, digits=(12, 2), aggregator='sum',
         help='Peso ajustado a humedad base 22%: peso × (100 − humedad) / 78 '
@@ -83,7 +85,8 @@ class ProduccionLoteReport(models.Model):
     # exacta agrupando por lote (hectáreas constantes). Por finca, o en el
     # total, daba la suma de los rendimientos de los lotes. Aquí se
     # recalcula cada grupo como total ÷ hectáreas, contando las hectáreas
-    # de cada lote una sola vez. Se enganchan los dos caminos que usa el
+    # de cada lote una sola vez (y la soca, sin área, solo suma kilos). Se
+    # enganchan los dos caminos que usa el
     # cliente web: _read_group (lista, gráfico) y _read_grouping_sets
     # (pivot).
     # ------------------------------------------------------------------
@@ -119,9 +122,11 @@ class ProduccionLoteReport(models.Model):
         """{clave del grupo: (hectáreas, kg, kg corregidos)}.
 
         Se agrupa además por lote para que las hectáreas de un lote con
-        varias mulas cuenten una sola vez. Los lotes sin hectáreas no
-        aportan ni al numerador ni al denominador (sus filas tampoco
-        tienen razón calculada).
+        varias mulas cuenten una sola vez. Los kilos se suman todos, tengan
+        o no hectáreas: la soca se registra como un lote aparte sin área,
+        y su producción se le suma a la finca sobre las hectáreas de los
+        lotes de donde salió (decisión de gerencia, oct-2026). Un grupo sin
+        ninguna hectárea (ese mismo lote de soca, solo) queda sin razón.
         """
         groupby = list(groupby)
         por_lote = groupby if 'lote_id' in groupby else groupby + ['lote_id']
@@ -132,11 +137,11 @@ class ProduccionLoteReport(models.Model):
         totales = defaultdict(lambda: [0.0, 0.0, 0.0])
         for fila in filas:
             ha, kg, kg_corr = fila[len(por_lote):]
+            t = totales[tuple(fila[:n])]
             if ha and ha > 0:
-                t = totales[tuple(fila[:n])]
                 t[0] += ha
-                t[1] += kg or 0.0
-                t[2] += kg_corr or 0.0
+            t[1] += kg or 0.0
+            t[2] += kg_corr or 0.0
         return totales
 
     @staticmethod
