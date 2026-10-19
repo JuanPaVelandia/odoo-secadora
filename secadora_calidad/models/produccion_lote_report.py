@@ -1,6 +1,20 @@
 # -*- coding: utf-8 -*-
 
+from collections import defaultdict
+
 from odoo import models, fields, tools
+
+
+# Columnas que son razones (numerador ÷ hectáreas): al agrupar no se suman,
+# se recalculan como total del grupo ÷ hectáreas de los lotes del grupo.
+# Valor: (campo numerador, divisor adicional).
+RAZONES = {
+    'produccion_ha': ('peso_kg', 1.0),
+    'produccion_ha_corregida': ('peso_kg_corregido', 1.0),
+    'bultos_ha': ('peso_kg', 62.5),
+    'bultos_ha_corregido': ('peso_kg_corregido', 62.5),
+}
+RECALCULADAS = set(RAZONES) | {'hectareas'}
 
 
 class ProduccionLoteReport(models.Model):
@@ -32,14 +46,14 @@ class ProduccionLoteReport(models.Model):
     bultos = fields.Integer(string='Bultos', readonly=True, aggregator='sum')
     peso_kg = fields.Float(string='Peso (kg)', readonly=True, digits=(12, 2), aggregator='sum')
     hectareas = fields.Float(
-        string='Hectáreas', readonly=True, digits=(10, 2), aggregator='max',
+        string='Hectáreas', readonly=True, digits=(10, 2), aggregator='sum',
         help='Hectáreas del lote (del catálogo, o del nombre si es numérico). '
-             'Igual en todas las filas del lote: agregada con máximo, válida '
-             'solo agrupando por lote.')
+             'Al agrupar, cada lote cuenta una sola vez aunque tenga varias '
+             'mulas: por finca es la suma de las hectáreas de sus lotes.')
     produccion_ha = fields.Float(
         string='Producción (kg/ha)', readonly=True, digits=(12, 2), aggregator='sum',
-        help='Peso de la fila ÷ hectáreas del lote. La suma es exacta agrupando '
-             'por lote; a nivel de finca es la suma de los kg/ha de sus lotes.')
+        help='Peso ÷ hectáreas del lote. Al agrupar es el peso total del grupo '
+             '÷ hectáreas de sus lotes (no la suma de las filas).')
     peso_kg_corregido = fields.Float(
         string='Peso Corregido (kg)', readonly=True, digits=(12, 2), aggregator='sum',
         help='Peso ajustado a humedad base 22%: peso × (100 − humedad) / 78 '
@@ -47,17 +61,110 @@ class ProduccionLoteReport(models.Model):
              'humedad es ≥ 22% o no fue medida.')
     produccion_ha_corregida = fields.Float(
         string='Producción Corregida (kg/ha)', readonly=True, digits=(12, 2), aggregator='sum',
-        help='Peso corregido a humedad 22% ÷ hectáreas del lote.')
+        help='Peso corregido a humedad 22% ÷ hectáreas del lote. Al agrupar, '
+             'total corregido del grupo ÷ hectáreas de sus lotes.')
     bultos_ha = fields.Float(
         string='Bultos/ha (62,5 kg)', readonly=True, digits=(12, 2), aggregator='sum',
-        help='Peso ÷ 62,5 kg por bulto ÷ hectáreas del lote.')
+        help='Peso ÷ 62,5 kg por bulto ÷ hectáreas del lote. Al agrupar, '
+             'total del grupo ÷ 62,5 ÷ hectáreas de sus lotes.')
     bultos_ha_corregido = fields.Float(
         string='Bultos/ha Corregido', readonly=True, digits=(12, 2), aggregator='sum',
-        help='Peso corregido a humedad 22% ÷ 62,5 kg por bulto ÷ hectáreas del lote.')
+        help='Peso corregido a humedad 22% ÷ 62,5 kg por bulto ÷ hectáreas del '
+             'lote. Al agrupar, total corregido del grupo ÷ 62,5 ÷ hectáreas.')
     humedad = fields.Float(string='Humedad (%)', readonly=True, digits=(5, 2), aggregator='avg')
     impurezas = fields.Float(string='Impurezas (%)', readonly=True, digits=(5, 2), aggregator='avg')
     grano_partido = fields.Float(string='Grano Partido (%)', readonly=True, digits=(5, 2), aggregator='avg')
     temperatura = fields.Float(string='Temperatura (°C)', readonly=True, digits=(5, 2), aggregator='avg')
+
+    # ------------------------------------------------------------------
+    # Agregación de razones (kg/ha, bultos/ha, hectáreas)
+    #
+    # Una razón no se puede sumar: la suma de kg/ha de las filas solo es
+    # exacta agrupando por lote (hectáreas constantes). Por finca, o en el
+    # total, daba la suma de los rendimientos de los lotes. Aquí se
+    # recalcula cada grupo como total ÷ hectáreas, contando las hectáreas
+    # de cada lote una sola vez. Se enganchan los dos caminos que usa el
+    # cliente web: _read_group (lista, gráfico) y _read_grouping_sets
+    # (pivot).
+    # ------------------------------------------------------------------
+
+    def _read_group(self, domain, groupby=(), aggregates=(), having=(),
+                    offset=0, limit=None, order=None):
+        rows = super()._read_group(
+            domain, groupby, aggregates, having=having,
+            offset=offset, limit=limit, order=order)
+        return self._recalcular_razones(
+            domain, groupby, aggregates, rows,
+            order=order if not (offset or limit) else None)
+
+    def _read_grouping_sets(self, domain, grouping_sets, aggregates=(), order=None):
+        result = super()._read_grouping_sets(
+            domain, grouping_sets, aggregates, order=order)
+        return [
+            self._recalcular_razones(domain, groupby, aggregates, rows)
+            for groupby, rows in zip(grouping_sets, result)
+        ]
+
+    def _totales_por_grupo(self, domain, groupby):
+        """{clave del grupo: (hectáreas, kg, kg corregidos)}.
+
+        Se agrupa además por lote para que las hectáreas de un lote con
+        varias mulas cuenten una sola vez. Los lotes sin hectáreas no
+        aportan ni al numerador ni al denominador (sus filas tampoco
+        tienen razón calculada).
+        """
+        groupby = list(groupby)
+        por_lote = groupby if 'lote_id' in groupby else groupby + ['lote_id']
+        filas = super()._read_group(
+            domain, por_lote,
+            ['hectareas:max', 'peso_kg:sum', 'peso_kg_corregido:sum'])
+        n = len(groupby)
+        totales = defaultdict(lambda: [0.0, 0.0, 0.0])
+        for fila in filas:
+            ha, kg, kg_corr = fila[len(por_lote):]
+            if ha and ha > 0:
+                t = totales[tuple(fila[:n])]
+                t[0] += ha
+                t[1] += kg or 0.0
+                t[2] += kg_corr or 0.0
+        return totales
+
+    def _recalcular_razones(self, domain, groupby, aggregates, rows, order=None):
+        aggregates = list(aggregates)
+        posiciones = [
+            (i, spec.split(':')[0]) for i, spec in enumerate(aggregates)
+            if spec.split(':')[0] in RECALCULADAS
+        ]
+        if not posiciones or not rows:
+            return rows
+        totales = self._totales_por_grupo(domain, groupby)
+        n = len(groupby)
+        nuevas = []
+        for row in rows:
+            row = list(row)
+            ha, kg, kg_corr = totales.get(tuple(row[:n]), (0.0, 0.0, 0.0))
+            for i, fname in posiciones:
+                if fname == 'hectareas':
+                    row[n + i] = ha or None
+                else:
+                    numerador, divisor = RAZONES[fname]
+                    base = kg if numerador == 'peso_kg' else kg_corr
+                    row[n + i] = base / divisor / ha if ha else None
+            nuevas.append(tuple(row))
+
+        # La lista permite ordenar los grupos por una de estas columnas; el
+        # orden SQL salió de las sumas, así que se reordena con los valores
+        # recalculados (solo el primer criterio, los demás ya vienen).
+        if order:
+            primero = order.split(',')[0].strip().split()
+            fname = primero[0].split(':')[0]
+            desc = len(primero) > 1 and primero[1].lower() == 'desc'
+            indice = next((n + i for i, f in posiciones if f == fname), None)
+            if indice is not None:
+                nuevas.sort(
+                    key=lambda r: (r[indice] is None, r[indice] or 0.0),
+                    reverse=desc)
+        return nuevas
 
     def init(self):
         tools.drop_view_if_exists(self.env.cr, self._table)
