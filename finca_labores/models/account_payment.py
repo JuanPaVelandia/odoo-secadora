@@ -42,7 +42,8 @@ class AccountPayment(models.Model):
              'cuenta como aporte del socio en Costo por socio.',
     )
 
-    @api.depends('partner_id', 'partner_id.es_operador_finca', 'date', 'company_id')
+    @api.depends('partner_id', 'partner_id.es_operador_finca', 'date', 'company_id',
+                 'reconciled_bill_ids')
     def _compute_finca_labores(self):
         Campana = self.env['finca.campana']
         duenos = (
@@ -55,6 +56,12 @@ class AccountPayment(models.Model):
             pay.finca_campana_id = pay.finca_campana_id
             pay.finca_pagador_id = pay.finca_pagador_id
             pay.finca_dueno_id = pay.finca_dueno_id
+            if pay.reconciled_bill_ids:
+                # Un pago que cancela una factura de proveedor es una compra,
+                # no un pago de labores, aunque el contacto también sea
+                # operador (p. ej. una tornillería a nombre de una persona).
+                pay.finca_campana_id = False
+                continue
             if pay.finca_campana_id or not pay.partner_id.es_operador_finca or not pay.date:
                 continue
             pay.finca_campana_id = Campana.search([
