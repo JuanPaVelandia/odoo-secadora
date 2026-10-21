@@ -40,10 +40,13 @@ class FincaPagoReparto(models.Model):
     company_id = fields.Many2one(related='payment_id.company_id', store=True)
     campana_id = fields.Many2one(related='payment_id.finca_campana_id', store=True)
 
-    @api.constrains('monto')
+    @api.constrains('monto', 'payment_id')
     def _check_monto(self):
         for rec in self:
             if rec.monto <= 0:
                 raise ValidationError(
                     'El monto de %s en el reparto debe ser mayor que cero.'
                     % rec.operador_id.display_name)
+        # La suma de las líneas debe seguir cuadrando con el pago también
+        # cuando se edita una línea sola.
+        self.payment_id._check_finca_reparto()
