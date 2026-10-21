@@ -26,5 +26,13 @@
             <field name="company_id" eval="False"/>
         </record>
 
+        <record id="seq_finca_liquidacion" model="ir.sequence">
+            <field name="name">Liquidación de labores</field>
+            <field name="code">finca.liquidacion</field>
+            <field name="prefix">LIQ-</field>
+            <field name="padding">5</field>
+            <field name="company_id" eval="False"/>
+        </record>
+
     </data>
 </odoo>

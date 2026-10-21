@@ -25,3 +25,10 @@ access_maintenance_equipment_finca_usuario,maintenance.equipment.finca.usuario,m
 access_maintenance_equipment_category_finca_usuario,maintenance.equipment.category.finca.usuario,maintenance.model_maintenance_equipment_category,group_finca_usuario,1,0,0,0
 access_maintenance_equipment_category_finca_admin,maintenance.equipment.category.finca.admin,maintenance.model_maintenance_equipment_category,group_finca_admin,1,1,0,0
 access_finca_resumen_usuario,finca.resumen.usuario,model_finca_resumen,group_finca_usuario,1,1,1,1
+access_finca_liquidacion_usuario,finca.liquidacion.usuario,model_finca_liquidacion,group_finca_usuario,1,1,1,0
+access_finca_liquidacion_admin,finca.liquidacion.admin,model_finca_liquidacion,group_finca_admin,1,1,1,1
+access_finca_liquidacion_linea_usuario,finca.liquidacion.linea.usuario,model_finca_liquidacion_linea,group_finca_usuario,1,1,1,1
+access_finca_pago_reparto_usuario,finca.pago.reparto.usuario,model_finca_pago_reparto,group_finca_usuario,1,1,1,1
+access_finca_pago_reparto_contable,finca.pago.reparto.contable,model_finca_pago_reparto,account.group_account_invoice,1,1,1,1
+access_finca_pago_reparto_user,finca.pago.reparto.user,model_finca_pago_reparto,base.group_user,1,0,0,0
+access_finca_liquidacion_user,finca.liquidacion.user,model_finca_liquidacion,base.group_user,1,0,0,0

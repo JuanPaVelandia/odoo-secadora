@@ -48,6 +48,12 @@
             <field name="domain_force">[('company_id', 'in', company_ids)]</field>
         </record>
 
+        <record id="finca_liquidacion_company_rule" model="ir.rule">
+            <field name="name">Liquidación de labores: Multi-Company</field>
+            <field name="model_id" ref="model_finca_liquidacion"/>
+            <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+        </record>
+
         <!-- Los pagos de un operador pueden estar en la compañía de cada dueño:
              el saldo solo cuadra si se ven las compañías activas, igual que
              en contabilidad. -->

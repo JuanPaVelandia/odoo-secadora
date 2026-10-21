@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_finca_liquidacion_list" model="ir.ui.view">
+            <field name="name">finca.liquidacion.list</field>
+            <field name="model">finca.liquidacion</field>
+            <field name="arch" type="xml">
+                <list string="Liquidaciones"
+                      decoration-info="state == 'borrador'"
+                      decoration-muted="state == 'cancelada'">
+                    <field name="name"/>
+                    <field name="fecha"/>
+                    <field name="campana_id" optional="hide"/>
+                    <field name="dueno_id"/>
+                    <field name="receptor_id"/>
+                    <field name="total" sum="Total"/>
+                    <field name="payment_id" optional="show"/>
+                    <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'borrador'"
+                           decoration-success="state == 'confirmada'"
+                           decoration-muted="state == 'cancelada'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_finca_liquidacion_form" model="ir.ui.view">
+            <field name="name">finca.liquidacion.form</field>
+            <field name="model">finca.liquidacion</field>
+            <field name="arch" type="xml">
+                <form string="Liquidación de labores">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar y pagar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"
+                                confirm="Se registrará un pago en contabilidad por el total a quien recibe (o se marcará el pago vinculado). ¿Continuar?"/>
+                        <button name="action_cargar_saldos" string="Recargar saldos" type="object"
+                                invisible="state != 'borrador'"
+                                help="Vuelve a traer los saldos pendientes del dueño en la campaña y reemplaza las líneas."/>
+                        <button name="action_cancelar" string="Cancelar" type="object"
+                                invisible="state == 'cancelada'"
+                                confirm="Si el pago lo creó esta liquidación, también se cancela en contabilidad. ¿Continuar?"/>
+                        <button name="action_borrador" string="Volver a borrador" type="object"
+                                invisible="state != 'cancelada'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmada"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_ver_pago" type="object" class="oe_stat_button"
+                                    icon="fa-money" invisible="not payment_id">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">Pago</span>
+                                    <field name="payment_state" class="o_stat_value"/>
+                                </div>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group string="Qué se paga">
+                                <field name="campana_id" readonly="state != 'borrador'"/>
+                                <field name="dueno_id" readonly="state != 'borrador'"/>
+                                <field name="fecha" readonly="state != 'borrador'"/>
+                                <field name="company_id" readonly="state != 'borrador'"
+                                       groups="base.group_multi_company"/>
+                            </group>
+                            <group string="Cómo se gira">
+                                <field name="receptor_id" readonly="state != 'borrador'"/>
+                                <field name="payment_id" readonly="state != 'borrador'"
+                                       placeholder="Vacío: se crea al confirmar"/>
+                                <field name="journal_id" readonly="state != 'borrador'"
+                                       invisible="payment_id" required="not payment_id"/>
+                                <field name="total"/>
+                            </group>
+                        </group>
+                        <field name="linea_ids" readonly="state != 'borrador'">
+                            <list editable="bottom">
+                                <field name="operador_id"/>
+                                <field name="saldo"/>
+                                <field name="monto" sum="Total"/>
+                            </list>
+                        </field>
+                        <div class="text-muted small mt-2">
+                            Las líneas se cargan con el saldo pendiente de cada operador con el dueño en la campaña.
+                            Quite a quien no se le paga en este giro o ajuste el monto. Quien recibe el pago
+                            no queda con saldo: cada peso se le descuenta al operador de su línea.
+                        </div>
+                        <group>
+                            <field name="notas" placeholder="Observaciones" nolabel="1" colspan="2"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_finca_liquidacion_search" model="ir.ui.view">
+            <field name="name">finca.liquidacion.search</field>
+            <field name="model">finca.liquidacion</field>
+            <field name="arch" type="xml">
+                <search string="Buscar liquidaciones">
+                    <field name="name"/>
+                    <field name="dueno_id"/>
+                    <field name="receptor_id"/>
+                    <field name="linea_ids" string="Operador" filter_domain="[('linea_ids.operador_id', 'ilike', self)]"/>
+                    <separator/>
+                    <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
+                    <filter name="filter_confirmada" string="Confirmada" domain="[('state', '=', 'confirmada')]"/>
+                    <separator/>
+                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                            domain="[('campana_id.state', '=', 'abierta')]"/>
+                    <group>
+                        <filter name="group_dueno" string="Dueño" context="{'group_by': 'dueno_id'}"/>
+                        <filter name="group_receptor" string="Recibe" context="{'group_by': 'receptor_id'}"/>
+                        <filter name="group_mes" string="Mes" context="{'group_by': 'fecha:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_finca_liquidacion" model="ir.actions.act_window">
+            <field name="name">Liquidaciones</field>
+            <field name="res_model">finca.liquidacion</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_finca_liquidacion_search"/>
+            <field name="context">{'search_default_filter_campana_abierta': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Sin liquidaciones</p>
+                <p>
+                    Una liquidación es un solo giro para varios operadores. Elija la campaña y el
+                    dueño, revise los saldos que se cargan, diga quién recibe la plata y confirme:
+                    el pago queda en contabilidad y cada operador con su parte descontada.
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

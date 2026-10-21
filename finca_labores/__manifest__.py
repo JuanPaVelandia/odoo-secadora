@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Labores de Finca',
-    'version': '19.0.1.6.0',
+    'version': '19.0.1.7.0',
     'category': 'Operations',
     'summary': 'Labores por contrato, jornales y trabajos de maquinaria por finca, con saldo por operador',
     'description': """
@@ -18,6 +18,8 @@
         - Trabajos de maquinaria por equipo, con tope por tipo de equipo
         - Saldo por dueño y operador: trabajos menos los pagos registrados
           en contabilidad (account.payment)
+        - Liquidaciones: un solo giro para varios operadores, con el reparto
+          de cuánto es de cada uno (quien recibe puede ser un tercero)
         - Estado de cuenta en PDF por operador
 
         Es control operativo: no genera asientos contables.
@@ -38,6 +40,7 @@
         'views/jornal_views.xml',
         'views/maquinaria_trabajo_views.xml',
         'views/account_payment_views.xml',
+        'views/liquidacion_views.xml',
         'views/movimiento_views.xml',
         'wizard/estado_cuenta_wizard_views.xml',
         'wizard/resumen_views.xml',

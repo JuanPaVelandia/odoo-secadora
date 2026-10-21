@@ -18,6 +18,29 @@
                             <field name="finca_dueno_id" invisible="not finca_campana_id"
                                    required="finca_campana_id"/>
                         </group>
+                        <group invisible="not finca_campana_id">
+                            <field name="finca_liquidacion_ids" widget="many2many_tags"
+                                   invisible="not finca_liquidacion_ids"/>
+                            <field name="finca_reparto_total" invisible="not finca_reparto_ids"/>
+                            <field name="finca_reparto_diferencia" invisible="not finca_reparto_ids"
+                                   decoration-danger="finca_reparto_diferencia"/>
+                        </group>
+                        <!-- Un giro para varios: a quién le corresponde cada peso.
+                             Sin líneas, el pago es todo de su contacto. -->
+                        <div colspan="2" invisible="not finca_campana_id" class="mt-2">
+                            <button name="action_finca_proponer_reparto" type="object"
+                                    string="Proponer reparto por saldos" class="btn btn-link px-0"
+                                    icon="fa-magic" invisible="not finca_dueno_id"
+                                    help="Reparte el pago entre los operadores con saldo pendiente del dueño en la campaña, de mayor a menor."/>
+                        </div>
+                        <field name="finca_reparto_ids" colspan="2" nolabel="1"
+                               invisible="not finca_campana_id">
+                            <list editable="bottom">
+                                <field name="operador_id"/>
+                                <field name="dueno_id" optional="hide"/>
+                                <field name="monto" sum="Total"/>
+                            </list>
+                        </field>
                     </group>
                 </xpath>
             </field>
@@ -44,7 +67,7 @@
             <field name="name">Pagos a operadores</field>
             <field name="res_model">account.payment</field>
             <field name="view_mode">list,form</field>
-            <field name="domain">[('partner_id.es_operador_finca', '=', True)]</field>
+            <field name="domain">['|', ('partner_id.es_operador_finca', '=', True), ('finca_reparto_ids', '!=', False)]</field>
             <field name="context">{'create': False}</field>
         </record>
 

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api
+from odoo.exceptions import UserError, ValidationError
+from odoo.tools import float_compare, float_is_zero
 
 
 class AccountPayment(models.Model):
@@ -41,6 +43,24 @@ class AccountPayment(models.Model):
              'por La Alianza), ponga aquí la sociedad: el pago queda para ella y '
              'cuenta como aporte del socio en Costo por socio.',
     )
+    # Un giro que cubre a varias personas: el pago contable es a quien recibió
+    # la plata y estas líneas dicen cuánto es de cada operador. Si hay líneas,
+    # el libro de saldos las usa en vez del contacto del pago.
+    finca_reparto_ids = fields.One2many(
+        'finca.pago.reparto',
+        'payment_id',
+        string='Reparto entre operadores',
+        copy=False,
+    )
+    finca_reparto_total = fields.Float(
+        string='Total repartido', digits=(12, 2),
+        compute='_compute_finca_reparto_total')
+    finca_reparto_diferencia = fields.Float(
+        string='Sin repartir', digits=(12, 2),
+        compute='_compute_finca_reparto_total',
+        help='Pago menos lo repartido. Debe quedar en cero.')
+    finca_liquidacion_ids = fields.One2many(
+        'finca.liquidacion', 'payment_id', string='Liquidaciones', readonly=True)
 
     @api.depends('partner_id', 'partner_id.es_operador_finca', 'date', 'company_id',
                  'reconciled_bill_ids')
@@ -56,7 +76,7 @@ class AccountPayment(models.Model):
             pay.finca_campana_id = pay.finca_campana_id
             pay.finca_pagador_id = pay.finca_pagador_id
             pay.finca_dueno_id = pay.finca_dueno_id
-            if pay.reconciled_bill_ids:
+            if pay.reconciled_bill_ids and not pay.finca_reparto_ids:
                 # Un pago que cancela una factura de proveedor es una compra,
                 # no un pago de labores, aunque el contacto también sea
                 # operador (p. ej. una tornillería a nombre de una persona).
@@ -75,9 +95,67 @@ class AccountPayment(models.Model):
             if not pay.finca_dueno_id and pay.finca_pagador_id in duenos:
                 pay.finca_dueno_id = pay.finca_pagador_id
 
+    @api.depends('amount', 'finca_reparto_ids.monto')
+    def _compute_finca_reparto_total(self):
+        for pay in self:
+            pay.finca_reparto_total = sum(pay.finca_reparto_ids.mapped('monto'))
+            pay.finca_reparto_diferencia = (
+                pay.amount - pay.finca_reparto_total if pay.finca_reparto_ids else 0.0)
+
+    @api.constrains('amount', 'finca_reparto_ids', 'finca_campana_id')
+    def _check_finca_reparto(self):
+        for pay in self:
+            if not pay.finca_reparto_ids:
+                continue
+            if not pay.finca_campana_id:
+                raise ValidationError(
+                    'El pago %s tiene reparto entre operadores pero no tiene '
+                    'campaña de labores.' % pay.display_name)
+            # Tolerancia de un peso: los giros se redondean.
+            if float_compare(pay.finca_reparto_total, pay.amount, precision_digits=0) != 0:
+                raise ValidationError(
+                    'El reparto del pago %s suma %s y el pago es de %s. '
+                    'Las líneas deben sumar el valor del pago.'
+                    % (pay.display_name,
+                       '{:,.0f}'.format(pay.finca_reparto_total).replace(',', '.'),
+                       '{:,.0f}'.format(pay.amount).replace(',', '.')))
+
     @api.onchange('finca_pagador_id')
     def _onchange_finca_pagador_id(self):
         # Al corregir quién pagó, el pago pasa a su cuenta salvo que ya se haya
         # puesto a nombre de una sociedad.
         if self.finca_pagador_id and not self.finca_dueno_id.finca_socio_ids:
             self.finca_dueno_id = self.finca_pagador_id
+
+    def action_finca_proponer_reparto(self):
+        """Llena el reparto con los saldos pendientes del dueño en la campaña,
+        de mayor a menor, hasta cubrir el pago. Lo que sobre va a quien recibió
+        el pago si es operador; si no, al operador con más saldo, para que las
+        líneas cuadren y el usuario ajuste desde ahí."""
+        self.ensure_one()
+        if not self.finca_campana_id or not self.finca_dueno_id:
+            raise UserError('Para proponer el reparto el pago necesita campaña y dueño.')
+        saldos = self.env['finca.labor.movimiento']._saldos_por_operador(
+            self.finca_campana_id, self.finca_dueno_id, excluir_payment=self)
+        pendientes = sorted(
+            ((op, saldo) for op, saldo in saldos.items() if saldo > 0.5),
+            key=lambda item: item[1], reverse=True)
+        if not pendientes:
+            raise UserError(
+                'Ningún operador tiene saldo pendiente con %s en la campaña %s.'
+                % (self.finca_dueno_id.display_name, self.finca_campana_id.name))
+        restante = self.amount
+        lineas = {}
+        for operador, saldo in pendientes:
+            if restante <= 0.5:
+                break
+            monto = min(saldo, restante)
+            lineas[operador] = monto
+            restante -= monto
+        if restante > 0.5:
+            destino = self.partner_id if self.partner_id.es_operador_finca else pendientes[0][0]
+            lineas[destino] = lineas.get(destino, 0.0) + restante
+        self.finca_reparto_ids = [(5, 0, 0)] + [
+            (0, 0, {'operador_id': op.id, 'monto': monto})
+            for op, monto in lineas.items() if not float_is_zero(monto, precision_digits=2)
+        ]

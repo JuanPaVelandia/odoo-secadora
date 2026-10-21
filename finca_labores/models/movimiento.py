@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, tools
+from odoo import models, fields, tools, api
 from odoo.tools import SQL
 
 
@@ -116,7 +116,8 @@ class FincaLaborMovimiento(models.Model):
 
                 -- amount_company_currency_signed es negativo en los pagos
                 -- salientes: un pago al operador suma en Pagos y una
-                -- devolución del operador resta.
+                -- devolución del operador resta. Solo los pagos sin reparto:
+                -- los repartidos entran línea por línea más abajo.
                 SELECT p.id * 10 + 4,
                        p.date, p.finca_campana_id, p.finca_dueno_id, p.partner_id, NULL,
                        'pago', p.name, p.memo,
@@ -124,6 +125,31 @@ class FincaLaborMovimiento(models.Model):
                        p.finca_pagador_id,
                        p.company_id, 'account.payment', p.id
                   FROM account_payment p
+                 WHERE p.finca_campana_id IS NOT NULL
+                   AND p.state IN ('in_process', 'paid')
+                   AND NOT EXISTS (
+                       SELECT 1 FROM finca_pago_reparto r WHERE r.payment_id = p.id)
+
+             UNION ALL
+
+                -- Pago repartido: una fila por operador con su parte. Quien
+                -- recibió la plata (p.partner_id) no aparece salvo que esté
+                -- en el reparto; se deja dicho en el detalle.
+                SELECT r.id * 10 + 5,
+                       p.date, p.finca_campana_id,
+                       COALESCE(r.dueno_id, p.finca_dueno_id), r.operador_id, NULL,
+                       'pago', p.name,
+                       CONCAT_WS(' · ', p.memo,
+                                 CASE WHEN p.partner_id <> r.operador_id
+                                      THEN 'Girado a ' || rp.name END),
+                       0.0,
+                       CASE WHEN p.payment_type = 'outbound' THEN r.monto ELSE -r.monto END,
+                       CASE WHEN p.payment_type = 'outbound' THEN -r.monto ELSE r.monto END,
+                       p.finca_pagador_id,
+                       p.company_id, 'account.payment', p.id
+                  FROM finca_pago_reparto r
+                  JOIN account_payment p ON p.id = r.payment_id
+                  JOIN res_partner rp ON rp.id = p.partner_id
                  WHERE p.finca_campana_id IS NOT NULL
                    AND p.state IN ('in_process', 'paid')
             )
@@ -137,6 +163,21 @@ class FincaLaborMovimiento(models.Model):
             'res_id': self.res_id,
             'view_mode': 'form',
             'target': 'current',
+        }
+
+    @api.model
+    def _saldos_por_operador(self, campana, dueno, excluir_payment=None):
+        """{operador: saldo} de un dueño en una campaña. Saldo positivo = se le
+        debe al operador. `excluir_payment` deja por fuera un pago (el que se
+        está repartiendo, para no descontarlo dos veces)."""
+        domain = [('campana_id', '=', campana.id), ('dueno_id', '=', dueno.id)]
+        if excluir_payment:
+            domain += ['!', '&', ('res_model', '=', 'account.payment'),
+                       ('res_id', '=', excluir_payment.id)]
+        return {
+            operador: saldo
+            for operador, saldo in self._read_group(domain, ['operador_id'], ['saldo:sum'])
+            if operador
         }
 
 

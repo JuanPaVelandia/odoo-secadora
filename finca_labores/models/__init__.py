@@ -9,5 +9,7 @@ from . import contrato
 from . import jornal
 from . import maintenance
 from . import maquinaria_trabajo
+from . import pago_reparto
 from . import account_payment
+from . import liquidacion
 from . import movimiento
