@@ -170,6 +170,10 @@ class FincaLaborMovimiento(models.Model):
         """{operador: saldo} de un dueño en una campaña. Saldo positivo = se le
         debe al operador. `excluir_payment` deja por fuera un pago (el que se
         está repartiendo, para no descontarlo dos veces)."""
+        # La vista lee las tablas de jornales, contratos y pagos: lo que esté
+        # pendiente en la caché del ORM (p. ej. un jornal recién confirmado
+        # en la misma transacción) tiene que estar escrito antes de consultar.
+        self.env.flush_all()
         domain = [('campana_id', '=', campana.id), ('dueno_id', '=', dueno.id)]
         if excluir_payment:
             domain += ['!', '&', ('res_model', '=', 'account.payment'),
