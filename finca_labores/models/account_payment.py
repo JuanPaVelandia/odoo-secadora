@@ -120,6 +120,46 @@ class AccountPayment(models.Model):
                        '{:,.0f}'.format(pay.finca_reparto_total).replace(',', '.'),
                        '{:,.0f}'.format(pay.amount).replace(',', '.')))
 
+    # --- Cruce con liquidaciones -------------------------------------------
+    # El giro se registra como siempre (a mano o por el bot); si hay una
+    # liquidación por pagar del mismo valor, se cruza sola.
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        pagos = super().create(vals_list)
+        self.env['finca.liquidacion']._cruzar_pagos_nuevos(pagos)
+        return pagos
+
+    def write(self, vals):
+        res = super().write(vals)
+        if {'state', 'amount', 'partner_id', 'payment_type'} & set(vals):
+            self.env['finca.liquidacion']._cruzar_pagos_nuevos(self)
+        return res
+
+    def action_finca_cruzar_liquidacion(self):
+        """Botón del pago: busca la liquidación por pagar que le corresponde."""
+        self.ensure_one()
+        Liq = self.env['finca.liquidacion']
+        candidatas = Liq.search([
+            ('state', '=', 'confirmada'),
+            ('company_id', '=', self.company_id.id),
+            ('total', '=', self.amount),
+        ])
+        if len(candidatas) > 1:
+            con_receptor = candidatas.filtered(lambda l: l.receptor_id == self.partner_id)
+            candidatas = con_receptor if len(con_receptor) == 1 else candidatas
+        if not candidatas:
+            raise UserError(
+                'No hay ninguna liquidación por pagar de %s en %s. Créela en Labores de '
+                'Finca › Liquidaciones y se cruzará con este pago.' % (
+                    '{:,.0f}'.format(self.amount).replace(',', '.'), self.company_id.name))
+        if len(candidatas) > 1:
+            raise UserError(
+                'Hay varias liquidaciones por pagar de ese valor: %s. Abra la que corresponde, '
+                'elija este pago en el campo "Pago" y use "Cruzar pago".'
+                % ', '.join(candidatas.mapped('name')))
+        candidatas._cruzar(self)
+
     @api.onchange('finca_pagador_id')
     def _onchange_finca_pagador_id(self):
         # Al corregir quién pagó, el pago pasa a su cuenta salvo que ya se haya

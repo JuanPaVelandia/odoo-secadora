@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <list string="Liquidaciones"
                       decoration-info="state == 'borrador'"
+                      decoration-warning="state == 'confirmada'"
                       decoration-muted="state == 'cancelada'">
                     <field name="name"/>
                     <field name="fecha"/>
@@ -19,7 +20,8 @@
                     <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'borrador'"
-                           decoration-success="state == 'confirmada'"
+                           decoration-warning="state == 'confirmada'"
+                           decoration-success="state == 'pagada'"
                            decoration-muted="state == 'cancelada'"/>
                 </list>
             </field>
@@ -31,18 +33,20 @@
             <field name="arch" type="xml">
                 <form string="Liquidación de labores">
                     <header>
-                        <button name="action_confirmar" string="Confirmar y pagar" type="object"
-                                class="oe_highlight" invisible="state != 'borrador'"
-                                confirm="Se registrará un pago en contabilidad por el total a quien recibe (o se marcará el pago vinculado). ¿Continuar?"/>
+                        <button name="action_confirmar" string="Confirmar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"/>
+                        <button name="action_cruzar_pago" string="Cruzar pago" type="object"
+                                class="oe_highlight" invisible="state != 'confirmada'"
+                                help="Cruza con el pago elegido en el campo Pago, o busca uno por el mismo valor."/>
                         <button name="action_cargar_saldos" string="Recargar saldos" type="object"
                                 invisible="state != 'borrador'"
                                 help="Vuelve a traer los saldos pendientes del dueño en la campaña y reemplaza las líneas."/>
+                        <button name="action_borrador" string="Volver a borrador" type="object"
+                                invisible="state not in ('confirmada', 'cancelada')"/>
                         <button name="action_cancelar" string="Cancelar" type="object"
                                 invisible="state == 'cancelada'"
-                                confirm="Si el pago lo creó esta liquidación, también se cancela en contabilidad. ¿Continuar?"/>
-                        <button name="action_borrador" string="Volver a borrador" type="object"
-                                invisible="state != 'cancelada'"/>
-                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmada"/>
+                                confirm="Si está cruzada con un pago, el pago se separa y vuelve a ser un pago normal a su contacto. ¿Continuar?"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmada,pagada"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
@@ -57,6 +61,10 @@
                         <div class="oe_title">
                             <h1><field name="name" readonly="1"/></h1>
                         </div>
+                        <div class="alert alert-warning" role="alert" invisible="state != 'confirmada'">
+                            Por pagar. Haga el giro y registre el pago en contabilidad como siempre:
+                            si es por el mismo valor se cruza solo. Si no, elíjalo abajo en "Pago" y use "Cruzar pago".
+                        </div>
                         <group>
                             <group string="Qué se paga">
                                 <field name="campana_id" readonly="state != 'borrador'"/>
@@ -65,13 +73,12 @@
                                 <field name="company_id" readonly="state != 'borrador'"
                                        groups="base.group_multi_company"/>
                             </group>
-                            <group string="Cómo se gira">
-                                <field name="receptor_id" readonly="state != 'borrador'"/>
-                                <field name="payment_id" readonly="state != 'borrador'"
-                                       placeholder="Vacío: se crea al confirmar"/>
-                                <field name="journal_id" readonly="state != 'borrador'"
-                                       invisible="payment_id" required="not payment_id"/>
+                            <group string="El giro">
                                 <field name="total"/>
+                                <field name="receptor_id" readonly="state not in ('borrador', 'confirmada')"
+                                       placeholder="Opcional: se toma del pago"/>
+                                <field name="payment_id" readonly="state not in ('borrador', 'confirmada')"
+                                       placeholder="Se cruza solo si hay uno del mismo valor"/>
                             </group>
                         </group>
                         <field name="linea_ids" readonly="state != 'borrador'">
@@ -105,8 +112,8 @@
                     <field name="receptor_id"/>
                     <field name="linea_ids" string="Operador" filter_domain="[('linea_ids.operador_id', 'ilike', self)]"/>
                     <separator/>
-                    <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
-                    <filter name="filter_confirmada" string="Confirmada" domain="[('state', '=', 'confirmada')]"/>
+                    <filter name="filter_por_pagar" string="Por pagar" domain="[('state', '=', 'confirmada')]"/>
+                    <filter name="filter_pagada" string="Pagada" domain="[('state', '=', 'pagada')]"/>
                     <separator/>
                     <filter name="filter_campana_abierta" string="Campaña abierta"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
@@ -129,8 +136,9 @@
                 <p class="o_view_nocontent_smiling_face">Sin liquidaciones</p>
                 <p>
                     Una liquidación es un solo giro para varios operadores. Elija la campaña y el
-                    dueño, revise los saldos que se cargan, diga quién recibe la plata y confirme:
-                    el pago queda en contabilidad y cada operador con su parte descontada.
+                    dueño, revise los saldos que se cargan y confirme. Luego haga el giro y registre
+                    el pago como siempre: se cruza solo con la liquidación y cada operador queda
+                    con su parte descontada.
                 </p>
             </field>
         </record>

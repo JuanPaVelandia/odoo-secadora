@@ -27,7 +27,12 @@
                         </group>
                         <!-- Un giro para varios: a quién le corresponde cada peso.
                              Sin líneas, el pago es todo de su contacto. -->
-                        <div colspan="2" invisible="not finca_campana_id" class="mt-2">
+                        <div colspan="2" class="mt-2">
+                            <button name="action_finca_cruzar_liquidacion" type="object"
+                                    string="Cruzar con liquidación" class="btn btn-link px-0 me-3"
+                                    icon="fa-link"
+                                    invisible="finca_reparto_ids or payment_type != 'outbound' or state not in ('in_process', 'paid')"
+                                    help="Busca la liquidación por pagar del mismo valor y le pone a este pago el reparto entre operadores."/>
                             <button name="action_finca_proponer_reparto" type="object"
                                     string="Proponer reparto por saldos" class="btn btn-link px-0"
                                     icon="fa-magic" invisible="not finca_dueno_id"
