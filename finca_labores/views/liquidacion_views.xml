@@ -88,6 +88,16 @@
                                 <field name="monto" sum="Total"/>
                             </list>
                         </field>
+                        <field name="jornal_ids" invisible="not jornal_ids" readonly="1" class="mt-3">
+                            <list string="Jornales incluidos" create="false" delete="false">
+                                <field name="name"/>
+                                <field name="fecha_desde"/>
+                                <field name="fecha_hasta"/>
+                                <field name="operador_id"/>
+                                <field name="labor_id"/>
+                                <field name="total" sum="Total"/>
+                            </list>
+                        </field>
                         <div class="text-muted small mt-2">
                             Las líneas se cargan con el saldo pendiente de cada operador con el dueño en la campaña.
                             Quite a quien no se le paga en este giro o ajuste el monto. Quien recibe el pago

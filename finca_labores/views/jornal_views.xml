@@ -13,6 +13,8 @@
                       decoration-muted="state == 'cancelado'">
                     <header>
                         <button name="action_confirmar" string="Confirmar" type="object" class="oe_highlight"/>
+                        <button name="action_liquidar" string="Liquidar seleccionados" type="object"
+                                help="Arma una liquidación con los jornales seleccionados: una línea por persona con la suma de sus jornales."/>
                     </header>
                     <field name="name" readonly="1" optional="show"/>
                     <field name="campana_id" optional="hide" readonly="state != 'borrador'"/>
@@ -27,6 +29,7 @@
                     <field name="valor_unitario" readonly="state != 'borrador'"/>
                     <field name="total" sum="Total"/>
                     <field name="dueno_id" optional="hide" readonly="state != 'borrador'"/>
+                    <field name="liquidacion_id" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'borrador'"
                            decoration-success="state == 'confirmado'"
@@ -73,6 +76,7 @@
                                 </div>
                                 <field name="valor_unitario" readonly="state != 'borrador'"/>
                                 <field name="total"/>
+                                <field name="liquidacion_id"/>
                                 <field name="company_id" groups="base.group_multi_company"/>
                             </group>
                         </group>
@@ -94,6 +98,8 @@
                     <separator/>
                     <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
                     <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
+                    <filter name="filter_sin_liquidar" string="Sin liquidar"
+                            domain="[('state', '=', 'confirmado'), ('liquidacion_id', '=', False)]"/>
                     <separator/>
                     <filter name="filter_campana_abierta" string="Campaña abierta"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
@@ -104,6 +110,15 @@
                     </group>
                 </search>
             </field>
+        </record>
+
+        <record id="action_finca_jornal_liquidar" model="ir.actions.server">
+            <field name="name">Liquidar seleccionados</field>
+            <field name="model_id" ref="model_finca_jornal"/>
+            <field name="binding_model_id" ref="model_finca_jornal"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_liquidar()</field>
         </record>
 
         <record id="action_finca_jornal" model="ir.actions.act_window">

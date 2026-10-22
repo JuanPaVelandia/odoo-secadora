@@ -88,6 +88,14 @@ class FincaJornal(models.Model):
         default=lambda self: self.env.company,
         index=True,
     )
+    liquidacion_id = fields.Many2one(
+        'finca.liquidacion',
+        string='Liquidación',
+        readonly=True,
+        copy=False,
+        index=True,
+        help='Liquidación armada con este jornal (desde "Liquidar seleccionados").',
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -130,6 +138,51 @@ class FincaJornal(models.Model):
 
     def action_borrador(self):
         self.write({'state': 'borrador'})
+
+    def action_liquidar(self):
+        """Arma una liquidación con los jornales seleccionados: una línea por
+        persona con la suma de sus jornales. Tienen que ser de la misma
+        campaña, dueño y empresa (un giro = un dueño)."""
+        jornales = self.filtered(lambda j: j.state == 'confirmado')
+        if not jornales:
+            raise UserError('Seleccione jornales confirmados.')
+        pendientes = jornales.filtered(
+            lambda j: j.liquidacion_id and j.liquidacion_id.state != 'cancelada')
+        if pendientes:
+            raise UserError('Estos jornales ya están en una liquidación: %s.' % ', '.join(
+                '%s (%s)' % (j.name, j.liquidacion_id.name) for j in pendientes))
+        if len(jornales.campana_id) > 1 or len(jornales.dueno_id) > 1 or len(jornales.company_id) > 1:
+            raise UserError(
+                'Los jornales seleccionados deben ser de la misma campaña, el mismo dueño '
+                'y la misma empresa: un giro se hace por dueño. Haga una liquidación por cada uno.')
+        if not jornales.dueno_id:
+            raise UserError('Los jornales no tienen dueño.')
+        campana, dueno = jornales.campana_id, jornales.dueno_id
+        saldos = self.env['finca.labor.movimiento']._saldos_por_operador(campana, dueno)
+        lineas = []
+        for operador in jornales.operador_id.sorted('name'):
+            monto = sum(jornales.filtered(lambda j: j.operador_id == operador).mapped('total'))
+            lineas.append((0, 0, {
+                'operador_id': operador.id,
+                'saldo': saldos.get(operador, 0.0),
+                'monto': monto,
+            }))
+        liq = self.env['finca.liquidacion'].with_company(jornales.company_id).create({
+            'campana_id': campana.id,
+            'dueno_id': dueno.id,
+            'company_id': jornales.company_id.id,
+            'linea_ids': lineas,
+        })
+        jornales.write({'liquidacion_id': liq.id})
+        liq.message_post(body='Armada con %d jornales: %s.' % (
+            len(jornales), ', '.join(jornales.sorted('name').mapped('name'))))
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'finca.liquidacion',
+            'res_id': liq.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def action_cancelar(self):
         self.write({'state': 'cancelado'})
