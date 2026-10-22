@@ -38,6 +38,7 @@ class AccountPayment(models.Model):
         store=True,
         readonly=False,
         index=True,
+        domain=[('es_dueno_finca', '=', True)],
         help='Dueño a cuya cuenta se descuenta el pago. Por defecto quien pagó; '
              'si el pago se hizo a nombre de una sociedad (ej. Juan Pablo paga '
              'por La Alianza), ponga aquí la sociedad: el pago queda para ella y '
@@ -66,10 +67,7 @@ class AccountPayment(models.Model):
                  'reconciled_bill_ids')
     def _compute_finca_labores(self):
         Campana = self.env['finca.campana']
-        duenos = (
-            self.env['secadora.lugar'].sudo().search([('dueno_id', '!=', False)]).dueno_id
-            | self.env['finca.socio'].sudo().search([]).socio_id
-        )
+        duenos = self.env['res.partner'].sudo().search([('es_dueno_finca', '=', True)])
         for pay in self:
             # Asignar siempre: un compute almacenado que deja registros sin
             # valor falla. Lo ya marcado (a mano o antes) no se toca.

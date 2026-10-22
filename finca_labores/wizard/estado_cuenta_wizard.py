@@ -22,6 +22,7 @@ class FincaEstadoCuentaWizard(models.TransientModel):
     dueno_id = fields.Many2one(
         'res.partner',
         string='Dueño',
+        domain=[('es_dueno_finca', '=', True)],
         help='Vacío para ver todos los dueños.',
     )
 

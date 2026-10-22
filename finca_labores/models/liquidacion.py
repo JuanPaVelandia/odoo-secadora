@@ -33,6 +33,7 @@ class FincaLiquidacion(models.Model):
         default=lambda self: self.env['finca.campana']._get_campana())
     dueno_id = fields.Many2one(
         'res.partner', string='A cuenta de', required=True, index=True,
+        domain=[('es_dueno_finca', '=', True)],
         help='Dueño cuyas labores se pagan. Los saldos se cargan de su cuenta '
              'en la campaña.')
     fecha = fields.Date(string='Fecha', required=True, default=fields.Date.context_today)

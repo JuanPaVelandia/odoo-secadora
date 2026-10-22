@@ -40,6 +40,7 @@ class FincaJornal(models.Model):
     dueno_id = fields.Many2one(
         'res.partner',
         string='Dueño',
+        domain=[('es_dueno_finca', '=', True)],
         compute='_compute_dueno_id',
         store=True,
         readonly=False,

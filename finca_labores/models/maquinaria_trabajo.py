@@ -53,6 +53,7 @@ class FincaMaquinariaTrabajo(models.Model):
     dueno_id = fields.Many2one(
         'res.partner',
         string='Dueño',
+        domain=[('es_dueno_finca', '=', True)],
         compute='_compute_desde_equipo',
         store=True,
         readonly=False,

@@ -27,7 +27,8 @@ class FincaResumen(models.TransientModel):
         required=True,
         default=lambda self: self.env['finca.campana']._get_campana(),
     )
-    dueno_id = fields.Many2one('res.partner', string='Dueño', help='Vacío: todos.')
+    dueno_id = fields.Many2one(
+        'res.partner', string='Dueño', domain=[('es_dueno_finca', '=', True)], help='Vacío: todos.')
     operador_id = fields.Many2one(
         'res.partner', string='Operador', domain=[('es_operador_finca', '=', True)],
         help='Vacío: todos. Solo aparecen los contactos con alguna labor confirmada.')
