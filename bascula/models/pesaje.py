@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+import logging
 import re
 import pytz
 from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
+
+_logger = logging.getLogger(__name__)
 
 
 class SecadoraPesaje(models.Model):
@@ -393,6 +396,15 @@ class SecadoraPesaje(models.Model):
                 lambda d: not d.confirmado).write({'confirmado': True})
             record._aplicar_resumen_despacho()
             record._trasladar_bultos_a_bodega_destino()
+
+        # Si se corrigió la cantidad de una línea ya confirmada (pesaje
+        # reabierto), la copia en la bodega destino debe seguir a la línea.
+        if 'despacho_bultos_ids' in vals:
+            for record in self.filtered(
+                lambda p: p.state == 'completado' and not p.permite_edicion
+                and p not in por_confirmar
+            ):
+                record._trasladar_bultos_a_bodega_destino()
 
         # Corregir el destino de un pesaje ya completado también debe mover los
         # bultos: el traslado solo ocurría en la 2ª pesada, así que poner la
@@ -963,6 +975,12 @@ class SecadoraPesaje(models.Model):
         marcado como recibido para que no se pueda volver a despachar desde
         allí por error. El registro de origen conserva lo que no salió, así que
         un despacho parcial deja 400 aquí y 100 allá.
+
+        Es idempotente: si el pesaje ya trasladó, no duplica sino que cuadra
+        las copias con las líneas de despacho actuales. Hace falta porque un
+        pesaje completado se puede reabrir y corregir la cantidad de una
+        línea; antes la copia se quedaba con la cantidad vieja y la bodega
+        destino mostraba menos bultos de los que recibió.
         """
         self.ensure_one()
         destino = self.destino_id
@@ -972,14 +990,37 @@ class SecadoraPesaje(models.Model):
         Registro = self.env['secadora.registro.bultos'].sudo()
         Mov = self.env['secadora.movimiento.bultos'].sudo()
 
-        # Un pesaje se puede reabrir y volver a completar; sin esto el
-        # traslado se repetiría y los bultos se multiplicarían en el destino.
-        if Mov.search_count([('pesaje_id', '=', self.id)]):
-            return
+        # Traslados que este pesaje ya hizo, por registro de origen.
+        previos = Mov.search([
+            ('pesaje_id', '=', self.id),
+            ('tipo', '=', 'traslado'),
+            ('bodega_destino_id', '=', destino.id),
+        ])
+        por_origen = {}
+        for mov in previos:
+            copia = mov.registro_bultos_id
+            if copia.exists() and copia.trasladado_de_id:
+                por_origen.setdefault(copia.trasladado_de_id.id, []).append(mov)
 
         for linea in self.despacho_bultos_ids:
             origen = linea.registro_bultos_id
             if not origen.bodega_id or origen.bodega_id == destino:
+                continue
+
+            movs = por_origen.pop(origen.id, [])
+            if movs:
+                # Ya había copia: ajustar la cantidad si la línea cambió.
+                mov = movs[0]
+                copia = mov.registro_bultos_id
+                if copia.cantidad != linea.cantidad:
+                    if copia.cantidad_despachada > linea.cantidad:
+                        _logger.warning(
+                            'Pesaje %s: la copia %s en %s ya despachó %s bultos '
+                            'y la línea bajó a %s; queda con saldo negativo.',
+                            self.name, copia.name, destino.name,
+                            copia.cantidad_despachada, linea.cantidad)
+                    copia.write({'cantidad': linea.cantidad})
+                    mov.write({'cantidad': linea.cantidad})
                 continue
 
             copia = Registro.create({
@@ -1009,6 +1050,19 @@ class SecadoraPesaje(models.Model):
                 'pesaje_id': self.id,
                 'notas': f'Pesaje {self.name}',
             })
+
+        # Copias cuya línea de despacho ya no existe: esos bultos no salieron.
+        for movs in por_origen.values():
+            for mov in movs:
+                copia = mov.registro_bultos_id
+                if copia.cantidad_despachada:
+                    _logger.warning(
+                        'Pesaje %s: la línea de despacho de la copia %s se '
+                        'borró pero la copia ya despachó bultos; se conserva.',
+                        self.name, copia.name)
+                    continue
+                mov.unlink()
+                copia.unlink()
 
     def _aplicar_resumen_despacho(self):
         """Escribe en observaciones un resumen del despacho de bultos.
