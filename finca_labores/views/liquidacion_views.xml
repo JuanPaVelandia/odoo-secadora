@@ -16,7 +16,8 @@
                     <field name="dueno_id"/>
                     <field name="receptor_id"/>
                     <field name="total" sum="Total"/>
-                    <field name="payment_id" optional="show"/>
+                    <field name="move_id" optional="show"/>
+                    <field name="payment_id" optional="hide"/>
                     <field name="company_id" groups="base.group_multi_company" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'borrador'"
@@ -35,9 +36,13 @@
                     <header>
                         <button name="action_confirmar" string="Confirmar" type="object"
                                 class="oe_highlight" invisible="state != 'borrador'"/>
-                        <button name="action_cruzar_pago" string="Cruzar pago" type="object"
+                        <button name="action_registrar_giro" string="Registrar giro" type="object"
                                 class="oe_highlight" invisible="state != 'confirmada'"
-                                help="Cruza con el pago elegido en el campo Pago, o busca uno por el mismo valor."/>
+                                confirm="Se crea y publica el asiento: gasto 53959502 por cada operador contra el banco elegido. ¿Continuar?"
+                                help="Crea el asiento del giro: nómina no deducible por operador contra el banco."/>
+                        <button name="action_cruzar_pago" string="Cruzar pago" type="object"
+                                invisible="state != 'confirmada'"
+                                help="Solo para giros de antes registrados como pago: cruza con el pago elegido en el campo Pago, o busca uno por el mismo valor."/>
                         <button name="action_cargar_saldos" string="Recargar saldos" type="object"
                                 invisible="state != 'borrador'"
                                 help="Vuelve a traer los saldos pendientes del dueño en la campaña y reemplaza las líneas."/>
@@ -45,11 +50,18 @@
                                 invisible="state not in ('confirmada', 'cancelada')"/>
                         <button name="action_cancelar" string="Cancelar" type="object"
                                 invisible="state == 'cancelada'"
-                                confirm="Si está cruzada con un pago, el pago se separa y vuelve a ser un pago normal a su contacto. ¿Continuar?"/>
+                                confirm="Si tiene asiento del giro, el asiento se cancela. Si está cruzada con un pago, el pago se separa y vuelve a ser un pago normal a su contacto. ¿Continuar?"/>
                         <field name="state" widget="statusbar" statusbar_visible="borrador,confirmada,pagada"/>
                     </header>
                     <sheet>
                         <div class="oe_button_box" name="button_box">
+                            <button name="action_ver_asiento" type="object" class="oe_stat_button"
+                                    icon="fa-book" invisible="not move_id">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">Asiento</span>
+                                    <field name="move_state" class="o_stat_value"/>
+                                </div>
+                            </button>
                             <button name="action_ver_pago" type="object" class="oe_stat_button"
                                     icon="fa-money" invisible="not payment_id">
                                 <div class="o_stat_info">
@@ -62,8 +74,8 @@
                             <h1><field name="name" readonly="1"/></h1>
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="state != 'confirmada'">
-                            Por pagar. Haga el giro y registre el pago en contabilidad como siempre:
-                            si es por el mismo valor se cruza solo. Si no, elíjalo abajo en "Pago" y use "Cruzar pago".
+                            Por pagar. Elija en "Sale de" el banco del giro y use "Registrar giro": se crea el
+                            asiento de nómina no deducible (53959502) con una línea por operador.
                         </div>
                         <group>
                             <group string="Qué se paga">
@@ -76,9 +88,15 @@
                             <group string="El giro">
                                 <field name="total"/>
                                 <field name="receptor_id" readonly="state not in ('borrador', 'confirmada')"
-                                       placeholder="Opcional: se toma del pago"/>
+                                       placeholder="Opcional: un operador o un tercero"/>
+                                <field name="journal_id" readonly="state not in ('borrador', 'confirmada')"
+                                       required="state == 'confirmada' and not payment_id"
+                                       options="{'no_create': True}"/>
+                                <field name="fecha_giro" readonly="state not in ('borrador', 'confirmada')"/>
+                                <field name="move_id" invisible="not move_id"/>
                                 <field name="payment_id" readonly="state not in ('borrador', 'confirmada')"
-                                       placeholder="Se cruza solo si hay uno del mismo valor"/>
+                                       invisible="move_id or (state == 'pagada' and not payment_id)"
+                                       placeholder="Solo giros de antes registrados como pago"/>
                             </group>
                         </group>
                         <field name="linea_ids" readonly="state != 'borrador'">
@@ -146,8 +164,8 @@
                 <p class="o_view_nocontent_smiling_face">Sin liquidaciones</p>
                 <p>
                     Una liquidación es un solo giro para varios operadores. Elija la campaña y el
-                    dueño, revise los saldos que se cargan y confirme. Luego haga el giro y registre
-                    el pago como siempre: se cruza solo con la liquidación y cada operador queda
+                    dueño, revise los saldos que se cargan y confirme. Luego elija el banco y use
+                    "Registrar giro": queda el asiento de nómina no deducible y cada operador
                     con su parte descontada.
                 </p>
             </field>

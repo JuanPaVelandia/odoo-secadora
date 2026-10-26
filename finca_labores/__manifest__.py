@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Labores de Finca',
-    'version': '19.0.1.7.0',
+    'version': '19.0.1.8.0',
     'category': 'Operations',
     'summary': 'Labores por contrato, jornales y trabajos de maquinaria por finca, con saldo por operador',
     'description': """
@@ -16,13 +16,14 @@
           los operadores que la hicieron
         - Jornales por persona y periodo
         - Trabajos de maquinaria por equipo, con tope por tipo de equipo
-        - Saldo por dueño y operador: trabajos menos los pagos registrados
-          en contabilidad (account.payment)
-        - Liquidaciones: un solo giro para varios operadores, con el reparto
-          de cuánto es de cada uno (quien recibe puede ser un tercero)
+        - Saldo por dueño y operador: trabajos menos los giros
+        - Liquidaciones: un solo giro para varios operadores. El giro es un
+          asiento de nómina no deducible (53959502) por operador contra el
+          banco; quien recibe puede ser un tercero
         - Estado de cuenta en PDF por operador
 
-        Es control operativo: no genera asientos contables.
+        Los trabajos son control operativo; el único asiento que genera es el
+        del giro de la liquidación.
     """,
     'author': 'Secadora La Gran Colombia S.A.S',
     'depends': ['bascula', 'account', 'mail', 'maintenance', 'maintenance_purchase_link'],
@@ -40,6 +41,7 @@
         'views/jornal_views.xml',
         'views/maquinaria_trabajo_views.xml',
         'views/account_payment_views.xml',
+        'views/account_move_views.xml',
         'views/liquidacion_views.xml',
         'views/movimiento_views.xml',
         'wizard/estado_cuenta_wizard_views.xml',

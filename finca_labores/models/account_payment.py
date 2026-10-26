@@ -119,20 +119,10 @@ class AccountPayment(models.Model):
                        '{:,.0f}'.format(pay.amount).replace(',', '.')))
 
     # --- Cruce con liquidaciones -------------------------------------------
-    # El giro se registra como siempre (a mano o por el bot); si hay una
-    # liquidación por pagar del mismo valor, se cruza sola.
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        pagos = super().create(vals_list)
-        self.env['finca.liquidacion']._cruzar_pagos_nuevos(pagos)
-        return pagos
-
-    def write(self, vals):
-        res = super().write(vals)
-        if {'state', 'amount', 'partner_id', 'payment_type'} & set(vals):
-            self.env['finca.liquidacion']._cruzar_pagos_nuevos(self)
-        return res
+    # Los giros nuevos se registran como asiento desde la liquidación. Un pago
+    # ya registrado (giros de antes) se cruza a mano con este botón; ya no se
+    # cruza solo, para que un pago a proveedor del mismo valor no se tome por
+    # un giro de labores.
 
     def action_finca_cruzar_liquidacion(self):
         """Botón del pago: busca la liquidación por pagar que le corresponde."""

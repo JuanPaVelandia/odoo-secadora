@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Asientos de giro de labores: gasto 53959502 por operador contra
+             el banco. Solo en asientos (no facturas). -->
+        <record id="view_move_form_finca" model="ir.ui.view">
+            <field name="name">account.move.form.finca.labores</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="before">
+                    <group string="Labores de finca" name="finca_labores"
+                           invisible="move_type != 'entry'">
+                        <group>
+                            <field name="finca_campana_id"/>
+                            <field name="finca_dueno_id" invisible="not finca_campana_id"
+                                   required="finca_campana_id"/>
+                        </group>
+                        <group invisible="not finca_campana_id">
+                            <field name="finca_pagador_id"/>
+                            <field name="finca_liquidacion_ids" widget="many2many_tags"
+                                   invisible="not finca_liquidacion_ids"/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

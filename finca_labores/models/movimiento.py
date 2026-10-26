@@ -9,8 +9,8 @@ class FincaLaborMovimiento(models.Model):
 
     Reemplaza "Resumen total" y "Reporte" del consolidado. Junta las labores
     por contrato, los jornales y los trabajos de maquinaria confirmados (columna
-    Trabajos) con los pagos de contabilidad marcados con campaña (columna
-    Pagos). Saldo positivo = se le debe al operador.
+    Trabajos) con los giros marcados con campaña (columna Pagos): asientos de
+    nómina no deducible y, los de antes, pagos de contabilidad. Saldo positivo = se le debe al operador.
     """
     _name = 'finca.labor.movimiento'
     _description = 'Movimiento de Labores por Operador'
@@ -152,6 +152,26 @@ class FincaLaborMovimiento(models.Model):
                   JOIN res_partner rp ON rp.id = p.partner_id
                  WHERE p.finca_campana_id IS NOT NULL
                    AND p.state IN ('in_process', 'paid')
+
+             UNION ALL
+
+                -- Giro como asiento (53959502 contra el banco): cada línea que
+                -- no es de banco ni caja se descuenta al operador de la línea.
+                -- balance > 0 es un giro al operador; < 0, una devolución.
+                SELECT l.id * 10 + 6,
+                       m.date, m.finca_campana_id, m.finca_dueno_id, l.partner_id, NULL,
+                       'pago', m.name, CONCAT_WS(' · ', m.ref, l.name),
+                       0.0, l.balance, -l.balance,
+                       m.finca_pagador_id,
+                       m.company_id, 'account.move', m.id
+                  FROM account_move_line l
+                  JOIN account_move m ON m.id = l.move_id
+                  JOIN account_account a ON a.id = l.account_id
+                 WHERE m.finca_campana_id IS NOT NULL
+                   AND m.state = 'posted'
+                   AND l.partner_id IS NOT NULL
+                   AND l.display_type NOT IN ('line_section', 'line_subsection', 'line_note')
+                   AND a.account_type NOT IN ('asset_cash', 'liability_credit_card')
             )
         """, table=SQL.identifier(self._table)))
 

@@ -8,17 +8,18 @@ from odoo.tools import float_compare
 class FincaLiquidacion(models.Model):
     """Un giro para varios operadores.
 
-    El flujo es el de siempre, en tres pasos:
     1. Liquidación: al elegir campaña y dueño se cargan los saldos pendientes
        de cada operador; se quita a quien no se le paga en este giro y se
        confirma. Queda "por pagar".
-    2. Se hace el giro y el pago se registra en contabilidad como siempre
-       (a mano o por el bot), a quien recibió la plata: un operador o un
-       tercero que les entrega en efectivo.
-    3. Cruce: si aparece un pago por el mismo valor se cruza solo; si no,
-       se elige el pago en la liquidación y se cruza con un botón. El pago
-       queda con el reparto de cuánto es de cada operador y el libro de
-       saldos descuenta a cada uno su parte. Quien recibió no queda con saldo.
+    2. Giro: se elige el banco y "Registrar giro" crea el asiento: una línea
+       de gasto 53959502 (nómina no deducible) por operador contra el banco.
+       No es un pago a proveedor: no queda esperando factura. El libro de
+       saldos descuenta a cada operador su línea; quien recibió la plata (un
+       tercero que les entrega en efectivo) no queda con saldo.
+
+    Los giros de antes se registraban como pagos (account.payment) con
+    reparto; esos se siguen leyendo y se pueden cruzar a mano con "Cruzar
+    pago".
     """
     _name = 'finca.liquidacion'
     _description = 'Liquidación de labores'
@@ -56,6 +57,16 @@ class FincaLiquidacion(models.Model):
              'cuando hay uno por el mismo valor; si no, elíjalo aquí y use '
              '"Cruzar pago".')
     payment_state = fields.Selection(related='payment_id.state', string='Estado del pago')
+    journal_id = fields.Many2one(
+        'account.journal', string='Sale de', copy=False,
+        domain="[('type', 'in', ('bank', 'cash')), ('company_id', '=', company_id)]",
+        help='Banco o caja desde el que se hace el giro.')
+    fecha_giro = fields.Date(
+        string='Fecha del giro', copy=False, default=fields.Date.context_today)
+    move_id = fields.Many2one(
+        'account.move', string='Asiento', copy=False, readonly=True, index=True,
+        help='Asiento del giro: gasto de nómina no deducible por operador contra el banco.')
+    move_state = fields.Selection(related='move_id.state', string='Estado del asiento')
     linea_ids = fields.One2many(
         'finca.liquidacion.linea', 'liquidacion_id', string='Operadores', copy=True)
     jornal_ids = fields.One2many(
@@ -103,6 +114,8 @@ class FincaLiquidacion(models.Model):
     def _onchange_company_id(self):
         if self.payment_id.company_id != self.company_id:
             self.payment_id = False
+        if self.journal_id.company_id != self.company_id:
+            self.journal_id = False
 
     # --- Paso 1: liquidar --------------------------------------------------
 
@@ -138,16 +151,84 @@ class FincaLiquidacion(models.Model):
             raise UserError('Hay operadores repetidos: %s.' % ', '.join(repetidos.mapped('name')))
 
     def action_confirmar(self):
-        """Deja la liquidación por pagar. Si ya hay un pago registrado por el
-        mismo valor (se giró antes de liquidar), se cruza de una vez."""
+        """Deja la liquidación por pagar. Si se eligió un pago ya registrado
+        (giro de antes, como account.payment), se cruza de una vez."""
         for rec in self.filtered(lambda r: r.state == 'borrador'):
             rec._validar_lineas()
             rec.state = 'confirmada'
-            pago = rec.payment_id or rec._buscar_pago()
-            if pago:
-                rec._cruzar(pago)
+            if rec.payment_id:
+                rec._cruzar(rec.payment_id)
 
-    # --- Paso 3: cruzar con el pago ------------------------------------------
+    # --- Paso 2: registrar el giro -------------------------------------------
+
+    CODIGO_CUENTA_ANTICIPOS = '53959502'
+
+    def _cuenta_anticipos(self):
+        self.ensure_one()
+        cuenta = self.env['account.account'].with_company(self.company_id).search([
+            ('code', '=', self.CODIGO_CUENTA_ANTICIPOS),
+            ('company_ids', 'parent_of', self.company_id.id),
+        ], limit=1)
+        if not cuenta:
+            raise UserError(
+                'La empresa %s no tiene la cuenta %s (Nómina no deducible – anticipos '
+                'a contratistas).' % (self.company_id.name, self.CODIGO_CUENTA_ANTICIPOS))
+        return cuenta
+
+    def action_registrar_giro(self):
+        """Crea y publica el asiento del giro: una línea de gasto por operador
+        (con el operador como contacto) contra la cuenta del banco."""
+        for rec in self:
+            if rec.state != 'confirmada':
+                raise UserError('La liquidación %s no está por pagar.' % rec.name)
+            if rec.payment_id or rec.move_id:
+                raise UserError('La liquidación %s ya tiene un giro registrado.' % rec.name)
+            if not rec.journal_id:
+                raise UserError('Elija en "Sale de" el banco o caja del giro.')
+            if not rec.journal_id.default_account_id:
+                raise UserError('El diario %s no tiene cuenta.' % rec.journal_id.name)
+            rec._validar_lineas()
+            cuenta = rec._cuenta_anticipos()
+            receptor = rec.receptor_id
+            if not receptor and len(rec.linea_ids) == 1:
+                receptor = rec.linea_ids.operador_id
+            etiqueta = 'Anticipo labores %s · %s' % (rec.name, rec.campana_id.name)
+            lineas = [(0, 0, {
+                'account_id': cuenta.id,
+                'partner_id': l.operador_id.id,
+                'name': etiqueta,
+                'debit': l.monto,
+                'credit': 0.0,
+            }) for l in rec.linea_ids]
+            lineas.append((0, 0, {
+                'account_id': rec.journal_id.default_account_id.id,
+                'partner_id': receptor.id,
+                'name': etiqueta + (' · Girado a %s' % receptor.name if receptor else ''),
+                'debit': 0.0,
+                'credit': rec.total,
+            }))
+            move = self.env['account.move'].with_company(rec.company_id).create({
+                'move_type': 'entry',
+                'journal_id': rec.journal_id.id,
+                'date': rec.fecha_giro or fields.Date.context_today(rec),
+                'ref': '%s · %s' % (rec.name, rec.dueno_id.name),
+                'finca_campana_id': rec.campana_id.id,
+                'finca_dueno_id': rec.dueno_id.id,
+                'finca_pagador_id': rec.company_id.partner_id.id,
+                'line_ids': lineas,
+            })
+            move.action_post()
+            rec.write({
+                'move_id': move.id,
+                'receptor_id': receptor.id,
+                'state': 'pagada',
+            })
+            rec.linea_ids.operador_id._marcar_operador_finca()
+            rec.message_post(body='Giro registrado: asiento %s desde %s por %s.' % (
+                move.name, rec.journal_id.name,
+                '{:,.0f}'.format(rec.total).replace(',', '.')))
+
+    # --- Giros de antes: cruzar con un pago ----------------------------------
 
     def _dominio_pago(self):
         self.ensure_one()
@@ -182,6 +263,8 @@ class FincaLiquidacion(models.Model):
             raise UserError('El pago %s ya está cruzado con otra liquidación.' % pago.display_name)
         if pago.company_id != self.company_id:
             raise UserError('El pago %s es de otra empresa.' % pago.display_name)
+        if self.move_id:
+            raise UserError('La liquidación %s ya tiene el asiento %s.' % (self.name, self.move_id.name))
         pago.write({
             'finca_campana_id': self.campana_id.id,
             'finca_dueno_id': self.dueno_id.id,
@@ -213,28 +296,18 @@ class FincaLiquidacion(models.Model):
                         'a %s' % rec.receptor_id.name if rec.receptor_id else ''))
             rec._cruzar(pago)
 
-    @api.model
-    def _cruzar_pagos_nuevos(self, pagos):
-        """Al registrar un pago (a mano o por el bot) se busca la liquidación
-        por pagar de la misma empresa y el mismo valor; si es una sola, se
-        cruza sin que nadie tenga que hacer nada."""
-        for pago in pagos:
-            if (pago.payment_type != 'outbound' or pago.state not in ('in_process', 'paid')
-                    or pago.finca_reparto_ids or pago.finca_liquidacion_ids):
-                continue
-            candidatas = self.search([
-                ('state', '=', 'confirmada'),
-                ('company_id', '=', pago.company_id.id),
-                ('total', '=', pago.amount),
-                '|', ('receptor_id', '=', False), ('receptor_id', '=', pago.partner_id.id),
-            ], limit=2)
-            if len(candidatas) == 1:
-                candidatas._cruzar(pago)
-
     # --- Deshacer ------------------------------------------------------------
 
     def action_cancelar(self):
         for rec in self:
+            if rec.state == 'pagada' and rec.move_id:
+                # El asiento es de la liquidación: se cancela con ella.
+                move = rec.move_id
+                if move.state == 'posted':
+                    move.button_draft()
+                move.button_cancel()
+                rec.message_post(body='Se canceló el asiento %s.' % move.name)
+                rec.move_id = False
             if rec.state == 'pagada' and rec.payment_id:
                 # El pago sigue en contabilidad; solo deja de ser de labores.
                 rec.payment_id.finca_reparto_ids.unlink()
@@ -256,6 +329,16 @@ class FincaLiquidacion(models.Model):
             'type': 'ir.actions.act_window',
             'res_model': 'account.payment',
             'res_id': self.payment_id.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
+
+    def action_ver_asiento(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'res_id': self.move_id.id,
             'view_mode': 'form',
             'target': 'current',
         }

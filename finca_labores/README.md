@@ -1,9 +1,10 @@
 # Labores de Finca
 
 Reemplaza las hojas de Google de la carpeta *Semilla / 2025-2026* (una hoja por
-finca, la hoja de Maquinaria y el *Consolidado*). Es **control operativo**: no
-genera asientos. Los pagos se siguen registrando en contabilidad y aquí solo se
-descuentan del saldo.
+finca, la hoja de Maquinaria y el *Consolidado*). Los trabajos son **control
+operativo**. El único asiento que genera es el del giro de una liquidación:
+gasto **53959502 Nómina no deducible** por operador contra el banco (no es un
+pago a proveedor, no queda esperando factura).
 
 ## De la hoja a Odoo
 
@@ -18,7 +19,7 @@ descuentan del saldo.
 | Finca › Por jornales, Liquidador_jornales | Registro › Jornales (`finca.jornal`) |
 | Maquinaria › Maquinaria | Registro › Trabajos de maquinaria (`finca.maquinaria.trabajo`); al confirmar crea un costo "Recursos Humanos" en el equipo |
 | Maquinaria › Verificación | Aviso "supera el tope" en el trabajo y en la lista |
-| Consolidado › Anticipos (JotForm) | Pagos de contabilidad (`account.payment`) con campaña de labores |
+| Consolidado › Anticipos (JotForm) | Liquidación › Registrar giro: asiento 53959502 con campaña de labores (antes: `account.payment`) |
 | Consolidado › Resumen total | Saldos › Saldos por dueño y operador (pivote) |
 | Consolidado › Reporte | Saldos › Estado de cuenta (PDF) |
 
