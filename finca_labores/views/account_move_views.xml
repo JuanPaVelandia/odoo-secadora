@@ -9,7 +9,16 @@
             <field name="model">account.move</field>
             <field name="inherit_id" ref="account.view_move_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="action_finca_asignar_giro" string="Asignar a labores" type="object"
+                            class="oe_highlight" groups="finca_labores.group_finca_usuario"
+                            invisible="not finca_giro_nomina or finca_campana_id or state != 'posted'"
+                            help="Asigna este giro a un anticipo o una liquidación de labores."/>
+                    <button name="action_finca_ver_liquidacion" string="Ver liquidación" type="object"
+                            invisible="not finca_liquidacion_ids"/>
+                </xpath>
                 <xpath expr="//notebook" position="before">
+                    <field name="finca_giro_nomina" invisible="1"/>
                     <group string="Labores de finca" name="finca_labores"
                            invisible="move_type != 'entry'">
                         <group>
@@ -24,6 +33,68 @@
                         </group>
                     </group>
                 </xpath>
+            </field>
+        </record>
+
+        <!-- Control: cada giro de nómina no deducible (53959502 contra banco)
+             debe quedar en una liquidación o anticipo de labores. -->
+        <record id="view_move_list_finca_giros" model="ir.ui.view">
+            <field name="name">account.move.list.finca.giros</field>
+            <field name="model">account.move</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <list string="Giros de nómina no deducible" create="false"
+                      decoration-warning="not finca_campana_id">
+                    <field name="date"/>
+                    <field name="name"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                    <field name="journal_id"/>
+                    <field name="ref"/>
+                    <field name="amount_total" string="Valor" sum="Total"/>
+                    <field name="finca_campana_id" optional="show"/>
+                    <field name="finca_dueno_id" optional="show"/>
+                    <field name="finca_liquidacion_ids" widget="many2many_tags" optional="show"/>
+                    <button name="action_finca_asignar_giro" string="Asignar" type="object"
+                            icon="fa-link" class="btn-link" invisible="finca_campana_id"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_move_search_finca_giros" model="ir.ui.view">
+            <field name="name">account.move.search.finca.giros</field>
+            <field name="model">account.move</field>
+            <field name="priority">90</field>
+            <field name="arch" type="xml">
+                <search string="Giros">
+                    <field name="ref"/>
+                    <field name="name"/>
+                    <field name="finca_dueno_id"/>
+                    <filter name="filter_por_asignar" string="Por asignar"
+                            domain="[('finca_campana_id', '=', False)]"/>
+                    <filter name="filter_asignados" string="Asignados"
+                            domain="[('finca_campana_id', '!=', False)]"/>
+                    <group>
+                        <filter name="group_company" string="Empresa" context="{'group_by': 'company_id'}"/>
+                        <filter name="group_mes" string="Mes" context="{'group_by': 'date:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_finca_giros" model="ir.actions.act_window">
+            <field name="name">Giros por asignar</field>
+            <field name="res_model">account.move</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('finca_giro_nomina', '=', True), ('state', '=', 'posted')]</field>
+            <field name="context">{'search_default_filter_por_asignar': 1, 'create': False}</field>
+            <field name="search_view_id" ref="view_move_search_finca_giros"/>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_move_list_finca_giros')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('account.view_move_form')})]"/>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Todos los giros están asignados</p>
+                <p>Aquí salen los asientos de nómina no deducible (53959502) contra banco o caja
+                    que todavía no son de una liquidación ni de un anticipo de labores.</p>
             </field>
         </record>
 

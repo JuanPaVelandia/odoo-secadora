@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields
+from odoo import models, fields, api
 
 
 class AccountMove(models.Model):
@@ -34,3 +34,43 @@ class AccountMove(models.Model):
     )
     finca_liquidacion_ids = fields.One2many(
         'finca.liquidacion', 'move_id', string='Liquidaciones', readonly=True)
+    # Giro de nómina no deducible: gasto 53959502 contra banco o caja. Los
+    # sube el bot como "bancarizado"; cada uno tiene que quedar asignado a
+    # una liquidación o un anticipo de labores (vista "Giros por asignar").
+    finca_giro_nomina = fields.Boolean(
+        string='Giro de nómina no deducible',
+        compute='_compute_finca_giro_nomina',
+        store=True,
+        index=True,
+    )
+
+    @api.depends('line_ids.account_id', 'journal_id.type')
+    def _compute_finca_giro_nomina(self):
+        codigo = self.env['finca.liquidacion'].CODIGO_CUENTA_ANTICIPOS
+        for move in self:
+            cuentas = move.line_ids.account_id.with_company(move.company_id)
+            move.finca_giro_nomina = (
+                move.move_type == 'entry'
+                and move.journal_id.type in ('bank', 'cash')
+                and codigo in cuentas.mapped('code'))
+
+    def action_finca_asignar_giro(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': 'Asignar a labores',
+            'res_model': 'finca.asignar.giro.wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_move_id': self.id},
+        }
+
+    def action_finca_ver_liquidacion(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'finca.liquidacion',
+            'res_id': self.finca_liquidacion_ids[:1].id,
+            'view_mode': 'form',
+            'target': 'current',
+        }

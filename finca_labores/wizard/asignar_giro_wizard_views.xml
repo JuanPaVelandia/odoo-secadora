@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_finca_asignar_giro_wizard_form" model="ir.ui.view">
+            <field name="name">finca.asignar.giro.wizard.form</field>
+            <field name="model">finca.asignar.giro.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Asignar a labores">
+                    <div class="text-muted mb-2">
+                        Para un anticipo basta el operador con el valor del giro: queda con saldo
+                        negativo y se le descuenta de sus trabajos. Si el giro cubre a varios,
+                        ponga una línea por operador.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="move_id"/>
+                            <field name="total"/>
+                            <field name="referencia"/>
+                        </group>
+                        <group>
+                            <field name="campana_id"/>
+                            <field name="dueno_id"/>
+                            <field name="receptor_id" placeholder="Vacío: el operador"/>
+                        </group>
+                    </group>
+                    <field name="linea_ids">
+                        <list editable="bottom">
+                            <field name="operador_id" required="1"/>
+                            <field name="saldo"/>
+                            <field name="monto" sum="Total"/>
+                        </list>
+                    </field>
+                    <group>
+                        <field name="asignado"/>
+                    </group>
+                    <footer>
+                        <button name="action_asignar" string="Asignar" type="object" class="oe_highlight"/>
+                        <button string="Cancelar" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

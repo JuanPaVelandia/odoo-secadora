@@ -18,6 +18,8 @@
                   action="action_finca_maquinaria_trabajo" sequence="30"/>
         <menuitem id="menu_finca_liquidacion" name="Liquidaciones" parent="menu_finca_registro"
                   action="action_finca_liquidacion" sequence="40"/>
+        <menuitem id="menu_finca_giros" name="Giros por asignar" parent="menu_finca_registro"
+                  action="action_finca_giros" sequence="45"/>
 
         <!-- Saldos -->
         <menuitem id="menu_finca_saldos" name="Saldos" parent="menu_finca_root" sequence="20"/>
