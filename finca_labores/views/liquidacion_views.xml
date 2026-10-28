@@ -40,6 +40,9 @@
                                 class="oe_highlight" invisible="state != 'confirmada'"
                                 confirm="Se crea y publica el asiento: gasto 53959502 por cada operador contra el banco elegido. ¿Continuar?"
                                 help="Crea el asiento del giro: nómina no deducible por operador contra el banco."/>
+                        <button name="action_cruzar_asiento" string="Cruzar asiento" type="object"
+                                invisible="state != 'confirmada'"
+                                help="El giro ya se subió como asiento (p. ej. bancarizado del bot): cruza con el asiento elegido, o busca uno de 53959502 por el mismo valor."/>
                         <button name="action_cruzar_pago" string="Cruzar pago" type="object"
                                 invisible="state != 'confirmada'"
                                 help="Solo para giros de antes registrados como pago: cruza con el pago elegido en el campo Pago, o busca uno por el mismo valor."/>
@@ -78,7 +81,8 @@
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="state != 'confirmada'">
                             Por pagar. Elija en "Sale de" el banco del giro y use "Registrar giro": se crea el
-                            asiento de nómina no deducible (53959502) con una línea por operador.
+                            asiento de nómina no deducible (53959502) con una línea por operador. Si el giro
+                            ya se subió (bancarizado del bot), use "Cruzar asiento".
                         </div>
                         <group>
                             <group string="Qué se paga">
@@ -93,10 +97,13 @@
                                 <field name="receptor_id" readonly="state not in ('borrador', 'confirmada')"
                                        placeholder="Opcional: un operador o un tercero"/>
                                 <field name="journal_id" readonly="state not in ('borrador', 'confirmada')"
-                                       required="state == 'confirmada' and not payment_id"
+                                       required="state == 'confirmada' and not payment_id and not move_id"
                                        options="{'no_create': True}"/>
                                 <field name="fecha_giro" readonly="state not in ('borrador', 'confirmada')"/>
-                                <field name="move_id" invisible="not move_id"/>
+                                <field name="move_id" readonly="state != 'confirmada'"
+                                       invisible="state not in ('confirmada', 'pagada') or (state == 'pagada' and not move_id)"
+                                       placeholder="Si ya se subió: elíjalo y use Cruzar asiento"
+                                       options="{'no_create': True}"/>
                                 <field name="payment_id" readonly="state not in ('borrador', 'confirmada')"
                                        invisible="move_id or (state == 'pagada' and not payment_id)"
                                        placeholder="Solo giros de antes registrados como pago"/>

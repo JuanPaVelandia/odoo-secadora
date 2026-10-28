@@ -66,8 +66,16 @@ class FincaLiquidacion(models.Model):
     fecha_giro = fields.Date(
         string='Fecha del giro', copy=False, default=fields.Date.context_today)
     move_id = fields.Many2one(
-        'account.move', string='Asiento', copy=False, readonly=True, index=True,
-        help='Asiento del giro: gasto de nómina no deducible por operador contra el banco.')
+        'account.move', string='Asiento', copy=False, index=True,
+        domain="[('move_type', '=', 'entry'), ('state', '=', 'posted'), "
+               "('company_id', '=', company_id), ('finca_campana_id', '=', False), "
+               "('journal_id.type', 'in', ('bank', 'cash'))]",
+        help='Asiento del giro: gasto de nómina no deducible por operador contra el banco. '
+             'Si el giro ya se subió (p. ej. un bancarizado del bot), elíjalo aquí y use '
+             '"Cruzar asiento".')
+    move_cruzado = fields.Boolean(
+        copy=False, readonly=True,
+        help='El asiento ya existía y se cruzó; al cancelar la liquidación no se anula.')
     move_state = fields.Selection(related='move_id.state', string='Estado del asiento')
     linea_ids = fields.One2many(
         'finca.liquidacion.linea', 'liquidacion_id', string='Operadores', copy=True)
@@ -184,7 +192,9 @@ class FincaLiquidacion(models.Model):
             if rec.state != 'confirmada':
                 raise UserError('La liquidación %s no está por pagar.' % rec.name)
             if rec.payment_id or rec.move_id:
-                raise UserError('La liquidación %s ya tiene un giro registrado.' % rec.name)
+                raise UserError(
+                    'La liquidación %s ya tiene un giro elegido. Si es un asiento ya subido, '
+                    'use "Cruzar asiento".' % rec.name)
             if not rec.journal_id:
                 raise UserError('Elija en "Sale de" el banco o caja del giro.')
             if not rec.journal_id.default_account_id:
@@ -229,6 +239,92 @@ class FincaLiquidacion(models.Model):
             rec.message_post(body='Giro registrado: asiento %s desde %s por %s.' % (
                 move.name, rec.journal_id.name,
                 '{:,.0f}'.format(rec.total).replace(',', '.')))
+
+    # --- Giro ya subido como asiento: cruzarlo ------------------------------
+
+    def _lineas_banco(self, move):
+        return move.line_ids.filtered(
+            lambda l: l.account_id.account_type in ('asset_cash', 'liability_credit_card'))
+
+    def _buscar_asiento(self):
+        """El asiento bancarizado que corresponde a esta liquidación, solo si
+        es uno: publicado, de la empresa, sin campaña, con gasto 53959502 y
+        el mismo valor."""
+        self.ensure_one()
+        cuenta = self._cuenta_anticipos()
+        moves = self.env['account.move'].search([
+            ('move_type', '=', 'entry'), ('state', '=', 'posted'),
+            ('company_id', '=', self.company_id.id), ('finca_campana_id', '=', False),
+            ('journal_id.type', 'in', ('bank', 'cash')),
+            ('line_ids.account_id', '=', cuenta.id),
+            ('amount_total', '=', self.total),
+        ], limit=2)
+        return moves if len(moves) == 1 else self.env['account.move']
+
+    def _cruzar_asiento(self, move):
+        """Toma un asiento ya publicado (gasto 53959502 contra el banco) como
+        el giro: el gasto se reparte en una línea por operador y la línea del
+        banco queda a nombre de quien recibió."""
+        self.ensure_one()
+        if self.state != 'confirmada':
+            raise UserError('La liquidación %s no está por pagar.' % self.name)
+        if self.payment_id:
+            raise UserError('La liquidación %s ya está cruzada con un pago.' % self.name)
+        if move.company_id != self.company_id:
+            raise UserError('El asiento %s es de otra empresa.' % move.name)
+        if move.finca_campana_id or (move.finca_liquidacion_ids - self):
+            raise UserError('El asiento %s ya es de labores.' % move.name)
+        banco = self._lineas_banco(move)
+        resto = move.line_ids - banco
+        cuenta = self._cuenta_anticipos()
+        if not banco or resto.account_id != cuenta:
+            raise UserError(
+                'El asiento %s debe ser gasto %s contra un banco o caja.'
+                % (move.name, self.CODIGO_CUENTA_ANTICIPOS))
+        girado = -sum(banco.mapped('balance'))
+        if float_compare(girado, self.total, precision_digits=0) != 0:
+            raise UserError('El asiento %s gira %s y la liquidación suma %s.' % (
+                move.name, _fmt(girado), _fmt(self.total)))
+        self._validar_lineas()
+        receptor = self.receptor_id
+        if not receptor and len(self.linea_ids) == 1:
+            receptor = self.linea_ids.operador_id
+        etiqueta = resto[:1].name or 'Anticipo labores %s' % self.name
+        move.button_draft()
+        move.write({
+            'finca_campana_id': self.campana_id.id,
+            'finca_dueno_id': self.dueno_id.id,
+            'finca_pagador_id': self.company_id.partner_id.id,
+            'line_ids': [(2, l.id) for l in resto] + [(0, 0, {
+                'account_id': cuenta.id,
+                'partner_id': l.operador_id.id,
+                'name': etiqueta,
+                'debit': l.monto,
+                'credit': 0.0,
+            }) for l in self.linea_ids] + [
+                (1, l.id, {'partner_id': receptor.id}) for l in banco if receptor],
+        })
+        move.action_post()
+        self.write({
+            'move_id': move.id,
+            'move_cruzado': True,
+            'journal_id': move.journal_id.id,
+            'fecha_giro': move.date,
+            'receptor_id': receptor.id,
+            'state': 'pagada',
+        })
+        self.linea_ids.operador_id._marcar_operador_finca()
+        self.message_post(body='Cruzada con el asiento %s de %s por %s.' % (
+            move.name, move.journal_id.name, _fmt(girado)))
+
+    def action_cruzar_asiento(self):
+        for rec in self:
+            move = rec.move_id or rec._buscar_asiento()
+            if not move:
+                raise UserError(
+                    'No hay un asiento bancarizado por %s sin cruzar en %s. Elíjalo en el '
+                    'campo "Asiento".' % (_fmt(rec.total), rec.company_id.name))
+            rec._cruzar_asiento(move)
 
     # --- Giros de antes: cruzar con un pago ----------------------------------
 
@@ -302,7 +398,12 @@ class FincaLiquidacion(models.Model):
 
     def action_cancelar(self):
         for rec in self:
-            if rec.state == 'pagada' and rec.move_id:
+            if rec.state == 'pagada' and rec.move_id and rec.move_cruzado:
+                # El asiento ya existía: sigue en contabilidad, deja de ser de labores.
+                rec.move_id.finca_campana_id = False
+                rec.message_post(body='Se separó el asiento %s.' % rec.move_id.name)
+                rec.write({'move_id': False, 'move_cruzado': False})
+            elif rec.state == 'pagada' and rec.move_id:
                 # El asiento es de la liquidación: se cancela con ella.
                 move = rec.move_id
                 if move.state == 'posted':
