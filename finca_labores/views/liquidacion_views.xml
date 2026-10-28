@@ -46,6 +46,9 @@
                         <button name="action_cargar_saldos" string="Recargar saldos" type="object"
                                 invisible="state != 'borrador'"
                                 help="Vuelve a traer los saldos pendientes del dueño en la campaña y reemplaza las líneas."/>
+                        <button name="action_imprimir_detalle" string="Descargar detalle" type="object"
+                                icon="fa-download" invisible="state == 'borrador'"
+                                help="PDF con cada trabajo que se le paga a cada operador, sus pagos anteriores y lo de este giro."/>
                         <button name="action_borrador" string="Volver a borrador" type="object"
                                 invisible="state not in ('confirmada', 'cancelada')"/>
                         <button name="action_cancelar" string="Cancelar" type="object"

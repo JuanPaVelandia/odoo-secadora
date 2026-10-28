@@ -4,6 +4,8 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import float_compare
 
+from .contrato import _fmt, _fmt_cantidad
+
 
 class FincaLiquidacion(models.Model):
     """Un giro para varios operadores.
@@ -332,6 +334,81 @@ class FincaLiquidacion(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    # --- Detalle para imprimir ----------------------------------------------
+
+    def _detalle_nomina(self):
+        """Por cada línea: de dónde sale lo que se le paga al operador.
+
+        [{'operador', 'trabajos': [filas], 'total_trabajos', 'pagos': [movs],
+          'total_pagos', 'saldo', 'monto', 'queda'}]. Los trabajos se abren
+        al detalle (tramo, jornal, trabajo de maquinaria); los pagos son los
+        anteriores de la campaña con el dueño, sin contar el giro de esta
+        liquidación."""
+        self.ensure_one()
+        Mov = self.env['finca.labor.movimiento']
+        unidades = dict(self.env['finca.labor']._fields['unidad'].selection)
+        propios = [(m, r.id) for m, r in (('account.move', self.move_id),
+                                          ('account.payment', self.payment_id)) if r]
+        detalle = []
+        for linea in self.linea_ids.sorted(lambda l: l.operador_id.name or ''):
+            op = linea.operador_id
+            movs = Mov.search([
+                ('campana_id', '=', self.campana_id.id),
+                ('dueno_id', '=', self.dueno_id.id),
+                ('operador_id', '=', op.id),
+            ], order='fecha, id')
+            filas = []
+            for mov in movs.filtered(lambda m: m.tipo != 'pago'):
+                origen = self.env[mov.res_model].browse(mov.res_id)
+                if mov.tipo == 'contrato':
+                    for tramo in origen.tramo_ids.filtered(lambda t: op in t.operador_ids):
+                        concepto = origen.labor_id.name + ' · ' + (
+                            'Lote %s' % tramo.lote_id.name if tramo.lote_id else '')
+                        if tramo.detalle:
+                            concepto += (' · ' if tramo.lote_id else '') + tramo.detalle
+                        filas.append({
+                            'fecha': origen.fecha, 'referencia': origen.name,
+                            'finca': origen.finca_id.name, 'concepto': concepto,
+                            'cantidad': tramo.cantidad, 'unidad': unidades.get(origen.unidad, ''),
+                            'tarifa': tramo.tarifa,
+                            'entre': tramo.num_operadores if tramo.num_operadores > 1 else 0,
+                            'valor': tramo._valores_por_operador().get(op, 0.0),
+                        })
+                elif mov.tipo == 'jornal':
+                    filas.append({
+                        'fecha': origen.fecha_hasta, 'referencia': origen.name,
+                        'finca': origen.finca_id.name,
+                        'concepto': ' · '.join(filter(None, [origen.labor_id.name, origen.descripcion])),
+                        'cantidad': origen.cantidad, 'unidad': unidades.get(origen.unidad, ''),
+                        'tarifa': origen.valor_unitario, 'entre': 0, 'valor': origen.total,
+                    })
+                else:
+                    filas.append({
+                        'fecha': mov.fecha, 'referencia': mov.referencia,
+                        'finca': mov.finca_id.name or '', 'concepto': mov.descripcion or 'Maquinaria',
+                        'cantidad': 0, 'unidad': '', 'tarifa': 0, 'entre': 0, 'valor': mov.trabajos,
+                    })
+            pagos = movs.filtered(
+                lambda m: m.tipo == 'pago' and (m.res_model, m.res_id) not in propios)
+            total_trabajos = sum(f['valor'] for f in filas)
+            total_pagos = sum(pagos.mapped('pagos'))
+            saldo = total_trabajos - total_pagos
+            detalle.append({
+                'operador': op, 'trabajos': filas, 'total_trabajos': total_trabajos,
+                'pagos': pagos, 'total_pagos': total_pagos, 'saldo': saldo,
+                'monto': linea.monto, 'queda': saldo - linea.monto,
+            })
+        return detalle
+
+    def _fmt(self, valor):
+        return _fmt(valor)
+
+    def _fmt_cantidad(self, valor):
+        return _fmt_cantidad(valor)
+
+    def action_imprimir_detalle(self):
+        return self.env.ref('finca_labores.action_report_liquidacion').report_action(self)
 
     def action_ver_asiento(self):
         self.ensure_one()

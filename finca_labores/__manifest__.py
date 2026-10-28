@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Labores de Finca',
-    'version': '19.0.1.8.0',
+    'version': '19.0.1.9.0',
     'category': 'Operations',
     'summary': 'Labores por contrato, jornales y trabajos de maquinaria por finca, con saldo por operador',
     'description': """
@@ -47,6 +47,7 @@
         'wizard/estado_cuenta_wizard_views.xml',
         'wizard/resumen_views.xml',
         'report/estado_cuenta_report.xml',
+        'report/liquidacion_report.xml',
         'views/menu_views.xml',
     ],
     'installable': True,

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_liquidacion" model="ir.actions.report">
+            <field name="name">Detalle de la liquidación</field>
+            <field name="model">finca.liquidacion</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">finca_labores.report_liquidacion_document</field>
+            <field name="report_file">finca_labores.report_liquidacion_document</field>
+            <field name="print_report_name">'Liquidacion_%s_%s' % (object.name, object.dueno_id.name)</field>
+            <field name="binding_model_id" ref="model_finca_liquidacion"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- La nómina del giro: por operador, cada trabajo que se le paga, los
+             pagos que ya recibió en la campaña y lo de este giro. -->
+        <template id="report_liquidacion_document">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="web.external_layout">
+                        <t t-set="detalle" t-value="o._detalle_nomina()"/>
+                        <div class="page" style="font-size: 11px;">
+                            <style>.o_liq td.text-end, .o_liq th.text-end { white-space: nowrap; }</style>
+                            <div class="text-center" style="font-size: 18px; font-weight: bold; margin-bottom: 2px;">LIQUIDACIÓN DE LABORES</div>
+                            <div class="text-center" style="font-size: 13px; margin-bottom: 10px;">
+                                <strong t-field="o.name"/> · <span t-field="o.state"/>
+                            </div>
+                            <table class="table table-sm table-borderless" style="width: 100%; margin-bottom: 8px;">
+                                <tr>
+                                    <td style="width: 15%;"><strong>A cuenta de:</strong></td>
+                                    <td style="width: 35%;"><span t-field="o.dueno_id"/></td>
+                                    <td style="width: 15%;"><strong>Campaña:</strong></td>
+                                    <td style="width: 35%;"><span t-field="o.campana_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fecha:</strong></td>
+                                    <td t-out="o.fecha.strftime('%d/%m/%Y')"/>
+                                    <td><strong>Empresa:</strong></td>
+                                    <td><span t-field="o.company_id"/></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Recibe:</strong></td>
+                                    <td><t t-out="o.receptor_id.name or '-'"/></td>
+                                    <td><strong>Giro:</strong></td>
+                                    <td>
+                                        <t t-if="o.move_id"><t t-out="o.move_id.name"/> · <t t-out="o.journal_id.name"/> · <t t-out="o.fecha_giro and o.fecha_giro.strftime('%d/%m/%Y') or ''"/></t>
+                                        <t t-elif="o.payment_id"><t t-out="o.payment_id.name"/></t>
+                                        <t t-else="">Por pagar</t>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Resumen: una fila por operador -->
+                            <table class="table table-sm o_liq" style="margin-bottom: 14px;">
+                                <thead>
+                                    <tr>
+                                        <th>Operador</th>
+                                        <th>Documento</th>
+                                        <th class="text-end">Trabajos</th>
+                                        <th class="text-end">Pagos anteriores</th>
+                                        <th class="text-end">Saldo</th>
+                                        <th class="text-end">Este giro</th>
+                                        <th class="text-end">Queda</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="detalle" t-as="d">
+                                        <td t-out="d['operador'].name"/>
+                                        <td t-out="d['operador'].vat_co or d['operador'].vat or ''"/>
+                                        <td class="text-end" t-out="o._fmt(d['total_trabajos'])"/>
+                                        <td class="text-end" t-out="o._fmt(d['total_pagos'])"/>
+                                        <td class="text-end" t-out="o._fmt(d['saldo'])"/>
+                                        <td class="text-end"><strong t-out="o._fmt(d['monto'])"/></td>
+                                        <td class="text-end" t-out="o._fmt(d['queda'])"/>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr style="font-weight: bold;">
+                                        <td colspan="2">Total</td>
+                                        <td class="text-end" t-out="o._fmt(sum(d['total_trabajos'] for d in detalle))"/>
+                                        <td class="text-end" t-out="o._fmt(sum(d['total_pagos'] for d in detalle))"/>
+                                        <td class="text-end" t-out="o._fmt(sum(d['saldo'] for d in detalle))"/>
+                                        <td class="text-end" t-out="o._fmt(o.total)"/>
+                                        <td class="text-end" t-out="o._fmt(sum(d['queda'] for d in detalle))"/>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <!-- Detalle por operador -->
+                            <t t-foreach="detalle" t-as="d">
+                                <div style="page-break-inside: avoid;">
+                                    <div style="margin-top: 14px; border-bottom: 1px solid #000; padding-bottom: 2px; font-size: 13px; font-weight: bold;">
+                                        <t t-out="d['operador'].name"/>
+                                        <span t-if="d['operador'].vat_co or d['operador'].vat" style="font-weight: normal;">
+                                            · CC <t t-out="d['operador'].vat_co or d['operador'].vat"/>
+                                        </span>
+                                    </div>
+                                    <table class="table table-sm o_liq">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Ref.</th>
+                                                <th>Finca</th>
+                                                <th>Trabajo</th>
+                                                <th class="text-end">Cantidad</th>
+                                                <th class="text-end">Tarifa</th>
+                                                <th class="text-end">Valor</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr t-if="not d['trabajos']">
+                                                <td colspan="7" class="text-muted">Sin trabajos confirmados con este dueño en la campaña.</td>
+                                            </tr>
+                                            <tr t-foreach="d['trabajos']" t-as="f">
+                                                <td t-out="f['fecha'] and f['fecha'].strftime('%d/%m/%Y') or ''"/>
+                                                <td t-out="f['referencia']"/>
+                                                <td t-out="f['finca']"/>
+                                                <td>
+                                                    <t t-out="f['concepto']"/>
+                                                    <span t-if="f['entre']" class="text-muted">(entre <t t-out="f['entre']"/>)</span>
+                                                </td>
+                                                <td class="text-end"><t t-if="f['cantidad']"><t t-out="o._fmt_cantidad(f['cantidad'])"/> <t t-out="f['unidad'].lower()"/></t></td>
+                                                <td class="text-end"><t t-if="f['tarifa']" t-out="o._fmt(f['tarifa'])"/></td>
+                                                <td class="text-end" t-out="o._fmt(f['valor'])"/>
+                                            </tr>
+                                            <tr style="font-weight: bold;">
+                                                <td colspan="6">Total trabajos</td>
+                                                <td class="text-end" t-out="o._fmt(d['total_trabajos'])"/>
+                                            </tr>
+                                            <tr t-foreach="d['pagos']" t-as="p">
+                                                <td t-out="p.fecha.strftime('%d/%m/%Y')"/>
+                                                <td t-out="p.referencia"/>
+                                                <td colspan="4">Pago anterior</td>
+                                                <td class="text-end" t-out="'-' + o._fmt(p.pagos)"/>
+                                            </tr>
+                                            <tr style="font-weight: bold;">
+                                                <td colspan="6">Saldo pendiente</td>
+                                                <td class="text-end" t-out="o._fmt(d['saldo'])"/>
+                                            </tr>
+                                            <tr style="font-weight: bold;">
+                                                <td colspan="6">Se paga en este giro</td>
+                                                <td class="text-end" t-out="o._fmt(d['monto'])"/>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="6">
+                                                    <t t-if="d['queda'] &lt; -0.5">Queda pagado de más (anticipo por descontar)</t>
+                                                    <t t-else="">Queda por pagar</t>
+                                                </td>
+                                                <td class="text-end" t-out="o._fmt(abs(d['queda']))"/>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+
+                            <div t-if="o.notas" style="margin-top: 8px;">
+                                <strong>Notas:</strong> <span t-field="o.notas"/>
+                            </div>
+
+                            <div style="margin-top: 50px; page-break-inside: avoid; overflow: hidden;">
+                                <div style="float: left; width: 45%; border-top: 1px solid #000; padding-top: 4px; text-align: center;">
+                                    Recibí conforme<br/>
+                                    <t t-out="o.receptor_id.name or ''"/>
+                                    <t t-if="o.receptor_id.vat_co or o.receptor_id.vat"><br/>CC <t t-out="o.receptor_id.vat_co or o.receptor_id.vat"/></t>
+                                </div>
+                                <div style="float: right; width: 45%; border-top: 1px solid #000; padding-top: 4px; text-align: center;">
+                                    Entregó<br/><t t-out="o.company_id.name"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>
