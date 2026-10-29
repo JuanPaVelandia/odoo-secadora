@@ -36,6 +36,7 @@
                             <group>
                                 <field name="pesaje_id"
                                        options="{'no_create': True, 'no_open': False}"/>
+                                <field name="placa" invisible="not pesaje_id"/>
                                 <field name="tercero_id"
                                        options="{'no_create': False, 'no_open': False}"/>
                                 <field name="variedad_id"/>
@@ -143,6 +144,7 @@
                     <field name="fecha_hora"/>
                     <field name="tercero_id"/>
                     <field name="pesaje_id" optional="show"/>
+                    <field name="placa" optional="show"/>
                     <field name="origen_muestra_id" optional="show"/>
                     <field name="sitio_muestra_id" optional="hide"/>
                     <field name="variedad_id" optional="hide"/>
@@ -167,6 +169,7 @@
                     <field name="name"/>
                     <field name="tercero_id"/>
                     <field name="pesaje_id"/>
+                    <field name="placa"/>
                     <field name="orden_servicio_id"/>
                     <field name="variedad_id"/>
                     <field name="origen_muestra_id"/>

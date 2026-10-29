@@ -53,6 +53,12 @@ class AnalisisLab(models.Model):
         index=True,
         help='Pesaje vinculado (opcional)'
     )
+    placa = fields.Char(
+        string='Placa',
+        related='pesaje_id.placa_texto',
+        store=True,
+        index=True,
+    )
     orden_servicio_id = fields.Many2one(
         'secadora.orden.servicio',
         string='Orden de Servicio',
