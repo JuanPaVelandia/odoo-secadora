@@ -16,6 +16,8 @@
                   action="action_finca_jornal" sequence="20"/>
         <menuitem id="menu_finca_maquinaria" name="Trabajos de maquinaria" parent="menu_finca_registro"
                   action="action_finca_maquinaria_trabajo" sequence="30"/>
+        <menuitem id="menu_finca_trabajo_dron" name="Trabajos de drones" parent="menu_finca_registro"
+                  action="action_finca_trabajo_dron" sequence="35"/>
         <menuitem id="menu_finca_liquidacion" name="Liquidaciones" parent="menu_finca_registro"
                   action="action_finca_liquidacion" sequence="40"/>
         <menuitem id="menu_finca_giros" name="Giros por asignar" parent="menu_finca_registro"

@@ -3,13 +3,20 @@
 from odoo import models, fields, api
 from odoo.exceptions import UserError
 
+from .labor import UNIDADES
+
 
 class FincaMaquinariaTrabajo(models.Model):
-    """Pago a un operador por el mantenimiento de un equipo durante la campaña.
+    """Pago a un operador por el trabajo con un equipo durante la campaña.
 
     Equivale a la hoja "Maquinaria". Al confirmar se crea también una línea de
     costo (tipo "Recursos Humanos") en el equipo, para que el costo por equipo
     de mantenimiento incluya la mano de obra de los operadores.
+
+    Puede ser un valor fijo (mantenimiento de la campaña) o, con una labor,
+    cantidad por tarifa: pilotos y ayudantes de dron, que se pagan por hectárea
+    rociada y bulto esparcido, sin finca. Ese costo es de la maquinaria del
+    dueño del equipo; a la finca se le cobra aparte.
     """
     _name = 'finca.maquinaria.trabajo'
     _description = 'Trabajo de Maquinaria'
@@ -58,7 +65,7 @@ class FincaMaquinariaTrabajo(models.Model):
         store=True,
         readonly=False,
         index=True,
-        help='Se propone la compañía dueña del equipo (siglas JV, JPV, FT del nombre).',
+        help='Se propone el dueño en labores del equipo o, si no tiene, su compañía.',
     )
     operador_id = fields.Many2one(
         'res.partner',
@@ -72,7 +79,30 @@ class FincaMaquinariaTrabajo(models.Model):
         store=True,
         readonly=False,
     )
-    valor = fields.Float(string='Valor', digits=(12, 2), required=True, tracking=True)
+    labor_id = fields.Many2one(
+        'finca.labor',
+        string='Labor',
+        domain=[('tipo', '=', 'maquinaria')],
+        help='Para los trabajos que se pagan por cantidad. Vacío en los de '
+             'valor fijo.',
+    )
+    unidad = fields.Selection(UNIDADES, related='labor_id.unidad', string='Unidad')
+    cantidad = fields.Float(string='Cantidad', digits=(12, 2))
+    tarifa = fields.Float(
+        string='Tarifa',
+        digits=(12, 2),
+        help='Se propone la última de este operador en la labor; se puede cambiar.',
+    )
+    valor = fields.Float(
+        string='Valor',
+        digits=(12, 2),
+        required=True,
+        tracking=True,
+        compute='_compute_valor',
+        store=True,
+        precompute=True,
+        readonly=False,
+    )
     valor_max_contrato = fields.Float(
         related='category_id.finca_valor_max_contrato',
         string='Tope por contrato',
@@ -112,20 +142,51 @@ class FincaMaquinariaTrabajo(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('finca.maquinaria.trabajo') or 'Nuevo'
         return super().create(vals_list)
 
-    @api.depends('equipment_id')
+    @api.depends('equipment_id', 'labor_id')
     def _compute_desde_equipo(self):
         for rec in self:
             equipo = rec.equipment_id
             rec.lugar_id = equipo.lugar_id
-            rec.dueno_id = equipo.company_id.partner_id
-            rec.descripcion = 'MTTO %s' % equipo.name if equipo else False
+            rec.dueno_id = equipo.finca_dueno_id or equipo.company_id.partner_id
+            if rec.labor_id:
+                rec.descripcion = '%s %s' % (rec.labor_id.name, equipo.name or '')
+            else:
+                rec.descripcion = 'MTTO %s' % equipo.name if equipo else False
 
-    @api.depends('equipment_id', 'campana_id', 'valor', 'state')
-    def _compute_pagado_equipo(self):
+    @api.depends('labor_id', 'cantidad', 'tarifa')
+    def _compute_valor(self):
         for rec in self:
+            if rec.labor_id:
+                rec.valor = rec.cantidad * rec.tarifa
+            else:
+                rec.valor = rec.valor or 0.0
+
+    @api.onchange('labor_id', 'operador_id')
+    def _onchange_proponer_tarifa(self):
+        """La tarifa cambia por persona: se propone la última que se le pagó en
+        esa labor y, si es la primera vez, la del catálogo."""
+        if not self.labor_id:
+            return
+        anterior = self.operador_id and self.search([
+            ('labor_id', '=', self.labor_id.id),
+            ('operador_id', '=', self.operador_id.id),
+            ('state', '=', 'confirmado'),
+        ], order='fecha desc, id desc', limit=1)
+        self.tarifa = anterior.tarifa if anterior else self.labor_id.valor_unitario
+
+    @api.depends('equipment_id', 'campana_id', 'valor', 'state', 'labor_id')
+    def _compute_pagado_equipo(self):
+        # El tope es del mantenimiento de la campaña: lo que se paga por
+        # cantidad depende de cuánto se trabajó y no cuenta contra él.
+        for rec in self:
+            if rec.labor_id:
+                rec.pagado_equipo = rec.valor if rec.state != 'cancelado' else 0.0
+                rec.excede_tope = False
+                continue
             otros = self.search([
                 ('equipment_id', '=', rec.equipment_id.id),
                 ('campana_id', '=', rec.campana_id.id),
+                ('labor_id', '=', False),
                 ('state', '=', 'confirmado'),
                 ('id', '!=', rec._origin.id or 0),
             ]) if rec.equipment_id and rec.campana_id else self.browse()
@@ -147,8 +208,9 @@ class FincaMaquinariaTrabajo(models.Model):
                 'date': rec.fecha,
                 'name': rec.descripcion or rec.name,
                 'partner_id': rec.operador_id.id,
-                'quantity': 1.0,
-                'unit_cost': rec.valor,
+                'quantity': rec.cantidad if rec.labor_id else 1.0,
+                'unit_cost': rec.tarifa if rec.labor_id else rec.valor,
+                'uom_name': rec.unidad or False,
                 'amount': rec.valor,
                 'resource_type': 'human',
                 'external_ref': rec.name,

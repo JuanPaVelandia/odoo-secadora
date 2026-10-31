@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Labores de Finca',
-    'version': '19.0.1.11.0',
+    'version': '19.0.1.12.0',
     'category': 'Operations',
     'summary': 'Labores por contrato, jornales y trabajos de maquinaria por finca, con saldo por operador',
     'description': """
@@ -39,6 +39,7 @@
         'views/socio_views.xml',
         'views/contrato_views.xml',
         'views/jornal_views.xml',
+        'views/maintenance_views.xml',
         'views/maquinaria_trabajo_views.xml',
         'views/account_payment_views.xml',
         'views/account_move_views.xml',

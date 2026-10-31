@@ -185,6 +185,36 @@ class FincaLiquidacion(models.Model):
                 'a contratistas).' % (self.company_id.name, self.CODIGO_CUENTA_ANTICIPOS))
         return cuenta
 
+    def _distribucion_maquinaria(self, operador):
+        """Analítica del gasto de un operador en el giro.
+
+        Los pagos a pilotos y ayudantes son costo de la unidad de negocio
+        Maquinaria de quien paga. La línea del giro es un monto por operador,
+        no por trabajo: si también hizo otras labores para este dueño, a
+        Maquinaria solo va la parte de sus trabajos de la campaña que lo es.
+        """
+        self.ensure_one()
+        cuenta = self.env['account.analytic.account'].sudo().search([
+            ('name', '=ilike', 'maquinaria'),
+            ('plan_id.name', '=ilike', 'unidad de negocio'),
+            ('company_id', '=', self.company_id.id),
+        ], limit=1)
+        if not cuenta:
+            return False
+        Movimiento = self.env['finca.labor.movimiento'].sudo()
+        self.env.flush_all()
+        por_tipo = dict(Movimiento._read_group(
+            [('campana_id', '=', self.campana_id.id),
+             ('dueno_id', '=', self.dueno_id.id),
+             ('operador_id', '=', operador.id),
+             ('tipo', '!=', 'pago')],
+            ['tipo'], ['trabajos:sum']))
+        total = sum(por_tipo.values())
+        maquinaria = por_tipo.get('maquinaria', 0.0)
+        if not total or not maquinaria:
+            return False
+        return {str(cuenta.id): round(maquinaria * 100.0 / total, 2)}
+
     def action_registrar_giro(self):
         """Crea y publica el asiento del giro: una línea de gasto por operador
         (con el operador como contacto) contra la cuenta del banco."""
@@ -211,6 +241,7 @@ class FincaLiquidacion(models.Model):
                 'name': etiqueta,
                 'debit': l.monto,
                 'credit': 0.0,
+                'analytic_distribution': rec._distribucion_maquinaria(l.operador_id),
             }) for l in rec.linea_ids]
             lineas.append((0, 0, {
                 'account_id': rec.journal_id.default_account_id.id,
@@ -301,6 +332,7 @@ class FincaLiquidacion(models.Model):
                 'name': etiqueta,
                 'debit': l.monto,
                 'credit': 0.0,
+                'analytic_distribution': self._distribucion_maquinaria(l.operador_id),
             }) for l in self.linea_ids] + [
                 (1, l.id, {'partner_id': receptor.id}) for l in banco if receptor],
         })

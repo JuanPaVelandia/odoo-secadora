@@ -36,9 +36,16 @@
                             </group>
                             <group>
                                 <field name="operador_id" readonly="state != 'borrador'"/>
+                                <field name="labor_id" readonly="state != 'borrador'"
+                                       options="{'no_create': True}"/>
+                                <field name="cantidad" readonly="state != 'borrador'"
+                                       invisible="not labor_id"/>
+                                <field name="unidad" invisible="not labor_id"/>
+                                <field name="tarifa" readonly="state != 'borrador'"
+                                       invisible="not labor_id"/>
                                 <field name="descripcion" readonly="state != 'borrador'"/>
-                                <field name="valor" readonly="state != 'borrador'"/>
-                                <field name="pagado_equipo"/>
+                                <field name="valor" readonly="state != 'borrador' or labor_id"/>
+                                <field name="pagado_equipo" invisible="labor_id"/>
                                 <field name="excede_tope" invisible="1"/>
                                 <field name="cost_line_id" invisible="not cost_line_id"/>
                                 <field name="company_id" groups="base.group_multi_company"/>
@@ -80,6 +87,40 @@
             </field>
         </record>
 
+        <!-- Drones: se digita la planilla de la quincena, una fila por dron,
+             persona y labor. El valor sale de cantidad por tarifa. -->
+        <record id="view_finca_trabajo_dron_list" model="ir.ui.view">
+            <field name="name">finca.trabajo.dron.list</field>
+            <field name="model">finca.maquinaria.trabajo</field>
+            <field name="arch" type="xml">
+                <list string="Trabajos de drones" editable="bottom"
+                      decoration-info="state == 'borrador'"
+                      decoration-muted="state == 'cancelado'">
+                    <header>
+                        <button name="action_confirmar" string="Confirmar" type="object" class="oe_highlight"/>
+                    </header>
+                    <field name="campana_id" optional="hide"/>
+                    <field name="fecha"/>
+                    <field name="equipment_id" width="220px"
+                           domain="[('name', 'ilike', 'dron')]"
+                           readonly="state != 'borrador'"/>
+                    <field name="operador_id" readonly="state != 'borrador'"/>
+                    <field name="labor_id" required="1" options="{'no_create': True}"
+                           readonly="state != 'borrador'"/>
+                    <field name="cantidad" readonly="state != 'borrador'" sum="Total"/>
+                    <field name="unidad"/>
+                    <field name="tarifa" readonly="state != 'borrador'"/>
+                    <field name="valor" readonly="1" sum="Total"/>
+                    <field name="dueno_id" readonly="state != 'borrador'"/>
+                    <field name="name" optional="hide" readonly="1"/>
+                    <field name="state" widget="badge" readonly="1"
+                           decoration-info="state == 'borrador'"
+                           decoration-success="state == 'confirmado'"
+                           decoration-muted="state == 'cancelado'"/>
+                </list>
+            </field>
+        </record>
+
         <record id="view_finca_maquinaria_trabajo_search" model="ir.ui.view">
             <field name="name">finca.maquinaria.trabajo.search</field>
             <field name="model">finca.maquinaria.trabajo</field>
@@ -111,6 +152,22 @@
             <field name="view_mode">list,form</field>
             <field name="search_view_id" ref="view_finca_maquinaria_trabajo_search"/>
             <field name="context">{'search_default_filter_campana_abierta': 1}</field>
+        </record>
+
+        <record id="action_finca_trabajo_dron" model="ir.actions.act_window">
+            <field name="name">Trabajos de drones</field>
+            <field name="res_model">finca.maquinaria.trabajo</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('labor_id', '!=', False)]</field>
+            <field name="search_view_id" ref="view_finca_maquinaria_trabajo_search"/>
+            <field name="context">{'search_default_filter_campana_abierta': 1}</field>
+        </record>
+
+        <record id="action_finca_trabajo_dron_list" model="ir.actions.act_window.view">
+            <field name="sequence">1</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_finca_trabajo_dron_list"/>
+            <field name="act_window_id" ref="action_finca_trabajo_dron"/>
         </record>
 
     </data>

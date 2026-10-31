@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="hr_equipment_view_form_finca" model="ir.ui.view">
+            <field name="name">maintenance.equipment.form.finca</field>
+            <field name="model">maintenance.equipment</field>
+            <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
+            <field name="arch" type="xml">
+                <field name="category_id" position="after">
+                    <field name="finca_dueno_id" options="{'no_create': True}"/>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -25,6 +25,7 @@
                     <field name="name"/>
                     <filter name="filter_contrato" string="Por contrato" domain="[('tipo', '=', 'contrato')]"/>
                     <filter name="filter_jornal" string="Jornales" domain="[('tipo', '=', 'jornal')]"/>
+                    <filter name="filter_maquinaria" string="Maquinaria" domain="[('tipo', '=', 'maquinaria')]"/>
                     <separator/>
                     <filter name="filter_archivadas" string="Archivadas" domain="[('active', '=', False)]"/>
                     <group>

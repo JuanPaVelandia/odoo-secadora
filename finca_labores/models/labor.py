@@ -26,6 +26,7 @@ class FincaLabor(models.Model):
     tipo = fields.Selection([
         ('contrato', 'Por contrato'),
         ('jornal', 'Jornal'),
+        ('maquinaria', 'Maquinaria'),
     ], string='Tipo', required=True, default='contrato')
     unidad = fields.Selection(UNIDADES, string='Unidad', required=True, default='ha')
     valor_unitario = fields.Float(

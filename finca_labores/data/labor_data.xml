@@ -194,5 +194,22 @@
             <field name="unidad">mes</field>
         </record>
 
+        <!-- Drones: la tarifa real va por persona en cada trabajo. -->
+        <record id="labor_rociado_dron" model="finca.labor">
+            <field name="name">Rociado dron</field>
+            <field name="sequence">10</field>
+            <field name="tipo">maquinaria</field>
+            <field name="unidad">ha</field>
+            <field name="valor_unitario">5000</field>
+        </record>
+
+        <record id="labor_esparcido_dron" model="finca.labor">
+            <field name="name">Esparcido dron</field>
+            <field name="sequence">20</field>
+            <field name="tipo">maquinaria</field>
+            <field name="unidad">bulto</field>
+            <field name="valor_unitario">2000</field>
+        </record>
+
     </data>
 </odoo>
