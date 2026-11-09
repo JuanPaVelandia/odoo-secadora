@@ -440,11 +440,28 @@ class SecadoraFlete(models.Model):
 
     # ==================== CRUD ====================
 
+    @api.model
+    def _siguiente_numero(self):
+        """Número FLE- del flete, sea cual sea la empresa activa.
+
+        La secuencia es de la Secadora; `next_by_code` solo la encuentra con
+        esa empresa activa, y los fletes de un agricultor (otra empresa)
+        quedaban llamados "Nuevo". Los fletes de todas las empresas comparten
+        la misma numeración.
+        """
+        Seq = self.env['ir.sequence']
+        numero = Seq.next_by_code('secadora.flete')
+        if not numero:
+            seq = Seq.sudo().search(
+                [('code', '=', 'secadora.flete')], order='company_id', limit=1)
+            numero = seq._next() if seq else False
+        return numero or 'Nuevo'
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('name', 'Nuevo') == 'Nuevo':
-                vals['name'] = self.env['ir.sequence'].next_by_code('secadora.flete') or 'Nuevo'
+                vals['name'] = self._siguiente_numero()
             # Auto-aplicar tarifa si no viene tarifa_unitaria
             if not vals.get('tarifa_unitaria') and vals.get('origen_id') and vals.get('destino_id'):
                 tarifa = self._buscar_tarifa(
