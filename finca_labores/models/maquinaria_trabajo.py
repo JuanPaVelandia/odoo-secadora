@@ -134,6 +134,23 @@ class FincaMaquinariaTrabajo(models.Model):
         index=True,
     )
     observaciones = fields.Text(string='Observaciones')
+    liquidacion_id = fields.Many2one(
+        'finca.liquidacion',
+        string='Liquidación',
+        readonly=True,
+        copy=False,
+        index=True,
+        ondelete='set null',
+        help='Liquidación con la que se pagó este trabajo (desde "Liquidar seleccionados").',
+    )
+    move_id = fields.Many2one(
+        related='liquidacion_id.move_id',
+        string='Asiento del pago',
+    )
+    liquidacion_state = fields.Selection(
+        related='liquidacion_id.state',
+        string='Estado del pago',
+    )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -230,6 +247,54 @@ class FincaMaquinariaTrabajo(models.Model):
     def action_cancelar(self):
         self._quitar_costo()
         self.write({'state': 'cancelado'})
+
+    def action_liquidar(self):
+        """Arma una liquidación con los trabajos seleccionados: una línea por
+        persona con la suma de sus trabajos. Tienen que ser de la misma
+        campaña, dueño y empresa que paga (un giro = un dueño)."""
+        trabajos = self.filtered(lambda t: t.state == 'confirmado')
+        if not trabajos:
+            raise UserError('Seleccione trabajos confirmados.')
+        pendientes = trabajos.filtered(
+            lambda t: t.liquidacion_id and t.liquidacion_id.state != 'cancelada')
+        if pendientes:
+            raise UserError('Estos trabajos ya están en una liquidación: %s.' % ', '.join(
+                '%s (%s)' % (t.name, t.liquidacion_id.name) for t in pendientes))
+        if len(trabajos.campana_id) > 1 or len(trabajos.dueno_id) > 1:
+            raise UserError(
+                'Los trabajos seleccionados deben ser de la misma campaña y el mismo dueño: '
+                'un giro se hace por dueño. Haga una liquidación por cada uno.')
+        if not trabajos.dueno_id:
+            raise UserError('Los trabajos no tienen dueño.')
+        # Un dron de una sociedad puede estar en la compañía de un socio y
+        # pagarlo otro: el giro sale de la empresa activa.
+        empresa = trabajos.company_id if len(trabajos.company_id) == 1 else self.env.company
+        campana, dueno = trabajos.campana_id, trabajos.dueno_id
+        saldos = self.env['finca.labor.movimiento']._saldos_por_operador(campana, dueno)
+        lineas = []
+        for operador in trabajos.operador_id.sorted('name'):
+            monto = sum(trabajos.filtered(lambda t: t.operador_id == operador).mapped('valor'))
+            lineas.append((0, 0, {
+                'operador_id': operador.id,
+                'saldo': saldos.get(operador, 0.0),
+                'monto': monto,
+            }))
+        liq = self.env['finca.liquidacion'].with_company(empresa).create({
+            'campana_id': campana.id,
+            'dueno_id': dueno.id,
+            'company_id': empresa.id,
+            'linea_ids': lineas,
+        })
+        trabajos.write({'liquidacion_id': liq.id})
+        liq.message_post(body='Armada con %d trabajos de maquinaria: %s.' % (
+            len(trabajos), ', '.join(trabajos.sorted('name').mapped('name'))))
+        return {
+            'type': 'ir.actions.act_window',
+            'res_model': 'finca.liquidacion',
+            'res_id': liq.id,
+            'view_mode': 'form',
+            'target': 'current',
+        }
 
     def unlink(self):
         if any(rec.state == 'confirmado' for rec in self):

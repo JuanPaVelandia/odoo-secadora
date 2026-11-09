@@ -83,6 +83,10 @@ class FincaLiquidacion(models.Model):
         'finca.jornal', 'liquidacion_id', string='Jornales', readonly=True,
         help='Jornales con los que se armó (desde la lista de jornales). Vacío '
              'si se cargó por saldos.')
+    maquinaria_ids = fields.One2many(
+        'finca.maquinaria.trabajo', 'liquidacion_id', string='Trabajos de maquinaria',
+        readonly=True,
+        help='Trabajos de maquinaria y drones que se pagan con esta liquidación.')
     total = fields.Float(
         string='Total a girar', digits=(12, 2), compute='_compute_total', store=True)
     state = fields.Selection([
@@ -450,6 +454,7 @@ class FincaLiquidacion(models.Model):
                 rec.message_post(body='Se quitó el reparto del pago %s.' % rec.payment_id.display_name)
                 rec.payment_id = False
             rec.jornal_ids.write({'liquidacion_id': False})
+            rec.maquinaria_ids.write({'liquidacion_id': False})
             rec.state = 'cancelada'
 
     def action_borrador(self):

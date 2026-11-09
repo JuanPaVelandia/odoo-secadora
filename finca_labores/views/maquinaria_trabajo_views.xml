@@ -48,6 +48,8 @@
                                 <field name="pagado_equipo" invisible="labor_id"/>
                                 <field name="excede_tope" invisible="1"/>
                                 <field name="cost_line_id" invisible="not cost_line_id"/>
+                                <field name="liquidacion_id" invisible="not liquidacion_id"/>
+                                <field name="move_id" invisible="not move_id"/>
                                 <field name="company_id" groups="base.group_multi_company"/>
                             </group>
                         </group>
@@ -68,6 +70,8 @@
                       decoration-muted="state == 'cancelado'">
                     <header>
                         <button name="action_confirmar" string="Confirmar" type="object" class="oe_highlight"/>
+                        <button name="action_liquidar" string="Liquidar seleccionados" type="object"
+                                help="Arma una liquidación con los trabajos seleccionados: una línea por persona con la suma de sus trabajos."/>
                     </header>
                     <field name="name"/>
                     <field name="fecha"/>
@@ -78,6 +82,8 @@
                     <field name="operador_id"/>
                     <field name="dueno_id" optional="show"/>
                     <field name="valor" sum="Total"/>
+                    <field name="liquidacion_id" optional="show"/>
+                    <field name="move_id" optional="hide"/>
                     <field name="excede_tope" column_invisible="True"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'borrador'"
@@ -98,6 +104,8 @@
                       decoration-muted="state == 'cancelado'">
                     <header>
                         <button name="action_confirmar" string="Confirmar" type="object" class="oe_highlight"/>
+                        <button name="action_liquidar" string="Liquidar seleccionados" type="object"
+                                help="Arma una liquidación con los trabajos seleccionados: una línea por persona con la suma de sus trabajos."/>
                     </header>
                     <field name="campana_id" optional="hide"/>
                     <field name="fecha"/>
@@ -112,6 +120,9 @@
                     <field name="tarifa" readonly="state != 'borrador'"/>
                     <field name="valor" readonly="1" sum="Total"/>
                     <field name="dueno_id" readonly="state != 'borrador'"/>
+                    <field name="descripcion" optional="hide"/>
+                    <field name="liquidacion_id" optional="show" readonly="1"/>
+                    <field name="move_id" optional="show" readonly="1"/>
                     <field name="name" optional="hide" readonly="1"/>
                     <field name="state" widget="badge" readonly="1"
                            decoration-info="state == 'borrador'"
@@ -130,9 +141,14 @@
                     <field name="operador_id"/>
                     <field name="dueno_id"/>
                     <field name="category_id"/>
+                    <field name="liquidacion_id"/>
                     <separator/>
                     <filter name="filter_borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
                     <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
+                    <separator/>
+                    <filter name="filter_sin_liquidar" string="Sin liquidar"
+                            domain="[('state', '=', 'confirmado'), ('liquidacion_id', '=', False)]"/>
+                    <filter name="filter_liquidados" string="Liquidados" domain="[('liquidacion_id', '!=', False)]"/>
                     <separator/>
                     <filter name="filter_campana_abierta" string="Campaña abierta"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
@@ -141,6 +157,7 @@
                         <filter name="group_categoria" string="Tipo de equipo" context="{'group_by': 'category_id'}"/>
                         <filter name="group_operador" string="Operador" context="{'group_by': 'operador_id'}"/>
                         <filter name="group_dueno" string="Dueño" context="{'group_by': 'dueno_id'}"/>
+                        <filter name="group_liquidacion" string="Liquidación" context="{'group_by': 'liquidacion_id'}"/>
                     </group>
                 </search>
             </field>
