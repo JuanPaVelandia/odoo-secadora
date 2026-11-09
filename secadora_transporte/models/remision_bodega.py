@@ -149,6 +149,7 @@ class RemisionBodega(models.Model):
                     f'ese flete; si no, los bultos se descontarían dos veces.')
             faltantes = rem.linea_ids._descontar_de_bodega()
             rem.state = 'confirmado'
+            rem._crear_o_completar_flete()
             if faltantes:
                 # Igual que en el flete: no se bloquea, porque el camión ya
                 # salió; se deja constancia para revisar el inventario.
@@ -158,15 +159,76 @@ class RemisionBodega(models.Model):
                     + '. Se descontó solo lo que había; revise el inventario.'))
         return True
 
+    def _peso_despachado(self):
+        """Kilos que salieron: bultos de cada movimiento por su peso promedio."""
+        self.ensure_one()
+        return sum(
+            m.cantidad * (m.registro_bultos_id.peso_promedio or 0.0)
+            for m in self.movimiento_bultos_ids
+            if m.tipo == 'salida_flete')
+
+    def _crear_o_completar_flete(self):
+        """Deja el flete del viaje en borrador para que transporte lo pague.
+
+        Si la remisión ya trae un flete en borrador (p. ej. con la tarifa o el
+        adicional pactados), solo le completa los bultos y el peso. La tarifa
+        sale de la tabla de tarifas por la ruta bodega → destino del viaje.
+        """
+        self.ensure_one()
+        peso = self._peso_despachado()
+        flete = self.flete_id
+        if flete:
+            if flete.state == 'borrador':
+                vals = {'bultos': self.total_bultos}
+                if not flete.peso_kg:
+                    vals['peso_kg'] = peso
+                flete.write(vals)
+            return flete
+        if not self.vehiculo_id:
+            self.message_post(body=(
+                'No se creó el flete porque la remisión no tiene vehículo. '
+                'Créelo a mano y enlácelo aquí.'))
+            return False
+        flete = self.env['secadora.flete'].create({
+            'fecha': self.fecha,
+            'company_id': self.company_id.id,
+            'tercero_id': self.company_id.partner_id.id,
+            'origen_id': self.bodega_id.id,
+            'empresa_origen_id': self.bodega_id.company_id.id or False,
+            'destino_id': self.destino_id.id or False,
+            'empresa_destino_id': self.destino_id.company_id.id or False,
+            'vehiculo_id': self.vehiculo_id.id,
+            'conductor_id': self.conductor_id.id or False,
+            'transportadora_id': self.vehiculo_id.transportadora_id.id or False,
+            'bultos': self.total_bultos,
+            'peso_kg': peso,
+            'observaciones': ' · '.join(filter(None, [
+                f'Remisión {self.name}',
+                self.numero_fisico and f'física {self.numero_fisico}',
+            ])),
+        })
+        self.flete_id = flete
+        if not flete.tarifa_unitaria:
+            self.message_post(body=(
+                f'Se creó el flete {flete.name} sin tarifa: no hay una para '
+                f'{self.bodega_id.name} → {self.destino_id.name or "(sin destino)"}. '
+                f'Póngala en el flete o en la tabla de tarifas.'))
+        return flete
+
     def action_cancelar(self):
         for rem in self:
             if rem.state == 'confirmado':
                 movs = rem.movimiento_bultos_ids.filtered(
                     lambda m: m.tipo == 'salida_flete')
                 # Se borran exactamente los despachos que creó esta remisión,
-                # y con eso el pendiente vuelve a lo que era.
+                # y con eso el pendiente vuelve a lo que era. Va antes de
+                # cancelar el flete: esos movimientos también lo apuntan.
                 movs.mapped('despacho_id').sudo().unlink()
                 movs.sudo().unlink()
+            # El flete que nadie ha confirmado se cancela con la remisión; uno
+            # ya confirmado se deja, porque el viaje pudo pagarse igual.
+            if rem.flete_id.state == 'borrador':
+                rem.flete_id.action_cancelar()
             rem.state = 'cancelado'
         return True
 

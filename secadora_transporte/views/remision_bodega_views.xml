@@ -10,7 +10,7 @@
                     <header>
                         <button name="action_confirmar" string="Despachar" type="object"
                                 class="oe_highlight" invisible="state != 'borrador'"
-                                confirm="Se descontarán los bultos del inventario de la bodega. ¿Continuar?"/>
+                                confirm="Se descontarán los bultos del inventario de la bodega y se dejará el flete del viaje en borrador. ¿Continuar?"/>
                         <button name="action_imprimir" string="Imprimir" type="object"
                                 invisible="state == 'cancelado'"/>
                         <button name="action_cancelar" string="Cancelar" type="object"
