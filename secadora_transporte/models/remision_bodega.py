@@ -281,6 +281,13 @@ class RemisionBodegaLinea(models.Model):
         compute='_compute_disponible',
         help='Bultos de esta variedad (semilla o no) que la bodega tiene hoy.',
     )
+    tipo_entrega = fields.Selection([
+        ('propia', 'Finca propia'),
+        ('venta', 'Venta'),
+        ('cambio_arroz', 'A cambio de arroz'),
+    ], string='Tipo de entrega', default='propia', required=True,
+       help='"A cambio de arroz": se le entrega a un tercero sin factura y él '
+            'paga devolviendo arroz. Queda en el informe Semilla a terceros.')
     destinatario_id = fields.Many2one(
         'res.partner',
         string='Para',
@@ -294,6 +301,14 @@ class RemisionBodegaLinea(models.Model):
              'deja en Yopal y sigue en camioneta a la finca del Pauto).',
     )
     nota = fields.Char(string='Nota')
+
+    @api.constrains('tipo_entrega', 'destinatario_id')
+    def _check_tercero_cambio_arroz(self):
+        for linea in self:
+            if linea.tipo_entrega == 'cambio_arroz' and not linea.destinatario_id:
+                raise UserError(
+                    f'La línea de {linea.variedad_id.name or "semilla"} es "a '
+                    f'cambio de arroz": diga en "Para" a quién se le entrega.')
 
     @api.depends('variedad_id', 'es_semilla', 'remision_id.bodega_id')
     def _compute_disponible(self):
@@ -337,6 +352,10 @@ class RemisionBodegaLinea(models.Model):
                     'registro_bultos_id': reg.id,
                     'cantidad': toma,
                     'confirmado': True,
+                    'remision_id': rem.id,
+                    'tercero_semilla_id': (
+                        linea.destinatario_id.id
+                        if linea.tipo_entrega == 'cambio_arroz' else False),
                 })
                 destino = linea.destino_final_id or rem.destino_id
                 Mov.create({

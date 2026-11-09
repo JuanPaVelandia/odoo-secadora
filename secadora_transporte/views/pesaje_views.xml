@@ -34,5 +34,20 @@
             </field>
         </record>
 
+        <!-- Semilla que sale de la secadora para un tercero que paga con
+             arroz: se marca en la línea del despacho, igual que en la
+             remisión de bodega. -->
+        <record id="view_pesaje_form_semilla_tercero" model="ir.ui.view">
+            <field name="name">secadora.pesaje.form.semilla.tercero</field>
+            <field name="model">secadora.pesaje</field>
+            <field name="inherit_id" ref="bascula.view_secadora_pesaje_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='despacho_bultos_ids']/list/field[@name='cantidad']" position="after">
+                    <field name="tercero_semilla_id" optional="show"
+                           options="{'no_create': True}"/>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </odoo>

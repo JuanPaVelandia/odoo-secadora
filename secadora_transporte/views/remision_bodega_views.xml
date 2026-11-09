@@ -54,7 +54,9 @@
                                         <field name="disponible"
                                                column_invisible="parent.state != 'borrador'"
                                                decoration-danger="disponible &lt; bultos"/>
-                                        <field name="destinatario_id"/>
+                                        <field name="tipo_entrega"/>
+                                        <field name="destinatario_id"
+                                               required="tipo_entrega == 'cambio_arroz'"/>
                                         <field name="destino_final_id"/>
                                         <field name="nota"/>
                                     </list>
