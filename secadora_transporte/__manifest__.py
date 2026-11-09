@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Transporte - Secadora La Gran Colombia',
-    'version': '19.0.1.9.0',
+    'version': '19.0.1.10.0',
     'category': 'Operations',
     'summary': 'Gestión de fletes y transporte de arroz',
     'description': """
@@ -32,6 +32,8 @@
         'views/res_config_settings_views.xml',
         'views/account_move_views.xml',
         'views/viajes_por_pagar_report.xml',
+        'views/remision_bodega_views.xml',
+        'views/remision_bodega_report.xml',
         'views/tablero_transporte_views.xml',
         'views/menu_views.xml',
     ],

@@ -14,3 +14,8 @@ access_flete_contabilidad,secadora.flete.contabilidad,model_secadora_flete,accou
 access_transportadora_contabilidad,secadora.transportadora.contabilidad,bascula.model_secadora_transportadora,account.group_account_invoice,1,0,0,0
 access_pesaje_contabilidad,secadora.pesaje.contabilidad,bascula.model_secadora_pesaje,account.group_account_invoice,1,0,0,0
 access_lugar_contabilidad,secadora.lugar.contabilidad,bascula.model_secadora_lugar,account.group_account_invoice,1,0,0,0
+access_remision_bodega_usuario,secadora.remision.bodega.usuario,model_secadora_remision_bodega,group_transporte_usuario,1,1,1,0
+access_remision_bodega_admin,secadora.remision.bodega.admin,model_secadora_remision_bodega,group_transporte_admin,1,1,1,1
+access_remision_bodega_basculero,secadora.remision.bodega.basculero,model_secadora_remision_bodega,bascula.group_basculero,1,1,1,0
+access_remision_bodega_linea_usuario,secadora.remision.bodega.linea.usuario,model_secadora_remision_bodega_linea,group_transporte_usuario,1,1,1,1
+access_remision_bodega_linea_basculero,secadora.remision.bodega.linea.basculero,model_secadora_remision_bodega_linea,bascula.group_basculero,1,1,1,1

@@ -20,6 +20,12 @@
                   action="action_secadora_flete"
                   sequence="10"/>
 
+        <menuitem id="menu_transporte_remisiones_bodega"
+                  name="Remisiones de Bodega"
+                  parent="menu_transporte"
+                  action="action_secadora_remision_bodega"
+                  sequence="12"/>
+
         <menuitem id="menu_transporte_imprimir_pagos"
                   name="Imprimir Viajes por Pagar"
                   parent="menu_transporte"

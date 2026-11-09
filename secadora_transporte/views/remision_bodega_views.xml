@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_secadora_remision_bodega_form" model="ir.ui.view">
+            <field name="name">secadora.remision.bodega.form</field>
+            <field name="model">secadora.remision.bodega</field>
+            <field name="arch" type="xml">
+                <form string="Remisión de Bodega">
+                    <header>
+                        <button name="action_confirmar" string="Despachar" type="object"
+                                class="oe_highlight" invisible="state != 'borrador'"
+                                confirm="Se descontarán los bultos del inventario de la bodega. ¿Continuar?"/>
+                        <button name="action_imprimir" string="Imprimir" type="object"
+                                invisible="state == 'cancelado'"/>
+                        <button name="action_cancelar" string="Cancelar" type="object"
+                                invisible="state == 'cancelado'"
+                                confirm="Si ya se despachó, los bultos vuelven al inventario de la bodega. ¿Continuar?"/>
+                        <button name="action_borrador" string="Volver a Borrador" type="object"
+                                invisible="state != 'cancelado'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="borrador,confirmado"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group string="Salida">
+                                <field name="numero_fisico" readonly="state != 'borrador'"/>
+                                <field name="fecha" readonly="state != 'borrador'"/>
+                                <field name="bodega_id" readonly="state != 'borrador'"
+                                       options="{'no_create': True}"/>
+                                <field name="destino_id" readonly="state != 'borrador'"/>
+                                <field name="company_id" readonly="state != 'borrador'"/>
+                            </group>
+                            <group string="Transporte">
+                                <field name="vehiculo_id" string="Placa" readonly="state == 'cancelado'"/>
+                                <field name="conductor_id" readonly="state == 'cancelado'"/>
+                                <field name="flete_id" readonly="state != 'borrador'"/>
+                                <field name="total_bultos"
+                                       style="font-size: 18px; font-weight: bold;"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Carga" name="carga">
+                                <field name="linea_ids" readonly="state != 'borrador'">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="bodega_id" column_invisible="1"/>
+                                        <field name="variedad_id" options="{'no_create': True}"/>
+                                        <field name="codigo_variedad"/>
+                                        <field name="es_semilla"/>
+                                        <field name="bultos" sum="Total"/>
+                                        <field name="disponible"
+                                               column_invisible="parent.state != 'borrador'"
+                                               decoration-danger="disponible &lt; bultos"/>
+                                        <field name="destinatario_id"/>
+                                        <field name="destino_final_id"/>
+                                        <field name="nota"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Movimientos" name="movimientos"
+                                  invisible="not movimiento_bultos_ids">
+                                <field name="movimiento_bultos_ids" readonly="1">
+                                    <list>
+                                        <field name="registro_bultos_id"/>
+                                        <field name="variedad_id"/>
+                                        <field name="cantidad" sum="Total"/>
+                                        <field name="notas"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                        <field name="observaciones" placeholder="Observaciones..."/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_secadora_remision_bodega_list" model="ir.ui.view">
+            <field name="name">secadora.remision.bodega.list</field>
+            <field name="model">secadora.remision.bodega</field>
+            <field name="arch" type="xml">
+                <list string="Remisiones de Bodega"
+                      decoration-muted="state == 'cancelado'"
+                      decoration-info="state == 'borrador'">
+                    <field name="name"/>
+                    <field name="numero_fisico"/>
+                    <field name="fecha"/>
+                    <field name="bodega_id"/>
+                    <field name="destino_id"/>
+                    <field name="vehiculo_id" string="Placa"/>
+                    <field name="total_bultos" sum="Total"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="state" widget="badge"
+                           decoration-success="state == 'confirmado'"
+                           decoration-muted="state == 'cancelado'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_secadora_remision_bodega_search" model="ir.ui.view">
+            <field name="name">secadora.remision.bodega.search</field>
+            <field name="model">secadora.remision.bodega</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="numero_fisico"/>
+                    <field name="bodega_id"/>
+                    <field name="linea_ids" string="Destinatario"
+                           filter_domain="[('linea_ids.destinatario_id', 'ilike', self)]"/>
+                    <filter name="borrador" string="Borrador" domain="[('state', '=', 'borrador')]"/>
+                    <filter name="despachado" string="Despachadas" domain="[('state', '=', 'confirmado')]"/>
+                    <group>
+                        <filter name="por_bodega" string="Bodega" context="{'group_by': 'bodega_id'}"/>
+                        <filter name="por_mes" string="Mes" context="{'group_by': 'fecha:month'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Lineas: para ver cuanto salio por variedad y destinatario -->
+        <record id="view_secadora_remision_bodega_linea_list" model="ir.ui.view">
+            <field name="name">secadora.remision.bodega.linea.list</field>
+            <field name="model">secadora.remision.bodega.linea</field>
+            <field name="arch" type="xml">
+                <list string="Bultos despachados" create="0">
+                    <field name="remision_id"/>
+                    <field name="bodega_id"/>
+                    <field name="variedad_id"/>
+                    <field name="es_semilla"/>
+                    <field name="bultos" sum="Total"/>
+                    <field name="destinatario_id"/>
+                    <field name="destino_final_id"/>
+                    <field name="nota"/>
+                    <field name="state"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_secadora_remision_bodega" model="ir.actions.act_window">
+            <field name="name">Remisiones de Bodega</field>
+            <field name="res_model">secadora.remision.bodega</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Registrar una remisión de bodega</p>
+                <p>Transcriba aquí la remisión física de la bodega: un viaje, con una
+                   línea por variedad y destinatario. Al despachar se descuenta el
+                   inventario de la bodega.</p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

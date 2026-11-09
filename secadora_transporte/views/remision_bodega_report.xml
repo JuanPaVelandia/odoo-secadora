@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="action_report_remision_bodega" model="ir.actions.report">
+            <field name="name">Remisión de Bodega</field>
+            <field name="model">secadora.remision.bodega</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">secadora_transporte.report_remision_bodega_document</field>
+            <field name="report_file">secadora_transporte.report_remision_bodega_document</field>
+            <field name="print_report_name">'Remision %s' % object.name</field>
+            <field name="paperformat_id" ref="secadora_transporte.paperformat_viajes_pagar_carta"/>
+            <field name="binding_model_id" ref="model_secadora_remision_bodega"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Encabezado con divs flotados (las tablas de layout salen
+             cuadriculadas); la carga si es una tabla porque es tabular. -->
+        <template id="report_remision_bodega_document">
+            <t t-call="web.html_container">
+                <t t-call="web.basic_layout">
+                    <t t-foreach="docs" t-as="o">
+                        <div class="page" style="font-size: 12px; page-break-after: always;">
+                            <div style="overflow: hidden; border-bottom: 2px solid #333; padding-bottom: 6px; margin-bottom: 12px;">
+                                <div style="float: left; width: 60%; box-sizing: border-box;">
+                                    <div style="font-size: 18px; font-weight: bold;">REMISIÓN DE DESPACHO</div>
+                                    <div><span t-field="o.company_id.name"/></div>
+                                </div>
+                                <div style="float: left; width: 40%; box-sizing: border-box; text-align: right;">
+                                    <div style="font-size: 16px; font-weight: bold;"><span t-field="o.name"/></div>
+                                    <div t-if="o.numero_fisico">Remisión física N° <span t-field="o.numero_fisico"/></div>
+                                    <div t-if="o.state == 'borrador'" style="color: #b00;">BORRADOR</div>
+                                </div>
+                            </div>
+
+                            <div style="overflow: hidden; margin-bottom: 14px;">
+                                <div style="float: left; width: 50%; box-sizing: border-box; padding-right: 10px;">
+                                    <div><strong>Fecha de salida:</strong> <span t-field="o.fecha"/></div>
+                                    <div><strong>Bodega de origen:</strong> <span t-field="o.bodega_id.name"/></div>
+                                    <div><strong>Destino del viaje:</strong> <span t-esc="o.destino_id.name or '—'"/></div>
+                                </div>
+                                <div style="float: left; width: 50%; box-sizing: border-box;">
+                                    <div><strong>Placa:</strong> <span t-esc="o.vehiculo_id.placa or '—'"/></div>
+                                    <div><strong>Conductor:</strong> <span t-esc="o.conductor_id.display_name or '—'"/></div>
+                                    <div><strong>Total bultos:</strong> <span t-field="o.total_bultos"/></div>
+                                </div>
+                            </div>
+
+                            <table style="width: 100%; border-collapse: collapse;">
+                                <thead>
+                                    <tr style="background-color: #eee;">
+                                        <th style="border: 1px solid #999; padding: 5px; text-align: left;">Variedad</th>
+                                        <th style="border: 1px solid #999; padding: 5px; text-align: center;">Código</th>
+                                        <th style="border: 1px solid #999; padding: 5px; text-align: center;">Semilla</th>
+                                        <th style="border: 1px solid #999; padding: 5px; text-align: right;">Bultos</th>
+                                        <th style="border: 1px solid #999; padding: 5px; text-align: left;">Para</th>
+                                        <th style="border: 1px solid #999; padding: 5px; text-align: left;">Destino final</th>
+                                        <th style="border: 1px solid #999; padding: 5px; text-align: left;">Nota</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.linea_ids" t-as="l">
+                                        <td style="border: 1px solid #999; padding: 5px;"><span t-field="l.variedad_id.name"/></td>
+                                        <td style="border: 1px solid #999; padding: 5px; text-align: center;"><span t-esc="l.codigo_variedad or ''"/></td>
+                                        <td style="border: 1px solid #999; padding: 5px; text-align: center;"><span t-esc="'Sí' if l.es_semilla else 'No'"/></td>
+                                        <td style="border: 1px solid #999; padding: 5px; text-align: right;"><span t-field="l.bultos"/></td>
+                                        <td style="border: 1px solid #999; padding: 5px;"><span t-esc="l.destinatario_id.name or ''"/></td>
+                                        <td style="border: 1px solid #999; padding: 5px;"><span t-esc="l.destino_final_id.name or ''"/></td>
+                                        <td style="border: 1px solid #999; padding: 5px;"><span t-esc="l.nota or ''"/></td>
+                                    </tr>
+                                    <tr style="font-weight: bold; background-color: #eee;">
+                                        <td colspan="3" style="border: 1px solid #999; padding: 5px; text-align: right;">TOTAL</td>
+                                        <td style="border: 1px solid #999; padding: 5px; text-align: right;"><span t-field="o.total_bultos"/></td>
+                                        <td colspan="3" style="border: 1px solid #999; padding: 5px;"/>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <div t-if="o.observaciones" style="margin-top: 12px;">
+                                <strong>Observaciones:</strong> <span t-field="o.observaciones"/>
+                            </div>
+
+                            <div style="overflow: hidden; margin-top: 60px;">
+                                <div style="float: left; width: 33%; box-sizing: border-box; padding: 0 10px; text-align: center;">
+                                    <div style="border-top: 1px solid #333; padding-top: 4px;">Despacha (bodega)</div>
+                                </div>
+                                <div style="float: left; width: 34%; box-sizing: border-box; padding: 0 10px; text-align: center;">
+                                    <div style="border-top: 1px solid #333; padding-top: 4px;">Conductor</div>
+                                </div>
+                                <div style="float: left; width: 33%; box-sizing: border-box; padding: 0 10px; text-align: center;">
+                                    <div style="border-top: 1px solid #333; padding-top: 4px;">Recibe</div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>
