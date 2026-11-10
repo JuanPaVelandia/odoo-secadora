@@ -12,7 +12,12 @@
                 <field name="peso_entrada"/>
                 <field name="peso_salida_real"/>
                 <field name="observaciones"/>
-                <field name="state" widget="badge"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'en_proceso'"
+                       decoration-warning="state == 'listo_liquidar'"
+                       decoration-primary="state == 'liquidado'"
+                       decoration-success="state == 'facturado'"
+                       decoration-danger="state == 'cancelado'"/>
             </list>
         </field>
     </record>
