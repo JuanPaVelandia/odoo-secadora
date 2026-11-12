@@ -3,7 +3,7 @@
 
     <!-- ============================================================ -->
     <!--  Compras de ACPM: se marca la línea de la factura de         -->
-    <!--  proveedor y se le pone galones, finca y campaña, sin tocar  -->
+    <!--  proveedor y se le pone galones, finca y cosecha, sin tocar  -->
     <!--  su contabilidad.                                            -->
     <!-- ============================================================ -->
 
@@ -14,8 +14,8 @@
         <field name="arch" type="xml">
             <list string="Compras de ACPM" editable="bottom" multi_edit="1" create="0" delete="0"
                   decoration-muted="not acpm_es"
-                  decoration-warning="acpm_es and ((acpm_tipo == 'finca' and (not acpm_lugar_id or not acpm_campana_id)) or (acpm_tipo == 'logistica' and not acpm_equipment_id))"
-                  decoration-success="acpm_es and acpm_analitica_ok and ((acpm_tipo == 'finca' and acpm_lugar_id and acpm_campana_id) or (acpm_tipo == 'logistica' and acpm_equipment_id))">
+                  decoration-warning="acpm_es and ((acpm_tipo == 'finca' and (not acpm_lugar_id or not acpm_cosecha_id)) or (acpm_tipo == 'logistica' and not acpm_equipment_id))"
+                  decoration-success="acpm_es and acpm_analitica_ok and ((acpm_tipo == 'finca' and acpm_lugar_id and acpm_cosecha_id) or (acpm_tipo == 'logistica' and acpm_equipment_id))">
                 <header>
                     <button name="action_acpm_marcar" type="object" string="Marcar como ACPM de finca"
                             class="btn-primary"/>
@@ -39,7 +39,7 @@
                 <field name="acpm_galones" sum="Galones" readonly="not acpm_es"/>
                 <field name="acpm_lugar_id" readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"/>
-                <field name="acpm_campana_id" readonly="not acpm_es"
+                <field name="acpm_cosecha_id" readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"/>
                 <field name="acpm_equipment_id" readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"/>
@@ -83,8 +83,8 @@
                 <separator/>
                 <filter name="filter_sin_finca" string="Sin finca"
                         domain="[('acpm_tipo', '=', 'finca'), ('acpm_lugar_id', '=', False)]"/>
-                <filter name="filter_sin_campana" string="Sin campaña"
-                        domain="[('acpm_tipo', '=', 'finca'), ('acpm_campana_id', '=', False)]"/>
+                <filter name="filter_sin_cosecha" string="Sin cosecha"
+                        domain="[('acpm_tipo', '=', 'finca'), ('acpm_cosecha_id', '=', False)]"/>
                 <filter name="filter_sin_vehiculo" string="Sin vehículo"
                         domain="[('acpm_tipo', '=', 'logistica'), ('acpm_equipment_id', '=', False)]"/>
                 <filter name="filter_cuenta_no_diversos" string="Finca con cuenta distinta de Diversos"
@@ -102,7 +102,7 @@
                     <filter name="group_tipo" string="Tipo ACPM" context="{'group_by': 'acpm_tipo'}"/>
                     <filter name="group_finca" string="Finca" context="{'group_by': 'acpm_lugar_id'}"/>
                     <filter name="group_vehiculo" string="Vehículo" context="{'group_by': 'acpm_equipment_id'}"/>
-                    <filter name="group_campana" string="Campaña" context="{'group_by': 'acpm_campana_id'}"/>
+                    <filter name="group_cosecha" string="Cosecha" context="{'group_by': 'acpm_cosecha_id'}"/>
                     <filter name="group_cuenta" string="Cuenta" context="{'group_by': 'account_id'}"/>
                     <filter name="group_empresa" string="Empresa" context="{'group_by': 'company_id'}"/>
                 </group>
@@ -123,7 +123,7 @@
             <p class="o_view_nocontent_smiling_face">No hay líneas de factura que parezcan ACPM</p>
             <p>Quite los filtros y busque la factura por proveedor o descripción. Active
                "ACPM" en la línea, revise los galones y elija el tipo: de finca (se escribe
-               la finca y la campaña se propone por la fecha de la factura) o de logística
+               la finca y la cosecha, que quedan en la analítica de la línea) o de logística
                (se escribe el vehículo). Si trabaja con varias empresas,
                actívelas todas en el selector de compañías para ver todas las facturas.</p>
         </field>

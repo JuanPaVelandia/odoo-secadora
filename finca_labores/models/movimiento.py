@@ -20,6 +20,9 @@ class FincaLaborMovimiento(models.Model):
 
     fecha = fields.Date(string='Fecha', readonly=True)
     campana_id = fields.Many2one('finca.campana', string='Campaña', readonly=True)
+    cosecha_id = fields.Many2one(
+        'account.analytic.account', string='Cosecha', readonly=True,
+        help='Cosecha del trabajo. Los pagos no tienen: van por operador.')
     dueno_id = fields.Many2one('res.partner', string='Dueño', readonly=True)
     operador_id = fields.Many2one('res.partner', string='Operador', readonly=True)
     finca_id = fields.Many2one('secadora.lugar', string='Finca', readonly=True)
@@ -74,7 +77,7 @@ class FincaLaborMovimiento(models.Model):
                   FROM sumas
               )
                 SELECT (c.id::bigint * 1000000 + v.operador_id) * 10 + 1 AS id,
-                       c.fecha, c.campana_id, c.dueno_id, v.operador_id, c.finca_id,
+                       c.fecha, c.campana_id, c.cosecha_id, c.dueno_id, v.operador_id, c.finca_id,
                        'contrato' AS tipo, c.name AS referencia,
                        lab.name || ' · Lotes ' || STRING_AGG(
                            COALESCE(lote.name, t.detalle, '?'), ', ' ORDER BY t.sequence, t.id
@@ -93,7 +96,7 @@ class FincaLaborMovimiento(models.Model):
              UNION ALL
 
                 SELECT j.id * 10 + 2,
-                       j.fecha_hasta, j.campana_id, j.dueno_id, j.operador_id, j.finca_id,
+                       j.fecha_hasta, j.campana_id, j.cosecha_id, j.dueno_id, j.operador_id, j.finca_id,
                        'jornal', j.name,
                        CONCAT_WS(' · ', lab.name, j.descripcion),
                        j.total, 0.0, j.total, NULL,
@@ -105,7 +108,7 @@ class FincaLaborMovimiento(models.Model):
              UNION ALL
 
                 SELECT m.id * 10 + 3,
-                       m.fecha, m.campana_id, m.dueno_id, m.operador_id, m.lugar_id,
+                       m.fecha, m.campana_id, m.cosecha_id, m.dueno_id, m.operador_id, m.lugar_id,
                        'maquinaria', m.name, m.descripcion,
                        m.valor, 0.0, m.valor, NULL,
                        m.company_id, 'finca.maquinaria.trabajo', m.id
@@ -119,7 +122,7 @@ class FincaLaborMovimiento(models.Model):
                 -- devolución del operador resta. Solo los pagos sin reparto:
                 -- los repartidos entran línea por línea más abajo.
                 SELECT p.id * 10 + 4,
-                       p.date, p.finca_campana_id, p.finca_dueno_id, p.partner_id, NULL,
+                       p.date, p.finca_campana_id, NULL::integer, p.finca_dueno_id, p.partner_id, NULL,
                        'pago', p.name, p.memo,
                        0.0, -p.amount_company_currency_signed, p.amount_company_currency_signed,
                        p.finca_pagador_id,
@@ -136,7 +139,7 @@ class FincaLaborMovimiento(models.Model):
                 -- recibió la plata (p.partner_id) no aparece salvo que esté
                 -- en el reparto; se deja dicho en el detalle.
                 SELECT r.id * 10 + 5,
-                       p.date, p.finca_campana_id,
+                       p.date, p.finca_campana_id, NULL::integer,
                        COALESCE(r.dueno_id, p.finca_dueno_id), r.operador_id, NULL,
                        'pago', p.name,
                        CONCAT_WS(' · ', p.memo,
@@ -159,7 +162,7 @@ class FincaLaborMovimiento(models.Model):
                 -- no es de banco ni caja se descuenta al operador de la línea.
                 -- balance > 0 es un giro al operador; < 0, una devolución.
                 SELECT l.id * 10 + 6,
-                       m.date, m.finca_campana_id, m.finca_dueno_id, l.partner_id, NULL,
+                       m.date, m.finca_campana_id, NULL::integer, m.finca_dueno_id, l.partner_id, NULL,
                        'pago', m.name, CONCAT_WS(' · ', m.ref, l.name),
                        0.0, l.balance, -l.balance,
                        m.finca_pagador_id,

@@ -42,7 +42,8 @@
         <!-- Configuración -->
         <menuitem id="menu_finca_config" name="Configuración" parent="menu_finca_root"
                   sequence="90" groups="group_finca_admin"/>
-        <menuitem id="menu_finca_campana" name="Campañas" parent="menu_finca_config"
+        <menuitem id="menu_finca_campana" name="Periodos de saldos" parent="menu_finca_config"
+                  groups="base.group_no_one"
                   action="action_finca_campana" sequence="10"/>
         <menuitem id="menu_finca_labor" name="Labores y tarifas" parent="menu_finca_config"
                   action="action_finca_labor" sequence="20"/>

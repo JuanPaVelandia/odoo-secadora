@@ -13,7 +13,8 @@
                     <group string="Labores de finca" name="finca_labores"
                            invisible="not finca_campana_id and not partner_id">
                         <group>
-                            <field name="finca_campana_id"/>
+                            <field name="finca_campana_id" invisible="1"/>
+                            <field name="finca_es_labores"/>
                             <field name="finca_pagador_id" invisible="not finca_campana_id"/>
                             <field name="finca_dueno_id" invisible="not finca_campana_id"
                                    required="finca_campana_id"/>
@@ -36,7 +37,7 @@
                             <button name="action_finca_proponer_reparto" type="object"
                                     string="Proponer reparto por saldos" class="btn btn-link px-0"
                                     icon="fa-magic" invisible="not finca_dueno_id"
-                                    help="Reparte el pago entre los operadores con saldo pendiente del dueño en la campaña, de mayor a menor."/>
+                                    help="Reparte el pago entre los operadores con saldo pendiente del dueño, de mayor a menor."/>
                         </div>
                         <field name="finca_reparto_ids" colspan="2" nolabel="1"
                                invisible="not finca_campana_id">

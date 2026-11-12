@@ -23,7 +23,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="campana_id" readonly="state != 'borrador'"/>
+                                <field name="cosecha_id" readonly="state != 'borrador'" required="state == 'borrador'" options="{'no_create': True}"/>
                                 <field name="fecha" readonly="state != 'borrador'"/>
                                 <field name="finca_id" readonly="state != 'borrador'"/>
                                 <field name="dueno_id" readonly="state != 'borrador'"/>
@@ -176,7 +176,7 @@
                       decoration-muted="state == 'cancelado'">
                     <field name="name"/>
                     <field name="fecha"/>
-                    <field name="campana_id" optional="hide"/>
+                    <field name="cosecha_id" optional="show"/>
                     <field name="finca_id"/>
                     <field name="labor_id"/>
                     <field name="total_cantidad"/>
@@ -210,13 +210,13 @@
                     <filter name="filter_confirmado" string="Confirmado" domain="[('state', '=', 'confirmado')]"/>
                     <filter name="filter_descuadrados" string="Sin cuadrar" domain="[('tramos_descuadrados', '&gt;', 0)]"/>
                     <separator/>
-                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                    <filter name="filter_campana_abierta" string="Periodo abierto"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
                     <group>
                         <filter name="group_finca" string="Finca" context="{'group_by': 'finca_id'}"/>
                         <filter name="group_labor" string="Labor" context="{'group_by': 'labor_id'}"/>
                         <filter name="group_dueno" string="Dueño" context="{'group_by': 'dueno_id'}"/>
-                        <filter name="group_campana" string="Campaña" context="{'group_by': 'campana_id'}"/>
+                        <filter name="group_cosecha" string="Cosecha" context="{'group_by': 'cosecha_id'}"/>
                         <filter name="group_mes" string="Mes" context="{'group_by': 'fecha:month'}"/>
                     </group>
                 </search>

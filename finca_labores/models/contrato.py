@@ -39,13 +39,30 @@ class FincaContrato(models.Model):
         index=True,
         default=lambda self: 'Nuevo',
     )
+    # Periodo interno de los saldos: se toma solo de la fecha y no se muestra.
     campana_id = fields.Many2one(
         'finca.campana',
         string='Campaña',
         required=True,
         index=True,
-        default=lambda self: self.env['finca.campana']._get_campana(),
+        compute='_compute_campana_id',
+        store=True,
+        readonly=False,
         tracking=True,
+    )
+    cosecha_id = fields.Many2one(
+        'account.analytic.account',
+        string='Cosecha',
+        index='btree_not_null',
+        ondelete='restrict',
+        domain=lambda self: self.env['finca.campana']._dominio_cosecha(),
+        compute='_compute_cosecha_id',
+        store=True,
+        readonly=False,
+        tracking=True,
+        help='Cosecha a la que va el costo (2026 secano, 2026 riego...). Es la '
+             'misma analítica de las facturas y pasa al asiento del giro. Se '
+             'propone la del último registro de la misma finca.',
     )
     fecha = fields.Date(
         string='Fecha',
@@ -246,8 +263,25 @@ class FincaContrato(models.Model):
                 Markup('<div class="table-responsive"><table class="table table-sm table-bordered o_finca_grilla">')
                 + Markup('').join(filas) + Markup('</table></div>'))
 
+    @api.depends('fecha')
+    def _compute_campana_id(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            rec.campana_id = Campana._get_campana(rec.fecha)
+
+    @api.depends('finca_id')
+    def _compute_cosecha_id(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            if rec.cosecha_id or not rec.finca_id:
+                continue
+            rec.cosecha_id = Campana._cosecha_sugerida(
+                rec._name, [('finca_id', '=', rec.finca_id.id), ('id', '!=', rec._origin.id or 0)])
+
     def action_confirmar(self):
         for rec in self:
+            if not rec.cosecha_id:
+                raise UserError('Elija la cosecha de %s.' % rec.name)
             if not rec.tramo_ids:
                 raise UserError('Agregue al menos un tramo antes de confirmar %s.' % rec.name)
             sin_operador = rec.tramo_ids.filtered(lambda t: not t.operador_ids)

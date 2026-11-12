@@ -11,7 +11,7 @@ class AcpmCompra(models.Model):
     """Resumen de ACPM: una fila por línea de factura marcada como ACPM. Los
     galones y el valor van en negativo en las notas crédito.
 
-    Finca, campaña y galones se pueden editar aquí mismo: el cambio se escribe
+    Finca, cosecha y galones se pueden editar aquí mismo: el cambio se escribe
     en la línea de la factura (el id de la fila es el id de la línea)."""
     _name = 'secadora.acpm.compra'
     _description = 'Compra de ACPM'
@@ -31,7 +31,9 @@ class AcpmCompra(models.Model):
         'maintenance.equipment', string='Vehículo', domain=[('es_vehiculo', '=', True)])
     lugar_id = fields.Many2one(
         'secadora.lugar', string='Finca', domain=[('tipo', 'in', ('finca', 'planta'))])
-    campana_id = fields.Many2one('finca.campana', string='Campaña')
+    cosecha_id = fields.Many2one(
+        'account.analytic.account', string='Cosecha',
+        domain=lambda self: self.env['finca.campana']._dominio_cosecha())
     galones = fields.Float(string='Galones', digits=(12, 2))
     valor = fields.Float(string='Valor', digits=(14, 0), readonly=True)
     precio_galon = fields.Float(
@@ -57,7 +59,7 @@ class AcpmCompra(models.Model):
                        aml.acpm_tipo AS tipo,
                        aml.acpm_equipment_id AS equipment_id,
                        aml.acpm_lugar_id AS lugar_id,
-                       aml.acpm_campana_id AS campana_id,
+                       aml.acpm_cosecha_id AS cosecha_id,
                        aml.acpm_galones AS galones,
                        aml.acpm_valor AS valor,
                        CASE WHEN COALESCE(aml.acpm_galones, 0) <> 0
@@ -75,7 +77,7 @@ class AcpmCompra(models.Model):
         'tipo': 'acpm_tipo',
         'equipment_id': 'acpm_equipment_id',
         'lugar_id': 'acpm_lugar_id',
-        'campana_id': 'acpm_campana_id',
+        'cosecha_id': 'acpm_cosecha_id',
         'galones': 'acpm_galones',
     }
 
@@ -84,7 +86,7 @@ class AcpmCompra(models.Model):
         con los permisos de quien edita (hace falta el rol de facturación)."""
         otros = set(vals) - set(self._ACPM_EDITABLES)
         if otros:
-            raise UserError('En el resumen solo se pueden cambiar el tipo, el vehículo, la finca, la campaña y los galones.')
+            raise UserError('En el resumen solo se pueden cambiar el tipo, el vehículo, la finca, la cosecha y los galones.')
         self.check_access('write')
         lineas = self.env['account.move.line'].browse(self.ids)
         lineas.write({self._ACPM_EDITABLES[k]: v for k, v in vals.items()})

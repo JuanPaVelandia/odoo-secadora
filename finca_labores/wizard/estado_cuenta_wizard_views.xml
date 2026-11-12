@@ -8,7 +8,7 @@
             <field name="arch" type="xml">
                 <form string="Estado de cuenta">
                     <group>
-                        <field name="campana_id"/>
+                        <field name="campana_id" invisible="1"/>
                         <field name="operador_id"/>
                         <field name="dueno_id"/>
                     </group>

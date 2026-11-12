@@ -5,6 +5,12 @@ from odoo.exceptions import ValidationError
 
 
 class FincaCampana(models.Model):
+    """Periodo interno de las cuentas con los operadores (saldos por año).
+
+    No se muestra: se asigna solo por la fecha. La campaña que la gente
+    escoge es la Cosecha (cuenta analítica del plan "Cosecha": 2026 secano,
+    2026 riego, 2027 secano...), la misma de las facturas.
+    """
     _name = 'finca.campana'
     _description = 'Campaña Agrícola'
     _order = 'fecha_inicio desc'
@@ -79,6 +85,31 @@ class FincaCampana(models.Model):
             self.search(domain + [('fecha_inicio', '<=', fecha), ('fecha_fin', '>=', fecha)], limit=1)
             or self.search(domain, limit=1)
         )
+
+    # --- Cosecha (plan analítico) ------------------------------------------
+
+    @api.model
+    def _plan_cosecha(self):
+        plan = self.env.ref('paramo_agro_costing.plan_cosecha', raise_if_not_found=False)
+        if not plan:
+            plan = self.env['account.analytic.plan'].sudo().search(
+                [('name', '=ilike', 'cosecha')], limit=1)
+        return plan
+
+    @api.model
+    def _dominio_cosecha(self):
+        plan = self._plan_cosecha()
+        return [('plan_id', '=', plan.id)] if plan else [('id', '=', 0)]
+
+    @api.model
+    def _cosecha_sugerida(self, model, domain):
+        """Cosecha del último registro de `model` que cumple `domain` y la
+        tiene (p. ej. el último jornal de la misma finca)."""
+        if not domain:
+            return self.env['account.analytic.account']
+        anterior = self.env[model].search(
+            domain + [('cosecha_id', '!=', False)], order='id desc', limit=1)
+        return anterior.cosecha_id
 
     def action_cerrar(self):
         self.write({'state': 'cerrada'})

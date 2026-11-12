@@ -2,17 +2,17 @@
 <odoo>
 
     <!-- ============================================================ -->
-    <!--  Resumen de ACPM por finca y campaña                          -->
+    <!--  Resumen de ACPM por finca y cosecha                          -->
     <!-- ============================================================ -->
 
     <record id="view_acpm_compra_pivot" model="ir.ui.view">
         <field name="name">secadora.acpm.compra.pivot</field>
         <field name="model">secadora.acpm.compra</field>
         <field name="arch" type="xml">
-            <pivot string="ACPM por finca y campaña" disable_linking="0">
+            <pivot string="ACPM por finca y cosecha" disable_linking="0">
                 <field name="tipo" type="row"/>
                 <field name="lugar_id" type="row"/>
-                <field name="campana_id" type="col"/>
+                <field name="cosecha_id" type="col"/>
                 <field name="galones" type="measure"/>
                 <field name="valor" type="measure"/>
             </pivot>
@@ -25,7 +25,7 @@
         <field name="arch" type="xml">
             <graph string="Galones de ACPM por finca" type="bar" stacked="1">
                 <field name="lugar_id"/>
-                <field name="campana_id"/>
+                <field name="cosecha_id"/>
                 <field name="galones" type="measure"/>
             </graph>
         </field>
@@ -36,7 +36,7 @@
         <field name="model">secadora.acpm.compra</field>
         <field name="arch" type="xml">
             <list string="Compras de ACPM" create="false" delete="false" editable="bottom" multi_edit="1"
-                  decoration-warning="(tipo == 'finca' and (not lugar_id or not campana_id)) or (tipo == 'logistica' and not equipment_id)"
+                  decoration-warning="(tipo == 'finca' and (not lugar_id or not cosecha_id)) or (tipo == 'logistica' and not equipment_id)"
                   decoration-muted="estado != 'posted'">
                 <field name="fecha" readonly="1"/>
                 <field name="company_id" readonly="1" optional="hide" groups="base.group_multi_company"/>
@@ -45,7 +45,7 @@
                 <field name="descripcion" readonly="1" optional="show"/>
                 <field name="tipo"/>
                 <field name="lugar_id" options="{'no_create': True, 'no_open': True}"/>
-                <field name="campana_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="cosecha_id" options="{'no_create': True, 'no_open': True}"/>
                 <field name="equipment_id" options="{'no_create': True, 'no_open': True}"/>
                 <field name="galones" sum="Galones"/>
                 <field name="precio_galon" readonly="1" optional="show"/>
@@ -66,7 +66,7 @@
                 <field name="factura"/>
                 <field name="partner_id"/>
                 <field name="lugar_id"/>
-                <field name="campana_id"/>
+                <field name="cosecha_id"/>
                 <field name="equipment_id"/>
                 <field name="descripcion"/>
                 <filter name="filter_publicadas" string="Facturas publicadas"
@@ -76,7 +76,7 @@
                 <filter name="filter_logistica" string="ACPM de logística" domain="[('tipo', '=', 'logistica')]"/>
                 <separator/>
                 <filter name="filter_sin_finca" string="Sin finca" domain="[('tipo', '=', 'finca'), ('lugar_id', '=', False)]"/>
-                <filter name="filter_sin_campana" string="Sin campaña" domain="[('tipo', '=', 'finca'), ('campana_id', '=', False)]"/>
+                <filter name="filter_sin_cosecha" string="Sin cosecha" domain="[('tipo', '=', 'finca'), ('cosecha_id', '=', False)]"/>
                 <filter name="filter_sin_vehiculo" string="Sin vehículo" domain="[('tipo', '=', 'logistica'), ('equipment_id', '=', False)]"/>
                 <separator/>
                 <filter name="filter_fecha" string="Fecha" date="fecha"/>
@@ -84,7 +84,7 @@
                     <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo'}"/>
                     <filter name="group_finca" string="Finca" context="{'group_by': 'lugar_id'}"/>
                     <filter name="group_vehiculo" string="Vehículo" context="{'group_by': 'equipment_id'}"/>
-                    <filter name="group_campana" string="Campaña" context="{'group_by': 'campana_id'}"/>
+                    <filter name="group_cosecha" string="Cosecha" context="{'group_by': 'cosecha_id'}"/>
                     <filter name="group_mes" string="Mes" context="{'group_by': 'fecha:month'}"/>
                     <filter name="group_proveedor" string="Proveedor" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_cuenta" string="Cuenta" context="{'group_by': 'account_id'}"/>
@@ -103,9 +103,9 @@
         <field name="help" type="html">
             <p class="o_view_nocontent_smiling_face">Todavía no hay compras de ACPM</p>
             <p>Se registran en "Compras de ACPM (facturas)" marcando las líneas de las
-               facturas de proveedor. Aquí se ven los galones y el valor por finca, campaña,
+               facturas de proveedor. Aquí se ven los galones y el valor por finca, cosecha,
                mes, vehículo y proveedor; en la lista se puede cambiar el tipo, la finca, la
-               campaña, el vehículo y los galones de cada compra, o de varias a la vez
+               cosecha, el vehículo y los galones de cada compra, o de varias a la vez
                seleccionándolas.</p>
         </field>
     </record>

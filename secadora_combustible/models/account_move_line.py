@@ -7,10 +7,10 @@ de la línea (cambiarlos en una factura publicada movería cuentas e impuestos).
 
 Hay dos tipos de ACPM:
 
-- **Finca**: costo del cultivo. Lleva finca (punto operativo) y campaña. Al
-  asignar la finca se corrige la distribución analítica del plan Punto
-  operativo, conservando lo demás (Cultivo de arroz, cosecha...).
-- **Logística**: va a un vehículo (camioneta). No lleva finca ni campaña y,
+- **Finca**: costo del cultivo. Lleva finca (punto operativo) y cosecha. Las
+  dos son la distribución analítica de la línea: al asignarlas se corrige el
+  plan correspondiente, conservando lo demás (Cultivo de arroz...).
+- **Logística**: va a un vehículo (camioneta). No lleva finca ni cosecha y,
   si la línea traía una finca en la analítica, se le quita.
 """
 
@@ -42,7 +42,7 @@ class AccountMoveLine(models.Model):
         string='Tipo ACPM',
         copy=False,
         index=True,
-        help='Finca: costo del cultivo, con finca y campaña. '
+        help='Finca: costo del cultivo, con finca y cosecha. '
              'Logística: combustible de un vehículo.',
     )
     acpm_galones = fields.Float(
@@ -71,8 +71,20 @@ class AccountMoveLine(models.Model):
         copy=False,
         index='btree_not_null',
         ondelete='restrict',
-        help='Se propone la campaña de Labores de Finca que contiene la fecha '
-             'de la factura. Se puede cambiar.',
+        help='Periodo interno (oct–sep). Ya no se muestra: la que cuenta es la '
+             'Cosecha.',
+    )
+    acpm_cosecha_id = fields.Many2one(
+        'account.analytic.account',
+        string='Cosecha',
+        compute='_compute_acpm_cosecha_id',
+        inverse='_inverse_acpm_cosecha_id',
+        store=True,
+        copy=False,
+        index='btree_not_null',
+        domain=lambda self: self.env['finca.campana']._dominio_cosecha(),
+        help='La cosecha de la analítica de la línea (2026 secano, 2026 riego...). '
+             'Al cambiarla aquí se cambia en la analítica de la factura.',
     )
     acpm_equipment_id = fields.Many2one(
         'maintenance.equipment',
@@ -119,6 +131,57 @@ class AccountMoveLine(models.Model):
                     ('fecha_inicio', '<=', fecha),
                     ('fecha_fin', '>=', fecha),
                 ], limit=1)
+
+    @api.model
+    def _acpm_ids_cosecha(self):
+        plan = self.env['finca.campana']._plan_cosecha()
+        if not plan:
+            return set()
+        return set(self.env['account.analytic.account'].sudo().with_context(active_test=False)
+                   .search([('plan_id', '=', plan.id)]).ids)
+
+    @api.depends('acpm_es', 'analytic_distribution')
+    def _compute_acpm_cosecha_id(self):
+        acpm = self.filtered('acpm_es')
+        (self - acpm).acpm_cosecha_id = False
+        if not acpm:
+            return
+        ids_cosecha = self._acpm_ids_cosecha()
+        Analitica = self.env['account.analytic.account']
+        for line in acpm:
+            pesos = {}
+            for clave, pct in (line.analytic_distribution or {}).items():
+                for i in str(clave).split(','):
+                    if i.strip().isdigit() and int(i) in ids_cosecha:
+                        pesos[int(i)] = pesos.get(int(i), 0.0) + (pct or 0.0)
+            line.acpm_cosecha_id = Analitica.browse(max(pesos, key=pesos.get)) if pesos else False
+
+    def _inverse_acpm_cosecha_id(self):
+        """Pone la cosecha elegida en la distribución en vez de la que
+        tuviera, sin tocar las otras analíticas (finca, unidad de negocio)."""
+        ids_cosecha = self._acpm_ids_cosecha()
+        for line in self:
+            dist = line.analytic_distribution or {}
+            nueva = {}
+            tenia_cosecha = False
+            for clave, pct in dist.items():
+                ids = [i for i in str(clave).split(',') if i.strip().isdigit()]
+                if not any(int(i) in ids_cosecha for i in ids):
+                    nueva[clave] = nueva.get(clave, 0.0) + pct
+                    continue
+                # Clave con cosecha (sola o combinada con otro plan): se
+                # cambia la cosecha y se conserva lo demás.
+                tenia_cosecha = True
+                ids = [i for i in ids if int(i) not in ids_cosecha]
+                if line.acpm_cosecha_id:
+                    ids.append(str(line.acpm_cosecha_id.id))
+                if ids:
+                    k = ','.join(ids)
+                    nueva[k] = nueva.get(k, 0.0) + pct
+            if line.acpm_cosecha_id and not tenia_cosecha:
+                nueva[str(line.acpm_cosecha_id.id)] = 100.0
+            if nueva != dist:
+                line.analytic_distribution = nueva or False
 
     @api.depends('acpm_es', 'price_subtotal', 'move_id.move_type')
     def _compute_acpm_valor(self):

@@ -40,7 +40,7 @@ class FincaResumen(models.TransientModel):
     @api.depends('campana_id')
     def _compute_display_name(self):
         for rec in self:
-            rec.display_name = 'Resumen de saldos %s' % (rec.campana_id.name or '')
+            rec.display_name = 'Resumen de saldos'
 
     def _domain(self):
         domain = [('campana_id', '=', self.campana_id.id)]

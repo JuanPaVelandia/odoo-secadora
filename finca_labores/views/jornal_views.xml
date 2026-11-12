@@ -17,7 +17,7 @@
                                 help="Arma una liquidación con los jornales seleccionados: una línea por persona con la suma de sus jornales."/>
                     </header>
                     <field name="name" readonly="1" optional="show"/>
-                    <field name="campana_id" optional="hide" readonly="state != 'borrador'"/>
+                    <field name="cosecha_id" optional="show" readonly="state != 'borrador'" options="{'no_create': True}"/>
                     <field name="finca_id" readonly="state != 'borrador'"/>
                     <field name="fecha_desde" readonly="state != 'borrador'"/>
                     <field name="fecha_hasta" readonly="state != 'borrador'"/>
@@ -59,7 +59,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="campana_id" readonly="state != 'borrador'"/>
+                                <field name="cosecha_id" readonly="state != 'borrador'" required="state == 'borrador'" options="{'no_create': True}"/>
                                 <field name="finca_id" readonly="state != 'borrador'"/>
                                 <field name="dueno_id" readonly="state != 'borrador'"/>
                                 <field name="operador_id" readonly="state != 'borrador'"/>
@@ -101,10 +101,11 @@
                     <filter name="filter_sin_liquidar" string="Sin liquidar"
                             domain="[('state', '=', 'confirmado'), ('liquidacion_id', '=', False)]"/>
                     <separator/>
-                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                    <filter name="filter_campana_abierta" string="Periodo abierto"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
                     <group>
                         <filter name="group_finca" string="Finca" context="{'group_by': 'finca_id'}"/>
+                        <filter name="group_cosecha" string="Cosecha" context="{'group_by': 'cosecha_id'}"/>
                         <filter name="group_operador" string="Persona" context="{'group_by': 'operador_id'}"/>
                         <filter name="group_mes" string="Mes" context="{'group_by': 'fecha_hasta:month'}"/>
                     </group>

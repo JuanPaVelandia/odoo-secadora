@@ -3,7 +3,9 @@
     <menuitem id="menu_agro_root" name="Agro Costing" sequence="55"
               web_icon="stock,static/description/icon.png"/>
 
-    <menuitem id="menu_agro_cosechas" name="Cosechas"
+    <!-- Oculto: la Cosecha se escoge en la analítica (plan Cosecha) de
+         facturas, jornales y ACPM. Este registro no se usa. -->
+    <menuitem id="menu_agro_cosechas" name="Cosechas" groups="base.group_no_one"
               parent="menu_agro_root" action="action_paramo_cosecha" sequence="10"/>
 
     <menuitem id="menu_agro_config" name="Configuración"

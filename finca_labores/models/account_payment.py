@@ -13,7 +13,7 @@ class AccountPayment(models.Model):
     # se pueden corregir a mano en el pago.
     finca_campana_id = fields.Many2one(
         'finca.campana',
-        string='Campaña de labores',
+        string='Periodo de labores',
         compute='_compute_finca_labores',
         store=True,
         readonly=False,
@@ -21,6 +21,14 @@ class AccountPayment(models.Model):
         help='Si tiene campaña, el pago se descuenta del saldo de labores del '
              'operador. Se asigna sola a los pagos a operadores de finca según '
              'la fecha; déjela vacía si el pago no es por labores.',
+    )
+    # Lo que se ve: si el giro es de labores. La campaña (periodo de los
+    # saldos) se pone sola por la fecha.
+    finca_es_labores = fields.Boolean(
+        string='Es de labores',
+        compute='_compute_finca_es_labores',
+        inverse='_inverse_finca_es_labores',
+        help='Marcado: se descuenta del saldo de labores del operador.',
     )
     finca_pagador_id = fields.Many2one(
         'res.partner',
@@ -107,8 +115,8 @@ class AccountPayment(models.Model):
                 continue
             if not pay.finca_campana_id:
                 raise ValidationError(
-                    'El pago %s tiene reparto entre operadores pero no tiene '
-                    'campaña de labores.' % pay.display_name)
+                    'El pago %s tiene reparto entre operadores pero no está '
+                    'marcado como de labores.' % pay.display_name)
             # Tolerancia de un peso: los giros se redondean.
             if float_compare(pay.finca_reparto_total, pay.amount, precision_digits=0) != 0:
                 raise ValidationError(
@@ -162,7 +170,7 @@ class AccountPayment(models.Model):
         líneas cuadren y el usuario ajuste desde ahí."""
         self.ensure_one()
         if not self.finca_campana_id or not self.finca_dueno_id:
-            raise UserError('Para proponer el reparto el pago necesita campaña y dueño.')
+            raise UserError('Para proponer el reparto marque el pago como de labores y elija el dueño.')
         saldos = self.env['finca.labor.movimiento']._saldos_por_operador(
             self.finca_campana_id, self.finca_dueno_id, excluir_payment=self)
         pendientes = sorted(
@@ -170,8 +178,8 @@ class AccountPayment(models.Model):
             key=lambda item: item[1], reverse=True)
         if not pendientes:
             raise UserError(
-                'Ningún operador tiene saldo pendiente con %s en la campaña %s.'
-                % (self.finca_dueno_id.display_name, self.finca_campana_id.name))
+                'Ningún operador tiene saldo pendiente con %s.'
+                % self.finca_dueno_id.display_name)
         restante = self.amount
         lineas = {}
         for operador, saldo in pendientes:
@@ -187,3 +195,16 @@ class AccountPayment(models.Model):
             (0, 0, {'operador_id': op.id, 'monto': monto})
             for op, monto in lineas.items() if not float_is_zero(monto, precision_digits=2)
         ]
+
+    @api.depends('finca_campana_id')
+    def _compute_finca_es_labores(self):
+        for rec in self:
+            rec.finca_es_labores = bool(rec.finca_campana_id)
+
+    def _inverse_finca_es_labores(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            if not rec.finca_es_labores:
+                rec.finca_campana_id = False
+            elif not rec.finca_campana_id:
+                rec.finca_campana_id = Campana._get_campana(rec.date)

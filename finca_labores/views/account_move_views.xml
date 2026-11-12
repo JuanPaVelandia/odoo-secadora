@@ -22,7 +22,8 @@
                     <group string="Labores de finca" name="finca_labores"
                            invisible="move_type != 'entry'">
                         <group>
-                            <field name="finca_campana_id"/>
+                            <field name="finca_campana_id" invisible="1"/>
+                            <field name="finca_es_labores"/>
                             <field name="finca_dueno_id" invisible="not finca_campana_id"
                                    required="finca_campana_id"/>
                         </group>
@@ -51,7 +52,8 @@
                     <field name="journal_id"/>
                     <field name="ref"/>
                     <field name="amount_total" string="Valor" sum="Total"/>
-                    <field name="finca_campana_id" optional="show"/>
+                    <field name="finca_campana_id" column_invisible="1"/>
+                    <field name="finca_es_labores" string="Asignado" optional="show"/>
                     <field name="finca_dueno_id" optional="show"/>
                     <field name="finca_liquidacion_ids" widget="many2many_tags" optional="show"/>
                     <button name="action_finca_asignar_giro" string="Asignar" type="object"

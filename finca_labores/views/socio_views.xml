@@ -113,7 +113,7 @@
                     <field name="dueno_id"/>
                     <field name="operador_id"/>
                     <field name="finca_id"/>
-                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                    <filter name="filter_campana_abierta" string="Periodo abierto"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
                     <filter name="filter_trabajos" string="Trabajos" domain="[('tipo', '!=', 'pago')]"/>
                     <group>

@@ -12,11 +12,19 @@ class AccountMove(models.Model):
     # al operador que tenga como contacto; las líneas de banco no cuentan.
     finca_campana_id = fields.Many2one(
         'finca.campana',
-        string='Campaña de labores',
+        string='Periodo de labores',
         index=True,
         copy=False,
         help='Si tiene campaña, las líneas de gasto del asiento se descuentan '
              'del saldo de labores del operador de cada línea.',
+    )
+    # Lo que se ve: si el giro es de labores. La campaña (periodo de los
+    # saldos) se pone sola por la fecha.
+    finca_es_labores = fields.Boolean(
+        string='Es de labores',
+        compute='_compute_finca_es_labores',
+        inverse='_inverse_finca_es_labores',
+        help='Marcado: se descuenta del saldo de labores del operador.',
     )
     finca_pagador_id = fields.Many2one(
         'res.partner',
@@ -74,3 +82,16 @@ class AccountMove(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    @api.depends('finca_campana_id')
+    def _compute_finca_es_labores(self):
+        for rec in self:
+            rec.finca_es_labores = bool(rec.finca_campana_id)
+
+    def _inverse_finca_es_labores(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            if not rec.finca_es_labores:
+                rec.finca_campana_id = False
+            elif not rec.finca_campana_id:
+                rec.finca_campana_id = Campana._get_campana(rec.date)

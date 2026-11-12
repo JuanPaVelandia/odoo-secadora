@@ -23,12 +23,28 @@ class FincaJornal(models.Model):
         index=True,
         default=lambda self: 'Nuevo',
     )
+    # Periodo interno de los saldos: se toma solo de la fecha y no se muestra.
     campana_id = fields.Many2one(
         'finca.campana',
         string='Campaña',
         required=True,
         index=True,
-        default=lambda self: self.env['finca.campana']._get_campana(),
+        compute='_compute_campana_id',
+        store=True,
+        readonly=False,
+    )
+    cosecha_id = fields.Many2one(
+        'account.analytic.account',
+        string='Cosecha',
+        index='btree_not_null',
+        ondelete='restrict',
+        domain=lambda self: self.env['finca.campana']._dominio_cosecha(),
+        compute='_compute_cosecha_id',
+        store=True,
+        readonly=False,
+        help='Cosecha a la que va el costo (2026 secano, 2026 riego...). Es la '
+             'misma analítica de las facturas y pasa al asiento del giro. Se '
+             'propone la del último registro de la misma finca.',
     )
     finca_id = fields.Many2one(
         'secadora.lugar',
@@ -104,6 +120,21 @@ class FincaJornal(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('finca.jornal') or 'Nuevo'
         return super().create(vals_list)
 
+    @api.depends('fecha_hasta')
+    def _compute_campana_id(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            rec.campana_id = Campana._get_campana(rec.fecha_hasta)
+
+    @api.depends('finca_id')
+    def _compute_cosecha_id(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            if rec.cosecha_id or not rec.finca_id:
+                continue
+            rec.cosecha_id = Campana._cosecha_sugerida(
+                rec._name, [('finca_id', '=', rec.finca_id.id), ('id', '!=', rec._origin.id or 0)])
+
     @api.depends('finca_id')
     def _compute_dueno_id(self):
         for rec in self:
@@ -129,6 +160,8 @@ class FincaJornal(models.Model):
         for rec in self.filtered(lambda r: r.state == 'borrador'):
             if not rec.total:
                 raise UserError('El jornal %s no tiene valor.' % rec.name)
+            if not rec.cosecha_id:
+                raise UserError('Elija la cosecha del jornal %s.' % rec.name)
             if not rec.dueno_id:
                 raise UserError(
                     'El jornal %s no tiene dueño. Asigne el dueño en la finca %s.'
@@ -153,8 +186,9 @@ class FincaJornal(models.Model):
                 '%s (%s)' % (j.name, j.liquidacion_id.name) for j in pendientes))
         if len(jornales.campana_id) > 1 or len(jornales.dueno_id) > 1 or len(jornales.company_id) > 1:
             raise UserError(
-                'Los jornales seleccionados deben ser de la misma campaña, el mismo dueño '
-                'y la misma empresa: un giro se hace por dueño. Haga una liquidación por cada uno.')
+                'Los jornales seleccionados deben ser del mismo dueño, la misma empresa y el '
+                'mismo periodo (año de octubre a septiembre): un giro se hace por dueño. '
+                'Haga una liquidación por cada uno.')
         if not jornales.dueno_id:
             raise UserError('Los jornales no tienen dueño.')
         campana, dueno = jornales.campana_id, jornales.dueno_id

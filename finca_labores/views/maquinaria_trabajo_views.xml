@@ -27,7 +27,7 @@
                         </div>
                         <group>
                             <group>
-                                <field name="campana_id" readonly="state != 'borrador'"/>
+                                <field name="cosecha_id" readonly="state != 'borrador'" options="{'no_create': True}"/>
                                 <field name="fecha" readonly="state != 'borrador'"/>
                                 <field name="equipment_id" readonly="state != 'borrador'"/>
                                 <field name="category_id"/>
@@ -75,7 +75,7 @@
                     </header>
                     <field name="name"/>
                     <field name="fecha"/>
-                    <field name="campana_id" optional="hide"/>
+                    <field name="cosecha_id" optional="show" options="{'no_create': True}"/>
                     <field name="equipment_id"/>
                     <field name="category_id" optional="show"/>
                     <field name="lugar_id" optional="show"/>
@@ -107,7 +107,7 @@
                         <button name="action_liquidar" string="Liquidar seleccionados" type="object"
                                 help="Arma una liquidación con los trabajos seleccionados: una línea por persona con la suma de sus trabajos."/>
                     </header>
-                    <field name="campana_id" optional="hide"/>
+                    <field name="cosecha_id" optional="show" options="{'no_create': True}"/>
                     <field name="fecha"/>
                     <field name="equipment_id" width="220px"
                            domain="[('name', 'ilike', 'dron')]"
@@ -150,7 +150,7 @@
                             domain="[('state', '=', 'confirmado'), ('liquidacion_id', '=', False)]"/>
                     <filter name="filter_liquidados" string="Liquidados" domain="[('liquidacion_id', '!=', False)]"/>
                     <separator/>
-                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                    <filter name="filter_campana_abierta" string="Periodo abierto"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
                     <group>
                         <filter name="group_equipo" string="Equipo" context="{'group_by': 'equipment_id'}"/>

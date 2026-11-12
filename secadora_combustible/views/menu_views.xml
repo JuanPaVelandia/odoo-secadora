@@ -7,7 +7,7 @@
               groups="group_combustible"
               sequence="46"/>
 
-    <menuitem id="menu_combustible_resumen" name="Resumen por finca y campaña"
+    <menuitem id="menu_combustible_resumen" name="Resumen por finca y cosecha"
               parent="menu_combustible_root" action="action_acpm_compra" sequence="10"/>
     <menuitem id="menu_combustible_registradas" name="Compras registradas"
               parent="menu_combustible_root" action="action_acpm_compra_list" sequence="20"/>

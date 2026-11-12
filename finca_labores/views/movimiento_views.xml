@@ -9,7 +9,7 @@
                 <list string="Movimientos" create="false" edit="false" delete="false"
                       decoration-success="tipo == 'pago'">
                     <field name="fecha"/>
-                    <field name="campana_id" optional="hide"/>
+                    <field name="cosecha_id" optional="show"/>
                     <field name="dueno_id"/>
                     <field name="operador_id"/>
                     <field name="finca_id" optional="show"/>
@@ -52,7 +52,7 @@
                     <field name="finca_id"/>
                     <field name="referencia"/>
                     <separator/>
-                    <filter name="filter_campana_abierta" string="Campaña abierta"
+                    <filter name="filter_campana_abierta" string="Periodo abierto"
                             domain="[('campana_id.state', '=', 'abierta')]"/>
                     <separator/>
                     <filter name="filter_trabajos" string="Trabajos" domain="[('tipo', '!=', 'pago')]"/>
@@ -63,7 +63,7 @@
                         <filter name="group_operador" string="Operador" context="{'group_by': 'operador_id'}"/>
                         <filter name="group_finca" string="Finca" context="{'group_by': 'finca_id'}"/>
                         <filter name="group_tipo" string="Tipo" context="{'group_by': 'tipo'}"/>
-                        <filter name="group_campana" string="Campaña" context="{'group_by': 'campana_id'}"/>
+                        <filter name="group_cosecha" string="Cosecha" context="{'group_by': 'cosecha_id'}"/>
                     </group>
                 </search>
             </field>

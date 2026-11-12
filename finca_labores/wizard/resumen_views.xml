@@ -18,7 +18,7 @@
                     <sheet>
                         <group>
                             <group>
-                                <field name="campana_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="campana_id" invisible="1"/>
                                 <field name="solo_pendientes" widget="boolean_toggle"/>
                             </group>
                             <group>

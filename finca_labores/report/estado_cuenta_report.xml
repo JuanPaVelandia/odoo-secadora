@@ -8,7 +8,7 @@
             <field name="report_type">qweb-pdf</field>
             <field name="report_name">finca_labores.report_estado_cuenta_document</field>
             <field name="report_file">finca_labores.report_estado_cuenta_document</field>
-            <field name="print_report_name">'Estado_cuenta_%s_%s' % (object.operador_id.name, object.campana_id.name)</field>
+            <field name="print_report_name">'Estado_cuenta_%s' % object.operador_id.name</field>
         </record>
 
         <!-- Reemplaza la pestaña "Reporte" del consolidado: detalle por dueño
@@ -22,12 +22,11 @@
                             <h3 class="text-center">ESTADO DE CUENTA DE LABORES</h3>
                             <table class="table table-sm table-borderless" style="width: auto;">
                                 <tr><td><strong>Operador:</strong></td><td><span t-field="o.operador_id"/></td></tr>
-                                <tr><td><strong>Campaña:</strong></td><td><span t-field="o.campana_id"/></td></tr>
                                 <tr><td><strong>Fecha:</strong></td>
                                     <td t-out="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y')"/></tr>
                             </table>
 
-                            <p t-if="not grupos">El operador no tiene movimientos en esta campaña.</p>
+                            <p t-if="not grupos">El operador no tiene movimientos.</p>
 
                             <t t-set="gran_saldo" t-value="0"/>
                             <t t-foreach="grupos" t-as="grupo">

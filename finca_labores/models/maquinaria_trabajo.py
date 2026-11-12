@@ -31,12 +31,28 @@ class FincaMaquinariaTrabajo(models.Model):
         index=True,
         default=lambda self: 'Nuevo',
     )
+    # Periodo interno de los saldos: se toma solo de la fecha y no se muestra.
     campana_id = fields.Many2one(
         'finca.campana',
         string='Campaña',
         required=True,
         index=True,
-        default=lambda self: self.env['finca.campana']._get_campana(),
+        compute='_compute_campana_id',
+        store=True,
+        readonly=False,
+    )
+    cosecha_id = fields.Many2one(
+        'account.analytic.account',
+        string='Cosecha',
+        index='btree_not_null',
+        ondelete='restrict',
+        domain=lambda self: self.env['finca.campana']._dominio_cosecha(),
+        compute='_compute_cosecha_id',
+        store=True,
+        readonly=False,
+        help='Cosecha a la que va el costo (2026 secano, 2026 riego...). Es la '
+             'misma analítica de las facturas y pasa al asiento del giro. Se '
+             'propone la del último registro de el mismo equipo.',
     )
     fecha = fields.Date(string='Fecha', required=True, default=fields.Date.context_today)
     equipment_id = fields.Many2one(
@@ -111,7 +127,7 @@ class FincaMaquinariaTrabajo(models.Model):
         string='Acumulado del equipo',
         digits=(12, 2),
         compute='_compute_pagado_equipo',
-        help='Suma de los trabajos confirmados de este equipo en la campaña, '
+        help='Suma de los trabajos confirmados de este equipo en el año (oct–sep), '
              'incluyendo este.',
     )
     excede_tope = fields.Boolean(string='Supera el tope', compute='_compute_pagado_equipo')
@@ -211,6 +227,21 @@ class FincaMaquinariaTrabajo(models.Model):
             rec.pagado_equipo = sum(otros.mapped('valor')) + propio
             rec.excede_tope = bool(rec.valor_max_contrato) and rec.pagado_equipo > rec.valor_max_contrato
 
+    @api.depends('fecha')
+    def _compute_campana_id(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            rec.campana_id = Campana._get_campana(rec.fecha)
+
+    @api.depends('equipment_id')
+    def _compute_cosecha_id(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            if rec.cosecha_id or not rec.equipment_id:
+                continue
+            rec.cosecha_id = Campana._cosecha_sugerida(
+                rec._name, [('equipment_id', '=', rec.equipment_id.id), ('id', '!=', rec._origin.id or 0)])
+
     def action_confirmar(self):
         CostLine = self.env['maintenance.equipment.cost.line'].sudo()
         for rec in self.filtered(lambda r: r.state == 'borrador'):
@@ -262,8 +293,9 @@ class FincaMaquinariaTrabajo(models.Model):
                 '%s (%s)' % (t.name, t.liquidacion_id.name) for t in pendientes))
         if len(trabajos.campana_id) > 1 or len(trabajos.dueno_id) > 1:
             raise UserError(
-                'Los trabajos seleccionados deben ser de la misma campaña y el mismo dueño: '
-                'un giro se hace por dueño. Haga una liquidación por cada uno.')
+                'Los trabajos seleccionados deben ser del mismo dueño y el mismo periodo '
+                '(año de octubre a septiembre): un giro se hace por dueño. Haga una '
+                'liquidación por cada uno.')
         if not trabajos.dueno_id:
             raise UserError('Los trabajos no tienen dueño.')
         # Un dron de una sociedad puede estar en la compañía de un socio y

@@ -20,10 +20,6 @@
                        readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"
                        column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
-                <field name="acpm_campana_id" string="Campaña ACPM" optional="hide"
-                       readonly="not acpm_es"
-                       options="{'no_create': True, 'no_open': True}"
-                       column_invisible="parent.move_type not in ('in_invoice', 'in_refund')"/>
                 <field name="acpm_equipment_id" string="Vehículo ACPM" optional="hide"
                        readonly="not acpm_es"
                        options="{'no_create': True, 'no_open': True}"

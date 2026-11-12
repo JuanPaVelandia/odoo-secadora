@@ -30,8 +30,8 @@
                                 <tr>
                                     <td style="width: 15%;"><strong>A cuenta de:</strong></td>
                                     <td style="width: 35%;"><span t-field="o.dueno_id"/></td>
-                                    <td style="width: 15%;"><strong>Campaña:</strong></td>
-                                    <td style="width: 35%;"><span t-field="o.campana_id"/></td>
+                                    <td style="width: 15%;"><strong>Cosecha:</strong></td>
+                                    <td style="width: 35%;" t-out="', '.join(sorted(set((o.jornal_ids.cosecha_id | o.maquinaria_ids.cosecha_id).mapped('name')))) or '—'"/>
                                 </tr>
                                 <tr>
                                     <td><strong>Fecha:</strong></td>

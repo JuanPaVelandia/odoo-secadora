@@ -31,14 +31,15 @@ class FincaLiquidacion(models.Model):
     name = fields.Char(
         string='Número', required=True, copy=False, readonly=True, index=True,
         default=lambda self: 'Nuevo')
+    # Periodo interno de los saldos: sale de la fecha y no se muestra.
     campana_id = fields.Many2one(
         'finca.campana', string='Campaña', required=True, index=True,
-        default=lambda self: self.env['finca.campana']._get_campana())
+        compute='_compute_campana_id', store=True, readonly=False)
     dueno_id = fields.Many2one(
         'res.partner', string='A cuenta de', required=True, index=True,
         domain=[('es_dueno_finca', '=', True)],
-        help='Dueño cuyas labores se pagan. Los saldos se cargan de su cuenta '
-             'en la campaña.')
+        help='Dueño cuyas labores se pagan. Se cargan los saldos pendientes '
+             'de sus operadores.')
     fecha = fields.Date(string='Fecha', required=True, default=fields.Date.context_today)
     receptor_id = fields.Many2one(
         'res.partner', string='Recibe el pago',
@@ -103,6 +104,13 @@ class FincaLiquidacion(models.Model):
             if vals.get('name', 'Nuevo') == 'Nuevo':
                 vals['name'] = self.env['ir.sequence'].next_by_code('finca.liquidacion') or 'Nuevo'
         return super().create(vals_list)
+
+    @api.depends('fecha')
+    def _compute_campana_id(self):
+        Campana = self.env['finca.campana']
+        for rec in self:
+            if rec.state in (False, 'borrador'):
+                rec.campana_id = Campana._get_campana(rec.fecha)
 
     @api.depends('linea_ids.monto')
     def _compute_total(self):
@@ -219,6 +227,72 @@ class FincaLiquidacion(models.Model):
             return False
         return {str(cuenta.id): round(maquinaria * 100.0 / total, 2)}
 
+    def _distribucion_cosecha(self, operador):
+        """Cosecha del gasto de un operador en el giro, en porcentaje.
+
+        Sale de los trabajos que paga esta liquidación (jornales y
+        maquinaria). Si se armó por saldos y no tiene trabajos amarrados, de
+        todo lo trabajado por el operador para el dueño en el periodo. Lo que
+        no tiene cosecha queda sin ella (la distribución suma menos de 100).
+        """
+        self.ensure_one()
+        por_cosecha = {}
+        trabajos = (self.jornal_ids.filtered(lambda j: j.operador_id == operador),
+                    self.maquinaria_ids.filtered(lambda m: m.operador_id == operador))
+        if any(trabajos):
+            total = 0.0
+            for j in trabajos[0]:
+                total += j.total
+                if j.cosecha_id:
+                    por_cosecha[j.cosecha_id.id] = por_cosecha.get(j.cosecha_id.id, 0.0) + j.total
+            for m in trabajos[1]:
+                total += m.valor
+                if m.cosecha_id:
+                    por_cosecha[m.cosecha_id.id] = por_cosecha.get(m.cosecha_id.id, 0.0) + m.valor
+        else:
+            self.env.flush_all()
+            filas = self.env['finca.labor.movimiento'].sudo()._read_group(
+                [('campana_id', '=', self.campana_id.id),
+                 ('dueno_id', '=', self.dueno_id.id),
+                 ('operador_id', '=', operador.id),
+                 ('tipo', '!=', 'pago')],
+                ['cosecha_id'], ['trabajos:sum'])
+            total = sum(v for _c, v in filas)
+            por_cosecha = {c.id: v for c, v in filas if c}
+        if not total or not por_cosecha:
+            return {}
+        dist = {str(c): round(v * 100.0 / total, 2) for c, v in por_cosecha.items()}
+        # Que lo cubierto sume exacto (100 si todo tiene cosecha).
+        cubierto = round(sum(por_cosecha.values()) * 100.0 / total, 2)
+        ultima = max(dist, key=dist.get)
+        dist[ultima] = round(dist[ultima] + cubierto - sum(dist.values()), 2)
+        return dist
+
+    def _distribucion_giro(self, operador):
+        dist = dict(self._distribucion_maquinaria(operador) or {})
+        dist.update(self._distribucion_cosecha(operador))
+        return dist or False
+
+    def action_aplicar_cosecha(self):
+        """Vuelve a poner la cosecha en las líneas de gasto del asiento del
+        giro (p. ej. si se corrigió la cosecha de un jornal después de pagar).
+        Solo toca la Cosecha; las demás analíticas de la línea se quedan."""
+        plan = self.env['finca.campana']._plan_cosecha()
+        cosechas = self.env['account.analytic.account'].sudo().search([('plan_id', '=', plan.id)])
+        ids_cosecha = {str(c) for c in cosechas.ids}
+        for rec in self:
+            if not rec.move_id:
+                raise UserError('La liquidación %s no tiene asiento del giro.' % rec.name)
+            banco = rec._lineas_banco(rec.move_id)
+            for linea in rec.move_id.line_ids - banco:
+                if not linea.partner_id:
+                    continue
+                dist = {k: v for k, v in (linea.analytic_distribution or {}).items()
+                        if not set(k.split(',')) & ids_cosecha}
+                dist.update(rec._distribucion_cosecha(linea.partner_id))
+                linea.analytic_distribution = dist or False
+            rec.message_post(body='Cosecha aplicada al asiento %s.' % rec.move_id.name)
+
     def action_registrar_giro(self):
         """Crea y publica el asiento del giro: una línea de gasto por operador
         (con el operador como contacto) contra la cuenta del banco."""
@@ -238,14 +312,14 @@ class FincaLiquidacion(models.Model):
             receptor = rec.receptor_id
             if not receptor and len(rec.linea_ids) == 1:
                 receptor = rec.linea_ids.operador_id
-            etiqueta = 'Anticipo labores %s · %s' % (rec.name, rec.campana_id.name)
+            etiqueta = 'Anticipo labores %s · %s' % (rec.name, rec.dueno_id.name)
             lineas = [(0, 0, {
                 'account_id': cuenta.id,
                 'partner_id': l.operador_id.id,
                 'name': etiqueta,
                 'debit': l.monto,
                 'credit': 0.0,
-                'analytic_distribution': rec._distribucion_maquinaria(l.operador_id),
+                'analytic_distribution': rec._distribucion_giro(l.operador_id),
             }) for l in rec.linea_ids]
             lineas.append((0, 0, {
                 'account_id': rec.journal_id.default_account_id.id,
@@ -336,7 +410,7 @@ class FincaLiquidacion(models.Model):
                 'name': etiqueta,
                 'debit': l.monto,
                 'credit': 0.0,
-                'analytic_distribution': self._distribucion_maquinaria(l.operador_id),
+                'analytic_distribution': self._distribucion_giro(l.operador_id),
             }) for l in self.linea_ids] + [
                 (1, l.id, {'partner_id': receptor.id}) for l in banco if receptor],
         })
